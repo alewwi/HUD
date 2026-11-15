@@ -19,7 +19,7 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { эпоха, явнаяМагия, приземлённое, современныйВид } from '../era.js?v=23.89.33';
+import { эпоха, явнаяМагия, приземлённое, эпохаОблика, магияОблика, блокПодМагию } from '../era.js?v=23.89.34';
 
   let счёт = 0;
   const id = (п) => `fx-${п}-${(++счёт).toString(36)}`;
@@ -534,7 +534,8 @@ import { эпоха, явнаяМагия, приземлённое, совре�
     ['sched', '.era-hours:not(.fx-hours)', светила],
     ['trust', '.era-lamp:not(.fx-lamps)', огонёк],
     ['place', '.era-post:not(.fx-arcane)', указатель],
-    ['seals', '.hud-seal.era-wax:not(.fx-arcane-seal), .era-seal:not(.fx-arcane-seal) > svg:first-child', (el) => печать(el.matches('svg') ? el.parentElement : el)],
+    ['seals', '.hud-seal.era-wax:not(.fx-arcane-seal)', печать],
+    ['status', '.era-seal:not(.fx-arcane-seal) > svg:first-child', (el) => печать(el.parentElement)],
   ];
 
 
@@ -771,9 +772,10 @@ import { эпоха, явнаяМагия, приземлённое, совре�
   /* ─────────────────────────────── проход ─────────────────────────────── */
 
   const список = () => {
-    const э = эпоха();
-    if (э === 'fantasy-modern') return приземлённое() ? СОВРЕМЕННОЕ_ПРИЗЕМЛЁННОЕ : СОВРЕМЕННОЕ;
-    if (э === 'fantasy-medieval') return приземлённое() ? СРЕДНЕВЕКОВОЕ_ПРИЗЕМЛЁННОЕ : СРЕДНЕВЕКОВОЕ;
+    // Эпоха облика: при скрытой магии — фэнтези-вариант базы для выбранных блоков.
+    const э = эпохаОблика(), земля = магияОблика() === 'grounded';
+    if (э === 'fantasy-modern') return земля ? СОВРЕМЕННОЕ_ПРИЗЕМЛЁННОЕ : СОВРЕМЕННОЕ;
+    if (э === 'fantasy-medieval') return земля ? СРЕДНЕВЕКОВОЕ_ПРИЗЕМЛЁННОЕ : СРЕДНЕВЕКОВОЕ;
     return [];
   };
   /** Все селекторы фэнтези — для наблюдателя вставок (era-medieval.js). */
@@ -785,12 +787,13 @@ import { эпоха, явнаяМагия, приземлённое, совре�
   export function преобразитьФэнтези(корень) {
     if (!корень || корень.nodeType !== 1) return;
     const э = эпоха();
+    // Телефон переодевается только при общедоступной магии: с ним меняется и промт.
     if (э === 'fantasy-modern' && телефонДля !== (приземлённое() ? 'g' : 'h')) {
       телефонДля = приземлённое() ? 'g' : 'h';
       try { (приземлённое() ? горыТелефона : кругиТелефона)(корень); } catch (e) { console.warn('[TavernOS HUD] телефон фэнтези', e); }
     }
     for (const [ключ, с, пересобрать] of список()) {
-      if (современныйВид(ключ)) continue;
+      if (!блокПодМагию(ключ)) continue;
       for (const старый of найти(корень, с)) {
         try { const новый = пересобрать(старый); if (новый) старый.replaceWith(новый); } catch (e) { console.warn('[TavernOS HUD] фэнтези', с, e); }
       }

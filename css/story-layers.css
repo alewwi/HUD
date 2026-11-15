@@ -243,6 +243,7 @@
 .hud-holgen .hud-modal-body { gap: 12px; font-size: 13px; }
 .hud-holgen-lbl { display: block; margin-bottom: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .65; }
 .hud-holgen-lbl small { margin-left: 6px; font-weight: 400; letter-spacing: 0; text-transform: none; opacity: .8; }
+.hud-holgen summary.hud-holgen-lbl { display: list-item; cursor: pointer; }
 .hud-holgen-src { display: flex; flex-wrap: wrap; gap: 6px; }
 .hud-holgen-toggle {
   padding: 4px 11px; border-radius: 999px; font: inherit; font-size: 12px; cursor: pointer; color: inherit; opacity: .55;
@@ -257,12 +258,14 @@
 .hud-holgen-note { margin: 0; font-size: 12px; opacity: .6; }
 .hud-holgen-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
 .hud-holgen-field { display: flex; flex-direction: column; min-width: 0; }
-.hud-holgen-field :is(select, input) {
+.hud-holgen-field :is(select, input, textarea) {
   width: 100%; box-sizing: border-box; padding: 6px 9px; border-radius: 9px; font: inherit; font-size: 12.5px; color: inherit;
   background: rgba(0, 0, 0, .25); border: 1px solid rgba(255, 255, 255, .14);
 }
+.hud-holgen-manual-form { display: grid; gap: 8px; }
+.hud-holgen-manual-form textarea { resize: vertical; }
 .hud-holgen-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
-.hud-holgen-run, .hud-holgen-add {
+.hud-holgen-run, .hud-holgen-add, .hud-holgen-manual-save {
   padding: 7px 16px; border-radius: 999px; border: 0; cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 700; color: #1a0f2a;
   background: linear-gradient(135deg, #e3cdff, var(--hg)); box-shadow: 0 4px 16px -8px var(--hg);
 }

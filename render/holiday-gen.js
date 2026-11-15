@@ -12,11 +12,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.33';
-import { settings } from '../settings.js?v=23.89.33';
-import { старина, заклинанияВМире, дарыВМире, магияСкрыта } from '../era.js?v=23.89.33';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.33';
-import { связьПраздников, разобратьПраздники, праздникиМира, добавитьПраздникиМира, убратьПраздникМира } from './holiday-lore.js?v=23.89.33';
+import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.34';
+import { settings } from '../settings.js?v=23.89.34';
+import { старина, заклинанияВМире, дарыВМире, магияСкрыта } from '../era.js?v=23.89.34';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.34';
+import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.34';
+import { праздникиГода } from './holidays.js?v=23.89.34';
+import { т } from '../i18n.js?v=23.89.34';
 
 const ЖДЁМ_МС = 180000;
 const ЛОР_СИМВОЛОВ = 40000;
@@ -41,7 +43,7 @@ function своиЛорбуки(ctx) {
 // Эпоха для модели: средневековье и какое фэнтези (era.js). Обычная современность — пусто.
 function эпохаПраздников() {
   // Магия в мире (era.js), а не облик: скрытая магия тоже даёт свои праздники.
-  const магия = (заклинанияВМире() ? 'fantasy with overt magic (spells, enchanted things)' : дарыВМире() ? 'grounded fantasy: innate elemental gifts and spirits, no spells or magic tools' : '') + (магияСкрыта() ? ', magic hidden from ordinary society' : '');
+  const магия = (заклинанияВМире() ? 'fantasy with spells and enchanted things' : дарыВМире() ? 'grounded fantasy: innate elemental gifts and spirits, no spells or magic tools' : '') + (магияСкрыта() ? ', magic hidden from ordinary society' : '');
   if (!старина() && !магия) return '';
   return [старина() ? 'medieval' : 'modern', магия].filter(Boolean).join(', ');
 }
@@ -87,7 +89,7 @@ function текстОтвета(raw) {
 let открыто = false;
 
 /** Открыть окно. дата — «Дата» сцены из календаря (для промпта). */
-export async function открытьГенераторПраздников({ дата = '' } = {}) {
+export async function открытьГенераторПраздников({ дата = '', год = null } = {}) {
   if (открыто) return;
   открыто = true;
   const ctx = контекст();
@@ -99,6 +101,7 @@ export async function открытьГенераторПраздников({ д�
   const выбраны = new Set((Array.isArray(settings.holidayLorebooks) && settings.holidayLorebooks.length ? settings.holidayLorebooks : свои).filter(к => книгиВсе.includes(к) || свои.includes(к)));
   const книги = [...new Set([...свои, ...книгиВсе])];
   const источник = (ключ, умолч = true) => settings[ключ] !== undefined ? settings[ключ] !== false : умолч;
+  const подпись = (строка) => escapeHtml(т(строка));
 
   const overlay = document.createElement('div');
   overlay.className = 'hud-modal-overlay';
@@ -125,6 +128,19 @@ export async function открытьГенераторПраздников({ д�
         <div class="hud-holgen-actions"><button type="button" class="hud-holgen-run">✨ Сгенерировать</button><span class="hud-holgen-status" aria-live="polite"></span></div>
         <div class="hud-holgen-result" hidden></div>
         <div class="hud-holgen-have"></div>
+        <details class="hud-holgen-manual">
+          <summary class="hud-holgen-lbl">${подпись('Добавить свой праздник')}</summary>
+          <form class="hud-holgen-manual-form">
+            <div class="hud-holgen-row">
+              <label class="hud-holgen-field"><span class="hud-holgen-lbl">${подпись('Дата')}</span><input name="date" type="text" required maxlength="10" placeholder="21.06" aria-describedby="hud-holgen-date-hint"></label>
+              <label class="hud-holgen-field"><span class="hud-holgen-lbl">${подпись('Название')}</span><input name="name" type="text" required maxlength="80" placeholder="${подпись('Ночь фонарей')}"></label>
+            </div>
+            <p id="hud-holgen-date-hint" class="hud-holgen-note">${подпись('21.06 — каждый год, 21.06.104 — один раз в 104 году.')}</p>
+            <label class="hud-holgen-field"><span class="hud-holgen-lbl">${подпись('Короткое описание')}</span><textarea name="about" rows="2" maxlength="220" placeholder="${подпись('В самый длинный день года жители пускают фонари по реке в память об основателях города.')}"></textarea></label>
+            <div class="hud-holgen-actions"><button type="submit" class="hud-holgen-manual-save">${подпись('Добавить в календарь')}</button><span class="hud-holgen-manual-status" aria-live="polite"></span></div>
+          </form>
+        </details>
+        ${settings.enableEraHolidays !== false ? `<details><summary class="hud-holgen-lbl">${escapeHtml(т('Встроенные праздники эпохи'))}</summary><ul class="hud-holgen-list is-have hud-holgen-era"></ul></details>` : ''}
       </div>
     </div>`;
   document.body.appendChild(overlay);
@@ -132,6 +148,7 @@ export async function открытьГенераторПраздников({ д�
   const статус = окно.querySelector('.hud-holgen-status');
   const итог = окно.querySelector('.hud-holgen-result');
   const есть = окно.querySelector('.hud-holgen-have');
+  const встроенные = окно.querySelector('.hud-holgen-era');
   const кнопка = окно.querySelector('.hud-holgen-run');
   let отмена = null, найдено = [];
 
@@ -140,20 +157,47 @@ export async function открытьГенераторПраздников({ д�
     const список = праздникиМира();
     есть.innerHTML = список.length ? `<div class="hud-holgen-lbl">Уже в календаре · ${список.length}</div><ul class="hud-holgen-list is-have">${список.map(п => `<li data-id="${escapeHtml(п.id)}">${даты(п)}<span class="hud-holgen-name"><b>${escapeHtml(п.имя)}</b>${п.о ? `<small>${escapeHtml(п.о)}</small>` : ''}</span><button type="button" class="hud-holgen-del" aria-label="Убрать из календаря" title="Убрать из календаря">✕</button></li>`).join('')}</ul>` : '';
   };
+  const показатьВстроенные = () => {
+    if (!встроенные) return;
+    const скрытые = скрытыеПраздникиЭпохи();
+    встроенные.innerHTML = праздникиГода(год || new Date().getFullYear()).map(п => {
+      const убран = скрытые.has(п.модели);
+      const подпись = escapeHtml(т(убран ? 'Вернуть' : 'Убрать из календаря'));
+      return `<li data-id="${escapeHtml(п.модели)}"${убран ? ' class="is-off"' : ''}><span class="hud-holgen-name"><b>${escapeHtml(т(п.имя))}</b></span><button type="button" class="hud-holgen-del hud-holgen-era-toggle" aria-pressed="${убран}" aria-label="${подпись}" title="${подпись}">${убран ? '↺' : '✕'}</button></li>`;
+    }).join('');
+  };
   const показатьНайдено = () => {
-    const берём = найдено.filter(п => !п.убран).length;
     итог.hidden = !найдено.length;
+    if (итог.hidden) {
+      итог.innerHTML = '';
+      return;
+    }
+    const берём = найдено.filter(п => !п.убран).length;
     итог.innerHTML = `<div class="hud-holgen-lbl">Нашлось · ${найдено.length} <small>крестик — не брать</small></div>`
       + `<ul class="hud-holgen-list">${найдено.map((п, i) => `<li data-i="${i}"${п.убран ? ' class="is-off"' : ''}>${даты(п)}<span class="hud-holgen-name"><b>${escapeHtml(п.имя)}</b>${п.о ? `<small>${escapeHtml(п.о)}</small>` : ''}</span><button type="button" class="hud-holgen-x" aria-pressed="${!!п.убран}" aria-label="${п.убран ? 'Вернуть' : 'Не брать'}" title="${п.убран ? 'Вернуть' : 'Не брать'}">${п.убран ? '↺' : '✕'}</button></li>`).join('')}</ul>`
       + `<button type="button" class="hud-holgen-add"${берём ? '' : ' disabled'}>Добавить в календарь · ${берём}</button>`;
   };
   показатьЕсть();
+  показатьВстроенные();
 
   const закрыть = () => { if (отмена) отмена.abort(); overlay.remove(); открыто = false; document.removeEventListener('keydown', поEsc, true); };
   const поEsc = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); закрыть(); } };
   document.addEventListener('keydown', поEsc, true);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) закрыть(); });
   окно.querySelector('.hud-modal-x').addEventListener('click', закрыть);
+
+  const форма = окно.querySelector('.hud-holgen-manual-form');
+  форма.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const уведомление = форма.querySelector('.hud-holgen-manual-status');
+    const праздник = нормализоватьПраздник(Object.fromEntries(new FormData(форма)));
+    if (!праздник) { уведомление.textContent = т('Введите название и действительную дату.'); return; }
+    if (!добавитьПраздникиМира([праздник])) { уведомление.textContent = т('Всё это уже есть в календаре'); return; }
+    форма.reset();
+    уведомление.textContent = т('Праздник добавлен в календарь');
+    показатьЕсть();
+    try { связьПраздников().перерисовать?.(); } catch (_) { /* не критично */ }
+  });
 
   окно.addEventListener('click', (e) => {
     const t = e.target.closest('button');
@@ -171,6 +215,10 @@ export async function открытьГенераторПраздников({ д�
       статус.textContent = n ? `Добавлено в календарь: ${n}` : 'Всё это уже есть в календаре';
       найдено = []; показатьНайдено(); показатьЕсть();
       try { связьПраздников().перерисовать?.(); } catch (_) { /* карточки обновятся со следующим ходом */ }
+    } else if (t.matches('.hud-holgen-era-toggle')) {
+      скрытьПраздникЭпохи(t.closest('li').dataset.id, t.getAttribute('aria-pressed') !== 'true');
+      показатьВстроенные();
+      try { связьПраздников().перерисовать?.(); } catch (_) { /* не критично */ }
     } else if (t.matches('.hud-holgen-del')) {
       убратьПраздникМира(t.closest('li').dataset.id); показатьЕсть();
       try { связьПраздников().перерисовать?.(); } catch (_) { /* не критично */ }
@@ -189,6 +237,9 @@ export async function открытьГенераторПраздников({ д�
     const лорВкл = источник('holidayUseLore'), персонаВкл = источник('holidayUsePersona'), картаВкл = источник('holidayUseCard');
     if (!лорВкл && !персонаВкл && !картаВкл) { статус.textContent = 'Выберите хотя бы один источник'; return; }
     отмена = new AbortController();
+    const { signal } = отмена;
+    найдено = [];
+    показатьНайдено();
     кнопка.textContent = 'Остановить';
     окно.classList.add('is-busy');
     let безHud = false;
@@ -200,6 +251,7 @@ export async function открытьГенераторПраздников({ д�
       if (лорВкл) {
         const имена = [...окно.querySelectorAll('.hud-holgen-book input:checked')].map(и => и.value);
         const записи = имена.length && с.лорбуки ? await с.лорбуки(имена, '', true) : [];
+        signal.throwIfAborted();
         лор = записи.map(к => `## ${к.name}\n${к.entries.join('\n\n')}`).join('\n\n').slice(0, ЛОР_СИМВОЛОВ);
       }
       if (!карта && !персона && !лор) throw new Error('в выбранных источниках пусто — нечего читать');
@@ -212,10 +264,11 @@ export async function открытьГенераторПраздников({ д�
       безHud = true;
       let таймерОжидания = 0;
       const raw = await Promise.race([
-        отправить(ctx2, system, user, отмена.signal),
+        отправить(ctx2, system, user, signal),
         new Promise((_, reject) => { таймерОжидания = setTimeout(() => { reject(new Error('модель молчит дольше ' + ЖДЁМ_МС / 1000 + ' с')); отмена?.abort(); }, ЖДЁМ_МС); }),
-        new Promise((_, reject) => отмена.signal.addEventListener('abort', () => reject(new DOMException('Отменено', 'AbortError')), { once: true })),
+        new Promise((_, reject) => signal.addEventListener('abort', () => reject(signal.reason), { once: true })),
       ]).finally(() => clearTimeout(таймерОжидания));
+      signal.throwIfAborted();
       найдено = разобратьПраздники(текстОтвета(raw));
       if (!найдено.length) throw new Error('в ответе модели не нашлось праздников в нужном виде — попробуйте ещё раз или другой профиль');
       статус.textContent = '';

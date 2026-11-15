@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.34 — 2026-11-15
+
+- **Era look.** With hidden magic, compatible blocks can use a magical look individually in Customization → Era look. Available looks follow the era and kind of magic. The phone, casket and intercepted or overheard messages follow the world's settings.
+- **World holidays.** Regenerating clears the previous suggestions immediately. Add holidays by hand with a date, title and description, or remove saved entries individually. Built-in holidays can be hidden and restored individually in each chat.
+
 ## 23.89.33 — 2026-11-15
 
 The world is now built from three settings: era, technology and magic. Fantasy arrives in both eras and with two kinds of magic, and people who wield it get mana, abilities with limits, backlash and timed spells.

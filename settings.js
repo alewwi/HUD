@@ -81,6 +81,8 @@ export const defaultSettings = {
   modernComms: 'phone',
   // Блоки, которые в эпохе остаются в современном виде (Кастомизация → Обличье эпохи).
   eraModern: {},
+  // Скрытая магия: блоки, которые всё же переодеты под магию (era.js подМагию).
+  eraMagic: {},
   enableCasket: true,
   enableOverheard: true,
   castAppLetters: true,

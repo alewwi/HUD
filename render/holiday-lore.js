@@ -13,10 +13,10 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.33';
-import { settings } from '../settings.js?v=23.89.33';
-import { добавитьПодсказку } from '../turn-notes.js?v=23.89.33';
-import { раскрывашка } from './fold.js?v=23.89.33';
+import { escapeHtml } from '../utils.js?v=23.89.34';
+import { settings } from '../settings.js?v=23.89.34';
+import { добавитьПодсказку } from '../turn-notes.js?v=23.89.34';
+import { раскрывашка } from './fold.js?v=23.89.34';
 
 const КЛЮЧ = 'tavernosHudHolidays';
 const ДЕНЬ = 864e5;
@@ -67,6 +67,21 @@ export function убратьПраздникМира(id) {
   сохранить();
 }
 
+/** Стабильные названия встроенных праздников, скрытых только в этом чате. */
+export function скрытыеПраздникиЭпохи() {
+  const скрытые = хранилище()?.скрытыеЭпохи;
+  return new Set(Array.isArray(скрытые) ? скрытые : []);
+}
+
+export function скрытьПраздникЭпохи(название, скрыть) {
+  const х = хранилище();
+  if (!х || !название) return;
+  const скрытые = скрытыеПраздникиЭпохи();
+  if (скрыть) скрытые.add(название); else скрытые.delete(название);
+  х.скрытыеЭпохи = [...скрытые];
+  сохранить();
+}
+
 // --- Даты ----------------------------------------------------------------------
 const ДАТА = /^\s*(\d{1,2})[./-](\d{1,2})(?:[./-](\d{2,4}))?\s*$/;
 function разобратьДату(s) {
@@ -106,6 +121,19 @@ function вокруг(сцена) {
 }
 
 // --- Разбор ответа модели --------------------------------------------------------
+export function нормализоватьПраздник(з) {
+  if (!з || typeof з !== 'object') return null;
+  const имя = String(з.name ?? з.title ?? з.название ?? '').trim().slice(0, 80);
+  const д = разобратьДату(з.date ?? з.дата ?? '');
+  if (!имя || !д) return null;
+  const день = new Date(0);
+  день.setUTCFullYear(д.y ?? 2000, д.mo - 1, д.d);
+  if (день.getUTCMonth() !== д.mo - 1) return null;
+  const ежегодно = з.yearly === false || з.once === true ? false : !(д.y && з.yearly !== true);
+  const дата = `${дд(д.d)}.${дд(д.mo)}` + (д.y && !ежегодно ? '.' + д.y : '');
+  return { имя, дата, о: String(з.about ?? з.description ?? з.описание ?? '').trim().slice(0, 220), ежегодно };
+}
+
 /**
  * Ответ модели → [{ имя, дата, о, ежегодно }]. Ждём JSON-список; терпим
  * обёртку ```json, рассуждения до него, объект { holidays: [...] } и
@@ -126,14 +154,8 @@ export function разобратьПраздники(ответ) {
   if (данные && !Array.isArray(данные)) данные = данные.holidays || данные.events || данные.items || Object.values(данные).find(Array.isArray) || [];
   const out = [];
   for (const з of Array.isArray(данные) ? данные : []) {
-    if (!з || typeof з !== 'object') continue;
-    const имя = String(з.name ?? з.title ?? з.название ?? '').trim().slice(0, 80);
-    const д = разобратьДату(з.date ?? з.дата ?? '');
-    if (!имя || !д) continue;
-    const ежегодно = з.yearly === false || з.once === true ? false : !(д.y && з.yearly !== true);
-    const дата = `${дд(д.d)}.${дд(д.mo)}` + (д.y && !ежегодно ? '.' + д.y : '');
-    if (out.some(п => п.имя.toLowerCase() === имя.toLowerCase() && п.дата === дата)) continue;
-    out.push({ имя, дата, о: String(з.about ?? з.description ?? з.описание ?? '').trim().slice(0, 220), ежегодно });
+    const праздник = нормализоватьПраздник(з);
+    if (праздник && !out.some(п => п.имя.toLowerCase() === праздник.имя.toLowerCase() && п.дата === праздник.дата)) out.push(праздник);
   }
   return out;
 }

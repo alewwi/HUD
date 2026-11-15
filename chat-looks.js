@@ -16,15 +16,15 @@
 //
 // Картинка фона в снимок не входит: она тяжёлая (до 3 МБ) и общая.
 
-import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.33';
-import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.33';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.33';
-import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.33';
-import { escapeHtml } from './utils.js?v=23.89.33';
-import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.33';
+import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.34';
+import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.34';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.34';
+import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.34';
+import { escapeHtml } from './utils.js?v=23.89.34';
+import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.34';
 
 // Эпоха — тоже вид истории: в средневековом чате нет телефона.
-const ЭПОХА = ['era', 'fantasyMagic', 'magicPresence', 'techLevel', 'modernComms', 'eraModern'];
+const ЭПОХА = ['era', 'fantasyMagic', 'magicPresence', 'techLevel', 'modernComms', 'eraModern', 'eraMagic'];
 const ЕЩЁ = ['themePreset', 'themePalette', 'iconSet', 'glassType', 'themeScene', 'noImages', 'headerOrnament', 'avatarDeco', 'avatarShape', 'sceneHidden'];
 // Не вид или не для снимка: картинки тяжёлые, остальное — поведение окна.
 const НЕ_В_СНИМОК = new Set(['bgImage', 'customDetailMode', 'customClickNav', 'tokenBudget', 'containerQueries', 'startingStyle', 'themeSwitchFade', 'secretsAutoRaise']);

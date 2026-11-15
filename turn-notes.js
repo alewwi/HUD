@@ -20,15 +20,15 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.33';
-import { статусОбещания } from './hud-expand.js?v=23.89.33';
-import { полеВкл } from './deep-fields.js?v=23.89.33';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.33';
-import { namesLikelySame } from './names.js?v=23.89.33';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.33';
-import { праздникиГода } from './render/holidays.js?v=23.89.33';
-import { заметкаПраздниковМира } from './render/holiday-lore.js?v=23.89.33';
-import { заметкаСил } from './render/powers.js?v=23.89.33';
+import { settings } from './settings.js?v=23.89.34';
+import { статусОбещания } from './hud-expand.js?v=23.89.34';
+import { полеВкл } from './deep-fields.js?v=23.89.34';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.34';
+import { namesLikelySame } from './names.js?v=23.89.34';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.34';
+import { праздникиГода } from './render/holidays.js?v=23.89.34';
+import { заметкаПраздниковМира, скрытыеПраздникиЭпохи } from './render/holiday-lore.js?v=23.89.34';
+import { заметкаСил } from './render/powers.js?v=23.89.34';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -623,7 +623,8 @@ const ДНЕЙ_ПОДГОТОВКИ = 5;
 function заметкаПраздников(х, снимок, цель, сцена) {
   if (!Number.isFinite(сцена)) return '';
   const год = new Date(сцена).getUTCFullYear();
-  const дни = [...праздникиГода(год - 1, снимок), ...праздникиГода(год, снимок), ...праздникиГода(год + 1, снимок)];
+  const скрытые = скрытыеПраздникиЭпохи();
+  const дни = [год - 1, год, год + 1].flatMap(г => праздникиГода(г, снимок)).filter(п => !скрытые.has(п.модели));
   const вперёд = дни.map(п => ({ ...п, через: Math.round((п.дата - сцена) / ДЕНЬ) }));
   const сегодня = вперёд.find(п => п.через === 0);
   if (сегодня && нота('hol.now')) return `Today is ${сегодня.модели}: if this setting has it, people around mark it the way this place and era do. It can stay in the background.`;

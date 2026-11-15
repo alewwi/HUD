@@ -436,14 +436,14 @@
   --e-gold: color-mix(in oklab, color-mix(in oklab, #d4a03c 70%, var(--hud-accent)) 62%, var(--fx-arc));
 }
 /* Лист — со звёздной картой водяным знаком: созвездия бледными линиями. */
-:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era.sheet.fx-arcane::after {
+.era.sheet.fx-arcane::after {
   content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; z-index: 0; opacity: .13;
   background: var(--ink);
   -webkit-mask: var(--fx-starmap) center / 240px 160px repeat; mask: var(--fx-starmap) center / 240px 160px repeat; }
-:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] {
+:root:is([data-hud-era="medieval"], [data-hud-era="fantasy-medieval"])[data-hud-magic="high"] {
   --fx-starmap: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'%3E%3Cg fill='none' stroke='%23000' stroke-width='.6'%3E%3Cpath d='M18 30L44 22L62 38L90 30M62 38L58 64L80 78M170 20L190 36L214 28L226 50L204 62L190 36M120 110L146 98L170 112L160 136L132 132ZM30 120L52 104L70 124'/%3E%3C/g%3E%3Cg%3E%3Ccircle cx='18' cy='30' r='1.6'/%3E%3Ccircle cx='44' cy='22' r='1.2'/%3E%3Ccircle cx='62' cy='38' r='2'/%3E%3Ccircle cx='90' cy='30' r='1.2'/%3E%3Ccircle cx='58' cy='64' r='1.4'/%3E%3Ccircle cx='80' cy='78' r='1.1'/%3E%3Ccircle cx='170' cy='20' r='1.4'/%3E%3Ccircle cx='190' cy='36' r='2'/%3E%3Ccircle cx='214' cy='28' r='1.2'/%3E%3Ccircle cx='226' cy='50' r='1.5'/%3E%3Ccircle cx='204' cy='62' r='1.1'/%3E%3Ccircle cx='120' cy='110' r='1.3'/%3E%3Ccircle cx='146' cy='98' r='1.8'/%3E%3Ccircle cx='170' cy='112' r='1.2'/%3E%3Ccircle cx='160' cy='136' r='1.4'/%3E%3Ccircle cx='132' cy='132' r='1.1'/%3E%3Ccircle cx='30' cy='120' r='1.2'/%3E%3Ccircle cx='52' cy='104' r='1.6'/%3E%3Ccircle cx='70' cy='124' r='1.1'/%3E%3Ccircle cx='110' cy='18' r='.8'/%3E%3Ccircle cx='140' cy='52' r='.8'/%3E%3Ccircle cx='96' cy='140' r='.8'/%3E%3Ccircle cx='220' cy='130' r='.8'/%3E%3C/g%3E%3C/svg%3E");
 }
-:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era.fx-arcane > * { position: relative; z-index: 1; }
+.era.fx-arcane > * { position: relative; z-index: 1; }
 
 /* Колдовские свечи */
 .fx-cand { margin: 0; display: grid; justify-items: center; text-align: center; gap: 1px; min-width: 0; }
@@ -461,13 +461,13 @@
 .fx-cand .nm { font: 600 11px/1.1 var(--fh, Georgia, serif); color: var(--e-rubric); letter-spacing: .04em; }
 .fx-cand .st { font-size: 11px; font-style: italic; color: var(--ink-soft); line-height: 1.2; }
 .fx-cand.is-low svg { filter: saturate(.7); }
-:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-cand .row4 { align-items: end; }
-:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .fx-night-m svg { filter: drop-shadow(0 0 5px color-mix(in oklab, var(--fx-arc) 60%, transparent)); }
+.era-cand.fx-arcane .row4 { align-items: end; }
+.fx-night-m svg { filter: drop-shadow(0 0 5px color-mix(in oklab, var(--fx-arc) 60%, transparent)); }
 
 /* Звёздная грамота: натальный круг */
-:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-birth.fx-natal { grid-template-columns: 104px minmax(0, 1fr); align-items: center; }
+.era.era-birth.fx-natal { grid-template-columns: 104px minmax(0, 1fr); align-items: center; }
 .fx-natal .natal { width: 104px; height: 104px; overflow: visible; }
-@media (max-width: 460px) { :root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-birth.fx-natal { grid-template-columns: 84px minmax(0, 1fr); } .fx-natal .natal { width: 84px; height: 84px; } }
+@media (max-width: 460px) { .era.era-birth.fx-natal { grid-template-columns: 84px minmax(0, 1fr); } .fx-natal .natal { width: 84px; height: 84px; } }
 .fx-natal .natal .ring { fill: none; stroke: var(--ink); stroke-opacity: .7; stroke-width: .7; } .fx-natal .natal .ring.thin { stroke-opacity: .4; stroke-width: .5; }
 .fx-natal .natal .ring-o { fill: none; stroke: var(--e-gold); stroke-width: 1.1; stroke-dasharray: .8 1.6; }
 .fx-natal .natal .sec { fill: color-mix(in oklab, var(--ink) 4%, transparent); stroke: var(--ink); stroke-opacity: .35; stroke-width: .45; }
@@ -477,9 +477,9 @@
 .fx-natal .natal .ini { font: 700 20px var(--fh, Georgia, serif); fill: var(--ink); }
 
 /* Лист целителя: зодиакальное кольцо */
-:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-leech.fx-healer { grid-template-columns: 156px minmax(0, 1fr); }
-:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-leech.fx-healer > svg.fx-healer-chart { width: 156px; height: 154px; overflow: visible; }
-@media (max-width: 460px) { :root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-leech.fx-healer { grid-template-columns: minmax(0, 1fr); justify-items: center; } :root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-leech.fx-healer > svg.fx-healer-chart { width: 150px; height: 148px; } }
+.era.era-leech.fx-healer { grid-template-columns: 156px minmax(0, 1fr); }
+.era.era-leech.fx-healer > svg.fx-healer-chart { width: 156px; height: 154px; overflow: visible; }
+@media (max-width: 460px) { .era.era-leech.fx-healer { grid-template-columns: minmax(0, 1fr); justify-items: center; } .era.era-leech.fx-healer > svg.fx-healer-chart { width: 150px; height: 148px; } }
 .fx-healer .fx-zodiac .o { fill: none; stroke: var(--ink); stroke-opacity: .4; stroke-width: .6; } .fx-healer .fx-zodiac .o.thin { stroke-dasharray: .8 1.8; stroke: var(--e-gold); stroke-opacity: .8; }
 .fx-healer .fx-zodiac .tick { fill: none; stroke: var(--ink); stroke-opacity: .35; stroke-width: .45; }
 .fx-healer .fx-zg { font-size: 7.4px; fill: var(--ink); opacity: .7; } .fx-healer .fx-zg.is-on { fill: var(--fx-arc-hi); opacity: 1; filter: drop-shadow(0 0 1.6px var(--fx-arc)); }
@@ -500,7 +500,7 @@
 @keyframes fx-bob { from { transform: translateY(1px); } to { transform: translateY(-1.5px); } }
 
 /* Печати с рунным кольцом */
-:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .fx-arcane-seal, :root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-seal { --e-wax: color-mix(in oklab, var(--fx-arc) 45%, #3a1050); }
+.fx-arcane-seal { --e-wax: color-mix(in oklab, var(--fx-arc) 45%, #3a1050); }
 .fx-seal-ring { fill: none; stroke: var(--fx-arc-hi); stroke-width: .6; filter: drop-shadow(0 0 2px var(--fx-arc)); } .fx-seal-ring .thin { stroke-width: .35; stroke-dasharray: 1 1.6; }
 .fx-seal-ring .rune { stroke-width: 1.6; }
 

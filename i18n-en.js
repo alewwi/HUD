@@ -6,6 +6,22 @@
 // Шаблоны — для строк с числами и вставками («3 трека», «с хода 5»).
 
 export const СЛОВАРЬ_EN = {
+  "Встроенные праздники эпохи": "Built-in era holidays",
+  "Добавить свой праздник": "Add your own holiday",
+  "Короткое описание": "Short description",
+  "Ночь фонарей": "Night of Lanterns",
+  "21.06 — каждый год, 21.06.104 — один раз в 104 году.": "21.06 repeats every year. 21.06.104 happens once in the year 104.",
+  "В самый длинный день года жители пускают фонари по реке в память об основателях города.": "On the longest day of the year, people float lanterns down the river to honor the city’s founders.",
+  "Добавить в календарь": "Add to calendar",
+  "Введите название и действительную дату.": "Enter a title and a valid date.",
+  "Праздник добавлен в календарь": "Holiday added to the calendar",
+  "Есть ли в мире магия и знает ли о ней общество. Скрытая — мир с виду обычный, блоки не переодеваются (любой можно переодеть «под магию» в «Кастомизации → Обличье эпохи»), но модель и блоки сил знают о магии. Общедоступная — эпоха фэнтези: оформление блоков меняется вместе с магией.": "Whether the world has magic and whether society knows about it. Hidden — the world looks ordinary and blocks keep their look (any block can still be restyled \"for magic\" in Customization → Era look), but the model and the power blocks know about magic. Open — a fantasy era: block styling changes along with the magic.",
+  "Современность": "Modern",
+  "магия скрыта": "magic hidden",
+  "врождённые силы": "innate powers",
+  "заклинания": "spells",
+  "Магия скрыта, поэтому мир с виду обычный. Любой блок можно всё же переодеть «под магию» — остальные останутся как есть. Блок можно вернуть к современному виду или сменить сам вид в группах ниже — тогда эпоха его не трогает. Телефон здесь не настраивается: с ним меняется и промт.": "Magic is hidden, so the world looks ordinary. Any block can still be restyled \"for magic\" — the rest stay as they are. A block can go back to the modern look, or its view can be changed in the groups below — then the era leaves it alone. The phone isn't set here: changing it changes the prompt too.",
+  "В современности без магии блоки не переодеваются. Эпоха и магия выбираются в настройках HUD: «Блоки HUD» → «Эпоха, технологии и магия».": "In the modern era without magic, blocks keep their look. Era and magic are chosen in the HUD settings: HUD blocks → Era, technology and magic.",
   "Эпоха, технологии и магия": "Era, technology and magic",
   "Эпоха": "Era",
   "Технологии": "Technology",
@@ -22,7 +38,6 @@ export const СЛОВАРЬ_EN = {
   "Врождённые силы — стихии и духи, без заклинаний и порталов": "Innate powers — elements and spirits, no spells or portals",
   "Эпоха выбирает пару блоков и их оформление: в современности — телефон и перехваты, в средневековье — шкатулка и подслушанное": "The era picks the pair of blocks and their styling: in the modern era — phone and intercepts, in the medieval — casket and overheard talk",
   "Уровень техники в мире — подсказка модели, чего здесь нет и что есть. Пару блоков (телефон или шкатулку) выбирает эпоха. «Из карточки и лорбука» — модель берёт уровень оттуда сама.": "The level of technology in the world — a hint to the model about what exists here and what doesn't. The pair of blocks (phone or casket) is chosen by the era. \"From the card and lorebook\" — the model takes the level from there itself.",
-  "Есть ли в мире магия и знает ли о ней общество. Скрытая — мир с виду обычный, блоки не переодеваются, но модель и блоки сил знают о магии. Общедоступная — эпоха фэнтези: оформление блоков меняется вместе с магией.": "Whether the world has magic and whether society knows about it. Hidden — the world looks ordinary and blocks keep their look, but the model and the power blocks know about magic. Open — a fantasy era: block styling changes along with the magic.",
   "Какая в мире магия: она меняет то, что модель может придумать, а при общедоступной — и оформление блоков": "What kind of magic the world has: it changes what the model may invent, and with open magic, the block styling too",
   "Три настройки независимы — так собирается почти любой мир: средневековье без магии, современность со скрытыми демонами, стихии без заклинаний. Эпоха выбирает пару блоков: в современности — телефон и перехваты, в средневековье (любой век до телефонов) — шкатулка с письмами, святцами, кошелём, записями, картой, грамотами и памятками и подслушанные разговоры. Технологии подсказывают модели, чего в мире нет. Магия: скрытая не меняет вид блоков; общедоступная — это эпоха фэнтези: с заклинаниями телефон зачарован, шкатулка становится ларцом чародея, письма приносят вороны; с врождёнными силами заклинаний и порталов нет, письма носят гонцы и ястребы. Особенности мира — кто владеет магией, как она зовётся, чего не может — модель берёт из карточки и лорбука, настройки задают только рамку. Что из оформления вернуть к современному виду — в «Кастомизации», раздел «Обличье эпохи».": "The three settings are independent, so almost any world can be built: the Middle Ages without magic, the modern day with hidden demons, elements without spells. The era picks the pair of blocks: in the modern era — phone and intercepts; in the medieval (any age before phones) — a casket with letters, a calendar, a purse, notes, a map, documents and keepsakes, plus overheard talk. Technology tells the model what the world lacks. Magic: hidden magic doesn't change how blocks look; open magic is a fantasy era — with spells the phone is enchanted, the casket becomes a sorcerer's coffer and ravens bring letters; with innate powers there are no spells or portals and riders and hawks carry letters. The world's particulars — who wields magic, what it is called, what it cannot do — the model takes from the card and lorebook; the settings only set the frame. Which styling to return to the modern look — in Customization, the Era look section.",
   "Шкала показывает стадию; держится, пока модель не напишет, что прошло. В приземлённом фэнтези здесь же отдача дара — лесенка из четырёх ступеней и сколько ей ещё держаться по времени сюжета": "The scale shows the stage; it stays until the model writes that it has passed. In fantasy eras magical backlash lives here too — a ladder of four stages and how long it will last by story time",
@@ -104,6 +119,9 @@ export const СЛОВАРЬ_EN = {
   "звёздная грамота": "star charter",
   "свидетельство мага": "mage certificate",
   "дорожный указатель": "signpost",
+  "указатель с рунами": "runic signpost",
+  "свиток лекаря": "physician's scroll",
+  "лента с рунной печатью": "ribbon with a runic seal",
   "лей-линия": "ley line",
   "лист лекаря": "leech-sheet",
   "лист целителя": "healer sheet",
@@ -5899,6 +5917,7 @@ export const СЛОВАРЬ_EN = {
 };
 
 export const ШАБЛОНЫ_EN = [
+  ["^Под магию — (.+)$", "For magic — $1"],
   ["^([1-4]) из 4 · (.+)$", "$1 of 4 · $2"],
   ["^полная к (\\d{1,2}:\\d{2}), если отдыхать$", "full by $1 with rest"],
   ["^\\+(\\d+) за час отдыха$", "+$1 per hour of rest"],

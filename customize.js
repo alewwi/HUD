@@ -5,21 +5,21 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.33';
-import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.33';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.33';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.33';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.33';
-import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире } from './era.js?v=23.89.33';
-import { порядокГрупп } from './tabs-order.js?v=23.89.33';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.33';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.33';
-import { hudБлоки } from './hud-block.js?v=23.89.33';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.33';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.33';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.33';
-import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.33';
-import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.33';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.34';
+import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.34';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.34';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.34';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.34';
+import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху } from './era.js?v=23.89.34';
+import { порядокГрупп } from './tabs-order.js?v=23.89.34';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.34';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.34';
+import { hudБлоки } from './hud-block.js?v=23.89.34';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.34';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.34';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.34';
+import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.34';
+import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.34';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 // Язык из таблицы переводчика: английский пример с переведёнными кусками
 // (render/sample-translate.js), пересобирается при смене языка или файла.
@@ -32,13 +32,13 @@ const пример = () => {
   return примерТаблицы;
 };
 const текстПримера = (s) => (ключЯзыкаТаблицы() ? отобразитьСтроку(s, (к) => строкаТаблицы(к) || к) : s);
-import { задатьПримерСемьи } from './render/conception.js?v=23.89.33';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.33';
-import { привязатьИсторию } from './render/intimacy.js?v=23.89.33';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.33';
-import { собратьРисунок } from './render/lazy-svg.js?v=23.89.33';
-import { attachHelpMarks } from './help.js?v=23.89.33';
-import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.33';
+import { задатьПримерСемьи } from './render/conception.js?v=23.89.34';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.34';
+import { привязатьИсторию } from './render/intimacy.js?v=23.89.34';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.34';
+import { собратьРисунок } from './render/lazy-svg.js?v=23.89.34';
+import { attachHelpMarks } from './help.js?v=23.89.34';
+import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.34';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -402,26 +402,37 @@ const ВИДЫ_ЭПОХИ = {
   bodyStateView: { batteries: 'body', flasks: 'flasks' }, ageView: { id: 'age' }, placeView: { crumbs: 'place' }, physView: { readout: 'phys' },
   scheduleView: { tickets: 'sched' }, trustView: { traffic: 'trust' }, linesView: { script: 'lines' }, statusView: { toggles: 'status' }, memoriesView: { polaroid: 'memories' },
 };
-const строкаОбличья = (ключ, подпись, вид, современно) => `<div class="hud-theme-row hud-era-look-row"><label>${escapeHtml(подпись)}</label><select class="hud-theme-select-input hud-era-look-input" data-era-look="${ключ}">`
-  + `<option value="era"${современныйВид(ключ) ? '' : ' selected'}>${escapeHtml(вид)}</option><option value="modern"${современныйВид(ключ) ? ' selected' : ''}>${escapeHtml(современно)}</option></select></div>`;
-// Под выбором вида блока: этот вид в эпохе — её обличье или как в современности.
+// Варианты блока: «как в эпохе» (обличье эпохи без магии или при общедоступной
+// магии), «как в современности» и — при скрытой магии — «под магию»:
+// мир с виду обычный, а выбранный блок переодет (settings.eraMagic).
+function вариантыОбличья(о) {
+  return { эпохи: о.вид(эпоха(), магия()), подМагию: видПодМагию(о) };
+}
+const значениеОбличья = (ключ) => (современныйВид(ключ) ? 'modern' : подМагию(ключ) ? 'magic' : 'era');
+const выборОбличья = (о, в, современно) => `<select class="hud-theme-select-input hud-era-look-input" data-era-look="${о.ключ}">`
+  + (в.эпохи ? `<option value="era"${значениеОбличья(о.ключ) === 'era' ? ' selected' : ''}>Как в эпохе — ${escapeHtml(в.эпохи)}</option>` : `<option value="era"${значениеОбличья(о.ключ) === 'era' ? ' selected' : ''}>Обычный</option>`)
+  + `<option value="modern"${значениеОбличья(о.ключ) === 'modern' ? ' selected' : ''}>${escapeHtml(современно)}</option>`
+  + (в.подМагию ? `<option value="magic"${значениеОбличья(о.ключ) === 'magic' ? ' selected' : ''}>Под магию — ${escapeHtml(в.подМагию)}</option>` : '')
+  + '</select>';
+// Под выбором вида блока: этот вид в эпохе — её обличье, современный или под магию.
 function обличьеВида(б) {
-  const э = эпоха(), м = магия();
   return Object.entries(ВИДЫ_ЭПОХИ[б.ключ] || {}).map(([вид, ключ]) => {
-    const о = ОБЛИЧЬЯ.find(x => x.ключ === ключ), в = о && о.вид(э, м);
-    return в && б.виды[вид] ? строкаОбличья(ключ, `↳ «${б.виды[вид]}» в эпохе:`, в, `${б.виды[вид]} — как в современности`) : '';
+    const о = ОБЛИЧЬЯ.find(x => x.ключ === ключ);
+    if (!о || !б.виды[вид]) return '';
+    const в = вариантыОбличья(о);
+    if (!в.эпохи && !в.подМагию) return '';
+    return `<div class="hud-theme-row hud-era-look-row"><label>${escapeHtml(`↳ «${б.виды[вид]}» в эпохе:`)}</label>${выборОбличья(о, в, `${б.виды[вид]} — как в современности`)}</div>`;
   }).join('');
 }
-const ИМЕНА_ЭПОХ = { medieval: 'Средневековье', 'fantasy-medieval': 'Средневековое фэнтези', 'fantasy-modern': 'Современное фэнтези' };
+const ИМЕНА_ЭПОХ = { modern: 'Современность', medieval: 'Средневековье', 'fantasy-medieval': 'Средневековое фэнтези', 'fantasy-modern': 'Современное фэнтези' };
 function обликЭпохи() {
-  const э = эпоха(), м = магия();
-  const ряды = ОБЛИЧЬЯ.map(о => [о, о.вид(э, м)]).filter(([, вид]) => вид);
-  const имя = (ИМЕНА_ЭПОХ[э] || '') + (м === 'grounded' ? ', приземлённое' : м === 'high' ? ', явная магия' : '');
-  if (!ряды.length) return `<details class="hud-custom-sub hud-smooth hud-era-looks"><summary>Обличье эпохи</summary><div class="hud-theme-presets-note">В современности блоки не переодеваются. Средневековье и фэнтези выбираются в настройках HUD: «Блоки HUD» → «Эпоха».</div></details>`;
+  const скрыта = магияСкрыта(), м = скрыта ? видМагииВМире() : магия();
+  const ряды = ОБЛИЧЬЯ.map(о => [о, вариантыОбличья(о)]).filter(([, в]) => в.эпохи || в.подМагию);
+  const имя = [ИМЕНА_ЭПОХ[скрыта ? база() : эпоха()] || '', скрыта ? 'магия скрыта' : '', м === 'grounded' ? 'врождённые силы' : м === 'high' ? 'заклинания' : ''].filter(Boolean).map(x => т(x)).join(', ');
+  if (!ряды.length) return `<details class="hud-custom-sub hud-smooth hud-era-looks"><summary>Обличье эпохи</summary><div class="hud-theme-presets-note">В современности без магии блоки не переодеваются. Эпоха и магия выбираются в настройках HUD: «Блоки HUD» → «Эпоха, технологии и магия».</div></details>`;
   return `<details class="hud-custom-sub hud-smooth hud-era-looks"><summary>Обличье эпохи: ${escapeHtml(имя)}</summary><div class="hud-theme-grid">`
-    + ряды.map(([о, вид]) => `<div class="hud-theme-row"><label>${escapeHtml(о.имя)}:</label><select class="hud-theme-select-input hud-era-look-input" data-era-look="${о.ключ}">`
-      + `<option value="era"${современныйВид(о.ключ) ? '' : ' selected'}>Как в эпохе — ${escapeHtml(вид)}</option><option value="modern"${современныйВид(о.ключ) ? ' selected' : ''}>Как в современности</option></select></div>`).join('')
-    + `</div><div class="hud-theme-presets-note">Эпоха переодевает только эти виды. Блок можно вернуть к современному виду или сменить сам вид в группах ниже — тогда эпоха его не трогает. Телефон здесь не настраивается: с ним меняется и промт.</div></details>`;
+    + ряды.map(([о, в]) => `<div class="hud-theme-row"><label>${escapeHtml(о.имя)}:</label>${выборОбличья(о, в, 'Как в современности')}</div>`).join('')
+    + `</div><div class="hud-theme-presets-note">${скрыта ? 'Магия скрыта, поэтому мир с виду обычный. Любой блок можно всё же переодеть «под магию» — остальные останутся как есть. ' : 'Эпоха переодевает только эти виды. '}Блок можно вернуть к современному виду или сменить сам вид в группах ниже — тогда эпоха его не трогает. Телефон здесь не настраивается: с ним меняется и промт.</div></details>`;
 }
 
 function обликИгрока() {
@@ -888,13 +899,18 @@ export function открытьКастомизацию() {
       основа.видыМенялись = true;
       собратьПросмотр(окно);
     });
-    // Обличье эпохи: блок как в эпохе или как в современности.
+    // Обличье эпохи: блок как в эпохе, как в современности или под магию.
     окно.addEventListener('change', (e) => {
       const поле = e.target.closest && e.target.closest('.hud-era-look-input');
       if (!поле) return;
-      const было = { ...(settings.eraModern || {}) };
-      if (поле.value === 'modern') было[поле.dataset.eraLook] = true; else delete было[поле.dataset.eraLook];
+      const ключ = поле.dataset.eraLook;
+      const было = { ...(settings.eraModern || {}) }, магией = { ...(settings.eraMagic || {}) };
+      if (поле.value === 'modern') было[ключ] = true; else delete было[ключ];
+      if (поле.value === 'magic') магией[ключ] = true; else delete магией[ключ];
       settings.eraModern = было;
+      settings.eraMagic = магией;
+      // Колдовские переменные цвета — на корне (era.js отметитьЭпоху), стили — по требованию.
+      отметитьЭпоху();
       // Тот же выбор стоит и в «Обличье эпохи», и под видом блока — держим их вместе.
       окно.querySelectorAll(`.hud-era-look-input[data-era-look="${поле.dataset.eraLook}"]`).forEach(с => { с.value = поле.value; });
       основа.saveSettings();
