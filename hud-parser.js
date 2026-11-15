@@ -12,9 +12,9 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=23.89.41';
-import { hudБлоки } from './hud-block.js?v=23.89.41';
-import { имяБезПриставки } from './utils.js?v=23.89.41';
+import { normalizeJSONData } from './schema.js?v=23.89.42';
+import { hudБлоки, блокКакБыл } from './hud-block.js?v=23.89.42';
+import { имяБезПриставки } from './utils.js?v=23.89.42';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -399,10 +399,16 @@ function repairHudJsonInnerQuotes(jsonStr) {
     if (ключ) return next === ':';
     if (next === undefined) return true;
     const верх = стек[стек.length - 1];
+    // Значение, за которым без запятой сразу следующий ключ «"Wt": …», — конец
+    // строки: запятую потом ставит починка синтаксиса. В HUD одной строкой
+    // иначе кавычки ключа уходили внутрь текста и два поля склеивались.
+    if (next === '"' && верх === '{') return /^"[^"\\\n]{1,60}"\s*:/.test(s.slice(j, j + 70));
     if (next === '}' || next === ']') {
       if ((next === '}' && верх !== '{') || (next === ']' && верх !== '[')) return false;
       const k = значимый(j + 1);
-      return k >= s.length || /[,}\]`]/.test(s[k]);
+      // За скобкой без запятой следующий объект или ключ («} {», «} "ключ"») —
+      // пропущенная запятая, её ставит починка синтаксиса; кавычка закрывает.
+      return k >= s.length || /[,}\]`{["]/.test(s[k]);
     }
     if (next === ',') {
       const k = значимый(j + 1);
@@ -533,7 +539,36 @@ function repairHudJsonSyntax(jsonStr) {
   // Пропущенная запятая между строками списка, стоящими на разных строках
   // («"…"⏎"…"»): внутри строки JSON переноса быть не может, значит это два элемента.
   repaired = repaired.replace(/(?<!\\)"([ \t]*\r?\n\s*)"/g, '",$1"');
-  return repaired;
+  // Строка в фигурных скобках без ключа: «"Fr": {"Ида отдалится: moderate"}» —
+  // модель обернула значение-список в объект. Объекта так не бывает (после
+  // ключа нужно двоеточие), значит это та самая строка.
+  repaired = repaired.replace(/([:[,]\s*)\{\s*("(?:[^"\\]|\\.)*")\s*\}/g, '$1$2');
+  return запятыеМеждуЗначениями(repaired);
+}
+
+// Пропущенная запятая между значениями вне строк: «"…" "ключ": …», «} {»,
+// «"…" {», «] [». В HUD одной строкой переноса между ними нет, и правило
+// выше её не ставит; без неё два поля склеивались в одно, а два персонажа —
+// в одного. После значения JSON ждёт запятую, двоеточие или скобку, так что
+// значение сразу за значением — всегда пропуск.
+function запятыеМеждуЗначениями(s) {
+  let out = '', вСтроке = false, экран = false, послеЗначения = false;
+  for (let i = 0; i < s.length; i++) {
+    const ч = s[i];
+    if (вСтроке) {
+      out += ч;
+      if (экран) экран = false;
+      else if (ч === '\\') экран = true;
+      else if (ч === '"') { вСтроке = false; послеЗначения = true; }
+      continue;
+    }
+    if (/\s/.test(ч)) { out += ч; continue; }
+    if (послеЗначения && (ч === '"' || ч === '{' || ч === '[')) out += ',';
+    out += ч;
+    if (ч === '"') { вСтроке = true; послеЗначения = false; }
+    else послеЗначения = ч === '}' || ч === ']' || /[\w.+-]/.test(ч);
+  }
+  return out;
 }
 
 function repairTruncatedHudJson(jsonStr) {
@@ -597,7 +632,7 @@ export function repairGeneratedHudBlock(aiText) {
   try {
     // Пишется обратно в чат — текст модели как есть, без выравнивания пробелов.
     const parsed = normalizeJSONData(безМеток(разобратьHUDСырой(rawInner)));
-    return `[HUD]\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\`\n[/HUD]`;
+    return блокКакБыл(parsed, rawInner);
   } catch (initialError) {
     const decoded = склеитьРаннийКорень(decodeHighlightedHudHtml(rawInner));
     const candidates = кандидатыHUD(decoded);
@@ -614,7 +649,7 @@ export function repairGeneratedHudBlock(aiText) {
       parsedCandidates.sort((a, b) => b.score - a.score || a.index - b.index);
       const selected = parsedCandidates[0];
       console.debug('[TavernOS HUD] HUD JSON repair result', { mode: selected.mode, candidates: candidates.length });
-      return `[HUD]\n\`\`\`json\n${JSON.stringify(selected.parsed, null, 2)}\n\`\`\`\n[/HUD]`;
+      return блокКакБыл(selected.parsed, rawInner);
     }
     throw new Error('HUD JSON repair failed: ' + (lastError?.message || 'invalid JSON'));
   }

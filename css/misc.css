@@ -1670,6 +1670,16 @@
 .hud-fine-subs { display: flex; flex-wrap: wrap; gap: 3px 12px; margin-left: 24px; padding-left: 8px; border-left: 1px solid var(--hud-border); }
 .hud-fine-subs[data-off] { opacity: .4; pointer-events: none; }
 .hud-fine-item.is-sub { font-size: .92em; gap: 6px; }
+/* Сжатые значения и их размеры (Генерация): подпись размера у галочки и
+   строки «Поле — до N слов». На телефоне поле и числа — в две строки. */
+.hud-sizes-hint { display: block; opacity: .6; font-size: .88em; }
+.hud-sizes-list { display: flex; flex-direction: column; gap: 4px; margin: 6px 0; }
+.hud-sizes-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 2px 10px; padding: 2px 0 2px 6px; border-left: 2px solid transparent; }
+.hud-sizes-row.is-own { border-left-color: var(--hud-border); }
+.hud-sizes-row.is-dirty { border-left-color: var(--hud-accent, #d9a64a); }
+.hud-sizes-name { flex: 1 1 140px; min-width: 0; }
+.hud-sizes-val { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 4px; font-size: .92em; }
+.hud-sizes-val .hud-set-num { width: 52px; }
 
 /* Свои статы: карточка редактора на каждый стат. */
 .hud-cst-list { display: flex; flex-direction: column; gap: 8px; margin: 6px 0; }

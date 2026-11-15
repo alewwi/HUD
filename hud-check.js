@@ -9,10 +9,11 @@
 // честно бывает 'empty', комментариев может не быть вовсе. Ложная тревога
 // здесь стоит лишнего запроса к модели, поэтому лучше промолчать.
 
-import { settings } from './settings.js?v=23.89.41';
-import { extractHudBlock } from './hud-block.js?v=23.89.41';
-import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.89.41';
-import { противоречияБыта } from './render/life.js?v=23.89.41';
+import { settings } from './settings.js?v=23.89.42';
+import { extractHudBlock } from './hud-block.js?v=23.89.42';
+import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.89.42';
+import { противоречияБыта } from './render/life.js?v=23.89.42';
+import { сжатыеПоля, лимитПоля } from './compact-fields.js?v=23.89.42';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const МЕТКА = /<\s*new this turn\b[^>]*>/i;
@@ -46,7 +47,12 @@ export function чегоНеХватает(текстСообщения) {
   // Дневник — настоящая запись, а не мысль или заметка: короче ~220 знаков
   // и меньше трёх предложений — это заметка. Порог мягкий, чтобы не гонять
   // модель из-за записи чуть короче просимой.
-  const короткая = (т) => { const s = String(т || '').replace(/~~.*?~~/g, '').trim(); return s.length < 220 && (s.match(/[.!?…]+(?=\s|$)/g) || []).length < 3; };
+  // Сжатый дневник (compact-fields.js) короче сам по себе: порог — по его
+  // размеру, иначе запись в 30 слов гоняла бы перегенерацию каждый ход.
+  const сжатДневник = сжатыеПоля(settings).includes('dy.tx') ? лимитПоля(settings, 'dy.tx').w : 0;
+  const знаков = сжатДневник ? Math.min(220, сжатДневник * 3) : 220;
+  const предложений = сжатДневник ? Math.min(3, Math.max(2, Math.floor(сжатДневник / 20))) : 3;
+  const короткая = (т) => { const s = String(т || '').replace(/~~.*?~~/g, '').trim(); return s.length < знаков && (s.match(/[.!?…]+(?=\s|$)/g) || []).length < предложений; };
   if (settings.enableDiary && Array.isArray(к.dy) && к.dy.some(з => объект(з) && заполнено(з.tx) && короткая(з.tx))) нет.push('дневник (слишком короткий)');
   if (settings.enableWorld && settings.enableHoroscope !== false && !заполнено(к.wd && к.wd.zd)) нет.push('гороскоп');
   // Бой: раз блок есть, этап и участники обязательны, остальное — нет.

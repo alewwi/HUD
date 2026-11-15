@@ -129,3 +129,170 @@
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-duel-past small { color: #8a6a2a; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-duel-scales .pivot { stroke: #6b5530; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-duel-pan text { fill: var(--hud-text, #3a2a30); }
+
+/* =========================================================================
+   Виды «Столкновение» и «Дебаты» (render/duel.js). Арена и сцена — предметы:
+   тёмные на любой теме; подписи вокруг — по теме.
+   ========================================================================= */
+.hud-duel :is(.hud-clash-shards, .hud-clash-spectrum, .hud-stage-cues, .hud-stage-sway) > small { font-size: var(--hud-fs-xs); letter-spacing: .08em; text-transform: uppercase; color: var(--v-ink-soft); }
+.hud-clash-say, .hud-stage-say { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 3px 5px; margin: 0; font-size: 12px; color: var(--v-ink-soft); }
+.hud-clash-say b, .hud-stage-say b { font-weight: 750; color: var(--hud-text, #ece8f2); }
+.hud-stage-say em { font-style: normal; font-weight: 800; color: #e2bf63; }
+.hud-duel .g0 { --h: #7fc49a; } .hud-duel .g1 { --h: #8ab4e8; } .hud-duel .g2 { --h: #d6b94a; } .hud-duel .g3 { --h: #e0a458; } .hud-duel .g4 { --h: #e46a6a; } .hud-duel .g5 { --h: #ff4f6a; }
+
+/* --- Столкновение --------------------------------------------------------- */
+.hud-clash { display: grid; gap: 10px; }
+.hud-clash-arena { position: relative; aspect-ratio: 320 / 136; border-radius: 14px; overflow: hidden;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.1), 0 0 26px -12px var(--heat), 0 12px 22px -14px rgba(0,0,0,.9); }
+.hud-clash-arena .field { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hud-clash-arena .night { fill: #0a0912; }
+.hud-clash-arena .star { fill: #fff; opacity: .5; }
+.hud-clash-arena .l0 { stop-color: var(--me); stop-opacity: .06; } .hud-clash-arena .l1 { stop-color: var(--me); stop-opacity: .4; } .hud-clash-arena .l2 { stop-color: color-mix(in srgb, var(--me) 55%, #fff); stop-opacity: .9; }
+.hud-clash-arena .r0 { stop-color: var(--them); stop-opacity: .06; } .hud-clash-arena .r1 { stop-color: var(--them); stop-opacity: .4; } .hud-clash-arena .r2 { stop-color: color-mix(in srgb, var(--them) 55%, #fff); stop-opacity: .9; }
+.hud-clash-arena .bolt-glow { fill: none; stroke: var(--heat); stroke-width: 8; stroke-opacity: .85; stroke-linejoin: round; }
+.hud-clash-arena .bolt { fill: none; stroke: color-mix(in srgb, var(--heat) 50%, #fff); stroke-width: 2.6; stroke-linejoin: round; stroke-linecap: round; }
+.hud-clash-arena .bolt-core { fill: none; stroke: #fff; stroke-width: 1; stroke-linejoin: round; }
+.hud-clash-arena :is(.bolt-glow, .bolt, .bolt-core, .was, .push) { vector-effect: non-scaling-stroke; }
+.hud-clash-arena .spark { fill: #fff; } .hud-clash-arena .spark.s1 { fill: var(--heat); } .hud-clash-arena .spark.s2 { fill: color-mix(in srgb, var(--heat) 40%, #fff); }
+.hud-clash-arena .was { stroke: rgba(255,255,255,.45); stroke-width: 1; stroke-dasharray: 3 3; }
+.hud-clash-arena .push { fill: none; stroke: #fff; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 3px rgba(0,0,0,.8)); }
+.hud-clash-arena .push-l { font-size: 9px; font-weight: 800; text-anchor: middle; fill: #fff; paint-order: stroke; stroke: rgba(0,0,0,.6); stroke-width: 2px; }
+.hud-clash-arena .side { position: absolute; top: 52%; z-index: 1; display: grid; justify-items: center; gap: 1px; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.85); transform: translate(-50%, -50%); }
+.hud-clash-arena .side.is-me { --s: var(--me); left: 14%; } .hud-clash-arena .side.is-them { --s: var(--them); left: 86%; }
+.hud-clash-arena .side .hud-duel-face { width: 40px; height: 40px; --v-acc: var(--s); box-shadow: 0 0 0 2px var(--s), 0 0 16px var(--s); }
+.hud-clash-arena .side.is-lead .hud-duel-face { box-shadow: 0 0 0 2px #fff, 0 0 0 4px var(--s), 0 0 28px 6px var(--s); }
+.hud-clash-arena .side:not(.is-lead) { opacity: .85; }
+.hud-clash-arena .side b { max-width: 92px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.hud-clash-arena .side em { font-style: normal; font-size: 18px; font-weight: 800; line-height: 1; color: #fff; }
+.hud-clash-arena .tone { position: absolute; top: 7px; left: 50%; z-index: 1; display: inline-flex; align-items: center; gap: 5px; padding: 2px 10px; border-radius: 999px; transform: translateX(-50%);
+  font-size: 10.5px; font-weight: 750; letter-spacing: .06em; text-transform: uppercase; color: #fff; background: color-mix(in srgb, var(--heat) 32%, rgba(10,8,20,.78));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--heat) 60%, transparent), 0 0 14px -2px var(--heat); }
+.hud-clash-arena .tone .hud-v-ico { width: 12px; height: 12px; }
+.hud-clash-shards { display: grid; gap: 5px; }
+.hud-clash-shards ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 5px; margin: 0; padding: 0; list-style: none; }
+.hud-clash-shards li { --s: #9a94a8; display: grid; grid-template-columns: 16px auto minmax(0, 1fr); align-items: center; gap: 7px; padding: 6px 10px; border-radius: 10px; font-size: 12px; line-height: 1.35;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--s) 16%, transparent), rgba(255,255,255,.02) 70%); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--s) 28%, transparent); }
+.hud-clash-shards li.from-me { --s: var(--me); } .hud-clash-shards li.from-them { --s: var(--them); }
+.hud-clash-shards .shard { width: 16px; height: 16px; transform: rotate(-12deg); filter: drop-shadow(0 0 4px var(--s)); }
+.hud-clash-shards .shard path { fill: color-mix(in srgb, var(--s) 70%, #fff); } .hud-clash-shards .shard .hi { fill: rgba(255,255,255,.75); }
+.hud-clash-shards li small { font-weight: 700; font-variant-numeric: tabular-nums; opacity: .7; }
+.hud-clash-spectrum { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; }
+.hud-clash-spectrum .bar { display: flex; gap: 2px; height: 10px; padding: 2px; border-radius: 999px; background: rgba(0,0,0,.3); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08); }
+.hud-clash-spectrum .bar i.is-none { --h: #555; }
+.hud-clash-spectrum .bar i { flex: 1; border-radius: 999px; background: linear-gradient(180deg, color-mix(in srgb, var(--h) 70%, #fff), var(--h)); opacity: .75; cursor: help; }
+.hud-clash-spectrum .bar i.is-now { opacity: 1; box-shadow: 0 0 0 1.5px #fff, 0 0 8px var(--h); }
+
+/* --- Дебаты --------------------------------------------------------------- */
+.hud-stage { display: grid; gap: 10px; }
+.hud-stage-box { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr) minmax(0, 1fr); align-items: end; gap: 6px; min-height: 178px; padding: 34px 22px 16px; border-radius: 14px; overflow: hidden;
+  background: radial-gradient(90% 70% at 50% 0%, color-mix(in srgb, var(--heat) 22%, #1d0f15), #0c070a 78%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 12px 22px -14px rgba(0,0,0,.9); }
+.hud-stage-box .valance { position: absolute; top: 0; left: 0; right: 0; z-index: 2; height: 20px; background: linear-gradient(180deg, #9a1d30, #5c0c19);
+  -webkit-mask: radial-gradient(circle at 11px 20px, transparent 7.5px, #000 8px) 0 0 / 22px 20px repeat-x; mask: radial-gradient(circle at 11px 20px, transparent 7.5px, #000 8px) 0 0 / 22px 20px repeat-x; }
+.hud-stage-box .valance::after { content: ''; position: absolute; left: 0; right: 0; top: 5px; height: 2px; background: linear-gradient(90deg, #8a6a24, #f0d68a, #8a6a24); }
+.hud-stage-box .curtain { position: absolute; top: 0; bottom: 0; z-index: 2; width: 14%;
+  background: linear-gradient(90deg, rgba(0,0,0,.35), transparent 40%, rgba(0,0,0,.3)), repeating-linear-gradient(90deg, #6a0f1e 0 5px, #9a1d30 5px 9px, #4f0a16 9px 13px);
+  clip-path: polygon(0 0, 100% 0, 60% 48%, 78% 100%, 0 100%); box-shadow: inset -4px 0 10px rgba(0,0,0,.5); }
+.hud-stage-box .curtain.is-l { left: 0; } .hud-stage-box .curtain.is-r { right: 0; transform: scaleX(-1); }
+.hud-stage-box .beam { position: absolute; top: 0; bottom: 18px; z-index: 0; width: 40%; pointer-events: none; opacity: var(--l);
+  background: linear-gradient(180deg, rgba(255,243,210,.6), rgba(255,243,210,.06) 88%); clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%); filter: blur(1.5px); }
+.hud-stage-box .beam.is-me { --l: var(--lm); left: 4%; } .hud-stage-box .beam.is-them { --l: var(--lt); right: 4%; }
+.hud-stage-box .boards { position: absolute; left: 0; right: 0; bottom: 0; z-index: 0; height: 30px;
+  background: radial-gradient(28% 70% at 21% 30%, rgba(255,240,200,calc(var(--lm) * .35)), transparent 70%), radial-gradient(28% 70% at 79% 30%, rgba(255,240,200,calc(var(--lt) * .35)), transparent 70%),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.35) 0 1px, transparent 1px 28px), linear-gradient(180deg, #5a3a22, #2a1a0e);
+  box-shadow: inset 0 3px 6px rgba(0,0,0,.6); }
+.hud-stage-box .podium { position: relative; z-index: 1; display: grid; justify-items: center; gap: 4px; }
+.hud-stage-box .podium.is-me { --s: var(--me); --l: var(--lm); } .hud-stage-box .podium.is-them { --s: var(--them); --l: var(--lt); }
+.hud-stage-box .podium .hud-duel-face { width: 42px; height: 42px; --v-acc: var(--s); filter: brightness(calc(.55 + var(--l) * .55)); box-shadow: 0 0 0 2px var(--s), 0 0 calc(var(--l) * 26px) var(--s); }
+.hud-stage-box .podium.is-lead .hud-duel-face { box-shadow: 0 0 0 2px #fff6dc, 0 0 0 4px var(--s), 0 0 30px 4px color-mix(in srgb, var(--s) 70%, #fff3cf); }
+.hud-stage-box .desk { display: grid; place-items: center; width: min(100%, 96px); padding: 7px 6px 12px; background: linear-gradient(180deg, #7a4f2e, #3e2615);
+  clip-path: polygon(6% 0, 94% 0, 100% 100%, 0 100%); box-shadow: inset 0 2px 0 rgba(255,220,170,.25); }
+.hud-stage-box .plate { display: grid; justify-items: center; min-width: 0; max-width: 100%; padding: 2px 7px; border-radius: 2px; color: #2b1d08; line-height: 1.1;
+  background: linear-gradient(180deg, #f2d98e, #b48a3c); box-shadow: inset 0 0 0 1px rgba(90,60,10,.6), 0 1px 2px rgba(0,0,0,.5); }
+.hud-stage-box .plate b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 10.5px; }
+.hud-stage-box .plate em { font-style: normal; font-size: 13px; font-weight: 800; color: #2b1d08; }
+.hud-stage-box .meter { position: relative; z-index: 1; display: grid; justify-items: center; gap: 1px; padding-bottom: 8px; color: #f1e6d0; text-align: center; }
+.hud-stage-box .gauge { display: block; width: min(100%, 132px); overflow: visible; filter: drop-shadow(0 4px 6px rgba(0,0,0,.6)); }
+.hud-stage-box .gauge .face { fill: #1c1512; stroke: #b48a3c; stroke-width: 1.4; }
+.hud-stage-box .gauge .arc { fill: none; stroke-width: 5; stroke-linecap: round; opacity: .85; }
+.hud-stage-box .gauge .arc.is-me { stroke: var(--me); } .hud-stage-box .gauge .arc.is-them { stroke: var(--them); }
+.hud-stage-box .gauge .tk { stroke: #eadcb8; stroke-width: .8; opacity: .75; }
+.hud-stage-box .gauge .end { font-size: 8px; font-weight: 800; text-anchor: middle; } .hud-stage-box .gauge .end.is-me { fill: var(--me); } .hud-stage-box .gauge .end.is-them { fill: var(--them); }
+.hud-stage-box .gauge .was { stroke: rgba(255,255,255,.35); stroke-width: 1; stroke-dasharray: 2 2; }
+.hud-stage-box .gauge .needle { stroke: #ff5a4a; stroke-width: 2; stroke-linecap: round; filter: drop-shadow(0 0 2px rgba(255,90,74,.8)); }
+.hud-stage-box .gauge .hub { fill: #d9b25a; stroke: #6a4e18; stroke-width: .8; }
+.hud-stage-box .meter small { font-size: 8.5px; letter-spacing: .18em; text-transform: uppercase; opacity: .7; }
+.hud-stage-box .meter b { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; }
+.hud-stage-box .marquee { position: absolute; top: 26px; left: 50%; z-index: 3; display: inline-flex; align-items: center; gap: 5px; padding: 2px 10px; border-radius: 4px; transform: translateX(-50%);
+  font-size: 10px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; color: #2a1a08; background: linear-gradient(180deg, #f6dc8e, #c99a3c);
+  box-shadow: 0 0 0 1px #7a5a1c, 0 0 0 3px rgba(0,0,0,.35), 0 0 14px -2px var(--heat); }
+.hud-stage-box .marquee .hud-v-ico { width: 12px; height: 12px; }
+.hud-stage-cues { display: grid; gap: 5px; }
+.hud-stage-cues ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 7px; margin: 0; padding: 0; list-style: none; }
+.hud-stage-cues .cue { --s: #9a94a8; position: relative; display: grid; gap: 2px; padding: 7px 10px 8px 16px; border-radius: 4px; font-size: 11.5px; line-height: 1.38; color: #e9e3ef; transform: rotate(-.6deg);
+  background: repeating-linear-gradient(180deg, transparent 0 15px, rgba(140,170,230,.12) 15px 16px), linear-gradient(180deg, #24202a, #1b1820);
+  box-shadow: inset 3px 0 0 rgba(226,87,74,.55), inset 0 0 0 1px rgba(255,255,255,.07), 0 5px 9px -6px rgba(0,0,0,.8); }
+.hud-stage-cues .cue:nth-child(2n) { transform: rotate(.5deg); }
+.hud-stage-cues .cue.by-me { --s: var(--me); } .hud-stage-cues .cue.by-them { --s: var(--them); }
+.hud-stage-cues .cue small { font-weight: 700; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--s) 60%, #fff); }
+.hud-stage-cues .cue .strike { position: absolute; left: 12px; right: 10px; top: 58%; height: 1.5px; border-radius: 1px; background: rgba(226,87,74,.55); transform: rotate(-3deg); pointer-events: none; }
+.hud-stage-sway { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px; }
+.hud-stage-sway .eq { position: relative; display: flex; justify-content: center; align-items: stretch; gap: 5px; height: 48px; }
+.hud-stage-sway .eq::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; background: rgba(255,255,255,.2); }
+.hud-stage-sway .eq i { position: relative; flex: 0 1 22px; cursor: help; }
+.hud-stage-sway .eq i:not([class*=" g"]) { --h: #888; }
+.hud-stage-sway .eq i::after { content: ''; position: absolute; left: 0; right: 0; height: calc(var(--bh) / 2); border-radius: 3px; }
+.hud-stage-sway .eq i.up::after { bottom: 50%; background: linear-gradient(0deg, color-mix(in srgb, var(--me) 60%, transparent), var(--me)); box-shadow: inset 0 2px 0 var(--h); }
+.hud-stage-sway .eq i.down::after { top: 50%; background: linear-gradient(180deg, color-mix(in srgb, var(--them) 60%, transparent), var(--them)); box-shadow: inset 0 -2px 0 var(--h); }
+.hud-stage-sway .eq i:not(.is-now) { opacity: .7; }
+.hud-stage-sway .eq i.is-now::after { box-shadow: 0 0 0 1.5px #fff, 0 0 10px var(--h); }
+
+/* Живое — под курсором или после касания карточки: молния мерцает, искры
+   вспыхивают, прожекторы дышат. Пауза показывает тот же кадр. */
+@keyframes hud-clash-flick { 0%, 100% { opacity: 1; } 40% { opacity: .55; } 45% { opacity: 1; } 70% { opacity: .8; } }
+@keyframes hud-clash-spark { 0%, 100% { opacity: .2; } 50% { opacity: 1; } }
+@keyframes hud-stage-beam { 0%, 100% { filter: blur(1.5px) brightness(1); } 50% { filter: blur(1.5px) brightness(1.25); } }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-clash-arena :is(.bolt-glow, .bolt) { animation: hud-clash-flick 1.6s steps(1, end) infinite; animation-play-state: paused; }
+  .hud-clash-arena .spark { animation: hud-clash-spark 1.1s ease-in-out infinite; animation-play-state: paused; }
+  .hud-clash-arena .spark.s1 { animation-delay: -.4s; } .hud-clash-arena .spark.s2 { animation-delay: -.8s; }
+  .hud-stage-box .beam { animation: hud-stage-beam 2.8s ease-in-out infinite; animation-play-state: paused; }
+  .hud-os-card.fx-live :is(.hud-clash-arena :is(.bolt-glow, .bolt, .spark), .hud-stage-box .beam) { animation-play-state: running; }
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .hud-duel:hover :is(.hud-clash-arena :is(.bolt-glow, .bolt, .spark), .hud-stage-box .beam) { animation-play-state: running; }
+}
+
+/* Узкая карточка (телефон, ~215px). */
+@container (max-width: 300px) {
+  .hud-clash-arena { aspect-ratio: auto; height: 132px; }
+  .hud-clash-arena .push-l { display: none; }
+  .hud-clash-arena .side { top: 56%; }
+  .hud-clash-arena .side.is-me { left: 24%; } .hud-clash-arena .side.is-them { left: 76%; }
+  .hud-clash-arena .side .hud-duel-face { width: 30px; height: 30px; }
+  .hud-clash-arena .side b { max-width: 58px; font-size: 11px; }
+  .hud-clash-arena .side em { font-size: 15px; }
+  .hud-clash-arena .tone { font-size: 9.5px; padding: 1px 7px; }
+  .hud-clash-spectrum, .hud-stage-sway { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .hud-stage-box { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); padding: 30px 12px 14px; min-height: 0; row-gap: 2px; }
+  .hud-stage-box .meter { grid-column: 1 / -1; grid-row: 1; padding-bottom: 2px; }
+  .hud-stage-box .gauge { width: 104px; }
+  .hud-stage-box .podium .hud-duel-face { width: 32px; height: 32px; }
+  .hud-stage-box .marquee { top: 22px; font-size: 9px; }
+  .hud-stage-box .curtain { width: 9%; }
+  .hud-stage-box .desk { width: 100%; padding: 6px 3px 10px; }
+  .hud-stage-box .plate { padding: 2px 4px; }
+  .hud-stage-box .plate b { font-size: 9.5px; }
+  .hud-clash-shards li { grid-template-columns: 16px minmax(0, 1fr); row-gap: 3px; }
+  .hud-clash-shards li > span { grid-column: 1 / -1; }
+}
+
+/* Светлая карточка: карточки-подсказки — светлые, подписи — тёмные. */
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-stage-cues .cue { color: #2b2218; background: repeating-linear-gradient(180deg, transparent 0 15px, rgba(80,120,200,.18) 15px 16px), linear-gradient(180deg, #fffdf6, #f3ecdc);
+  box-shadow: inset 3px 0 0 rgba(200,60,50,.55), inset 0 0 0 1px rgba(0,0,0,.08), 0 5px 9px -6px rgba(60,40,10,.5); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-stage-cues .cue small { color: color-mix(in srgb, var(--s) 75%, #000); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-clash-shards li { color: #2b2218; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-clash-shards .shard path { fill: color-mix(in srgb, var(--s) 85%, #000); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-stage-say em { color: #8a6a1a; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-stage-sway .eq::before { background: rgba(0,0,0,.2); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-clash-spectrum .bar { background: rgba(0,0,0,.08); box-shadow: inset 0 0 0 1px rgba(0,0,0,.1); }

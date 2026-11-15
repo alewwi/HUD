@@ -10,18 +10,19 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.41';
-import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.41';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.41';
+import { settings } from './settings.js?v=23.89.42';
+import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.42';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.42';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.41';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.41';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.41';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.41';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.41';
-import { возрастТочно } from './render/babies.js?v=23.89.41';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.41';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.41';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.42';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.42';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.42';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.42';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.42';
+import { возрастТочно } from './render/babies.js?v=23.89.42';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.42';
+import { сжатьСхему } from './compact-fields.js?v=23.89.42';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.42';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -197,10 +198,15 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
     + (ключиПамяти.length ? `
 - 🧠 MEMORY AS UPDATES: in "me" write ${списокКодов(ключиПамяти)} with only what is new or changed this turn — never list again an item from the last HUD that did not change: the HUD keeps the rest by itself. To change an item, write it again starting with its id from the last HUD — '[f2] new text' (a secret — the same "id"); to remove one, write '- [f2]'. New items get no id. Nothing new — []. "lg" starts over on a new day.` : '');
 
+  // HUD одной строкой (settings.hudOneLine): переносы и отступы JSON — около
+  // десятой части токенов ответа. Схема ниже остаётся по полю на строку: так
+  // её читать, а глубокая настройка и сжатие правят её построчно.
+  const одной = settings.hudOneLine !== false ? ' Write the JSON on ONE line: no line breaks and no indentation between keys and values — the schema below is laid out on lines only for reading. A line break inside a text value is written as \\n.' : '';
+
   let p = `<hud_instructions>
 ## 🎯 TASK
 ${задача}
-The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with [/HUD]. Wrap the JSON in a fenced block tagged "json" — the opening fence right after [HUD], the closing one right before [/HUD]; it keeps markdown from corrupting the JSON. {{if hudLast}}The LAST HUD — the state before ${чего} — is at the very end of these instructions: update it instead of starting from scratch.{{/if}}
+The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with [/HUD]. Wrap the JSON in a fenced block tagged "json" — the opening fence right after [HUD], the closing one right before [/HUD]; it keeps markdown from corrupting the JSON.${одной} {{if hudLast}}The LAST HUD — the state before ${чего} — is at the very end of these instructions: update it instead of starting from scratch.{{/if}}
 
 ## 📐 RULES
 - 🔤 CODES: keys and fixed labels — the part BEFORE ":" — are short codes of 1-3 letters, each with exactly one meaning. Write them EXACTLY as given: same letters, same case, never translated or spelled out; the HUD expands them into Russian itself. Everything AFTER ":" is written in full words: values in Russian, and where a field asks for one of the listed English words (weather, sign, status, outcome…), that whole word. The text in [brackets] only explains what goes there — never copy it. Words in <angle brackets> are placeholders: put real content in their place and never write the placeholder word itself — 'Потерять Веру: high', never 'fear: Потерять Веру — strength: high'. Free labels (names, body zones, activities, items, fears) are ordinary Russian words.
@@ -595,6 +601,8 @@ ${блокПисем(true)}`;
     p = вырезатьИзПромпта(p, выключено);
     p = p.replace(/(- ⚠️ FORMATTING:[^\n]*)/, (всё) => всё + правилоВыключенного(выключено));
   }
+  // Сжатые значения (compact-fields.js): у выбранных полей — жёсткий размер.
+  p = сжатьСхему(p, settings);
   // Свои статы пользователя (custom-stats.js) — сразу после схемы.
   p += промптСвоихСтатов(settings, { игрок });
   // Скрытые факты: итог «кубика» зачатия. Знает автор, персонажи — нет,
@@ -623,6 +631,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
   // Язык — ещё раз последней строкой: конец инструкции модель помнит лучше
   // середины, а прошлые HUD чата могли быть на другом языке. prompt-en.js
   // меняет Russian на English.
+  // HUD одной строкой — и здесь: схема выше разложена по строкам, и без
+  // напоминания в конце модель (проверено на живой) повторяла её раскладку.
+  if (одной) p += '\n\n📏 Write the whole HUD JSON on ONE line: no line breaks and no indentation anywhere inside it. The schema above is spread over lines only so it can be read.';
   p += '\n\n🌍 Write all HUD values in Russian, even if earlier HUDs used another language.';
   p += `\n</hud_instructions>`;
   // Английский интерфейс — и HUD по-английски: примеры значений тоже (prompt-en.js).

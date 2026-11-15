@@ -32,14 +32,14 @@
 // Здесь — логика. Кнопки и окно подтверждения — index.js, разметка кнопки —
 // render/erase-button.js.
 
-import { hudБлоки, развернутьЗаглушки, заглушкаHUD } from './hud-block.js?v=23.89.41';
-import { HUDвКодах } from './hud-snapshot.js?v=23.89.41';
-import { namesLikelySame } from './names.js?v=23.89.41';
-import { ячейки, подготовитьВыгруженные, подгрузитьЧат, развернутьHUD, ключБлока } from './offload.js?v=23.89.41';
-import { ключСекрета, правки, снятьПравку } from './snapshot-edits.js?v=23.89.41';
-import { ключСообщения } from './chronicle.js?v=23.89.41';
-import { стеретьВЛетописи, выжимкиЛетописи, пополнитьЛетопись, сохранитьЛетописьСейчас } from './chronicle-store.js?v=23.89.41';
-import { стеретьБеременность, снимокБеременности, вернутьБеременность } from './render/conception.js?v=23.89.41';
+import { hudБлоки, развернутьЗаглушки, заглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.42';
+import { HUDвКодах } from './hud-snapshot.js?v=23.89.42';
+import { namesLikelySame } from './names.js?v=23.89.42';
+import { ячейки, подготовитьВыгруженные, подгрузитьЧат, развернутьHUD, ключБлока } from './offload.js?v=23.89.42';
+import { ключСекрета, правки, снятьПравку } from './snapshot-edits.js?v=23.89.42';
+import { ключСообщения } from './chronicle.js?v=23.89.42';
+import { стеретьВЛетописи, выжимкиЛетописи, пополнитьЛетопись, сохранитьЛетописьСейчас } from './chronicle-store.js?v=23.89.42';
+import { стеретьБеременность, снимокБеременности, вернутьБеременность } from './render/conception.js?v=23.89.42';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };
@@ -123,9 +123,9 @@ export function убратьИзHUD(hud, цель, убранное = null) {
 
 // Отступ — как был: иначе блоки, отличные только оформлением (правка ✎ и ответ
 // модели), дали бы один текст, и возврат не отличил бы их.
+// HUD одной строкой остаётся одной строкой (hud-block.js, блокКакБыл).
 function блокHUD(hud, прежний) {
-  const отступ = ((прежний.match(/\{\r?\n( +)"/) || [])[1] || ' ').length;
-  return '[HUD]\n```json\n' + JSON.stringify(hud, null, отступ) + '\n```\n[/HUD]';
+  return блокКакБыл(hud, прежний, 1);
 }
 
 /** Текст с блоками [HUD], из которых убрана цель. Нечего убирать — тот же текст. */

@@ -1,4 +1,4 @@
-// Стенд новых блоков в темах: быт, сетка секретов, дуэль и бой — в разметке настоящей карточки (.mes_text > .hud-os-card …), с
+// Стенд новых блоков в темах: быт, сетка секретов, дуэль (все виды), бой и фракции — в разметке настоящей карточки (.mes_text > .hud-os-card …), с
 // style.css расширения и файлами тем, как их подключает themes.js. Открывать
 // через сервер Таверны, иначе стили не подтянутся:
 //   node tests/tools/render-theme-stand.mjs
@@ -24,6 +24,7 @@ const LF = await м('render/life.js');
 const G = await м('render/secrets-grid.js');
 const DU = await м('render/duel.js');
 const CB = await м('render/combat.js');
+const FR = await м('render/factions.js');
 const SH = await м('render/sample-hud.js');
 const { СВЕТЛЫЕ_ТЕМЫ, themeVars } = await м('themes.js');
 
@@ -56,13 +57,17 @@ Object.defineProperty(тристан, '__hudИстория', { value: () => [
 Object.defineProperty(тристан, '__hudХод', { value: () => ({ memory: { timeline: ['12.06 21:00 - объявили помолвку с Валерией на свадьбе Холлоуэйов'] } }) });
 const дуэль = (вид) => { settings.duelView = вид; const h = DU.buildDuel('ini: Мари, 70; gv: Дамиан уступил в деньгах; tn: ссора', тристан); delete settings.duelView; return h; };
 
+// Фракции: обе вкладки, сдвиги из прошлого хода.
+const репутация = ['Гильдия реставраторов | Мари | 80 | уважают | вытащила их мастера со склада', 'Портовая стража | Мари | 72 | доверяют | помогла с облавой', 'Банда с Пристани | Мари | -60 | ненавидят | сдала их склад', 'Соседи | Мари | 0 | никак | —', 'Университет | Дамиан | -20 | косятся | слухи о помолвке', 'Кофейня у моста | Дамиан | 30 | рады | постоянный гость'];
+const фракции = (вид) => { settings.factions = 'both'; settings.factionsView = вид; const h = FR.блокФракций(репутация, { игрок: 'Мари', персонаж: 'Дамиан', uid: 'st-' + вид, история: [{ строки: ['Гильдия реставраторов | Мари | 60 | терпят | —', 'Банда с Пристани | Мари | -10 | косятся | —'], дата: '01.06' }, { строки: репутация, дата: '03.06' }] }); delete settings.factions; delete settings.factionsView; return h; };
+
 // Бой.
 const ходБоя = { combat: { ...SH.ПРИМЕР_БОЯ }, characters: [{ 'Имя': 'Марк Грей', 'Болезни и травмы': SH.ПРИМЕР_БОЯ_РАНЫ, 'Инвентарь': 'пистолет: 4/8 патронов, под курткой; бита: треснула у рукояти' }] };
 const бой = CB.buildCombatHTML(ходБоя.combat, ходБоя, 'cb', true, {});
 
 const строка = (ключ, тело) => `<div class="hud-row full-width"><span class="hud-key">${ключ}:</span> ${тело}</div>`;
 const карточка = (заголовок, тело) => `<h2>${заголовок}</h2><div class="mes_text"><div class="hud-os-card no-swipe"><input type="checkbox" class="hud-toggle-input" checked><label class="hud-os-topbar"><div class="hud-os-topbar-left"><span class="hud-os-logo">TavernOS</span></div></label><div class="hud-os-wrapper"><div class="hud-tabs-body">${тело}</div></div></div></div>`;
-const персонаж = `<div class="hud-tab-content active"><div class="hud-body">${строка('Словесная дуэль', дуэль('tug'))}${строка('Словесная дуэль (весы)', дуэль('scales'))}</div></div>`;
+const персонаж = `<div class="hud-tab-content active"><div class="hud-body">${строка('Словесная дуэль', дуэль('tug'))}${строка('Словесная дуэль (весы)', дуэль('scales'))}${строка('Словесная дуэль (столкновение)', дуэль('clash'))}${строка('Словесная дуэль (дебаты)', дуэль('stage'))}</div></div>`;
 const память = `<div class="hud-tab-content active"><div class="hud-memory-body">${сетка}</div></div>`;
 
 const темы = [...СВЕТЛЫЕ_ТЕМЫ, 'vamp', 'spacehorror'];
@@ -73,7 +78,7 @@ const html = `<!doctype html><html class="hud-theme-${темы[0]}"><head><meta 
 .wrap { display: grid; gap: 14px; max-width: var(--w, 640px); margin: 12px auto; } h2 { margin: 6px 0 0; font-size: 12px; color: #aaa; }
 .mes_text .hud-tab-content { display: block; opacity: 1 !important; animation: none !important; transform: none !important; } .mes_text :is(.hud-body, .hud-memory-body) { height: auto !important; max-height: none !important; overflow: visible !important; }</style></head><body>
 <div class="bar"><select id="t">${темы.map(т => `<option>${т}</option>`).join('')}</select><select id="w"><option value="640px">640</option><option value="360px">телефон 360</option><option value="215px">карточка 215</option></select></div>
-<div class="wrap">${карточка('Быт', LF.buildLifeHTML(ж, 'life', true))}${карточка('Память — секреты', память)}${карточка('Персонаж — дуэль', персонаж)}${карточка('Бой', бой)}</div>
+<div class="wrap">${карточка('Быт', LF.buildLifeHTML(ж, 'life', true))}${карточка('Память — секреты', память)}${карточка('Персонаж — дуэль', персонаж)}${карточка('Бой', бой)}${карточка('Мир — фракции (щиты)', `<div class="hud-tab-content active">${фракции('classic')}</div>`)}${карточка('Мир — фракции (зал совета)', `<div class="hud-tab-content active">${фракции('council')}</div>`)}${карточка('Мир — фракции (оранжерея)', `<div class="hud-tab-content active">${фракции('garden')}</div>`)}</div>
 <script>
 const светлые = ${JSON.stringify(СВЕТЛЫЕ_ТЕМЫ)};
 const пресеты = ${JSON.stringify(Object.fromEntries(темы.map(т => [т, themeVars(т)])))};

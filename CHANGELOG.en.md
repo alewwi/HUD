@@ -4,6 +4,24 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.42 — 2026-11-15
+
+### Added
+- **"Factions and reputation": a choice of view.** Customize → World now offers three views for the block, and the "to the player" and "to the character" tabs work in each:
+  - **Shields** — the previous cards with a scale.
+  - **Council hall** — a night hall with a gold rim: a half circle of seats like a parliament. Enemies on the left (−100), neutral at the top, allies on the right (+100), with rows of empty chairs behind. Each faction is a glowing numbered seat; factions with close numbers sit in a row nearer the center. The previous seat is a dashed circle, and an arc with an arrow leads to the current one. Below is a legend with the same numbers: attitude, number, last shift and why.
+  - **Greenhouse** — each faction grows in a pot on a greenhouse shelf, and the plant is the attitude itself. Allies bloom, and the higher the number, the taller the stem. Warm ones have a bud, neutral ones a sprout, cold ones wilt and drop a leaf, enemies are a dry thorny branch in a cracked pot. The number is on a plant stake, and the shift is a tag under the name. Under the cursor the plants sway.
+- **"Verbal duel": two more views.**
+  - **Clash.** A night field where two auras press against each other: one side's glow on the left, the other's on the right, the border wherever the leader pushed it. The seam between them is lightning: the hotter the argument, the wider the zigzag and the more sparks. A dashed line marks where the seam was a turn earlier, and an arrow shows where and how far it moved. Concessions are shards broken off the one who gave in. Below is a spectrum bar with the heat by turn.
+  - **Debate.** A stage with a velvet curtain and wooden boards. Each side has a lectern with a brass plate and their own spotlight: the bigger the share of the argument, the brighter the light. In the middle a needle gauge, "The room is with…", shows whose side the room is on and where the needle was a turn earlier. Above the stage hangs a sign with the tone of the argument. Points given up are crossed-out cue cards, and below is how the room swayed by turn.
+- The field, stage, hall and greenhouse are dark on dark themes. On light themes the hall turns to light marble, the greenhouse to daylight behind glass, and the cue cards light. On phones everything rearranges for the narrow card. Every label has an English translation.
+- **📏 HUD on one line** (Settings → Generation, on). The model writes the HUD JSON on one line, with no line breaks or indentation: the reply is about a tenth shorter in tokens (around 700 per turn) and arrives faster. The card looks the same. If the model starts losing track of brackets, turn it off.
+- **🗜️ Compact values** (Settings → Generation, off). The prompt stops asking for "as much detail as possible": the checked fields get a hard size. Thoughts up to 15 words, key thoughts up to 3 items of 6 words, the diary up to 80 words. Pick the fields with checkboxes and set each size in "Fine tuning" next to it.
+- **"Building up": a count on the tab.** How many consequences await your decision shows on the person's tab and on the bell in the header, like pregnancy questions. Once you decide, the count goes down. A suggestion goes to the model with the next reply; a swipe of the reply it was suggested from does not get it.
+
+### Fixed
+- A faction reason of "—" no longer shows as an empty plate.
+
 ## 23.89.41 — 2026-11-15
 
 ### Fixed

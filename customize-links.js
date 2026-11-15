@@ -9,9 +9,9 @@
 // телефона в примере работают как обычно. Что каждая настройка есть в карте,
 // проверяет tests/unit.mjs.
 
-import { settings } from './settings.js?v=23.89.41';
-import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.41';
-import { т } from './i18n.js?v=23.89.41';
+import { settings } from './settings.js?v=23.89.42';
+import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.42';
+import { т } from './i18n.js?v=23.89.42';
 
 const ВИДЫ_ПОД_КЛАСС = {
   age: 'ageView', clothes: 'clothesView', looks: 'looksView', role: 'roleView', body: 'bodyStateView', phys: 'physView', powers: 'abilitiesView', health: 'healthView',
@@ -94,6 +94,7 @@ export const КАРТА = [
   ['.hud-sclock', ['sceneClockView']],
   ['.hud-tempo', ['tempoView']],
   ['.hud-duel', ['duelView']],
+  ['.hud-rep', ['factionsView']],
   // Влечение под циклом — часть блока цикла (что показывать — в основных настройках).
   ['.hud-libido', ['cycleView']],
   ['.hud-row.drama-alert', ['dramaColor', 'dramaBgAlpha']],

@@ -10,12 +10,13 @@
 // Дерево глубокой настройки большое (две с половиной сотни галочек), поэтому
 // собирается при первом раскрытии, а не вместе со всеми настройками.
 
-import { settings } from './settings.js?v=23.89.41';
-import { escapeHtml, mapKey } from './utils.js?v=23.89.41';
-import { т, английский } from './i18n.js?v=23.89.41';
-import { уверены } from './confirm-erase.js?v=23.89.41';
-import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.89.41';
-import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.89.41';
+import { settings } from './settings.js?v=23.89.42';
+import { escapeHtml, mapKey } from './utils.js?v=23.89.42';
+import { т, английский } from './i18n.js?v=23.89.42';
+import { уверены } from './confirm-erase.js?v=23.89.42';
+import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.89.42';
+import { КАТАЛОГ_СЖАТИЯ, ПУТИ_СЖАТИЯ, лимитПоля, подписьЛимита, очиститьЛимиты, МАКС_СЛОВ, МАКС_ПУНКТОВ } from './compact-fields.js?v=23.89.42';
+import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.89.42';
 
 // --- Глубокая настройка -------------------------------------------------------
 
@@ -64,6 +65,62 @@ function счётчики(корень) {
     const м = р.querySelector(':scope > summary .hud-fine-count');
     if (м) м.textContent = выклСколько(n);
   });
+}
+
+// --- Сжатые значения и их размеры (compact-fields.js) ---------------------------
+// Два раздела в «Генерации»: какие поля сжимать — галочками, а «Глубокая
+// настройка» — сколько слов и пунктов у каждого. Размеры правятся в полях и
+// уходят в настройки только по «Сохранить»; «По умолчанию» — встроенные.
+
+export function разметкаСжатия() {
+  return `<details class="hud-set-group hud-set-sub hud-squeeze" id="hud-squeeze">
+    <summary>🗜️ Сжатые значения <span class="hud-fine-count"></span></summary>
+    <div class="hud-set-body">
+      <label class="hud-set-check" title="Промт перестаёт просить «как можно подробнее»: у отмеченных полей появляется жёсткий размер — сколько слов и пунктов. HUD короче, ответ дешевле и быстрее. Размеры — в «Глубокой настройке» ниже."><input type="checkbox" id="hud-compact" ${settings.hudCompact === true ? 'checked' : ''}><span>🗜️ Сжимать значения полей</span></label>
+      <div class="hud-set-note">Отмеченные поля модель пишет коротко, в пределах размера: мысли — до 15 слов, ключевые мысли — до 3 пунктов по 6 слов, дневник — до 80 слов. Неотмеченные — как прежде, подробно. Поле выключенного блока не сжимается — его и так нет в промте.</div>
+      <div class="hud-fine-tree" id="hud-squeeze-tree"></div>
+      <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-squeeze-all">Отметить все</button><button type="button" class="hud-theme-act" id="hud-squeeze-none">Снять все</button></div>
+    </div>
+  </details>`;
+}
+
+export function разметкаРазмеров() {
+  return `<details class="hud-set-group hud-set-sub hud-sizes" id="hud-sizes">
+    <summary>🎛️ Глубокая настройка <span class="hud-fine-count"></span></summary>
+    <div class="hud-set-body">
+      <div class="hud-set-note">Размер каждого сжатого поля: сколько слов, а у списков — сколько пунктов и слов в каждом (0 пунктов — сколько угодно, каждый короткий). Правки вступают в силу по «Сохранить». «По умолчанию» возвращает встроенные размеры всем полям.</div>
+      <div class="hud-sizes-list" id="hud-sizes-list"></div>
+      <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-sizes-save">Сохранить</button><button type="button" class="hud-theme-act" id="hud-sizes-default">По умолчанию</button></div>
+    </div>
+  </details>`;
+}
+
+function деревоСжатия() {
+  const снято = new Set(Array.isArray(settings.compactOff) ? settings.compactOff : []);
+  return КАТАЛОГ_СЖАТИЯ.map(г => `<details class="hud-set-group hud-set-sub hud-fine-grp"><summary>${escapeHtml(г.имя)}</summary><div class="hud-set-body">${г.поля.map(([путь, имя]) =>
+    `<label class="hud-set-check hud-fine-item"><input type="checkbox" data-squeeze="${путь}" ${снято.has(путь) ? '' : 'checked'}> <span>${escapeHtml(имя)}<small class="hud-sizes-hint">${escapeHtml(подписьЛимита(лимитПоля(settings, путь)))}</small></span></label>`).join('')}</div></details>`).join('');
+}
+
+function списокРазмеров() {
+  const число = (путь, ключ, значение, мин, макс) => `<input type="number" class="hud-set-num" data-size="${путь}" data-k="${ключ}" min="${мин}" max="${макс}" step="1" value="${значение}">`;
+  return КАТАЛОГ_СЖАТИЯ.map(г => `<details class="hud-set-group hud-set-sub hud-fine-grp"><summary>${escapeHtml(г.имя)}</summary><div class="hud-set-body">${г.поля.map(([путь, имя]) => {
+    const л = лимитПоля(settings, путь);
+    const своё = !!(settings.compactLimits && settings.compactLimits[путь]);
+    const поля = 'i' in л
+      ? `${т('не больше')} ${число(путь, 'i', л.i, 0, МАКС_ПУНКТОВ)} ${т('пунктов по')} ${число(путь, 'w', л.w, 1, МАКС_СЛОВ)} ${т('слов')}`
+      : `${т('не больше')} ${число(путь, 'w', л.w, 1, МАКС_СЛОВ)} ${т('слов')}`;
+    return `<div class="hud-sizes-row${своё ? ' is-own' : ''}"><span class="hud-sizes-name">${escapeHtml(имя)}</span><span class="hud-sizes-val">${поля}</span></div>`;
+  }).join('')}</div></details>`).join('');
+}
+
+function счётчикиСжатия() {
+  const сжато = document.querySelector('#hud-squeeze > summary .hud-fine-count');
+  if (сжато) {
+    const n = settings.hudCompact === true ? ПУТИ_СЖАТИЯ.length - (Array.isArray(settings.compactOff) ? settings.compactOff.filter(п => ПУТИ_СЖАТИЯ.includes(п)).length : 0) : 0;
+    сжато.textContent = settings.hudCompact === true ? (английский() ? `(${n} compressed)` : `(сжато: ${n})`) : (английский() ? '(off)' : '(выкл.)');
+  }
+  const размеры = document.querySelector('#hud-sizes > summary .hud-fine-count');
+  if (размеры) { const n = Object.keys(очиститьЛимиты(settings.compactLimits)).length; размеры.textContent = n ? (английский() ? `(${n} changed)` : `(изменено: ${n})`) : ''; }
 }
 
 // --- Свои статы ---------------------------------------------------------------
@@ -159,6 +216,58 @@ export function подключитьРазделы(основа) {
       settings.fieldsOff = [];
       if (дерево.firstChild) собрать(); else счётчики(глубокая);
       сохранить();
+    });
+  }
+
+  // Сжатые значения: какие поля.
+  const сжатие = document.getElementById('hud-squeeze');
+  const деревоС = document.getElementById('hud-squeeze-tree');
+  if (сжатие && деревоС) {
+    const собратьС = () => { деревоС.innerHTML = деревоСжатия(); счётчикиСжатия(); };
+    сжатие.addEventListener('toggle', () => { if (сжатие.open && !деревоС.firstChild) собратьС(); });
+    счётчикиСжатия();
+    document.getElementById('hud-compact')?.addEventListener('change', (e) => { settings.hudCompact = e.target.checked; счётчикиСжатия(); основа.saveSettings(); });
+    деревоС.addEventListener('change', (e) => {
+      const г = e.target.closest('input[data-squeeze]');
+      if (!г) return;
+      const снято = new Set(Array.isArray(settings.compactOff) ? settings.compactOff : []);
+      if (г.checked) снято.delete(г.dataset.squeeze); else снято.add(г.dataset.squeeze);
+      settings.compactOff = [...снято].filter(п => ПУТИ_СЖАТИЯ.includes(п));
+      счётчикиСжатия();
+      основа.saveSettings();
+    });
+    const всем = (вкл) => { settings.compactOff = вкл ? [] : [...ПУТИ_СЖАТИЯ]; if (деревоС.firstChild) собратьС(); else счётчикиСжатия(); основа.saveSettings(); };
+    document.getElementById('hud-squeeze-all')?.addEventListener('click', () => всем(true));
+    document.getElementById('hud-squeeze-none')?.addEventListener('click', () => всем(false));
+  }
+
+  // Глубокая настройка размеров: правки — в полях, в настройки — по «Сохранить».
+  const размеры = document.getElementById('hud-sizes');
+  const списокР = document.getElementById('hud-sizes-list');
+  if (размеры && списокР) {
+    const собратьР = () => { списокР.innerHTML = списокРазмеров(); счётчикиСжатия(); };
+    // Подписи размеров в дереве «Сжатых значений» — тоже по сохранённому.
+    const обновитьДерево = () => { if (деревоС && деревоС.firstChild) деревоС.innerHTML = деревоСжатия(); };
+    размеры.addEventListener('toggle', () => { if (размеры.open && !списокР.firstChild) собратьР(); });
+    счётчикиСжатия();
+    списокР.addEventListener('input', (e) => { e.target.closest('.hud-sizes-row')?.classList.add('is-dirty'); });
+    document.getElementById('hud-sizes-save')?.addEventListener('click', () => {
+      const сырые = {};
+      списокР.querySelectorAll('input[data-size]').forEach(п => { (сырые[п.dataset.size] ||= {})[п.dataset.k] = п.value; });
+      // Нетронутый список (не раскрывали) — сохранять нечего.
+      if (!Object.keys(сырые).length) return;
+      settings.compactLimits = очиститьЛимиты(сырые);
+      собратьР();
+      обновитьДерево();
+      основа.saveSettings();
+      основа.showHudToast?.('success', 'Размеры сохранены', settings.hudCompact === true ? 'Новые размеры уйдут модели со следующим ответом.' : 'Они начнут действовать, когда включите «Сжимать значения полей».');
+    });
+    document.getElementById('hud-sizes-default')?.addEventListener('click', async () => {
+      if (Object.keys(очиститьЛимиты(settings.compactLimits)).length && !await уверены({ текст: 'Свои размеры всех полей заменятся встроенными.', кнопка: 'Вернуть встроенные' })) return;
+      settings.compactLimits = {};
+      if (списокР.firstChild || размеры.open) собратьР(); else счётчикиСжатия();
+      обновитьДерево();
+      основа.saveSettings();
     });
   }
 

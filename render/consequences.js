@@ -8,12 +8,12 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.89.41';
-import { settings } from '../settings.js?v=23.89.41';
-import { namesLikelySame } from '../names.js?v=23.89.41';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.41';
-import { запущенноеУ, срокиНитей, добавитьПодсказку, отметкаПоследствия, отметитьПоследствие } from '../turn-notes.js?v=23.89.41';
-import { раскрывашка } from './fold.js?v=23.89.41';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.89.42';
+import { settings } from '../settings.js?v=23.89.42';
+import { namesLikelySame } from '../names.js?v=23.89.42';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.42';
+import { запущенноеУ, срокиНитей, добавитьПодсказку, отметкаПоследствия, отметитьПоследствие } from '../turn-notes.js?v=23.89.42';
+import { раскрывашка } from './fold.js?v=23.89.42';
 
 const ДЕНЬ = 864e5;
 // Пороги: «накопленное», а не плохой час.
@@ -65,6 +65,36 @@ export function последствияЧеловека(о, имя) {
   return out.filter(п => !отметкаПоследствия(п.ключ));
 }
 
+/** Сколько «Назревает» ждёт решения игрока — для значка на вкладке человека. */
+export function вниманиеПоследствий(о, имя) {
+  if (settings.enableAttnBadges === false) return 0;
+  try { return последствияЧеловека(о, имя).length; } catch (_) { return 0; }
+}
+
+// Номер сообщения, в HUD которого нажали кнопку. Панель сбоку показывает
+// последний HUD — тогда последнее сообщение модели.
+function сообщениеКнопки(кнопка) {
+  const м = кнопка.closest('.mes[mesid]');
+  if (м) return parseInt(м.getAttribute('mesid'), 10);
+  try {
+    const чат = globalThis.SillyTavern?.getContext?.()?.chat;
+    if (Array.isArray(чат)) for (let i = чат.length - 1; i >= 0; i--) if (чат[i] && !чат[i].is_user) return i;
+  } catch (_) {}
+  return null;
+}
+// Решили — минус один на значке вкладки и на общем колокольчике.
+function снятьЗначок(пункт) {
+  const панель = пункт.closest('.hud-tab-content'), карта = пункт.closest('.hud-os-card');
+  if (!панель || !карта || !панель.id) return;
+  const вкладка = [...карта.querySelectorAll('.hud-tab')].find(т => т.getAttribute('aria-controls') === панель.id);
+  for (const з of [вкладка && вкладка.querySelector('.hud-tab-attn'), карта.querySelector('.hud-os-attn')]) {
+    if (!з) continue;
+    const текст = [...з.childNodes].reverse().find(у => у.nodeType === 3 && /\d/.test(у.textContent));
+    const n = (parseInt(текст ? текст.textContent : з.textContent, 10) || 0) - 1;
+    if (n <= 0) з.remove(); else if (текст) текст.textContent = String(n); else з.textContent = String(n);
+  }
+}
+
 const МОЛНИЯ = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>';
 /** Плашка «Назревает» для карточки; '' — нечего предложить. Видно, что назревает;
  *  почему и кнопки выезжают по нажатию (render/fold.js). */
@@ -93,15 +123,18 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
     // Окно кастомизации показывает пример или прошлый ход: оттуда в настоящий чат ничего не уходит.
     if (кнопка.closest('.hud-custom-preview-body')) { пункт.querySelector('.why').textContent = 'Это предпросмотр: отсюда модели ничего не отправляется.'; return; }
     if (кнопка.dataset.hudConseq === 'send') {
-      if (!добавитьПодсказку('consequence', кнопка.dataset.conseqText || '')) {
+      const после = сообщениеКнопки(кнопка);
+      if (!добавитьПодсказку('consequence', кнопка.dataset.conseqText || '', '', Number.isInteger(после) ? после : null)) {
         пункт.querySelector('.why').textContent = 'Очередь подсказок полна (до трёх на ответ) — предложите после следующего ответа.';
         return;
       }
       отметитьПоследствие(ключ, 'sent');
+      снятьЗначок(пункт);
       пункт.className = 'hud-conseq-item is-done';
-      пункт.innerHTML = '<small class="done">✓ Уйдёт модели в следующем ответе — один раз.</small>';
+      пункт.innerHTML = '<small class="done">✓ Уйдёт модели со следующим ответом — один раз. Свайп этого ответа её не получит.</small>';
     } else {
       отметитьПоследствие(ключ, 'skip');
+      снятьЗначок(пункт);
       const плашка = пункт.closest('.hud-conseq');
       пункт.remove();
       if (плашка && !плашка.querySelector('.hud-conseq-item')) плашка.remove();

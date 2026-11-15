@@ -12,11 +12,11 @@
 //   всплыло       — запись памяти (таймлайн, важное), с которой совпадает
 //                   суть спора: «это про тот вечер 12-го».
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.41';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.41';
-import { settings } from '../settings.js?v=23.89.41';
-import { getAvatarUrl } from '../avatars.js?v=23.89.41';
-import { ико, медаль } from './view-icons.js?v=23.89.41';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.42';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.42';
+import { settings } from '../settings.js?v=23.89.42';
+import { getAvatarUrl } from '../avatars.js?v=23.89.42';
+import { ико, медаль } from './view-icons.js?v=23.89.42';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const поле = (о, имя) => {
@@ -152,7 +152,7 @@ export function buildDuel(value, c) {
   }, String(t || ''));
   const сейчас = положение(д, я), было = прошлые.length ? положение(прошлые[0], я) : null;
   const сдвиг = сейчас !== null && было !== null ? сейчас - было : 0;
-  const вид = ['tug', 'scales', 'chart'].includes(settings.duelView) ? settings.duelView : 'tug';
+  const вид = ['tug', 'scales', 'chart', 'clash', 'stage'].includes(settings.duelView) ? settings.duelView : 'tug';
   const яК = escapeHtml(имяКоротко(я)), онК = escapeHtml(имяКоротко(соперник));
   const итог = сейчас === null ? '' : `<p class="hud-duel-shift">${сейчас >= 50 ? `Ведёт ${яК}` : `Ведёт ${онК}`}, ${Math.max(сейчас, 100 - сейчас)} из 100`
     + (Math.abs(сдвиг) >= 5 ? ` · <span class="${сдвиг > 0 ? 'is-me' : 'is-them'}">${сдвиг > 0 ? '◀' : '▶'} +${Math.abs(сдвиг)} в пользу ${сдвиг > 0 ? яК : онК}</span>` : '') + `</p>`;
@@ -198,5 +198,109 @@ export function buildDuel(value, c) {
   const идёт = Object.keys(c || {}).filter(к => !/конфликт|дуэль/i.test(к)).map(к => поле(c, к)).join(' ');
   const найдено = всплылоИзПамяти(суть, ход && ход.memory, идёт);
   const всплыло = найдено ? `<div class="hud-duel-past">${медаль('scroll')}<span><small>Всплыло из прошлого</small><p>${escapeHtml(найдено)}</p></span></div>` : '';
+  if (вид === 'clash' || вид === 'stage') {
+    const о = { д, прошлые, сейчас, было, сдвиг, я, соперник, яК, онК, безПриставок };
+    return `<div class="hud-duel hud-v hud-v-card is-${вид}${д.градус >= 0 ? ' ' + ГРАДУС[д.градус][2] : ''}">${вид === 'clash' ? столкновение(о) : сцена(о)}${всплыло}</div>`;
+  }
   return `<div class="hud-duel hud-v hud-v-card is-${вид}${д.градус >= 0 ? ' ' + ГРАДУС[д.градус][2] : ''}">${полоса}${градус}${накал}${уступки ? `<div class="hud-duel-gvs"><span>${ико('chain')}Уступки</span>${уступки}</div>` : ''}${всплыло}</div>`;
+}
+
+
+/* =========================================================================
+   Виды «Столкновение» и «Дебаты» (duelView). Те же данные, что у каната:
+   кто ведёт и насколько, сдвиг с прошлого хода, уступки, накал по ходам —
+   но каждая метафора показывает их своими вещами.
+   ========================================================================= */
+const ходНазад = (н) => (н ? '−' + н : 'сейчас');
+// Кто сдал позицию: уступка названа по имени — сдал тот, кто назван.
+const ктоОтдал = (уступка, я) => { const к = кто(уступка); return к ? (тот(к, я) ? 'me' : 'them') : ''; };
+// Детерминированный «случай»: одинаковый спор рисуется одинаково.
+const зерно = (s) => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
+const случай = (z, i) => { const x = Math.sin(z * 0.0001 + i * 12.9898) * 43758.5453; return x - Math.floor(x); };
+const ф1 = (x) => Math.round(x * 10) / 10;
+
+/* --- Столкновение: две ауры давят друг на друга --------------------------
+   Поле — ночь. Слева сияние «моей» стороны, справа — соперника; граница
+   там, куда дожал ведущий. Шов — молния: чем горячее спор, тем шире зубцы
+   и больше искр. Пунктир — где шов был ходом раньше, стрелка — куда и
+   насколько его сдвинули. Уступки — осколки, отколотые от сдавшего.
+   Накал по ходам — полоса спектра. */
+function столкновение({ д, прошлые, сейчас, было, сдвиг, я, соперник, яК, онК, безПриставок }) {
+  const неясно = сейчас === null, п = неясно ? 50 : сейчас;
+  const W = 320, H = 136, z = зерно(я + '|' + соперник + '|' + прошлые.length);
+  const id = 'dc' + z.toString(36);
+  const шов = ф1(W * Math.max(10, Math.min(90, п)) / 100);
+  const г = д.градус >= 0 ? д.градус : 2;
+  const амп = 2.5 + г * 2.6;
+  // Молния: точки сверху вниз, зубцы влево-вправо.
+  const N = 12;
+  const точки = Array.from({ length: N + 1 }, (_, i) => [i === 0 || i === N ? шов : ф1(шов + (i % 2 ? 1 : -1) * амп * (.45 + случай(z, i) * .55)), ф1(i * H / N)]);
+  const линия = точки.map(([x, y], i) => (i ? 'L' : 'M') + x + ' ' + y).join('');
+  const лево = `M0 0${точки.map(([x, y]) => 'L' + x + ' ' + y).join('')}L0 ${H}Z`;
+  const право = `M${W} 0${точки.map(([x, y]) => 'L' + x + ' ' + y).join('')}L${W} ${H}Z`;
+  const искры = Array.from({ length: 6 + г * 3 }, (_, k) => {
+    const y = ф1(6 + случай(z, k + 40) * (H - 12)), x = ф1(шов + (случай(z, k + 80) - .5) * (16 + г * 9)), r = ф1(.7 + случай(z, k + 120) * (1 + г * .25));
+    return `<circle class="spark s${k % 3}" cx="${x}" cy="${y}" r="${r}"/>`;
+  }).join('');
+  // Звёзды фона: неподвижные, как у ночного неба.
+  const звёзды = Array.from({ length: 26 }, (_, k) => `<circle class="star" cx="${ф1(случай(z, k + 200) * W)}" cy="${ф1(случай(z, k + 260) * H)}" r="${ф1(.3 + случай(z, k + 320) * .7)}"/>`).join('');
+  const прежде = было === null ? '' : (() => { const x = ф1(W * Math.max(10, Math.min(90, было)) / 100); return Math.abs(x - шов) < 6 ? '' : `<path class="was" d="M${x} 8V${H - 8}"><title>было</title></path>`; })();
+  const стрелка = неясно || Math.abs(сдвиг) < 5 ? '' : (() => { const к = сдвиг > 0 ? 1 : -1, y = 18, x1 = ф1(шов - к * 34), x2 = ф1(шов - к * 9);
+    return `<path class="push" d="M${x1} ${y}L${x2} ${y}M${ф1(x2 - к * 5)} ${y - 4}L${x2} ${y}L${ф1(x2 - к * 5)} ${y + 4}"/><text class="push-l" x="${ф1((x1 + x2) / 2)}" y="${y - 6}">+${Math.abs(сдвиг)}</text>`; })();
+  const поле = `<svg class="field" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><defs>`
+    + `<linearGradient id="${id}-l" x1="0" x2="1"><stop class="l0" offset="0"/><stop class="l1" offset=".72"/><stop class="l2" offset="1"/></linearGradient>`
+    + `<linearGradient id="${id}-r" x1="1" x2="0"><stop class="r0" offset="0"/><stop class="r1" offset=".72"/><stop class="r2" offset="1"/></linearGradient>`
+    + `<filter id="${id}-g" x="-50%" y="-10%" width="200%" height="120%"><feGaussianBlur stdDeviation="3.2"/></filter></defs>`
+    + `<rect class="night" width="${W}" height="${H}"/>${звёзды}<path class="aura is-me" d="${лево}" fill="url(#${id}-l)"/><path class="aura is-them" d="${право}" fill="url(#${id}-r)"/>`
+    + `${прежде}<path class="bolt-glow" d="${линия}" filter="url(#${id}-g)"/><path class="bolt" d="${линия}"/><path class="bolt-core" d="${линия}"/>${искры}${стрелка}</svg>`;
+  const сторона = (кл, имя, К, доля, ведёт) => `<span class="side ${кл}${ведёт ? ' is-lead' : ''}">${лицо(имя)}<b>${К}</b><em class="hud-v-num">${неясно ? '—' : доля}</em></span>`;
+  const тон = д.градус >= 0 ? `<span class="tone">${ико(ГРАДУС[д.градус][1])}${ГРАДУС[д.градус][0]}</span>` : '';
+  const арена = `<div class="hud-clash-arena" role="meter" aria-valuenow="${п}" aria-valuemin="0" aria-valuemax="100" aria-label="Кто ведёт спор">${поле}`
+    + `${сторона('is-me', я, яК, п, !неясно && п > 50)}${сторона('is-them', соперник, онК, 100 - п, !неясно && п < 50)}${тон}</div>`;
+  const ведёт = п > 50 ? яК : онК, уступает = п > 50 ? онК : яК;
+  const итог = неясно ? '<span>Расклад неясен</span>'
+    : Math.abs(сдвиг) >= 5 ? `<b>${сдвиг > 0 ? яК : онК}</b><span>теснит</span><b>${сдвиг > 0 ? онК : яК}</b>`
+    : п === 50 ? '<span>Силы равны</span>' : `<b>${ведёт}</b><span>держит верх над</span><b>${уступает}</b>`;
+  const осколок = '<svg class="shard" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 2 13 5 9 14 4 9Z"/><path class="hi" d="M3 2 9 7 4 9Z"/></svg>';
+  const осколки = [{ ...д, назад: 0 }, ...прошлые].filter(x => x.уступка).map(x => { const к = ктоОтдал(x.уступка, я); return `<li class="${к ? 'from-' + к : ''}">${осколок}<small>${ходНазад(x.назад)}</small><span>${escapeHtml(безПриставок(x.уступка))}</span></li>`; }).join('');
+  const ходы = [...прошлые].reverse().concat([д]);
+  const спектр = ходы.length > 1 && ходы.some(x => x.градус >= 0) ? `<div class="hud-clash-spectrum"><small>Накал по ходам</small><span class="bar">${ходы.map((x, i) => `<i class="${x.градус >= 0 ? 'g' + x.градус : 'is-none'}${i === ходы.length - 1 ? ' is-now' : ''}" title="${ходНазад(x.назад)}${x.градус >= 0 ? ': ' + ГРАДУС[x.градус][0] : ''}"></i>`).join('')}</span></div>` : '';
+  return `<div class="hud-clash g${г}">${арена}<p class="hud-clash-say">${итог}</p>${осколки ? `<div class="hud-clash-shards"><small>Осколки уступок</small><ul>${осколки}</ul></div>` : ''}${спектр}</div>`;
+}
+
+/* --- Дебаты: сцена, прожекторы, трибуны, стрелка аплодисментов ----------
+   Бархатный занавес, у каждого спорщика — трибуна с латунной табличкой и
+   свой прожектор: чем больше доля спора, тем ярче свет. Посередине —
+   стрелочный прибор «на чьей стороне зал». Свет сцены окрашен накалом.
+   Сданные позиции — карточки-подсказки, перечёркнутые красным; ниже —
+   как зал качался по ходам. */
+function сцена({ д, прошлые, сейчас, было, сдвиг, я, соперник, яК, онК, безПриставок }) {
+  const неясно = сейчас === null, п = неясно ? 50 : сейчас;
+  const свет = (доля) => (.22 + доля / 100 * .78).toFixed(2);
+  // Стрелка: к трибуне ведущего, до ±62°.
+  const угол = (x) => (50 - x) / 50 * 62;
+  const ст = (a, r) => { const t = (a - 90) * Math.PI / 180; return [ф1(60 + r * Math.cos(t)), ф1(62 + r * Math.sin(t))]; };
+  const дугаП = (a1, a2, r) => { const [x1, y1] = ст(a1, r), [x2, y2] = ст(a2, r); return `M${x1} ${y1}A${r} ${r} 0 0 1 ${x2} ${y2}`; };
+  const засечки = Array.from({ length: 13 }, (_, i) => { const a = -60 + i * 10, [x1, y1] = ст(a, 43), [x2, y2] = ст(a, i % 3 ? 47 : 50); return `<path class="tk" d="M${x1} ${y1}L${x2} ${y2}"/>`; }).join('');
+  const [nx, ny] = ст(угол(п), 44);
+  const прежде = было === null || Math.abs(было - п) < 3 ? '' : (() => { const [bx, by] = ст(угол(было), 40); return `<path class="was" d="M60 62L${bx} ${by}"/>`; })();
+  const прибор = `<svg class="gauge" viewBox="0 0 120 72" aria-hidden="true"><path class="face" d="M8 66A52 52 0 0 1 112 66Z"/>`
+    + `<path class="arc is-me" d="${дугаП(-60, -2, 46)}"/><path class="arc is-them" d="${дугаП(2, 60, 46)}"/>${засечки}`
+    + `<text class="end is-me" x="16" y="64">${яК.slice(0, 1)}</text><text class="end is-them" x="104" y="64">${онК.slice(0, 1)}</text>`
+    + `${прежде}<path class="needle" d="M60 62L${nx} ${ny}"/><circle class="hub" cx="60" cy="62" r="4"/></svg>`;
+  const трибуна = (кл, имя, К, доля, ведёт) => `<div class="podium ${кл}${ведёт ? ' is-lead' : ''}">${лицо(имя)}<span class="desk"><span class="plate"><b>${К}</b><em class="hud-v-num">${неясно ? '—' : доля}</em></span></span></div>`;
+  const зал = неясно ? '' : п === 50 ? 'поровну' : (п > 50 ? яК : онК);
+  const подмостки = `<div class="hud-stage-box" style="--lm:${свет(п)};--lt:${свет(100 - п)}" role="meter" aria-valuenow="${п}" aria-valuemin="0" aria-valuemax="100" aria-label="Кто ведёт спор">`
+    + `<i class="valance" aria-hidden="true"></i><i class="curtain is-l" aria-hidden="true"></i><i class="curtain is-r" aria-hidden="true"></i>`
+    + `<i class="beam is-me" aria-hidden="true"></i><i class="beam is-them" aria-hidden="true"></i><i class="boards" aria-hidden="true"></i>`
+    + `${трибуна('is-me', я, яК, п, !неясно && п > 50)}<div class="meter">${прибор}${зал ? `<small>Зал за</small><b>${зал}</b>` : '<small>Зал молчит</small>'}</div>${трибуна('is-them', соперник, онК, 100 - п, !неясно && п < 50)}`
+    + `${д.градус >= 0 ? `<span class="marquee">${ико(ГРАДУС[д.градус][1])}${ГРАДУС[д.градус][0]}</span>` : ''}</div>`;
+  const итог = неясно ? '<span>Зал ещё не решил</span>'
+    : Math.abs(сдвиг) >= 5 ? `<b>${сдвиг > 0 ? яК : онК}</b><span>перетягивает зал:</span><em>+${Math.abs(сдвиг)}</em>`
+    : п === 50 ? '<span>Зал разделился поровну</span>' : `<b>${п > 50 ? яК : онК}</b><span>держит зал</span>`;
+  const карточки = [{ ...д, назад: 0 }, ...прошлые].filter(x => x.уступка).map(x => { const к = ктоОтдал(x.уступка, я); return `<li class="cue${к ? ' by-' + к : ''}"><small>${ходНазад(x.назад)}</small><span>${escapeHtml(безПриставок(x.уступка))}</span><i class="strike" aria-hidden="true"></i></li>`; }).join('');
+  const ходы = [...прошлые].reverse().concat([д]).map(x => ({ v: положение(x, я), г: x.градус, назад: x.назад || 0 }));
+  const качели = ходы.length > 1 && ходы.some(x => x.v !== null) ? `<div class="hud-stage-sway"><small>Зал по ходам</small><span class="eq">${ходы.map((x, i) => { const v = x.v === null ? 50 : x.v, h = Math.round(Math.min(100, Math.max(14, Math.abs(v - 50) * 3.2)));
+    return `<i class="${v >= 50 ? 'up' : 'down'}${x.г >= 0 ? ' g' + x.г : ''}${i === ходы.length - 1 ? ' is-now' : ''}" style="--bh:${h}%" title="${ходНазад(x.назад)}: ${v >= 50 ? имяКоротко(я) : имяКоротко(соперник)} ${Math.max(v, 100 - v)}${x.г >= 0 ? ' · ' + ГРАДУС[x.г][0] : ''}"></i>`; }).join('')}</span></div>` : '';
+  return `<div class="hud-stage">${подмостки}<p class="hud-stage-say">${итог}</p>${карточки ? `<div class="hud-stage-cues"><small>Сданные позиции</small><ul>${карточки}</ul></div>` : ''}${качели}</div>`;
 }

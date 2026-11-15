@@ -11,9 +11,9 @@
 // (index.js → загрузитьПромпт), и статический импорт здесь тянул бы его при
 // старте. Сборщик приходит параметром.
 
-import { settings } from './settings.js?v=23.89.41';
-import { английский, англ } from './i18n.js?v=23.89.41';
-import { extractHudBlock } from './hud-block.js?v=23.89.41';
+import { settings } from './settings.js?v=23.89.42';
+import { английский, англ } from './i18n.js?v=23.89.42';
+import { extractHudBlock } from './hud-block.js?v=23.89.42';
 
 // Раздел = подпись + флаг, выключение которого убирает его из инструкции.
 // «Близость» и «Бой» — не флаги, а состояние сцены (hud-snapshot.js решает
@@ -120,7 +120,7 @@ export function бюджетИнструкции(собрать, { nsfw = false,
 // пересчёт не нужен (двадцать с лишним сборок — миллисекунды, но на каждый
 // рендер карточки их делать незачем).
 export function подписьБюджета(доп = {}) {
-  const ключи = РАЗДЕЛЫ.map(р => р.ключ).filter(Boolean).concat(['era', 'nsfwPrompt', 'enableCombat', 'hudFillGaps', 'hudAdaptPrompt', 'phoneAppMessages', 'phoneAppContacts', 'phoneAppGallery', 'phoneAppNotes', 'phoneAppMaps', 'phoneAppSearch', 'phoneAppWallet', 'phoneAppCalendar', 'phoneAppHealth']);
+  const ключи = РАЗДЕЛЫ.map(р => р.ключ).filter(Boolean).concat(['era', 'nsfwPrompt', 'enableCombat', 'hudFillGaps', 'hudAdaptPrompt', 'phoneAppMessages', 'phoneAppContacts', 'phoneAppGallery', 'phoneAppNotes', 'phoneAppMaps', 'phoneAppSearch', 'phoneAppWallet', 'phoneAppCalendar', 'phoneAppHealth', 'hudOneLine', 'hudCompact', 'compactOff', 'compactLimits']);
   return JSON.stringify([ключи.map(к => settings[к]), доп]);
 }
 

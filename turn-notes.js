@@ -20,15 +20,15 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.41';
-import { статусОбещания } from './hud-expand.js?v=23.89.41';
-import { полеВкл } from './deep-fields.js?v=23.89.41';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.41';
-import { namesLikelySame } from './names.js?v=23.89.41';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.41';
-import { праздникиГода } from './render/holidays.js?v=23.89.41';
-import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи } from './render/holiday-lore.js?v=23.89.41';
-import { заметкаСил } from './render/powers.js?v=23.89.41';
+import { settings } from './settings.js?v=23.89.42';
+import { статусОбещания } from './hud-expand.js?v=23.89.42';
+import { полеВкл } from './deep-fields.js?v=23.89.42';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.42';
+import { namesLikelySame } from './names.js?v=23.89.42';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.42';
+import { праздникиГода } from './render/holidays.js?v=23.89.42';
+import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи } from './render/holiday-lore.js?v=23.89.42';
+import { заметкаСил } from './render/powers.js?v=23.89.42';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -106,12 +106,14 @@ export function подсказки() { const х = хранилище(); return �
 /** false — такая уже есть или очередь полна. */
 // ключ — откуда подсказка (у праздника мира — его id|год): убрали праздник —
 // уходит и его подсказка (убратьПодсказкиПраздника).
-export function добавитьПодсказку(вид, текст, ключ = '') {
+// после — номер сообщения, из HUD которого её отправили: свайп или продолжение
+// этого же сообщения её не получают (она выросла из этого HUD), уходит со следующим.
+export function добавитьПодсказку(вид, текст, ключ = '', после = null) {
   const х = хранилище();
   // Детали праздника — суть и три детали, им нужно больше места, чем короткой подсказке.
   const т = String(текст || '').trim().slice(0, вид === 'holidayDetails' ? 1200 : 300);
   if (!х || !т || !ПОДСКАЗКИ[вид] || х.подсказки.length >= ПРЕДЕЛ_ПОДСКАЗОК || х.подсказки.some(п => п.текст === т)) return false;
-  х.подсказки.push({ id: Date.now().toString(36) + х.подсказки.length, вид, текст: т, цель: null, ...(ключ ? { ключ: String(ключ) } : {}) });
+  х.подсказки.push({ id: Date.now().toString(36) + х.подсказки.length, вид, текст: т, цель: null, ...(ключ ? { ключ: String(ключ) } : {}), ...(Number.isInteger(после) && после >= 0 ? { после } : {}) });
   сохранить();
   return true;
 }
@@ -140,14 +142,17 @@ function подсказкиХода(х, цель) {
   // «Праздники мира» выключены — их подсказки подготовки не уходят и не копятся.
   const живые = х.подсказки.filter(п => (п.цель === null || п.цель === цель) && !(п.вид === 'holiday' && settings.holidayGen === false)
     && !(п.вид === 'holidayDetails' && settings.holidayGen === false && settings.enableEraHolidays === false));
-  const менялось = живые.length !== х.подсказки.length || живые.some(п => п.цель === null);
-  живые.forEach(п => { п.цель = цель; });
+  // Свайп сообщения, из HUD которого подсказку отправили, — ещё не её ход: ждёт.
+  const ждёт = (п) => п.цель === null && Number.isInteger(п.после) && цель <= п.после;
+  const идут = живые.filter(п => !ждёт(п));
+  const менялось = живые.length !== х.подсказки.length || идут.some(п => п.цель === null);
+  идут.forEach(п => { п.цель = цель; });
   х.подсказки = живые;
   if (менялось) сохранить();
-  if (!живые.length) return '';
+  if (!идут.length) return '';
   return `## 🎯 ONE-TIME NUDGE — from the player, for this reply only
 Work it in softly, the way this scene allows. Never force it, never mention this note.
-- ${живые.map(п => ПОДСКАЗКИ[п.вид](п.текст)).join('\n- ')}`;
+- ${идут.map(п => ПОДСКАЗКИ[п.вид](п.текст)).join('\n- ')}`;
 }
 
 /* --- Последствия: предлагаются один раз ----------------------------------------- */

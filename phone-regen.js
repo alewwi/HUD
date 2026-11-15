@@ -7,7 +7,7 @@
 // место прежних, а всё остальное в блоке остаётся как было, до символа.
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { hudБлоки } from './hud-block.js?v=23.89.41';
+import { hudБлоки } from './hud-block.js?v=23.89.42';
 
 // Код раздела → имена, под которыми модель могла его написать.
 export const РАЗДЕЛЫ_ТЕЛЕФОНА = { cm: ['cm', 'chatsMap', 'chats', 'Переписки'], phn: ['phn', 'phone', 'Телефон'] };
@@ -93,9 +93,11 @@ export function вставитьТелефон(блок, телефон) {
   const б = hudБлоки(String(блок || ''))[0];
   if (!б || !телефон) return null;
   let inner = б.inner;
+  // HUD одной строкой — и телефон в него одной строкой, без переносов.
+  const одной = !/\n/.test(inner.slice(inner.indexOf('{'), inner.lastIndexOf('}') + 1));
   for (const [код, имена] of Object.entries(РАЗДЕЛЫ_ТЕЛЕФОНА)) {
     if (!телефон[код]) continue;
-    const новое = JSON.stringify(телефон[код], null, 2).replace(/\n/g, '\n  ');
+    const новое = одной ? JSON.stringify(телефон[код]) : JSON.stringify(телефон[код], null, 2).replace(/\n/g, '\n  ');
     // Только ключ верхнего уровня: "cm" внутри другого раздела — не телефон.
     // Значение любое — и объект, и ошибочный массив: дубля ключа не будет.
     const м = имена.map(и => местоКлюча(inner, и, { верхний: true })).find(Boolean);
@@ -104,7 +106,7 @@ export function вставитьТелефон(блок, телефон) {
     const конец = inner.lastIndexOf('}');
     if (конец < 0) return null;
     const до = inner.slice(0, конец).replace(/\s+$/, '');
-    inner = до + (до.endsWith('{') ? '' : ',') + `\n  "${код}": ` + новое + '\n' + inner.slice(конец);
+    inner = до + (до.endsWith('{') ? '' : ',') + (одной ? `"${код}":` + новое : `\n  "${код}": ` + новое + '\n') + inner.slice(конец);
   }
   return б.full.replace(б.inner, () => inner);
 }

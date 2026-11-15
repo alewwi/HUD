@@ -12,10 +12,10 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок } from '../utils.js?v=23.89.41';
-import { ИКОНКИ } from './view-icons.js?v=23.89.41';
-import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.89.41';
-import { settings } from '../settings.js?v=23.89.41';
+import { escapeHtml, разбитьСписок, flattenFieldValue } from '../utils.js?v=23.89.42';
+import { ИКОНКИ } from './view-icons.js?v=23.89.42';
+import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.89.42';
+import { settings } from '../settings.js?v=23.89.42';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());
@@ -884,5 +884,7 @@ export const ШИРОКИЕ_ВИДЫ = new Set(['цели', 'расписани�
 export function видПоля(ключ, value, вид, контекст = {}) {
   const сборщик = СБОРЩИКИ[ключ];
   if (!сборщик || !вид || вид === 'classic' || пусто(value)) return '';
-  try { return сборщик(String(value), вид, контекст.имя || ''); } catch (e) { console.warn('[TavernOS HUD] вид поля', ключ, e); return ''; }
+  // Объект вместо строки (модель прислала «G»: {nw, sn, lt}) — в «nw: …; sn: …»,
+  // как у классической карточки; String() давал «[object Object]».
+  try { return сборщик(flattenFieldValue(value), вид, контекст.имя || ''); } catch (e) { console.warn('[TavernOS HUD] вид поля', ключ, e); return ''; }
 }

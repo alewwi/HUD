@@ -215,6 +215,7 @@ export const defaultSettings = {
   lifeDayView: 'strip',
   wardrobeView: 'tags',
   duelView: 'tug',
+  factionsView: 'classic',
   sceneClockView: 'chips',
   sleepNorm: 8,
   enableSceneClock: true,
@@ -411,6 +412,13 @@ export const defaultSettings = {
   hudNoChange: true,
   hudWorldDaily: true,
   hudMemoryDelta: true,
+  // HUD одной строкой: без переносов и отступов JSON (около 10% токенов ответа).
+  hudOneLine: true,
+  // Сжатые значения (compact-fields.js): жёсткий размер у выбранных полей.
+  // compactOff — снятые галочки, compactLimits — свои размеры { путь: { w, i } }.
+  hudCompact: false,
+  compactOff: [],
+  compactLimits: {},
   // Chat Completion: постоянная схема HUD — в начало запроса, чтобы провайдер её кэшировал.
   hudPromptCache: false,
   // Снимок последнего HUD в конце инструкции: модель обновляет его, а не

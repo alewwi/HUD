@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.41';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.41';
-import { namesLikelySame } from '../names.js?v=23.89.41';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.41';
-import { settings } from '../settings.js?v=23.89.41';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.41';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.41';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.42';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.42';
+import { namesLikelySame } from '../names.js?v=23.89.42';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.42';
+import { settings } from '../settings.js?v=23.89.42';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.42';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.42';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -58,7 +58,7 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'statusView', группа: 'Связи', поле: 'Статус', виды: { classic: 'Индикатор', badge: 'Профиль', stamp: 'Печать', toggles: 'Неон' } },
   { ключ: 'exposureView', группа: 'Связи', поле: 'Разоблачение', виды: { text: 'Текст', bar: 'Шкала', mask: 'Маска', eye: 'Глаз', hourglass: 'Песочные часы' } },
   { ключ: 'conflictView', группа: 'Драма', поле: 'Глубина конфликта', виды: { classic: 'Плашки', stages: 'Стадии', counter: 'Счётчик дней', weather: 'Погода' } },
-  { ключ: 'duelView', группа: 'Драма', поле: 'Словесная дуэль', виды: { tug: 'Канат', scales: 'Весы', chart: 'График по ходам' }, новый: true },
+  { ключ: 'duelView', группа: 'Драма', поле: 'Словесная дуэль', виды: { tug: 'Канат', scales: 'Весы', chart: 'График по ходам', clash: 'Столкновение', stage: 'Дебаты' }, новый: true },
   { ключ: 'jealousyView', группа: 'Драма', поле: 'Ревность', виды: { text: 'Текст', triangle: 'Треугольник', thorns: 'Шипы', thought: 'Мысли' } },
   // X-ray — основной вид: рисует пенетрацию в разрезе и ходит в такт темпу.
   // Без проникновения блока темпа нет ни в каком виде (scene-body.js).
@@ -96,6 +96,8 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'petView', группа: 'Спутники', поле: 'Спутник', виды: { card: 'Карточка', tama: 'Тамагочи', classic: 'Прежний' }, новый: true },
   { ключ: 'bondView', группа: 'Спутники', поле: 'Привязанность', виды: { bars: 'Полоска', hearts: 'Сердца', paw: 'Лапа', tag: 'Жетон' } },
   // Вкладка «Мир» (render/world-views.js) — в порядке её блоков.
+  // Фракции и репутация (render/factions.js) — первыми во вкладке, над газетами.
+  { ключ: 'factionsView', группа: 'Мир', поле: 'Фракции и репутация', виды: { classic: 'Щиты', council: 'Зал совета', garden: 'Оранжерея' } },
   { ключ: 'newsView', группа: 'Мир', поле: 'Главные новости', виды: { classic: 'Лента', front: 'Первая полоса', tv: 'Эфир', radio: 'Радиоприёмник' } },
   { ключ: 'meanwhileView', группа: 'Мир', поле: 'Тем временем', виды: { classic: 'Карточки', cctv: 'Камеры', novel: 'Глава романа', city: 'Город ночью' }, новый: true },
   { ключ: 'rumorsView', группа: 'Мир', поле: 'Слухи', виды: { classic: 'Список', whisper: 'Шёпот', graffiti: 'Граффити', chain: 'Сарафанное радио' } },

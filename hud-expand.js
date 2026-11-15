@@ -17,7 +17,8 @@
 // в кодах (hud-snapshot.js, HUDвКодах).
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { namesLikelySame } from './names.js?v=23.89.41';
+import { namesLikelySame } from './names.js?v=23.89.42';
+import { блокКакБыл } from './hud-block.js?v=23.89.42';
 
 export const NC = /^\s*(?:nc|n\/c|no change|unchanged)\s*\.?\s*$/i;
 export const ПОЛЯ_NC = ['Ap', 'C', 'Kn', 'Ft', 'NG', 'SxL'];
@@ -256,6 +257,5 @@ export function развернутьКраткое(hud, прошлые, { мир
 
 /** Блок [HUD] с тем же отступом JSON, что был у модели. */
 export function блокHUD(hud, прежний = '') {
-  const отступ = ((String(прежний).match(/\{\r?\n( +)"/) || [])[1] || ' ').length;
-  return '[HUD]\n```json\n' + JSON.stringify(hud, null, отступ) + '\n```\n[/HUD]';
+  return блокКакБыл(hud, прежний, 1);
 }
