@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.45**:
+The latest version is **23.89.46**:
 
+- Building up reaches everyone a gun involves and badges update in every tab; English without Russian leftovers; the guide explains every setting and field and has new sections.
 - Building up: a gun does not fire on its own deadline day, and a fired one leaves the plate at once.
 - "nc" for companions expands to the previous values.
 - Invented names in the Factions and reputation examples.

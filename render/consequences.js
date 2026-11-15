@@ -8,12 +8,12 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.89.45';
-import { settings } from '../settings.js?v=23.89.45';
-import { namesLikelySame } from '../names.js?v=23.89.45';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.45';
-import { запущенноеУ, срокиНитей, разобратьНить, добавитьПодсказку, отметкаПоследствия, отметитьПоследствие } from '../turn-notes.js?v=23.89.45';
-import { раскрывашка } from './fold.js?v=23.89.45';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.89.46';
+import { settings } from '../settings.js?v=23.89.46';
+import { namesLikelySame } from '../names.js?v=23.89.46';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.46';
+import { запущенноеУ, срокиНитей, разобратьНить, добавитьПодсказку, отметкаПоследствия, отметитьПоследствие } from '../turn-notes.js?v=23.89.46';
+import { раскрывашка } from './fold.js?v=23.89.46';
 
 const ДЕНЬ = 864e5;
 // Пороги: «накопленное», а не плохой час.
@@ -65,7 +65,7 @@ export function последствияЧеловека(о, имя) {
     : срокиНитей();
   if (сцена !== null) for (const н of нити) {
     if (!Number.isFinite(н.дата) || н.дата >= сцена || !н.завязка || !н.кто) continue;
-    if (!String(н.кто).split(/[,;и&]+/).some(кто => кто.trim() && namesLikelySame(кто.trim(), имя))) continue;
+    if (!String(н.кто).split(/\s*[,;&/]\s*|\s+(?:и|and)\s+/i).some(кто => кто.trim() && namesLikelySame(кто.trim(), имя))) continue;
     const д = new Date(н.дата);
     out.push({ ключ: `ружьё|${нормаКлюча(н.завязка)}`, что: `Ружьё стреляет: ${н.завязка}`, почему: `срок истёк ${String(д.getUTCDate()).padStart(2, '0')}.${String(д.getUTCMonth() + 1).padStart(2, '0')}` });
   }
@@ -100,6 +100,14 @@ function снятьЗначок(пункт) {
     const n = (parseInt(текст ? текст.textContent : з.textContent, 10) || 0) - 1;
     if (n <= 0) з.remove(); else if (текст) текст.textContent = String(n); else з.textContent = String(n);
   }
+}
+
+// Одно ружьё на нескольких людей стоит в каждой их вкладке: решили в одной —
+// карточка пересобирается (index.js), и пункт уходит из всех вкладок и значков.
+// Пауза — чтобы успели увидеть «✓ Уйдёт модели».
+function решено(кнопка) {
+  const mes = кнопка.closest('.mes[mesid]');
+  try { document.dispatchEvent(new CustomEvent('hud-conseq-decided', { detail: { mes } })); } catch (_) {}
 }
 
 const МОЛНИЯ = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>';
@@ -137,11 +145,13 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
       }
       отметитьПоследствие(ключ, 'sent');
       снятьЗначок(пункт);
+      решено(кнопка);
       пункт.className = 'hud-conseq-item is-done';
       пункт.innerHTML = '<small class="done">✓ Уйдёт модели со следующим ответом — один раз. Свайп этого ответа её не получит.</small>';
     } else {
       отметитьПоследствие(ключ, 'skip');
       снятьЗначок(пункт);
+      решено(кнопка);
       const плашка = пункт.closest('.hud-conseq');
       пункт.remove();
       if (плашка && !плашка.querySelector('.hud-conseq-item')) плашка.remove();

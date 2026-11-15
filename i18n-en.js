@@ -6,6 +6,14 @@
 // Шаблоны — для строк с числами и вставками («3 трека», «с хода 5»).
 
 export const СЛОВАРЬ_EN = {
+  // Подсказки кнопок «Сжатых значений» и «Оформления по чатам»
+  "Сжать все поля из списка": "Compress every field in the list",
+  "Вернуть всем полям обычную длину": "Give every field its normal length back",
+  "Запомнить размеры, заданные выше": "Keep the sizes set above",
+  "Вернуть всем сжатым полям размеры по умолчанию": "Reset every compressed field to its default size",
+  "Поставить этому чату оформление чата, выбранного в списке": "Give this chat the look of the chat chosen in the list",
+  "Сделать оформление этого чата общим для всех чатов без своего вида": "Make this chat’s look the common look for every chat without its own",
+  "Убрать у этого чата своё оформление — он вернётся к общему": "Drop this chat’s own look — it goes back to the common one",
   // Праздники: профиль подключения и его обновление (render/holiday-gen.js)
   "Выбранного профиля больше нет — запрос пойдёт через модель чата": "The selected profile is gone: the request will use the chat model.",
   "Список профилей обновлён": "Profile list updated.",
@@ -344,6 +352,7 @@ export const СЛОВАРЬ_EN = {
   "Предложить модели": "Suggest to the model",
   "Не надо": "No thanks",
   "✓ Уйдёт модели в следующем ответе — один раз.": "✓ Goes to the model in the next reply — once.",
+  "✓ Уйдёт модели со следующим ответом — один раз. Свайп этого ответа её не получит.": "✓ Goes to the model with the next reply — once. A swipe of this reply won’t get it.",
   "Очередь подсказок полна (до трёх на ответ) — предложите после следующего ответа.": "The nudge queue is full (up to three per reply) — suggest it after the next reply.",
   "Приходит коллектор": "A debt collector shows up",
   "Пари": "Bets",
@@ -1529,6 +1538,7 @@ export const СЛОВАРЬ_EN = {
   "Разбитое стекло (как было": "Broken glass (as it was",
   "Блоки: Спутники": "Blocks: Companions",
   "Полоска (как было": "Bar (as it was",
+  "Щиты (как было": "Shields (as it was",
   "Блоки: Мир": "Blocks: World",
   "Сводка (как было": "Summary (as it was",
   "Билеты (как было": "Tickets (as it was",
@@ -6017,9 +6027,9 @@ export const ШАБЛОНЫ_EN = [
   ["^от: (.+)$", "from: $1"],
   ["^(I|II|III|IV) из IV$", "$1 of IV"],
   ["^1 заклинание$", "1 spell"],
-  ["^(\d+) заклинани[еяй]$", "$1 spells"],
+  ["^(\\d+) заклинани[еяй]$", "$1 spells"],
   ["^1 дар$", "1 gift"],
-  ["^(\d+) дар(?:а|ов)?$", "$1 gifts"],
+  ["^(\\d+) дар(?:а|ов)?$", "$1 gifts"],
   ["^Беременность, (\\d+)-я неделя$", "Pregnancy, week $1"],
   ["^(.+) — боль сбивает, дар слабее$", "$1 — pain breaks focus, the gift is weaker"],
   ["^↳ «(.+)» в эпохе$", "↳ «$1» in this era"],

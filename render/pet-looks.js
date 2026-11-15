@@ -95,7 +95,7 @@ export function глазаИзТекста(текст) {
   }
   if (/гетерохром|разн(?:ые|оцветн\p{L}*)\s+глаз|heterochrom|odd[- ]eyed/iu.test(s)) {
     const цвета = [];
-    for (const кусок of s.split(/[,;и]|and/)) { const ц = первый(ГЛАЗА, кусок); if (ц && !цвета.includes(ц[1])) цвета.push(ц[1]); }
+    for (const кусок of s.split(/[,;/]|\s(?:и|and)\s/i)) { const ц = первый(ГЛАЗА, кусок); if (ц && !цвета.includes(ц[1])) цвета.push(ц[1]); }
     return цвета.length >= 2 ? цвета.slice(0, 2) : ['#4aa8ff', '#f2b93a'];
   }
   // «сапфировые глаза», «глаза: янтарные», «с изумрудными глазами», «blue eyes».

@@ -42,7 +42,19 @@ TavernOS asks the model to send a `[HUD] … [/HUD]` block with every reply — 
 - **Open in the side panel** — this turn's HUD in the side panel.
 - **Turn summary** — old messages show a short summary instead of the full HUD; tap it to open the full one. If the HUD was offloaded to a file, the button brings it back into the message.
 - **❓ Ask about the story** — the assistant answers from the HUD and the latest messages; nothing goes into the chat.
-- **One-time hints** — plates you can tap so that a single request goes to the model with the next reply.
+- **One-time hints** — plates you can tap so that a single request goes to the model with the next reply. It goes with the next reply: a swipe of the reply where you tapped does not get it, swipes of the next one do.
+
+### Building up
+When something piles up over several days — lack of sleep, hunger, stress through the roof, a negative balance, a gun past its deadline — the HUD sees where it is heading and puts a **⚡ Building up** plate in that person's card: what may happen and why.
+- **Tab badge.** The person's tab shows a number: how many such things wait for your decision. A gun that involves several people shows up for each of them.
+- **"Suggest to the model"** sends it to the model once, with the next reply. **"No thanks"** removes the plate, and it is not offered again.
+- **Guns.** A gun due "15.06" does not go off on the 15th itself, only from the next day. If the model has already marked it fired or removed it, the plate disappears at once.
+- Turned on and off by **⚡ Consequences** in "🧩 HUD blocks".
+
+### Holidays
+- The phone calendar shows the holidays of your era and, with **✨ World holidays** on, the world's own holidays from the fandom or the lorebook: the model finds them or makes them up.
+- Tap **"How it is celebrated"** on a holiday and the model comes up with a custom, a place and an event you can bring into the story.
+- Removed and disabled holidays are not sent to the model.
 
 ### Relationship graph and family
 - **Ties** — who is who to whom. Tap a person to keep only their ties; the graph is small in the card and opens in a large window with zoom.
@@ -62,6 +74,8 @@ The **🎨 Customization** window changes looks only, not content.
 - **Click opens its setting** — turn it on and tap any block in the preview: the window scrolls to its setting.
 - **Sample** — show an example with all blocks, even if the chat has none yet. Handy for seeing everything and trying the question marks.
 - **Icon drawing** — emoji or drawings in the theme color: line, ink, pixel, rounded.
+- **Era look** — in the Middle Ages and in fantasy, blocks change their look for the era. Here any block can go back to its modern look, and with hidden magic, the other way round, take on the look of magic.
+- **Each chat has its own look** (settings → ✨ Display → 🎨 Look per chat) — era, theme, colors, fonts and block views are remembered per chat. One chat's look can be taken into another or made common.
 
 ## All settings
 
@@ -81,6 +95,8 @@ The model writes one block per reply:
 
 - **Keys are short codes**, values are plain text in the interface language (or in English, if set so). Labels inside values are codes too: `Bs: "eng: 80 rested; slp: 40"`.
 - **An empty field** is written as `empty` or left out.
+- **`nc` means "no change".** For slow fields (looks, character, companions and the like) the model can write `nc` instead of rewriting them every turn, and the HUD fills in the previous value from past turns. On screen you see the full text.
+- **Shorter and cheaper.** In "🤖 Generation" there is **📏 HUD on one line** (JSON without line breaks, about a tenth fewer tokens) and **🗜️ Compact values**: checked fields get a firm size in words and points, set in "🎛️ Fine tuning" below them.
 - **A disabled block or field** is not in the instruction, and the model does not write it. Single fields are turned off in "🔬 Fine tuning" (HUD blocks).
 - **The latest HUD snapshot** goes to the model with the instruction: it updates the world instead of building it anew.
 - **The parser forgives mistakes**: a cut-off reply, missing commas, quotes inside strings, YAML instead of JSON, sections in the wrong place.

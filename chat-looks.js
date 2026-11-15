@@ -16,12 +16,12 @@
 //
 // Картинка фона в снимок не входит: она тяжёлая (до 3 МБ) и общая.
 
-import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.45';
-import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.45';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.45';
-import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.45';
-import { escapeHtml } from './utils.js?v=23.89.45';
-import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.45';
+import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.46';
+import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.46';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.46';
+import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.46';
+import { escapeHtml } from './utils.js?v=23.89.46';
+import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.46';
 
 // Эпоха — тоже вид истории: в средневековом чате нет телефона.
 const ЭПОХА = ['era', 'fantasyMagic', 'magicPresence', 'techLevel', 'modernComms', 'eraModern', 'eraMagic'];
@@ -208,10 +208,10 @@ export function разметкаВидаЧатов() {
   const опции = `<option value="common">Общее оформление</option>` + список.map(([к, в]) => `<option value="${escapeHtml(к)}">${escapeHtml(подпись(к, в))}</option>`).join('');
   return `<div class="hud-chatlook-status">${escapeHtml(статус)}</div>`
     + (включено() ? `<div class="hud-chatlook-row"><select class="hud-theme-select-input hud-chatlook-from" aria-label="Чей вид взять">${опции}</select>`
-      + `<button type="button" class="hud-set-tool-btn" data-chatlook="take"${id ? '' : ' disabled'}>Взять в этот чат</button>`
+      + `<button type="button" class="hud-set-tool-btn" data-chatlook="take" title="Поставить этому чату оформление чата, выбранного в списке"${id ? '' : ' disabled'}>Взять в этот чат</button>`
       + `<button type="button" class="hud-set-tool-btn" data-chatlook="forget" title="Убрать вид выбранного чата из списка">✕</button></div>`
-      + `<div class="hud-chatlook-row"><button type="button" class="hud-set-tool-btn" data-chatlook="common">Сделать общим</button>`
-      + `<button type="button" class="hud-set-tool-btn" data-chatlook="reset"${id && виды()[id] ? '' : ' disabled'}>Вернуть общее</button></div>` : '');
+      + `<div class="hud-chatlook-row"><button type="button" class="hud-set-tool-btn" data-chatlook="common" title="Сделать оформление этого чата общим для всех чатов без своего вида">Сделать общим</button>`
+      + `<button type="button" class="hud-set-tool-btn" data-chatlook="reset" title="Убрать у этого чата своё оформление — он вернётся к общему"${id && виды()[id] ? '' : ' disabled'}>Вернуть общее</button></div>` : '');
 }
 export function обновитьПанель() {
   if (typeof document === 'undefined') return;

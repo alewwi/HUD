@@ -5,21 +5,21 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.45';
-import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.45';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.45';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.45';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.45';
-import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху } from './era.js?v=23.89.45';
-import { порядокГрупп } from './tabs-order.js?v=23.89.45';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.45';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.45';
-import { hudБлоки } from './hud-block.js?v=23.89.45';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.45';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.45';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.45';
-import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.45';
-import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.45';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.46';
+import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.46';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.46';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.46';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.46';
+import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху } from './era.js?v=23.89.46';
+import { порядокГрупп } from './tabs-order.js?v=23.89.46';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.46';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.46';
+import { hudБлоки } from './hud-block.js?v=23.89.46';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.46';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.46';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.46';
+import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.46';
+import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.46';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 // Язык из таблицы переводчика: английский пример с переведёнными кусками
 // (render/sample-translate.js), пересобирается при смене языка или файла.
@@ -32,13 +32,13 @@ const пример = () => {
   return примерТаблицы;
 };
 const текстПримера = (s) => (ключЯзыкаТаблицы() ? отобразитьСтроку(s, (к) => строкаТаблицы(к) || к) : s);
-import { задатьПримерСемьи } from './render/conception.js?v=23.89.45';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.45';
-import { привязатьИсторию } from './render/intimacy.js?v=23.89.45';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.45';
-import { собратьРисунок } from './render/lazy-svg.js?v=23.89.45';
-import { attachHelpMarks } from './help.js?v=23.89.45';
-import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.45';
+import { задатьПримерСемьи } from './render/conception.js?v=23.89.46';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.46';
+import { привязатьИсторию } from './render/intimacy.js?v=23.89.46';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.46';
+import { собратьРисунок } from './render/lazy-svg.js?v=23.89.46';
+import { attachHelpMarks } from './help.js?v=23.89.46';
+import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.46';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -431,7 +431,7 @@ function обликЭпохи() {
   const имя = [ИМЕНА_ЭПОХ[скрыта ? база() : эпоха()] || '', скрыта ? 'магия скрыта' : '', м === 'grounded' ? 'врождённые силы' : м === 'high' ? 'заклинания' : ''].filter(Boolean).map(x => т(x)).join(', ');
   if (!ряды.length) return `<details class="hud-custom-sub hud-smooth hud-era-looks"><summary>Обличье эпохи</summary><div class="hud-theme-presets-note">В современности без магии блоки не переодеваются. Эпоха и магия выбираются в настройках HUD: «Блоки HUD» → «Эпоха, технологии и магия».</div></details>`;
   return `<details class="hud-custom-sub hud-smooth hud-era-looks"><summary>Обличье эпохи: ${escapeHtml(имя)}</summary><div class="hud-theme-grid">`
-    + ряды.map(([о, в]) => `<div class="hud-theme-row"><label>${escapeHtml(о.имя)}:</label>${выборОбличья(о, в, 'Как в современности')}</div>`).join('')
+    + ряды.map(([о, в]) => `<div class="hud-theme-row"><label>${escapeHtml(т(о.имя))}:</label>${выборОбличья(о, в, 'Как в современности')}</div>`).join('')
     + `</div><div class="hud-theme-presets-note">${скрыта ? 'Магия скрыта, поэтому мир с виду обычный. Любой блок можно всё же переодеть «под магию» — остальные останутся как есть. ' : 'Эпоха переодевает только эти виды. '}Блок можно вернуть к современному виду или сменить сам вид в группах ниже — тогда эпоха его не трогает. Телефон здесь не настраивается: с ним меняется и промт.</div></details>`;
 }
 

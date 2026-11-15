@@ -197,7 +197,7 @@ settings.hudCompact = false;
 const су = fs.readFileSync(ROOT + 'settings-ui.js', 'utf8');
 проверить('настройки: одна строка, сжатие и размеры — в «Генерации»', (() => { const i = су.indexOf("группа('🤖 Генерация'"), j = су.indexOf("группа('📚 Лорбуки'"); const г = су.slice(i, j); return г.includes("'hud-one-line'") && г.includes('разметкаСжатия()') && г.includes('разметкаРазмеров()'); })());
 const сд = fs.readFileSync(ROOT + 'settings-deep.js', 'utf8');
-проверить('«Глубокая настройка» размеров: «Сохранить» и «По умолчанию»', сд.includes('id="hud-sizes-save">Сохранить') && сд.includes('id="hud-sizes-default">По умолчанию'));
+проверить('«Глубокая настройка» размеров: «Сохранить» и «По умолчанию»', /id="hud-sizes-save"[^>]*>Сохранить/.test(сд) && /id="hud-sizes-default"[^>]*>По умолчанию/.test(сд));
 
 console.log(`\nпроверок: ${всего}, провалов: ${провалов}`);
 process.exitCode = провалов ? 1 : 0;

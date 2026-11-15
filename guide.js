@@ -11,10 +11,10 @@
 //     настройки» (код и название) и словарь вопросиков (что это).
 // Слева оглавление по разделам, сверху поиск по всему тексту.
 
-import { английский, т } from './i18n.js?v=23.89.45';
-import { escapeHtml } from './utils.js?v=23.89.45';
-import { TAB_HELP, findTermHelp } from './help.js?v=23.89.45';
-import { КАТАЛОГ } from './deep-fields.js?v=23.89.45';
+import { английский, т } from './i18n.js?v=23.89.46';
+import { escapeHtml } from './utils.js?v=23.89.46';
+import { TAB_HELP, findTermHelp } from './help.js?v=23.89.46';
+import { КАТАЛОГ } from './deep-fields.js?v=23.89.46';
 
 let открыто = false;
 const э = (s) => escapeHtml(String(s ?? ''));
@@ -118,6 +118,71 @@ export function настройкиИзПанели(корень = document.getEl
 }
 
 /* --- Поля, которые пишет модель ----------------------------------------- */
+// Пояснения полей, у которых нет своей статьи «?» (help.js): общие слова вроде
+// «Вид» или «Состояние» статьёй прилипли бы к чужим строкам карточки, поэтому —
+// только здесь, для гайда. [по-русски, по-английски].
+export const ПОЯСНЕНИЯ_ПОЛЕЙ = {
+  "Настроение сцены": ["Общее настроение сцены в паре слов — видно в шапке рядом с погодой.", "The overall mood of the scene in a few words, shown in the header next to the weather."],
+  "Тело и душа": ["Что сейчас с телом и чувствами человека: поза, ощущения, эмоции — одной-двумя фразами.", "What is going on with the person’s body and feelings right now: posture, sensations, emotions, in a sentence or two."],
+  "Состояние тела": ["Шкалы от 0 до 100: энергия, бодрость, сытость, жажда, стресс и другие — с коротким словом к каждой.", "Gauges from 0 to 100: energy, alertness, fullness, thirst, stress and more, each with a short word."],
+  "Ключевые мысли": ["Главное, о чём человек думает сейчас, — несколько коротких пунктов.", "The main things on the person’s mind right now, as a few short points."],
+  "Ожидание и реальность": ["На что человек рассчитывал в этой сцене и что получил. Интересен как раз разрыв.", "What the person counted on in this scene and what they got. The gap is the point."],
+  "Разоблачение": ["Насколько у человека сползла маска при других: что выдало его и кто заметил.", "How far the person’s mask has slipped in front of others: what gave them away and who noticed."],
+  "Флаги": ["Открытые нити вокруг человека: обещания, долги, угрозы, последствия, которые ещё не наступили.", "Open threads around the person: promises, debts, threats and consequences still waiting to land."],
+  "Число партнёров": ["Сколько у человека было партнёров — по тому, что известно в истории.", "How many partners the person has had, as far as the story knows."],
+  "Регулярность": ["Как часто сейчас бывает близость и с кем, как человек справляется в промежутках, насколько сильно влечение.", "How often they have sex these days and with whom, how they cope in between, how strong the libido is."],
+  "Кинки": ["Что человеку нравится в близости — его предпочтения.", "What the person enjoys in intimacy: their preferences."],
+  "Фетиши": ["Особые влечения человека, если они есть.", "The person’s particular fixations, if any."],
+  "Никогда": ["Границы: чего человек в близости не допустит.", "Limits: what the person will never do in intimacy."],
+  "Раунд": ["Номер раунда близости в этой сцене: 1 — первый.", "The number of the current round of intimacy in this scene, 1 for the first."],
+  "Длительность": ["Сколько уже длится близость в этой сцене.", "How long the intimacy in this scene has lasted so far."],
+  "Пульс и дыхание": ["Пульс, дыхание и температура во время близости и пока человек успокаивается после.", "Pulse, breathing and temperature during intimacy and while the person calms down afterwards."],
+  "Подробности близости": ["Только во время близости: возбуждение, касания, реакции тела — подробно, по меткам.", "Only during intimacy: arousal, touch, the body’s reactions, in detail, by labels."],
+  "Отзыв": ["Когда близость закончилась: несколько фраз от лица человека — что было хорошо, что нет, лучший и самый неловкий момент.", "Once intimacy is over: a few sentences in the person’s own voice about what worked, what didn’t, the best and the most awkward moment."],
+  "События дня": ["Что случилось за день по порядку — из этого собираются летопись и архив.", "What happened during the day, in order. The chronicle and the archive are built from it."],
+  "Быт хода": ["Что люди делали по хозяйству в этом ходу: еда, сон, мытьё, покупки, уборка. Из этого считается «Быт».", "Chores people did this turn: food, sleep, washing, shopping, cleaning. Daily life is counted from it."],
+  "Факты": ["Важное, что стоит помнить дальше: решения, открытия, договорённости.", "Important things worth remembering later: decisions, discoveries, agreements."],
+  "Время записи": ["Когда человек сделал запись в дневнике — по времени сцены.", "When the person wrote the diary entry, in scene time."],
+  "Запись об игроке": ["Что персонаж пишет в дневнике о вашем герое.", "What the character writes in the diary about your character."],
+  "Настроение листа": ["Настроение записи — по нему меняется оформление страницы дневника.", "The mood of the entry; the diary page changes its look by it."],
+  "Толкование": ["Что сон может значить для человека — короткое толкование.", "What the dream may mean for the person, a short reading."],
+  "Вид": ["Кто это: животное, фамильяр, дрон, робот.", "What it is: an animal, a familiar, a drone, a robot."],
+  "Хозяин": ["Чей это спутник или к кому он привязан.", "Whose companion it is or whom it is bound to."],
+  "Умения": ["Три-четыре самых заметных умения, трюка или привычки спутника.", "The companion’s three or four most telling skills, tricks or quirks."],
+  "Состояние": ["Здоровье спутника: раны, усталость, заряд.", "The companion’s condition: injuries, tiredness, charge."],
+  "Питание": ["Чем спутник питается или заряжается и когда в последний раз.", "What the companion eats or runs on, and when it last did."],
+  "Привязанность": ["Насколько сильна связь с хозяином или с близкими, от 0 до 100.", "How strong the bond with the owner or with family is, from 0 to 100."],
+  "Чем занят": ["Что спутник делает прямо сейчас.", "What the companion is doing right now."],
+  "Потребности": ["Шкалы спутника от 0 до 5: сытость, энергия, чистота, настроение (у машины — заряд и исправность).", "The companion’s needs from 0 to 5: fullness, energy, cleanliness, mood (for a machine: charge and working order)."],
+  "Очерёдность": ["Кто в бою действует первым, кто следом — по порядку.", "Who acts first in the fight and who next, in order."],
+  "Укрытия": ["За чем можно укрыться и что схватить рядом — и насколько это защищает.", "What can be used for cover or grabbed nearby, and how well it protects."],
+  "Нервы": ["Как держится каждый в бою: действует, дрожит, замер, паникует или бежит.", "How each person holds up in the fight: acting, shaking, frozen, panicking or fleeing."],
+  "Кем приходится": ["Кем малыш приходится героям: сын, дочь, племянник.", "How the baby is related to the characters: son, daughter, nephew."],
+  "Где сейчас": ["Где малыш в эту минуту и с кем.", "Where the baby is right now and with whom."],
+  "Тело и настроение": ["Как малыш себя чувствует и в каком он настроении.", "How the baby feels and what mood it is in."],
+  "Болезни": ["Чем малыш болеет и как лечат.", "What the baby is ill with and how it is treated."],
+  "Отметины": ["Видимые следы на теле малыша: синяки, сыпь, царапины.", "Visible marks on the baby’s body: bruises, rash, scratches."],
+  "Уход": ["Когда малыша кормили, когда он спал и когда меняли подгузник.", "When the baby was last fed, slept and had a nappy change."],
+  "Режим дня": ["Распорядок малыша: кормления, сон, прогулки.", "The baby’s routine: feeds, naps, walks."],
+  "Вещи": ["Вещи малыша: одежда, игрушки, коляска.", "The baby’s things: clothes, toys, a pram."],
+  "Впечатления": ["Что малыш замечает и чему радуется или пугается.", "What the baby notices and what delights or scares it."],
+  "Первые слова": ["Слова и звуки, которые малыш уже говорит.", "The words and sounds the baby already says."],
+  "Реакции на людей": ["Как малыш ведёт себя с каждым из близких.", "How the baby behaves with each of the people around it."],
+  "Новости": ["Новости мира этого дня — то, что могло бы попасть в газету.", "The day’s news of the world, the kind that could make the paper."],
+  "Объявления": ["Объявления и реклама: что продают, кого ищут, что открылось.", "Classifieds and ads: what is for sale, who is wanted, what has opened."],
+  "Шрамы": ["HUD напоминает модели о старой ране в доверии: раз в восемь ответов, чтобы её не забыли, но и не выпячивали.", "The HUD reminds the model of an old wound in trust, once every eight replies, so it is neither forgotten nor overplayed."],
+  "Впечатление от сдвига доверия": ["Когда доверие резко изменилось, HUD просит модель показать, как человек это переживает.", "When trust changes sharply, the HUD asks the model to show how the person takes it."],
+  "Соперник": ["Подсказка модели о сопернике в словесной дуэли: кто ведёт и как отвечает проигрывающий.", "A note for the model about the opponent in a verbal duel: who is ahead and how the one losing answers back."],
+  "Живые детали": ["Короткие напоминания модели о теле: голод, усталость, боль, похмелье, ПМС — чтобы это проявлялось в сцене.", "Short reminders to the model about the body: hunger, tiredness, pain, a hangover, PMS, so they show in the scene."],
+  "Просьба записать вес": ["HUD просит модель указать рост, вес и активность, если их нет, — без них не посчитать норму еды.", "The HUD asks the model for height, weight and activity when they are missing; the food norm cannot be counted without them."],
+  "Праздники": ["Заметки модели о праздниках мира: перед праздником, в сам день и итог после.", "Notes to the model about the world’s holidays: before the day, on the day and the outcome after."],
+  "Сроки": ["Когда срок ружья или плана из календаря прошёл, HUD просит модель решить: случилось или сорвалось.", "When the deadline of a gun or a calendar plan has passed, the HUD asks the model to settle whether it happened or failed."],
+  "Напоминания о близости": ["Плашки для вас: после потери, родов или свежей раны близость может быть рано.", "Plates for you: after a loss, a birth or a fresh wound it may be too early for intimacy."],
+  "Значки вопросов": ["Числа на вкладках: сколько вопросов ждёт вашего ответа (память, беременность, «Назревает»).", "Numbers on the tabs: how many questions are waiting for your answer (memory, pregnancy, Building up)."],
+  "Разовые подсказки": ["Кнопки у важного, ружей, секретов, слухов и новостей: нажали — одна просьба уйдёт модели в следующий ответ.", "Buttons on important things, guns, secrets, rumours and news: press one and a single request goes to the model with the next reply."],
+  "Осмотры": ["Плановые осмотры беременности на 12-й, 20-й и 30-й неделе — HUD предложит их сам.", "Pregnancy check-ups at weeks 12, 20 and 30; the HUD offers them itself."],
+  "Кубик угрозы": ["Когда беременности что-то угрожает, исход решает бросок кубика — его делаете вы.", "When a pregnancy is threatened, the outcome is decided by a dice roll, and you make it."],
+};
 const ВКЛАДКА = { cs: 'character', us: 'user', me: 'memory', dy: 'diary', dr: 'dreams', pet: 'pets', cb: 'combat', bb: 'babies', wd: 'world' };
 export function поляМодели() {
   return КАТАЛОГ.map(р => {
@@ -126,7 +191,9 @@ export function поляМодели() {
     const группы = р.группы.map(г => {
       const поля = г.поля.map(([код, имя, под]) => {
         const статья = findTermHelp(имя);
-        return `<li><code>${э(код)}</code> <b>${э(т(имя))}</b>${статья ? ` — ${э(т(статья.what))}` : ''}`
+        const своё = ПОЯСНЕНИЯ_ПОЛЕЙ[имя];
+        const что = статья ? т(статья.what) : своё ? своё[английский() ? 1 : 0] : '';
+        return `<li><code>${э(код)}</code> <b>${э(т(имя))}</b>${что ? ` — ${э(что)}` : ''}`
           + (под && под.length ? `<div class="hud-guide-opts">${под.map(([пк, пи]) => `<span><code>${э(пк)}</code> ${э(т(пи))}</span>`).join('')}</div>` : '') + `</li>`;
       }).join('');
       return `<h5>${э(т(г.имя))}${г.код && г.код !== р.код ? ` <code>${э(г.код)}</code>` : ''}</h5><ul>${поля}</ul>`;

@@ -4,6 +4,17 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.46 — 2026-11-16
+
+### Fixed
+- **Building up for everyone a gun involves.** The gun's "who" list was split on the letter «и» inside words, so a name like «Тристан» fell apart and that person got neither the plate nor the tab badge. Now «и» splits names only as a word. The same fault was in reading odd-coloured pet eyes.
+- **Decide in one tab, badges update everywhere.** A gun that involves several people shows up for each of them; after "Suggest to the model" or "No thanks" the card rebuilds in a couple of seconds and the item leaves every tab and the bell.
+- **English interface.** "2 gifts", "5 gifts" and "N spells" stayed in Russian (two dictionary templates had a broken backslash). "Shields (as it was)", the "Labels («Timeline», «Money»…)" caption in Era look and the new Building up hint are translated.
+
+### Guide
+- Every setting and every model field has a plain-language explanation in Russian and English: 60 fields and 7 buttons that had none got one.
+- New sections: Building up, Holidays, Era look and a look per chat, `nc` ("no change"), "HUD on one line" and "Compact values".
+
 ## 23.89.45 — 2026-11-16
 
 ### Fixed

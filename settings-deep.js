@@ -10,13 +10,13 @@
 // Дерево глубокой настройки большое (две с половиной сотни галочек), поэтому
 // собирается при первом раскрытии, а не вместе со всеми настройками.
 
-import { settings } from './settings.js?v=23.89.45';
-import { escapeHtml, mapKey } from './utils.js?v=23.89.45';
-import { т, английский } from './i18n.js?v=23.89.45';
-import { уверены } from './confirm-erase.js?v=23.89.45';
-import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.89.45';
-import { КАТАЛОГ_СЖАТИЯ, ПУТИ_СЖАТИЯ, лимитПоля, подписьЛимита, очиститьЛимиты, МАКС_СЛОВ, МАКС_ПУНКТОВ } from './compact-fields.js?v=23.89.45';
-import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.89.45';
+import { settings } from './settings.js?v=23.89.46';
+import { escapeHtml, mapKey } from './utils.js?v=23.89.46';
+import { т, английский } from './i18n.js?v=23.89.46';
+import { уверены } from './confirm-erase.js?v=23.89.46';
+import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.89.46';
+import { КАТАЛОГ_СЖАТИЯ, ПУТИ_СЖАТИЯ, лимитПоля, подписьЛимита, очиститьЛимиты, МАКС_СЛОВ, МАКС_ПУНКТОВ } from './compact-fields.js?v=23.89.46';
+import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.89.46';
 
 // --- Глубокая настройка -------------------------------------------------------
 
@@ -79,7 +79,7 @@ export function разметкаСжатия() {
       <label class="hud-set-check" title="Промт перестаёт просить «как можно подробнее»: у отмеченных полей появляется жёсткий размер — сколько слов и пунктов. HUD короче, ответ дешевле и быстрее. Размеры — в «Глубокой настройке» ниже."><input type="checkbox" id="hud-compact" ${settings.hudCompact === true ? 'checked' : ''}><span>🗜️ Сжимать значения полей</span></label>
       <div class="hud-set-note">Отмеченные поля модель пишет коротко, в пределах размера: мысли — до 15 слов, ключевые мысли — до 3 пунктов по 6 слов, дневник — до 80 слов. Неотмеченные — как прежде, подробно. Поле выключенного блока не сжимается — его и так нет в промте.</div>
       <div class="hud-fine-tree" id="hud-squeeze-tree"></div>
-      <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-squeeze-all">Отметить все</button><button type="button" class="hud-theme-act" id="hud-squeeze-none">Снять все</button></div>
+      <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-squeeze-all" title="Сжать все поля из списка">Отметить все</button><button type="button" class="hud-theme-act" id="hud-squeeze-none" title="Вернуть всем полям обычную длину">Снять все</button></div>
     </div>
   </details>`;
 }
@@ -90,7 +90,7 @@ export function разметкаРазмеров() {
     <div class="hud-set-body">
       <div class="hud-set-note">Размер каждого сжатого поля: сколько слов, а у списков — сколько пунктов и слов в каждом (0 пунктов — сколько угодно, каждый короткий). Правки вступают в силу по «Сохранить». «По умолчанию» возвращает встроенные размеры всем полям.</div>
       <div class="hud-sizes-list" id="hud-sizes-list"></div>
-      <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-sizes-save">Сохранить</button><button type="button" class="hud-theme-act" id="hud-sizes-default">По умолчанию</button></div>
+      <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-sizes-save" title="Запомнить размеры, заданные выше">Сохранить</button><button type="button" class="hud-theme-act" id="hud-sizes-default" title="Вернуть всем сжатым полям размеры по умолчанию">По умолчанию</button></div>
     </div>
   </details>`;
 }
