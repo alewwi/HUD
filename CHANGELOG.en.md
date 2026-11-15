@@ -4,6 +4,17 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.32 — 2026-11-15
+
+Each chat has its own look: a medieval story stays medieval and a modern one stays modern. A look can be copied from one chat to another. Plus a new physician's chart in the Middle Ages.
+
+### Added
+- **Look per chat** (Settings → Display → Look per chat). Era, theme, palette, colours, fonts, block views, decorations and icons are remembered separately for each chat and come back when you open it. A chat gets its own look as soon as you change something in it. Other chats stay as they were. Chats without their own look use the common one. Prompts, limits, enabled blocks and models are shared by all chats. The background picture is shared too: it can be up to 3 MB.
+- **Copying a look.** "Use in this chat" copies the look of another chat (or the common one). "Make common" makes the current look the common one. "Back to common" drops the chat's own look. A switch brings back one look for all chats.
+
+### Changed
+- **Physician's chart** (the Physiology view in the Middle Ages). The figure stands in a pointed arch. The body shows veins and bloodletting points, and sore spots are circled with a dotted line. The numbers sit in the margins with a leader line to the spot and never overlap. The four humours with captions fill the corners. Added proportion lines, a leech, a urine flask and herbs at the base. On a phone the chart stands above the list instead of beside it.
+
 ## 23.89.31 — 2026-11-15
 
 Every setting in the guide has an explanation, and avatars no longer turn into a long list of buttons.

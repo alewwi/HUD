@@ -148,9 +148,38 @@
 .era-hours .h > svg { width: 26px; height: 30px; justify-self: center; }
 
 /* ── Физиология: лист лекаря ── */
-.era-leech { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 6px 16px; padding: 12px 16px; align-items: center; }
+.era-leech { display: grid; grid-template-columns: 184px minmax(0, 1fr); gap: 6px 16px; padding: 12px 16px; align-items: center; }
 .era-leech .top { grid-column: 1 / -1; text-align: center; }
-.era-leech > svg { width: 128px; height: 158px; color: var(--ink); }
+.era-leech > svg { width: 184px; height: 182px; color: var(--ink); overflow: visible; }
+/* Лист лекаря: стрельчатая ниша, четыре сока по углам, жилы и точки кровопускания, номера на полях. */
+.era-leech .leech-deco .arch { fill: color-mix(in oklab, var(--parch-2) 30%, transparent); stroke: var(--ink); stroke-opacity: .45; stroke-width: .8; }
+.era-leech .leech-deco .arch.thin { fill: none; stroke: var(--e-gold); stroke-opacity: .75; stroke-width: .5; stroke-dasharray: 1 1.6; }
+.era-leech .leech-deco .ground { stroke: var(--ink); stroke-opacity: .4; stroke-width: .7; }
+.era-leech .leech-deco .herb { fill: color-mix(in oklab, #5f7a3a 55%, var(--ink)); fill-opacity: .55; stroke: color-mix(in oklab, #5f7a3a 70%, var(--ink)); stroke-width: .8; stroke-linecap: round; }
+.era-leech .humour circle { fill: color-mix(in oklab, var(--parch-2) 50%, transparent); stroke: var(--e-gold); stroke-width: .7; }
+.era-leech .humour .thin { fill: none; stroke-width: .4; stroke-dasharray: .8 1.2; }
+.era-leech .h-blood path { fill: #9b1c1c; } .era-leech .h-yellow path { fill: #c9a227; } .era-leech .h-phlegm path { fill: #9fc0d6; }
+.era-leech .h-black path { fill: #2a2320; stroke: color-mix(in oklab, var(--parch) 70%, transparent); stroke-width: .4; }
+.era-leech .leech-fig .vein { fill: none; stroke: var(--e-rubric); stroke-opacity: .55; stroke-width: .9; stroke-linecap: round; }
+.era-leech .leech-fig .lancet { stroke: var(--e-rubric); stroke-width: .8; stroke-linecap: round; }
+.era-leech .leech-marks .lead { fill: none; stroke: var(--ink); stroke-opacity: .45; stroke-width: .55; }
+.era-leech .leech-marks .pin { fill: var(--e-rubric); }
+.era-leech .leech-marks .num circle { fill: var(--parch); stroke: var(--e-rubric); stroke-width: .9; }
+.era-leech .leech-marks .num text { font-family: var(--fh); font-size: 6.4px; fill: var(--e-rubric); }
+.era-leech .leech-marks .num .thin { fill: none; stroke-width: .4; stroke-dasharray: .8 1.1; }
+.era-leech .leech-deco .cross { stroke: var(--e-gold); stroke-width: .9; stroke-linecap: round; }
+.era-leech .leech-deco .canon { stroke: var(--ink); stroke-opacity: .22; stroke-width: .45; stroke-dasharray: 1.2 1.8; }
+.era-leech .leech-deco .tick { stroke: var(--e-gold); stroke-width: .7; }
+.era-leech .humour text { font: italic 4.3px var(--fh, Georgia, serif); fill: var(--ink-soft); stroke: none; }
+.era-leech .humour .gloss { fill: #fff; opacity: .45; }
+.era-leech .leech-deco .leech path { fill: color-mix(in oklab, #3a2a22 75%, var(--ink)); stroke: color-mix(in oklab, #1c120c 80%, var(--ink)); stroke-width: .4; }
+.era-leech .leech-deco .leech .seg { fill: none; stroke: color-mix(in oklab, var(--parch) 50%, transparent); stroke-width: .4; }
+.era-leech .leech-deco .leech .eye { fill: var(--parch); }
+.era-leech .leech-deco .matula .glass { fill: color-mix(in oklab, var(--parch) 25%, transparent); stroke: var(--ink); stroke-opacity: .7; stroke-width: .7; }
+.era-leech .leech-deco .matula .fill { fill: color-mix(in oklab, #d9a93a 60%, var(--parch-2)); opacity: .75; }
+.era-leech .leech-deco .matula .rim { stroke: var(--ink); stroke-width: 1.2; stroke-linecap: round; }
+.era-leech .leech-deco .matula .shine { fill: none; stroke: #fff; stroke-opacity: .5; stroke-width: .8; stroke-linecap: round; }
+.era-leech .leech-fig .sore { fill: none; stroke: var(--e-rubric); stroke-width: .8; stroke-dasharray: 1.4 1.4; opacity: .8; }
 .era-leech ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
 .era-leech li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: baseline; gap: 6px; font-size: 13.5px; padding-bottom: 5px; border-bottom: 1px dotted var(--e-line); }
 .era-leech li > i { font-family: var(--fh); font-style: normal; font-size: 11px; color: var(--e-rubric); }
@@ -432,8 +461,9 @@
   .era-cand .row4::after { display: none; }
   .era-cand figure svg { width: 40px; height: 82px; }
   .era-cand .side { grid-template-columns: minmax(0, 1fr); }
-  .era-leech { grid-template-columns: 72px minmax(0, 1fr); gap: 6px 10px; padding: 10px 10px; }
-  .era-leech > svg { width: 72px; height: 92px; }
+  .era-leech { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 6px 10px; padding: 10px 10px; }
+  .era-leech > svg { width: 150px; height: 148px; }
+  .era-leech ol { justify-self: stretch; }
   .era-leech li { font-size: 12.5px; }
   .era-hours { padding: 8px 10px 6px 26px; }
   .era-hours::before { left: 15px; }
@@ -458,8 +488,9 @@
   .era-cand .row4::after { display: none; }
   .era-cand figure svg { width: 40px; height: 82px; }
   .era-cand .side { grid-template-columns: minmax(0, 1fr); }
-  .era-leech { grid-template-columns: 72px minmax(0, 1fr); gap: 6px 10px; padding: 10px 10px; }
-  .era-leech > svg { width: 72px; height: 92px; }
+  .era-leech { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 6px 10px; padding: 10px 10px; }
+  .era-leech > svg { width: 150px; height: 148px; }
+  .era-leech ol { justify-self: stretch; }
   .era-leech li { font-size: 12.5px; }
   .era-hours { padding: 8px 10px 6px 26px; }
   .era-hours::before { left: 15px; }

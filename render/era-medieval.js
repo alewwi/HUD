@@ -13,9 +13,9 @@
 //
 // Текст модели в новую разметку идёт только через escapeHtml.
 
-import { escapeHtml } from '../utils.js?v=23.89.31';
-import { settings } from '../settings.js?v=23.89.31';
-import { английский } from '../i18n.js?v=23.89.31';
+import { escapeHtml } from '../utils.js?v=23.89.32';
+import { settings } from '../settings.js?v=23.89.32';
+import { английский } from '../i18n.js?v=23.89.32';
 
 const включено = () => settings.era === 'medieval';
 let счёт = 0;
@@ -200,21 +200,52 @@ const ЗОНЫ = [
 function физиология(ph) {
   const чтения = [...ph.querySelectorAll('.reads li')].map((li) => ({ т: текст(li.querySelector('span')), сила: Math.max(1, Math.min(3, (текст(li.querySelector('b')).match(/\+/g) || []).length || +(li.className.match(/s(\d)/) || [])[1] || 1)) }));
   if (!чтения.length) return null;
-  const hatch = id('ht'), blur = id('bl'), занято = new Set();
-  let пятна = '', метки = '';
+  const hatch = id('ht'), blur = id('bl'), ring = id('rg'), занято = new Set();
+  // Фигура стоит в стрельчатой нише и ни с чем не пересекается. Координаты
+  // пятен — в рисунке фигуры (104×128), на листе — через вЛист().
+  const K = .84, вЛист = (x, y) => [+(52 + (x - 52) * K).toFixed(1), +(66 + (y - 66) * K).toFixed(1)];
+  let пятна = '', кольца = '', метки = '';
+  const слева = [], справа = [];
   чтения.forEach((ч, i) => {
     const з = ЗОНЫ.findIndex(([re]) => re.test(ч.т));
     if (з < 0 || занято.has(з)) return;
     занято.add(з);
-    const [, [cx, cy, rx, ry], [mx, my], [lx, ly]] = ЗОНЫ[з];
-    пятна += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" opacity="${(.25 + ч.сила * .17).toFixed(2)}"/>`;
-    метки += `<path d="M${lx} ${ly}L${mx} ${my}" stroke="currentColor" stroke-opacity=".45" stroke-width=".6"/><g><circle cx="${mx}" cy="${my}" r="5.2" style="fill:var(--parch);stroke:var(--e-rubric)" stroke-width=".9"/><text x="${mx}" y="${my + 2.4}" text-anchor="middle" font-size="6.4" style="font-family:var(--fh);fill:var(--e-rubric)">${РИМ[i] || i + 1}</text></g>`;
+    const [, [cx, cy, rx, ry], [mx], [lx, ly]] = ЗОНЫ[з];
+    пятна += `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" opacity="${(.3 + ч.сила * .18).toFixed(2)}"/>`;
+    // Вокруг пятна — пунктирное кольцо, как обводят больное место на листе.
+    кольца += `<ellipse cx="${cx}" cy="${cy}" rx="${(rx + 3.5).toFixed(1)}" ry="${(ry + 3.5).toFixed(1)}" class="sore"/>`;
+    (mx < 52 ? слева : справа).push({ i, точка: вЛист(lx, ly) });
   });
+  // Номера — на полях, по высоте своей зоны, выноской к пятну; друг на друга и на соки по углам не налезают.
+  for (const [поле, x] of [[слева, -12], [справа, 116]]) {
+    let был = 8;
+    поле.sort((а, б) => а.точка[1] - б.точка[1]).forEach(({ i, точка: [px, py] }) => {
+      const y = Math.min(104, Math.max(py, был + 13, 28)); был = y;
+      метки += `<path d="M${px} ${py}L${x + (x < 0 ? 6 : -6)} ${y}" class="lead"/><circle cx="${px}" cy="${py}" r="1.4" class="pin"/>`
+        + `<g class="num"><circle cx="${x}" cy="${y}" r="5.6"/><circle cx="${x}" cy="${y}" r="4.3" class="thin"/><text x="${x}" y="${(y + 2.3).toFixed(1)}" text-anchor="middle">${РИМ[i] || i + 1}</text></g>`;
+    });
+  }
+  // Четыре сока тела по углам: кровь, жёлтая желчь, флегма, чёрная желчь — с подписями.
+  const соки = [[-12, 4, 'blood', 'кровь', 14], [116, 4, 'yellow', 'жёлчь', 14], [-12, 128, 'phlegm', 'флегма', -12], [116, 128, 'black', 'чёрн. жёлчь', -12]]
+    .map(([x, y, к, имя, dy]) => `<g class="humour h-${к}" transform="translate(${x} ${y})"><title>${имя}</title><circle r="8.6"/><circle r="6.8" class="thin"/><path d="M0-5C-1.8-2.2-3.8-.2-3.8 1.8a3.8 3.8 0 0 0 7.6 0C3.8-.2 1.8-2.2 0-5Z"/><ellipse cx="-1.2" cy="1.2" rx=".9" ry="1.4" class="gloss"/><text y="${dy}" text-anchor="middle">${имя}</text></g>`).join('');
+  // Линии пропорций — подбородок, грудь, бёдра, колени — как в старых канонах.
+  const пропорции = [20, 44, 77, 102].map(y => { const [, ly] = вЛист(0, y); return `<path d="M17 ${ly}H87" class="canon"/><path d="M13 ${ly}h3M88 ${ly}h3" class="tick"/>`; }).join('');
+  // Жилы и точки кровопускания — как на старых «жильных» листах.
+  const жилы = 'M44 30C38 33 33 36 27 41M60 30C66 33 71 36 77 41M48 52C47 66 47 74 47 80M56 52C57 66 57 74 57 80M46 84C45 98 45 108 45 118M58 84C59 98 59 108 59 118M52 24V50';
+  const точки = [[31, 37], [73, 37], [24, 42], [80, 42], [45, 117], [59, 117], [52, 13], [47, 70], [57, 70]].map(([x, y]) => `<path d="M${x - 1.5} ${y - 1.5}l3 3M${x + 1.5} ${y - 1.5}l-3 3" class="lancet"/>`).join('');
+  // Пиявка у ног слева, колба для осмотра мочи — справа; травы у основания ниши снаружи.
+  const пиявка = '<g class="leech" transform="translate(23 120)"><path d="M0 2c2-4 6-4 9-2s6 3 9 0c1 3-2 6-6 6S3 7 0 2z"/><path d="M3 2.4c3-1 6 1 9 .6" class="seg"/><circle cx="17" cy="1" r=".7" class="eye"/></g>';
+  const колба = `<g class="matula" transform="translate(71 101)"><defs><clipPath id="${ring}"><path d="M3 0h6v6c4 2 6 6 6 10 0 5-4 9-9 9s-9-4-9-9c0-4 2-8 6-10z"/></clipPath></defs>`
+    + `<g clip-path="url(#${ring})"><rect x="-4" y="12" width="20" height="14" class="fill"/></g><path d="M3 0h6v6c4 2 6 6 6 10 0 5-4 9-9 9s-9-4-9-9c0-4 2-8 6-10z" class="glass"/><path d="M2 0h8" class="rim"/><path d="M-1 16c0-3 1-5 3-6.5" class="shine"/></g>`;
+  const травы = 'M4 128c1-5 0-8-2-11M7 128c0-4 2-7 4-8M4 122c-2-1-4-1-5 1 2 1 4 1 5-1zM100 128c-1-5 0-8 2-11M97 128c0-4-2-7-4-8M100 122c2-1 4-1 5 1-2 1-4 1-5-1z';
   return блок('era era-leech sheet orn', `<div class="top"><span class="cap">Лист лекаря</span>${ЧЕРТА}</div>`
-    + `<svg viewBox="0 0 104 128" aria-hidden="true"><defs><pattern id="${hatch}" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(38)"><line x1="0" y1="0" x2="0" y2="3.2" stroke="currentColor" stroke-opacity=".3" stroke-width=".9"/></pattern><filter id="${blur}"><feGaussianBlur stdDeviation="3.2"/></filter></defs>`
-    + `<circle cx="52" cy="66" r="47" fill="none" stroke="currentColor" stroke-opacity=".22" stroke-width=".7"/><rect x="12" y="26" width="80" height="80" fill="none" stroke="currentColor" stroke-opacity=".13" stroke-width=".6"/>`
+    + `<svg class="leech-chart" viewBox="-22 -8 148 146" aria-hidden="true"><defs><pattern id="${hatch}" width="3.2" height="3.2" patternUnits="userSpaceOnUse" patternTransform="rotate(38)"><line x1="0" y1="0" x2="0" y2="3.2" stroke="currentColor" stroke-opacity=".3" stroke-width=".9"/></pattern><filter id="${blur}"><feGaussianBlur stdDeviation="3.2"/></filter></defs>`
+    + `<g class="leech-deco"><path d="M11 129V42Q11 10 52 -5Q93 10 93 42V129Z" class="arch"/><path d="M15.5 129V43Q15.5 14 52 0Q88.5 14 88.5 43V129" class="arch thin"/><path d="M52 -5v-2.5M48.5 -6.5h7" class="cross"/>`
+    + `${пропорции}<path d="M2 129.5H102" class="ground"/><path d="${травы}" class="herb"/>${пиявка}${колба}${соки}</g>`
+    + `<g class="leech-fig" transform="translate(52 66) scale(${K}) translate(-52 -66)">`
     + `<g filter="url(#${blur})" style="fill:var(--e-rubric)">${пятна}</g>`
-    + `<path d="${ФИГУРА}" fill="url(#${hatch})" stroke="currentColor" stroke-opacity=".8" stroke-width="1" stroke-linejoin="round"/>${метки}</svg>`
+    + `<path d="${ФИГУРА}" fill="url(#${hatch})" stroke="currentColor" stroke-opacity=".85" stroke-width="1.1" stroke-linejoin="round"/><path d="${жилы}" class="vein"/>${точки}${кольца}</g>`
+    + `<g class="leech-marks">${метки}</g></svg>`
     + `<ol>${чтения.map((ч, i) => `<li><i>${РИМ[i] || i + 1}</i><span>${escapeHtml(ч.т)}</span><span class="drops" title="${'+'.repeat(ч.сила)}">${Array.from({ length: ч.сила }, капля).join('')}</span></li>`).join('')}</ol>`);
 }
 

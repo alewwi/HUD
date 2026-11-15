@@ -57,6 +57,11 @@ export const defaultSettings = {
   // Время: '24' — 21:40, '12' — 9:40 PM. Ветер: auto — как написала модель, ms/kmh/mph — пересчёт.
   timeFormat: '24',
   windUnit: 'auto',
+  // Своё оформление у каждого чата (chat-looks.js): эпоха, тема, шрифты, виды
+  // блоков. chatLooks — виды чатов по id, lookCommon — для чатов без своего.
+  lookPerChat: true,
+  chatLooks: {},
+  lookCommon: null,
   era: 'modern',
   enableCasket: true,
   enableOverheard: true,

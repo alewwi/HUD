@@ -1187,6 +1187,12 @@
 }
 @media (hover: hover) and (pointer: fine) { .hud-set-tool-btn:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 34%, transparent); } }
 .hud-set-tool-note { flex: 1 1 100%; min-width: 0; overflow-wrap: anywhere; font-size: 11.5px; line-height: 1.45; color: var(--hud-text-muted, rgba(226,232,240,.66)); }
+/* Оформление по чатам (chat-looks.js): статус, выбор чата, кнопки. */
+.hud-chatlook-box { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+.hud-chatlook-status { font-size: 12px; line-height: 1.4; color: var(--hud-text-muted, rgba(226,232,240,.75)); overflow-wrap: anywhere; }
+.hud-chatlook-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.hud-chatlook-row .hud-chatlook-from { flex: 1 1 180px; min-width: 0; max-width: 100%; }
+.hud-set-tool-btn:disabled { opacity: .45; cursor: default; }
 
 /* Окно шире обычной модалки: в отчёте длинные цепочки статусов. */
 /* Высота — по видимой части экрана (dvh): 92vh на телефоне считал и место

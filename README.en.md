@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.31**:
+The latest version is **23.89.32**:
 
+- Each chat keeps its own look: era, theme, fonts and block views are remembered per story, and a look can be copied between chats; a new physician's chart in the Middle Ages.
 - Every setting in the guide has an explanation in Russian and English; avatars no longer turn into a list of buttons.
 - The settings get a detailed guide with search; block settings sit in their own sections; new "?" explanations for the scene header, life, news, combat and story layers.
 - World holidays: the model finds the fandom's canon or invents holidays from the lorebook, persona and card; you choose what goes into the calendar, and HUD reminds the model and offers to start getting ready a week ahead.
