@@ -4,6 +4,13 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.39 — 2026-11-15
+
+Invented names in code examples and tests.
+
+### Changed
+- **Names in comments and tests** are replaced with invented ones. The HUD works the same.
+
 ## 23.89.38 — 2026-11-15
 
 A wish for holiday generation; the model writes unchanged fields briefly; a better opponent in verbal duels and washing in life.

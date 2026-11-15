@@ -1120,7 +1120,7 @@ settings.tempoView = 'xray';
     const п = MB.правилоHUD();
     const рег = new RegExp(п.findRegex.slice(1, п.findRegex.lastIndexOf('/')), п.findRegex.slice(п.findRegex.lastIndexOf('/') + 1));
     const сообщ = (проза, t) => проза + '\n\n' + б(t);
-    const сцена = `Damian: ${сообщ('Он закрыл дверь и долго смотрел на неё, не говоря ни слова.', 1)}\nМари: ок\nTristan: ${сообщ('Утром кофе остыл, а она так и не вышла из комнаты, только шаги.', 2)}`;
+    const сцена = `Damian: ${сообщ('Он закрыл дверь и долго смотрел на неё, не говоря ни слова.', 1)}\nМари: ок\nDorian: ${сообщ('Утром кофе остыл, а она так и не вышла из комнаты, только шаги.', 2)}`;
     const сМетками = сцена.replace(рег, п.replaceString);
     проверить('MemoryBooks: правило выключено, блок [HUD] → метка, [HUD_SUMMARY] не трогает', п.disabled === true && Array.isArray(п.placement) && !п.placement.length && сМетками.split(MB.МЕТКА_HUD).length === 3 && !сМетками.includes('```json') && '[HUD_SUMMARY] x [/HUD_SUMMARY]'.replace(рег, '') === '[HUD_SUMMARY] x [/HUD_SUMMARY]');
     const сПланом = '<plan>в конце — `[HUD] ... [/HUD]` с JSON</plan>\nОна ушла не оглядываясь, дверь хлопнула громко.\n\n' + б(5);

@@ -18,19 +18,19 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.38';
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.38';
-import { settings } from '../settings.js?v=23.89.38';
-import { градусы } from '../units.js?v=23.89.38';
-import { разобратьХод } from './carryover.js?v=23.89.38';
-import { моментСцены } from './intimacy.js?v=23.89.38';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.38';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.38';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.38';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.38';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.38';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.38';
-import { английский } from '../i18n.js?v=23.89.38';
+import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.39';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.39';
+import { settings } from '../settings.js?v=23.89.39';
+import { градусы } from '../units.js?v=23.89.39';
+import { разобратьХод } from './carryover.js?v=23.89.39';
+import { моментСцены } from './intimacy.js?v=23.89.39';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.39';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.39';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.39';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.39';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.39';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.39';
+import { английский } from '../i18n.js?v=23.89.39';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;

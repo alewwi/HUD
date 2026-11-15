@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.38**:
+The latest version is **23.89.39**:
 
+- Invented names in code examples and tests.
 - A wish for holiday generation; "nc" for slow fields; a better duel opponent and washing in life.
 - HUD summaries reach the model again and the request holds more history; old HUDs can be cut out with no summary; holidays in the extension's language.
 - How a holiday is celebrated; Spells views and the new Grimoire and Atlas of Gifts; a removed or disabled holiday is not sent to the model; past intimacy keeps its chance the next morning.

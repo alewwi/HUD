@@ -7,16 +7,16 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.38';
-import { namesLikelySame } from '../names.js?v=23.89.38';
-import { раскрывашка } from './fold.js?v=23.89.38';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.39';
+import { namesLikelySame } from '../names.js?v=23.89.39';
+import { раскрывашка } from './fold.js?v=23.89.39';
 
 // Метка отражённой ставки: её написали в карточке соперника.
 const ЗЕРКАЛО = '⇄ ';
 const ИТОГ = { open: 'open', идёт: 'open', открыто: 'open', won: 'won', выиграл: 'won', выиграла: 'won', lost: 'lost', проиграл: 'lost', проиграла: 'lost' };
 const НАОБОРОТ = { won: 'lost', lost: 'won', open: 'open' };
 
-/** «Тристан | свой макларен | что Ховард не придёт | open» → { с, ставка, на, итог, отражено }. */
+/** «Дориан | свой макларен | что Прескотт не придёт | open» → { с, ставка, на, итог, отражено }. */
 export function разобратьПари(строка) {
   let s = String(строка ?? '').trim();
   const отражено = s.startsWith(ЗЕРКАЛО);

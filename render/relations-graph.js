@@ -7,12 +7,12 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.38';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.38';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.38';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.38';
-import { settings } from '../settings.js?v=23.89.38';
-import { ответыПроДядей } from './family-asks.js?v=23.89.38';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.39';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.39';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.39';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.39';
+import { settings } from '../settings.js?v=23.89.39';
+import { ответыПроДядей } from './family-asks.js?v=23.89.39';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -140,9 +140,9 @@ function collectRelationGraph(hudData) {
 
   addEdgesFrom(userName, hudRelField(hudData.user), { isUser: true });
   (hudData.characters || []).forEach((c, i) => addEdgesFrom(c && (c['Имя'] || c.N || c.name || c.Name), hudRelField(c), { isPrimary: i === 0 }));
-  // Дети из «Детской»: их «Софи: мама» — тоже родство для дерева.
+  // Дети из «Детской»: их «Лина: мама» — тоже родство для дерева.
   (Array.isArray(hudData.babies) ? hudData.babies : []).forEach(b => addEdgesFrom(b && (b['Имя'] || b.N), hudRelField(b), {}));
-  // Статус тоже про отношения: «женат на Виктории», «замужем за Тристаном» —
+  // Статус тоже про отношения: «женат на Лидии», «замужем за Дорианом» —
   // связь с тем, кто уже есть в графе (имя в статусе в косвенном падеже, новых
   // людей по нему не заводим), если такой связи ещё нет.
   [[userName, hudData.user, { isUser: true }], ...(hudData.characters || []).map(c => [c && (c['Имя'] || c.N || c.name || c.Name), c, {}])].forEach(([имя, запись]) => {
@@ -291,7 +291,7 @@ function relNodeRoleClass(node) {
 // Дерево видит и родню из прошлых HUD: кто-то давно вышел из сцены, а родство
 // осталось. Пара людей — одна запись родства, самая свежая: без копий и без
 // старого «жена» рядом с новым «бывшая жена». Граф остаётся про текущий ход.
-// Статус героя («холост, глава компании», «женат на Виктории») — в записи
+// Статус героя («холост, глава компании», «женат на Лидии») — в записи
 // поле «Статус» (St).
 const статусЗаписи = (c) => (c && (c['Статус'] || c.St || c.status || c.Status)) || '';
 // Бывший брак тем же словом: «жена» → «бывшая жена», «wife» → «ex-wife».
@@ -323,7 +323,7 @@ function деревоСИсторией(nodes, edges, дайХоды, hudData = 
   const занято = new Set(edges.filter(e => родствоИз(e.label)).map(e => ключ(e.from, e.to)));
   const игрок = getSafeUserName();
   // Все имена, что встречались в ходах, — в именительном: «сын Джонатана
-  // Бомонта» говорит о Джонатане, которого нет в графе; его имя берём отсюда.
+  // Вэйла» говорит о Джонатане, которого нет в графе; его имя берём отсюда.
   const имена = new Set(nodes.map(n => n.name));
   // Статусы: свежий — первый встреченный (сначала этот ход, потом прошлые от
   // новых к старым); все — чтобы найти брак, о котором писали только в статусе.
@@ -354,7 +354,7 @@ function деревоСИсторией(nodes, edges, дайХоды, hudData = 
       }
     }
   }
-  // Брак из статуса («женат на Виктории»): имя там в косвенном падеже —
+  // Брак из статуса («женат на Лидии»): имя там в косвенном падеже —
   // супруга ищем среди людей и имён ходов в именительном.
   for (const [имя, с] of статусы) {
     const от = узел(имя);
@@ -375,13 +375,13 @@ function деревоСИсторией(nodes, edges, дайХоды, hudData = 
       const e = рёбра[i];
       const р = родствоИз(e.label);
       if (!р || р.тип !== 'spouse') continue;
-      // Кто в этом браке. «Виктория: жена Тристана» в чужой записи — брак
-      // Виктории и Тристана; «Эванджелина: жена Атласа» в его — не его брак.
+      // Кто в этом браке. «Лидия: жена Дориана» в чужой записи — брак
+      // Лидии и Дориана; «Мирабель: жена Феликса» в его — не его брак.
       const стороны = р.чей ? [e.to, (люди.find(x => namesLikelySame(р.чей, x.name)) || {}).id] : [e.from, e.to];
       if (стороны.includes(он.id)) рёбра[i] = { ...e, label: бывшееСлово(р.слово) + (р.чей ? ' ' + р.чей : '') };
     }
   }
-  // Родство через третьего («младший сын Джонатана Бомонта»), а третьего в
+  // Родство через третьего («младший сын Джонатана Вэйла»), а третьего в
   // графе нет: добавляем его по имени в именительном, если оно встречалось в
   // ходах. Иначе дерево молча теряло отца.
   for (const e of рёбра) {

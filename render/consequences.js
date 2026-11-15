@@ -8,12 +8,12 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.89.38';
-import { settings } from '../settings.js?v=23.89.38';
-import { namesLikelySame } from '../names.js?v=23.89.38';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.38';
-import { запущенноеУ, срокиНитей, добавитьПодсказку, отметкаПоследствия, отметитьПоследствие } from '../turn-notes.js?v=23.89.38';
-import { раскрывашка } from './fold.js?v=23.89.38';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.89.39';
+import { settings } from '../settings.js?v=23.89.39';
+import { namesLikelySame } from '../names.js?v=23.89.39';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.39';
+import { запущенноеУ, срокиНитей, добавитьПодсказку, отметкаПоследствия, отметитьПоследствие } from '../turn-notes.js?v=23.89.39';
+import { раскрывашка } from './fold.js?v=23.89.39';
 
 const ДЕНЬ = 864e5;
 // Пороги: «накопленное», а не плохой час.
@@ -35,7 +35,7 @@ export function последствияЧеловека(о, имя) {
   const сцена = parseSceneDate(о && о.__датаСцены);
   const неделя = сцена !== null ? Math.floor(сцена / (7 * ДЕНЬ)) : 'x';
   const out = [];
-  // В тексте — имя без приставки карточки («THE REGENTS  Tristan» → «Tristan»).
+  // В тексте — имя без приставки карточки («THE CROWNS  Dorian» → «Dorian»).
   const кто = имяБезПриставки(String(имя)) || имя;
   const тело = снятьЗаглушки(flattenFieldValue(о && (о['Состояние тела'] ?? о.Bs)));
   const стресс = шкала(тело, 'str'), энергия = шкала(тело, 'eng');

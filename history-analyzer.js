@@ -11,19 +11,19 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.89.38';
-import { normalizeJSONData } from './schema.js?v=23.89.38';
-import { parseRelationList } from './render/relations-graph.js?v=23.89.38';
-import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.38';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.38';
-import { createDashboard } from './chat-stats.js?v=23.89.38';
-import { статусРужья } from './codes.js?v=23.89.38';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.38';
-import { историяБеременностей } from './render/conception.js?v=23.89.38';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.38';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.38';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.38';
-import { создатьКарты } from './history-maps.js?v=23.89.38';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.39';
+import { normalizeJSONData } from './schema.js?v=23.89.39';
+import { parseRelationList } from './render/relations-graph.js?v=23.89.39';
+import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.39';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.39';
+import { createDashboard } from './chat-stats.js?v=23.89.39';
+import { статусРужья } from './codes.js?v=23.89.39';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.39';
+import { историяБеременностей } from './render/conception.js?v=23.89.39';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.39';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.39';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.39';
+import { создатьКарты } from './history-maps.js?v=23.89.39';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -59,7 +59,7 @@ function основыСлов(t) {
   const слова = текст(t).toLowerCase().replace(/ё/g, 'е').match(/[\p{L}\d]+/gu) || [];
   return слова.filter(w => w.length >= 4).map(w => w.slice(0, 5));
 }
-// Вес слова: имена героев («Мари», «Дамиан», «Регенты») есть почти в каждой
+// Вес слова: имена героев («Мари», «Дамиан», «Гильдия») есть почти в каждой
 // формулировке и ничего не говорят о том, тот ли это секрет. Редкие слова
 // («карцер», «рысь», «рояль») говорят. Вес — по тому, в скольких разных
 // формулировках слово уже встречалось.
@@ -116,8 +116,8 @@ const чистоеИмя = (имя) => имяБезПриставки(текст
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.89.38';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.38';
+import { extractHudBlock } from './hud-block.js?v=23.89.39';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.39';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
