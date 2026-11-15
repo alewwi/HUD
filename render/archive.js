@@ -6,18 +6,18 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.43';
-import { английский } from '../i18n.js?v=23.89.43';
-import { settings } from '../settings.js?v=23.89.43';
-import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.43';
-import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.43';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.43';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.43';
-import { ссылкиТрека } from './music.js?v=23.89.43';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.43';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.43';
-import { ико } from './view-icons.js?v=23.89.43';
-import { namesLikelySame } from '../names.js?v=23.89.43';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.44';
+import { английский } from '../i18n.js?v=23.89.44';
+import { settings } from '../settings.js?v=23.89.44';
+import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.44';
+import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.44';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.44';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.44';
+import { ссылкиТрека } from './music.js?v=23.89.44';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.44';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.44';
+import { ико } from './view-icons.js?v=23.89.44';
+import { namesLikelySame } from '../names.js?v=23.89.44';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).

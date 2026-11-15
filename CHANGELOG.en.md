@@ -4,6 +4,13 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.44 — 2026-11-15
+
+"nc" for companions is expanded.
+
+### Fixed
+- **Companions with "nc".** The model sometimes writes "nc" for a pet or familiar too — in skills, treat, condition, diet. HUD only expanded "nc" for people, so the companion card showed "nc". Now the previous value is taken from the same companion by name — and the same in any list with names. Already saved turns fix themselves when drawn.
+
 ## 23.89.43 — 2026-11-15
 
 Invented names in the Factions and reputation examples.

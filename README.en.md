@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.43**:
+The latest version is **23.89.44**:
 
+- "nc" for companions expands to the previous values.
 - Invented names in the Factions and reputation examples.
 - "Factions and reputation": a choice of view: shields, a council hall (a half circle of seats from enemies to allies) and a greenhouse (each faction is a plant, from a bloom to a dry branch). "Verbal duel": two new views, clash (two auras with lightning between them) and debate (a stage, spotlights and a "The room is with…" gauge). HUD on one line makes replies about 10% shorter in tokens; "Compact values" give chosen fields a hard size; pending "Building up" decisions are counted on the tab.
 - A past storm is no longer drawn; rain falls straight from the clouds and sways with them, storms get their own clouds.

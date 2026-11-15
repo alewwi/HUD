@@ -1,5 +1,5 @@
 <!doctype html><html class="hud-theme-kawaii"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Темы — стенд</title>
-<link rel="stylesheet" href="../../css/all.css?v=23.89.43"><link rel="stylesheet" data-t="light" href="../../css/themes/light.css?v=23.89.43"><link rel="stylesheet" data-t="theme" href="../../css/themes/kawaii.css?v=23.89.43">
+<link rel="stylesheet" href="../../css/all.css?v=23.89.44"><link rel="stylesheet" data-t="light" href="../../css/themes/light.css?v=23.89.44"><link rel="stylesheet" data-t="theme" href="../../css/themes/kawaii.css?v=23.89.44">
 <style>body { margin: 0; padding: 12px; background: #2a2730; color: #ddd; font: 13px system-ui, sans-serif; }
 .bar { position: sticky; top: 0; z-index: 9; display: flex; gap: 8px; flex-wrap: wrap; padding: 8px; background: #111; border-radius: 8px; }
 .wrap { display: grid; gap: 14px; max-width: var(--w, 640px); margin: 12px auto; } h2 { margin: 6px 0 0; font-size: 12px; color: #aaa; }
@@ -22,7 +22,7 @@ const краски = (p) => { const r = document.documentElement.style; r.cssTex
   if (p.cardBgStart) r.setProperty('--hud-bg', 'linear-gradient(135deg, ' + rgba(p.cardBgStart, p.cardBgAlpha) + ', ' + rgba(p.cardBgEnd, p.cardBgAlpha) + ')');
   if (p.infoBlockBgStart) r.setProperty('--hud-card-inner-bg', 'linear-gradient(135deg, ' + rgba(p.infoBlockBgStart, p.infoBlockBgAlpha) + ', ' + rgba(p.infoBlockBgEnd, p.infoBlockBgAlpha) + ')');
   if (p.topBarBg) r.setProperty('--hud-header-bg', rgba(p.topBarBg, p.topBarAlpha)); if (p.tabsBg) r.setProperty('--hud-tab-bg', rgba(p.tabsBg, p.tabsAlpha)); };
-const v = "?v=23.89.43";
+const v = "?v=23.89.44";
 const выбрать = (id) => {
   document.documentElement.className = 'hud-theme-' + id + ' hud-glass-frosted' + (светлые.includes(id) ? ' hud-kinds-light' : '');
   краски(пресеты[id] || {});

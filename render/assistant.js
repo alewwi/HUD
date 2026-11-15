@@ -11,12 +11,12 @@
 // флаг window.__tavernOSHudSkipInject: без него перехват запросов в index.js
 // вшил бы в вопрос HUD-инструкцию, и модель ответила бы HUD-блоком.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.43';
-import { settings } from '../settings.js?v=23.89.43';
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.43';
-import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.89.43';
-import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.89.43';
-import { английский, т } from '../i18n.js?v=23.89.43';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.44';
+import { settings } from '../settings.js?v=23.89.44';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.44';
+import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.89.44';
+import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.89.44';
+import { английский, т } from '../i18n.js?v=23.89.44';
 
 const ЖДЁМ_МС = 180000;
 

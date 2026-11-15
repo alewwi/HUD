@@ -16,9 +16,9 @@
 //  • не усиливать выключенное: пропуск снов при выключенных снах — решение
 //    человека, а не ошибка модели.
 
-import { settings } from './settings.js?v=23.89.43';
-import { extractHudBlock } from './hud-block.js?v=23.89.43';
-import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.89.43';
+import { settings } from './settings.js?v=23.89.44';
+import { extractHudBlock } from './hud-block.js?v=23.89.44';
+import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.89.44';
 
 const КЛЮЧ = 'tavernosHudFieldStats';
 const ОКНО = 50;

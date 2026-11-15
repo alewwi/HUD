@@ -14,13 +14,13 @@
 // обработчик кликов (events.js). Своего состояния у календаря нет: всё в
 // классах и data-атрибутах разметки.
 
-import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.89.43';
-import { namesLikelySame } from '../names.js?v=23.89.43';
-import { G_ICONS } from './icons.js?v=23.89.43';
-import { праздникиГода } from './holidays.js?v=23.89.43';
-import { праздникиМираГода, скрытыеПраздникиЭпохи, деталиПраздника } from './holiday-lore.js?v=23.89.43';
-import { срокиНитей } from '../turn-notes.js?v=23.89.43';
-import { settings } from '../settings.js?v=23.89.43';
+import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.89.44';
+import { namesLikelySame } from '../names.js?v=23.89.44';
+import { G_ICONS } from './icons.js?v=23.89.44';
+import { праздникиГода } from './holidays.js?v=23.89.44';
+import { праздникиМираГода, скрытыеПраздникиЭпохи, деталиПраздника } from './holiday-lore.js?v=23.89.44';
+import { срокиНитей } from '../turn-notes.js?v=23.89.44';
+import { settings } from '../settings.js?v=23.89.44';
 
 const МЕСЯЦЫ_РОД = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const МЕСЯЦЫ = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
@@ -410,7 +410,7 @@ export function обработатьКликКалендаря(e) {
   if (праздник) {
     e.preventDefault();
     const д = праздник.dataset;
-    import('./holiday-day.js?v=23.89.43').then(м => м.открытьПраздник({ имя: д.holName, модели: д.holModel, о: д.holAbout, дата: д.holDate, откуда: д.holFrom, год: +д.holYear || null, сцена: кал.dataset.scene || '', предпросмотр: !!кал.closest('.hud-custom-preview-body, .hud-custom-preview') }))
+    import('./holiday-day.js?v=23.89.44').then(м => м.открытьПраздник({ имя: д.holName, модели: д.holModel, о: д.holAbout, дата: д.holDate, откуда: д.holFrom, год: +д.holYear || null, сцена: кал.dataset.scene || '', предпросмотр: !!кал.closest('.hud-custom-preview-body, .hud-custom-preview') }))
       .catch(err => console.error('[TavernOS HUD] окно праздника не загрузилось:', err));
     return true;
   }
@@ -418,7 +418,7 @@ export function обработатьКликКалендаря(e) {
   const генератор = e.target.closest('.hud-cal-gen');
   if (генератор) {
     e.preventDefault();
-    import('./holiday-gen.js?v=23.89.43').then(м => м.открытьГенераторПраздников({ дата: кал.dataset.scene || '', год: parseDayMonth(кал.dataset.scene)?.y }))
+    import('./holiday-gen.js?v=23.89.44').then(м => м.открытьГенераторПраздников({ дата: кал.dataset.scene || '', год: parseDayMonth(кал.dataset.scene)?.y }))
       .catch(err => console.error('[TavernOS HUD] окно праздников не загрузилось:', err));
     return true;
   }
