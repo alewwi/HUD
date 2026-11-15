@@ -151,7 +151,7 @@ Other people's chats and conversations your character shouldn't know about — a
 
 ### 🗝️ Medieval: the casket and overheard talk
 
-For settings before phones, the smartphone is replaced by a **casket**: sealed letters (the seal breaks when opened), a church calendar with the moon phase, a purse with a ledger, quill notes, a map, charters and keepsakes. Intercepts are replaced by **overheard** talk: conversations through a wall and other people's letters opened in secret. The era is switched with one setting: **🧩 HUD blocks → Era**.
+For settings before phones, the smartphone is replaced by a **casket**: sealed letters (the seal breaks when opened), a church calendar with the moon phase, a purse with a ledger, quill notes, a map, charters and keepsakes. Intercepts are replaced by **overheard** talk: conversations through a wall and other people's letters opened in secret. The era is switched with one setting: **🧩 HUD blocks → Era, technology and magic**. Technology and magic are there too: hidden magic keeps the blocks as they are, open magic restyles them for fantasy (mana crystals or incense, a sorcerer's coffer, lanterns), and people who wield magic get mana, abilities with limits, backlash and timed spells.
 
 - **Period language** — labels and units fit the time: a saints' calendar instead of a calendar app, a purse with gold, silver and copper coins instead of a bank card, letters with wax seals instead of chats.
 - **Parchment with any theme** — the casket and overheard talk look like aged paper with wax seals in dark, light and custom themes alike.
@@ -562,7 +562,7 @@ Settings are grouped — expand the one you need. Below is the essential part of
 **🌐 Язык / Language** — the language of the interface and of the HUD values. The very first item.
 
 **🧩 HUD blocks** — what goes into the card at all. Every block you turn off disappears both from the screen and from the model's instruction, so it saves tokens.
-- *Era* — "modern" (phone and intercepts) or "medieval" (casket and overheard talk); phone apps and casket sections are turned on one by one.
+- *Era, technology and magic* — the era "modern" (phone and intercepts) or "medieval" (casket and overheard talk); the level of technology; magic — none, hidden or open (fantasy), spells or innate powers; mana, abilities, backlash, spells, body and power. Phone apps and casket sections are turned on one by one.
 - *Memory and plot* — timeline, secrets, routes; Chekhov's guns; plot twist cards; the family tree and how many HUD messages to scan for it.
 - *Characters* — the player block, "What they think of you", companions.
 - *Body and health* — illnesses and injuries, body state (energy, sleep, stress), the cycle, pregnancy, birth and the "Nursery". The number and sex of babies can go to the model as a hidden fact or not at all.
@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.32**:
+The latest version is **23.89.33**:
 
+- The world from three settings: era, technology and magic (none, hidden, open; spells or innate powers). Fantasy in both eras with restyled blocks. People who wield magic get mana, abilities with limits, four-stage backlash, timed spells and body-driven power.
 - Each chat keeps its own look: era, theme, fonts and block views are remembered per story, and a look can be copied between chats; a new physician's chart in the Middle Ages.
 - Every setting in the guide has an explanation in Russian and English; avatars no longer turn into a list of buttons.
 - The settings get a detailed guide with search; block settings sit in their own sections; new "?" explanations for the scene header, life, news, combat and story layers.

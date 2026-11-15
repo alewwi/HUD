@@ -146,7 +146,7 @@ export const ЕЩЁ_ЭМОДЗИ = {
   '🍒': 'cherry', '🍆': 'eggplant', '🥕': 'carrot', '🌱': 'sprout', '🌳': 'tree', '🍖': 'meat', '🌼': 'flower',
   // Животные
   '🐈': 'cat', '🐆': 'cat', '🐕': 'dog', '🐎': 'horse', '🐦': 'bird', '🐟': 'fish', '🐍': 'snake', '🐀': 'mouse', '🕷': 'spider',
-  '🦊': 'fox', '🐉': 'dragon', '🤖': 'robot', '🦆': 'duck',
+  '🦊': 'fox', '🐉': 'dragon', '🕊': 'bird', '🧿': 'eye', '🤖': 'robot', '🦆': 'duck',
   // Зодиак
   '♈': 'aries', '♉': 'taurus', '♊': 'gemini', '♋': 'cancer', '♌': 'leo', '♍': 'virgo', '♎': 'libra', '♏': 'scorpio',
   '♐': 'sagittarius', '♑': 'capricorn', '♒': 'aquarius', '♓': 'pisces',

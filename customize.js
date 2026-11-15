@@ -5,20 +5,21 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.32';
-import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.32';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.32';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.32';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.32';
-import { порядокГрупп } from './tabs-order.js?v=23.89.32';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.32';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.32';
-import { hudБлоки } from './hud-block.js?v=23.89.32';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.32';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.32';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.32';
-import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.32';
-import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.32';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.33';
+import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.33';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.33';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.33';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.33';
+import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире } from './era.js?v=23.89.33';
+import { порядокГрупп } from './tabs-order.js?v=23.89.33';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.33';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.33';
+import { hudБлоки } from './hud-block.js?v=23.89.33';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.33';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.33';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.33';
+import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.33';
+import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.33';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 // Язык из таблицы переводчика: английский пример с переведёнными кусками
 // (render/sample-translate.js), пересобирается при смене языка или файла.
@@ -31,13 +32,13 @@ const пример = () => {
   return примерТаблицы;
 };
 const текстПримера = (s) => (ключЯзыкаТаблицы() ? отобразитьСтроку(s, (к) => строкаТаблицы(к) || к) : s);
-import { задатьПримерСемьи } from './render/conception.js?v=23.89.32';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.32';
-import { привязатьИсторию } from './render/intimacy.js?v=23.89.32';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.32';
-import { собратьРисунок } from './render/lazy-svg.js?v=23.89.32';
-import { attachHelpMarks } from './help.js?v=23.89.32';
-import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.32';
+import { задатьПримерСемьи } from './render/conception.js?v=23.89.33';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.33';
+import { привязатьИсторию } from './render/intimacy.js?v=23.89.33';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.33';
+import { собратьРисунок } from './render/lazy-svg.js?v=23.89.33';
+import { attachHelpMarks } from './help.js?v=23.89.33';
+import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.33';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -141,6 +142,7 @@ export function разметкаПанелиТемы() {
           <div class="hud-budget-panel hud-custom-budget-body"><p class="hud-budget-note">Откройте раздел — посчитаю.</p></div>
         </details>
         <details data-sec="views" class="hud-custom-views hud-smooth"><summary>🧩 Вид блоков</summary>
+          ${обликЭпохи()}
           <details class="hud-custom-sub hud-smooth"><summary>Шапка и имя</summary>
           <div class="hud-theme-grid">
             ${основа.выбор('headerStyle', 'Шапка персонажа', 'Баннер — аватарка растянута полосой над именем. Визитка — полоса из обоев чата, круглый портрет по центру, под именем занятие и возраст. Виджет погоды не трогает.', [['classic', 'Обычная'], ['banner', 'Баннер'], ['visit', 'Визитка']])}
@@ -245,6 +247,7 @@ export function разметкаПанелиТемы() {
           // Цикл в карточке идёт сразу после тела — в «Теле и здоровье».
           + ВИДЫ_БЛОКОВ.filter(б => б.группа === группа).map((б, i, все) => `<div class="hud-theme-row"><label>${б.поле}:</label>`
             + `<select class="hud-theme-select-input hud-custom-rerender" data-key="${б.ключ}">${Object.entries(б.виды).map(([k, имя], i) => `<option value="${k}"${видБлока(б.ключ) === k ? ' selected' : ''}>${имя}${i || б.новый ? '' : ' (как было)'}</option>`).join('')}</select></div>`
+            + обличьеВида(б)
             + (б.ключ === 'clothesView' ? основа.выбор('underwearView', 'Бельё', 'Комплект с силуэтами или слоем между кожей и одеждой (если бельё включено в настройках)', [['set', 'Комплект'], ['layer', 'Слоем']]) : '')
             // Цикл в карточке идёт после беременности и «После родов» — последним в «Теле и здоровье».
             + (б.ключ === 'postpartumView' ? `<div class="hud-theme-row"><label>Менструальный цикл:</label><select class="hud-theme-select-input hud-custom-rerender" data-key="cycleView">${Object.entries(ВИДЫ_ЦИКЛА).map(([k, имя]) => `<option value="${k}"${(s.cycleView || 'ring') === k ? ' selected' : ''}>${имя}</option>`).join('')}</select></div>` : '')
@@ -391,6 +394,36 @@ const пунктыСилуэта = () => [
   основа.выбор('silhouetteOutlines', 'Очертания на силуэте', 'Только линии — изгиб груди, паховые линии — там, где одежды нет или она это место открывает', [['on', 'Показывать'], ['off', 'Не показывать']]),
 ].join('');
 // «Мой облик» — поля одного объекта settings.userLook, под «Блоками: Близость».
+// Обличье эпохи: что эпоха переодела, поштучно — как в эпохе или как в
+// современности (settings.eraModern, era.js ОБЛИЧЬЯ). Вид блока меняется в
+// группах ниже, как всегда. Телефона здесь нет: с ним меняется и промт.
+// Какой вид блока какая эпоха переодевает: ключ вида → { вид: ключ обличья }.
+const ВИДЫ_ЭПОХИ = {
+  bodyStateView: { batteries: 'body', flasks: 'flasks' }, ageView: { id: 'age' }, placeView: { crumbs: 'place' }, physView: { readout: 'phys' },
+  scheduleView: { tickets: 'sched' }, trustView: { traffic: 'trust' }, linesView: { script: 'lines' }, statusView: { toggles: 'status' }, memoriesView: { polaroid: 'memories' },
+};
+const строкаОбличья = (ключ, подпись, вид, современно) => `<div class="hud-theme-row hud-era-look-row"><label>${escapeHtml(подпись)}</label><select class="hud-theme-select-input hud-era-look-input" data-era-look="${ключ}">`
+  + `<option value="era"${современныйВид(ключ) ? '' : ' selected'}>${escapeHtml(вид)}</option><option value="modern"${современныйВид(ключ) ? ' selected' : ''}>${escapeHtml(современно)}</option></select></div>`;
+// Под выбором вида блока: этот вид в эпохе — её обличье или как в современности.
+function обличьеВида(б) {
+  const э = эпоха(), м = магия();
+  return Object.entries(ВИДЫ_ЭПОХИ[б.ключ] || {}).map(([вид, ключ]) => {
+    const о = ОБЛИЧЬЯ.find(x => x.ключ === ключ), в = о && о.вид(э, м);
+    return в && б.виды[вид] ? строкаОбличья(ключ, `↳ «${б.виды[вид]}» в эпохе:`, в, `${б.виды[вид]} — как в современности`) : '';
+  }).join('');
+}
+const ИМЕНА_ЭПОХ = { medieval: 'Средневековье', 'fantasy-medieval': 'Средневековое фэнтези', 'fantasy-modern': 'Современное фэнтези' };
+function обликЭпохи() {
+  const э = эпоха(), м = магия();
+  const ряды = ОБЛИЧЬЯ.map(о => [о, о.вид(э, м)]).filter(([, вид]) => вид);
+  const имя = (ИМЕНА_ЭПОХ[э] || '') + (м === 'grounded' ? ', приземлённое' : м === 'high' ? ', явная магия' : '');
+  if (!ряды.length) return `<details class="hud-custom-sub hud-smooth hud-era-looks"><summary>Обличье эпохи</summary><div class="hud-theme-presets-note">В современности блоки не переодеваются. Средневековье и фэнтези выбираются в настройках HUD: «Блоки HUD» → «Эпоха».</div></details>`;
+  return `<details class="hud-custom-sub hud-smooth hud-era-looks"><summary>Обличье эпохи: ${escapeHtml(имя)}</summary><div class="hud-theme-grid">`
+    + ряды.map(([о, вид]) => `<div class="hud-theme-row"><label>${escapeHtml(о.имя)}:</label><select class="hud-theme-select-input hud-era-look-input" data-era-look="${о.ключ}">`
+      + `<option value="era"${современныйВид(о.ключ) ? '' : ' selected'}>Как в эпохе — ${escapeHtml(вид)}</option><option value="modern"${современныйВид(о.ключ) ? ' selected' : ''}>Как в современности</option></select></div>`).join('')
+    + `</div><div class="hud-theme-presets-note">Эпоха переодевает только эти виды. Блок можно вернуть к современному виду или сменить сам вид в группах ниже — тогда эпоха его не трогает. Телефон здесь не настраивается: с ним меняется и промт.</div></details>`;
+}
+
 function обликИгрока() {
   const облик = settings.userLook || {};
   const пункт = (ключ, подпись, варианты, сейчас) => `<div class="hud-theme-row"><label>${подпись}:</label><select class="hud-theme-select-input hud-userlook-input" data-look="${ключ}">`
@@ -438,12 +471,27 @@ function источникиПросмотра() {
     if (марк) { марк['Болезни и травмы'] = пример().ПРИМЕР_БОЯ_РАНЫ; марк['Инвентарь'] = английский() ? текстПримера('bat: cracked at the handle; folding knife: in the jacket pocket, hidden') : 'бита: треснула у рукояти; складной нож: в кармане куртки, спрятан'; }
     return данные;
   };
+  // Силы фэнтези (render/powers.js): дары или школы магии, мана, чары или
+  // эффекты, отдача — в эпохах фэнтези, свой набор на каждый уровень магии.
+  const сСилами = (данные) => {
+    const набор = заклинанияВМире() ? пример().ПРИМЕР_СИЛ_ЯВНО : пример().ПРИМЕР_СИЛ;
+    if (!данные || !магияВМире() || !набор) return данные;
+    for (const [начало, с] of Object.entries(набор)) {
+      const ч = (данные.characters || []).find(c => String(c['Имя'] || '').startsWith(начало));
+      if (!ч) continue;
+      if (с.Ab && settings.powersAbilities !== false) ч['Способности'] = с.Ab;
+      if (с.Ef && settings.powersEffects !== false) ч['Чары'] = с.Ef;
+      if (с.mn && settings.powersMana !== false && ч['Состояние тела']) ч['Состояние тела'] = String(ч['Состояние тела']) + '; ' + с.mn;
+      if (с.Ill && settings.powersBacklash !== false) ч['Болезни и травмы'] = [ч['Болезни и травмы'], с.Ill].filter(Boolean).join(' | ');
+    }
+    return данные;
+  };
   // И два прошлых хода для «Быта»: без них журнал примера из одного хода.
   const сБытом = (данные) => {
     if (данные) Object.defineProperty(данные, '__hudБытПрошлое', { value: пример().ПРИМЕР_БЫТА_ПРОШЛОЕ.map(т => parseHUDComplex(подставить(т))), configurable: true });
     return данные;
   };
-  источники.push({ откуда: толькоПример ? 'пример со всеми блоками' : 'пример — в чате ещё нет HUD', данные: () => сБытом(сБоем(parseHUDComplex(подставить(пример().ПРИМЕР_HUD_ТЕКСТ)))), семья: пример().ПРИМЕР_СЕМЬИ });
+  источники.push({ откуда: толькоПример ? 'пример со всеми блоками' : 'пример — в чате ещё нет HUD', данные: () => сБытом(сСилами(сБоем(parseHUDComplex(подставить(пример().ПРИМЕР_HUD_ТЕКСТ))))), семья: пример().ПРИМЕР_СЕМЬИ });
   источники.push({ откуда: 'базовый пример — в чате ещё нет HUD', данные: () => parseHUDComplex(подставить(пример().БАЗОВЫЙ_HUD_ТЕКСТ)) });
   return источники;
 }
@@ -836,6 +884,19 @@ export function открытьКастомизацию() {
       const поле = e.target.closest && e.target.closest('.hud-userlook-input');
       if (!поле) return;
       settings.userLook = { ...(settings.userLook || {}), [поле.dataset.look]: поле.value };
+      основа.saveSettings();
+      основа.видыМенялись = true;
+      собратьПросмотр(окно);
+    });
+    // Обличье эпохи: блок как в эпохе или как в современности.
+    окно.addEventListener('change', (e) => {
+      const поле = e.target.closest && e.target.closest('.hud-era-look-input');
+      if (!поле) return;
+      const было = { ...(settings.eraModern || {}) };
+      if (поле.value === 'modern') было[поле.dataset.eraLook] = true; else delete было[поле.dataset.eraLook];
+      settings.eraModern = было;
+      // Тот же выбор стоит и в «Обличье эпохи», и под видом блока — держим их вместе.
+      окно.querySelectorAll(`.hud-era-look-input[data-era-look="${поле.dataset.eraLook}"]`).forEach(с => { с.value = поле.value; });
       основа.saveSettings();
       основа.видыМенялись = true;
       собратьПросмотр(окно);

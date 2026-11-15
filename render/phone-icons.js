@@ -14,12 +14,14 @@
 // фон. Кожа на портретах остаётся живой. Только свой набор в своей теме с
 // родными цветами показывается как нарисован.
 
-import { settings } from '../settings.js?v=23.89.32';
-import { видБлока } from './views.js?v=23.89.32';
-import { getTheme } from '../themes.js?v=23.89.32';
+import { settings } from '../settings.js?v=23.89.33';
+import { эпоха, явнаяМагия } from '../era.js?v=23.89.33';
+import { видБлока } from './views.js?v=23.89.33';
+import { getTheme } from '../themes.js?v=23.89.33';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const НАБОРЫ = ['kawaii', 'academia', 'vamp', 'cyberpunk', 'noir', 'medieval', 'fantasy', 'mafia', 'web1', 'cottage', 'ice', 'ocean', 'steampunk', 'dieselpunk', 'solarpunk', 'biopunk', 'spaceopera', 'japan', 'egypt', 'western', 'pirate', 'witch', 'voodoo', 'spacehorror', 'darkroom', 'teaparty', 'bujo'];
+const ЧАРОДЕЙСКИЕ = ['fantasy', 'witch', 'vamp', 'voodoo', 'egypt', 'medieval'];
 
 // Кожа на портретах контактов: её оттенок от темы не зависит.
 const КОЖА = new Set(['#f0c090', '#f8e9e8', '#f4e4e4', '#c79aa8', '#e8bc96', '#e3b48e', '#a8724a', '#f0c8a4', '#d39a66', '#c98d5a', '#8f5a32', '#f4dcc6', '#f0d8c0', '#b98f72', '#fcf7f1', '#fbf5ee', '#d9cabd', '#fae4d6', '#f7dccd', '#c99a88', '#b97a4e', '#a86a42', '#6e4228']);
@@ -34,7 +36,8 @@ let стилиОбщие = '';
 export function наборТелефона() {
   const вид = видБлока('phoneIconsView');
   if (вид === 'plain') return '';
-  const имя = вид === 'auto' ? settings.themePreset : вид;
+  // Современное фэнтези с явной магией на «Авто» — набор «Фэнтези», если у темы набор не колдовской сам.
+  const имя = вид === 'auto' ? (эпоха() === 'fantasy-modern' && явнаяМагия() && !ЧАРОДЕЙСКИЕ.includes(settings.themePreset) ? 'fantasy' : settings.themePreset) : вид;
   return НАБОРЫ.includes(имя) ? имя : '';
 }
 

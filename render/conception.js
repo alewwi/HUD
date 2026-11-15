@@ -17,9 +17,10 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { namesLikelySame } from '../names.js?v=23.89.32';
-import { settings } from '../settings.js?v=23.89.32';
-import { полеВкл } from '../deep-fields.js?v=23.89.32';
+import { namesLikelySame } from '../names.js?v=23.89.33';
+import { settings } from '../settings.js?v=23.89.33';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.33';
+import { полеВкл } from '../deep-fields.js?v=23.89.33';
 
 const КЛЮЧ = 'tavernosHudConception';
 
@@ -953,7 +954,7 @@ const НАХОДКИ = ['clubfoot', 'cleft', 'polydactyly'], ТЯЖЁЛЫЕ = ['
 export function режимРаскрытия() {
   const выбор = settings.pregnancyReveal;
   if (выбор === 'modern' || выбор === 'medieval' || выбор === 'all') return выбор;
-  return settings.era === 'medieval' ? 'medieval' : 'modern';
+  return старина() ? 'medieval' : 'modern';
 }
 const выбрать = (ключ, список) => список[Math.floor(кубик(ключ) * список.length) % список.length];
 export function осмотрыБеременности(кто, { неделя = null } = {}) {

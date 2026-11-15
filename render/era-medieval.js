@@ -13,11 +13,14 @@
 //
 // Текст модели в новую разметку идёт только через escapeHtml.
 
-import { escapeHtml } from '../utils.js?v=23.89.32';
-import { settings } from '../settings.js?v=23.89.32';
-import { английский } from '../i18n.js?v=23.89.32';
+import { escapeHtml } from '../utils.js?v=23.89.33';
+import { settings } from '../settings.js?v=23.89.33';
+import { старина, фэнтези, приземлённое, современныйВид } from '../era.js?v=23.89.33';
+import { преобразитьФэнтези, СЕЛЕКТОРЫ_ФЭНТЕЗИ, кошель } from './era-fantasy.js?v=23.89.33';
+import { английский } from '../i18n.js?v=23.89.33';
 
-const включено = () => settings.era === 'medieval';
+// Средневековые виды — в старине; фэнтези-слой (era-fantasy.js) — в обоих фэнтези.
+const включено = () => старина() || фэнтези();
 let счёт = 0;
 const id = (п) => `hud-era-${п}-${(++счёт).toString(36)}`;
 const текст = (e) => (e?.textContent || '').replace(/​/g, '').replace(/\s+/g, ' ').trim();
@@ -33,8 +36,11 @@ function владелец(узел) {
   return { фото, буква: (имя.match(/\p{L}/u) || ['✠'])[0].toUpperCase() };
 }
 
-// Часы службы вместо циферблата: «к заутрене», «к повечерию».
-const кЧасу = (ч) => ч < 3 ? 'к полунощнице' : ч < 6 ? 'к заутрене' : ч < 9 ? 'к первому часу' : ч < 12 ? 'к третьему часу' : ч < 15 ? 'к шестому часу' : ч < 18 ? 'к девятому часу' : ч < 21 ? 'к вечерне' : 'к повечерию';
+// Часы службы вместо циферблата: «к заутрене», «к повечерию». В приземлённом
+// фэнтези церкви нет — сутки по двенадцати зверям: «в час Тигра».
+const ЗВЕРИ_ЧАСОВ = ['Крысы', 'Быка', 'Тигра', 'Кролика', 'Дракона', 'Змеи', 'Лошади', 'Козы', 'Обезьяны', 'Петуха', 'Собаки', 'Свиньи'];
+const кЧасу = (ч) => приземлённое() ? 'в час ' + ЗВЕРИ_ЧАСОВ[Math.floor(((ч + 1) % 24) / 2)] : кЧасуСлужбы(ч);
+const кЧасуСлужбы = (ч) => ч < 3 ? 'к полунощнице' : ч < 6 ? 'к заутрене' : ч < 9 ? 'к первому часу' : ч < 12 ? 'к третьему часу' : ч < 15 ? 'к шестому часу' : ч < 18 ? 'к девятому часу' : ч < 21 ? 'к вечерне' : 'к повечерию';
 const часСлужбы = (ч) => ч < 3 ? 'полунощница' : ч < 6 ? 'заутреня' : ч < 9 ? 'первый час' : ч < 12 ? 'третий час' : ч < 15 ? 'шестой час' : ч < 18 ? 'девятый час' : ч < 21 ? 'вечерня' : 'повечерие';
 const РИМ = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII', 'IX', 'X', 'XI', 'XII'];
 
@@ -285,38 +291,48 @@ function подписи(корень) {
 
 /* ------------------------------ проход ---------------------------------- */
 
-// [селектор исходного вида, пересборка]. Новый узел — не исходный вид,
-// поэтому повторный проход его не трогает.
+// [селектор исходного вида, пересборка, ключ обличья (era.js, ОБЛИЧЬЯ)].
+// Новый узел — не исходный вид, поэтому повторный проход его не трогает.
+// Блок, оставленный в «Кастомизации» современным, не пересобирается.
 const ЗАМЕНЫ_ВИДОВ = [
-  ['.hud-bs-bat', тело],
-  ['.hud-f-age.is-id', возраст],
-  ['.hud-f-place.is-crumbs', место],
-  ['.hud-f-lines.is-script', реплики],
-  ['.hud-v-trust.is-traffic', доверие],
-  ['.hud-f-status.is-toggles', статус],
-  ['.hud-f-sched.is-tickets', расписание],
-  ['.hud-f-phys.is-readout', физиология],
+  ['.hud-bs-bat', тело, 'body'],
+  ['.hud-f-age.is-id', возраст, 'age'],
+  ['.hud-f-place.is-crumbs', место, 'place'],
+  ['.hud-f-lines.is-script', реплики, 'lines'],
+  ['.hud-v-trust.is-traffic', доверие, 'trust'],
+  ['.hud-f-status.is-toggles', статус, 'status'],
+  ['.hud-f-sched.is-tickets', расписание, 'sched'],
+  ['.hud-f-phys.is-readout', физиология, 'phys'],
+  // Кошель шкатулки: мешочек с монетами и книга (рисунок — в era-fantasy.js).
+  ['.hud-purse:not(.fx-purse)', кошель, 'purse'],
 ];
 const КЛАССЫ = [
-  ['.hud-v-mem.is-polaroid:not(.era-mini)', ['era', 'era-mini']],
-  ['.hud-cask:not(.era-skin), .hud-overheard:not(.era-skin), .hud-world-container:not(.era-skin), .hud-life-wallet:not(.era-skin), .hud-timeline-container:not(.era-skin), .hud-route-map:not(.era-skin)', ['era', 'era-skin']],
+  ['.hud-v-mem.is-polaroid:not(.era-mini)', ['era', 'era-mini'], 'memories'],
+  ['.hud-cask:not(.era-skin), .hud-overheard:not(.era-skin)', ['era', 'era-skin'], ''],
+  ['.hud-world-container:not(.era-skin), .hud-life-wallet:not(.era-skin), .hud-timeline-container:not(.era-skin), .hud-route-map:not(.era-skin)', ['era', 'era-skin'], 'skins'],
 ];
 const ПЕЧАТИ = '.hud-seal:not(.era-wax)';
-const ВСЁ = [...ЗАМЕНЫ_ВИДОВ.map(([с]) => с), ...КЛАССЫ.map(([с]) => с), ПЕЧАТИ].join(', ');
+const ВСЁ_СТАРИНЫ = [...ЗАМЕНЫ_ВИДОВ.map(([с]) => с), ...КЛАССЫ.map(([с]) => с), ПЕЧАТИ].join(', ');
+const ВСЁ = ВСЁ_СТАРИНЫ + ', ' + СЕЛЕКТОРЫ_ФЭНТЕЗИ;
 const найти = (корень, с) => [...(корень.matches?.(с) ? [корень] : []), ...корень.querySelectorAll(с)];
 
 /** Пересобрать виды в поддереве. Повторный вызов безопасен. */
 export function преобразитьЭпохой(корень) {
   if (!включено() || !корень || корень.nodeType !== 1) return;
   if (!корень.closest('.hud-os-card') && !корень.querySelector('.hud-os-card')) return;
-  for (const [с, пересобрать] of ЗАМЕНЫ_ВИДОВ) {
-    for (const старый of найти(корень, с)) {
-      try { const новый = пересобрать(старый); if (новый) старый.replaceWith(новый); } catch (e) { console.warn('[TavernOS HUD] эпоха', с, e); }
+  if (старина()) {
+    for (const [с, пересобрать, ключ] of ЗАМЕНЫ_ВИДОВ) {
+      if (современныйВид(ключ)) continue;
+      for (const старый of найти(корень, с)) {
+        try { const новый = пересобрать(старый); if (новый) старый.replaceWith(новый); } catch (e) { console.warn('[TavernOS HUD] эпоха', с, e); }
+      }
     }
+    for (const [с, классы, ключ] of КЛАССЫ) if (!ключ || !современныйВид(ключ)) найти(корень, с).forEach(e => e.classList.add(...классы));
+    if (!современныйВид('seals')) найти(корень, ПЕЧАТИ).forEach(сл => { try { печатьПисьма(сл); } catch (e) { console.warn('[TavernOS HUD] печать', e); } });
+    if (!современныйВид('labels')) подписи(корень);
   }
-  for (const [с, классы] of КЛАССЫ) найти(корень, с).forEach(e => e.classList.add(...классы));
-  найти(корень, ПЕЧАТИ).forEach(сл => { try { печатьПисьма(сл); } catch (e) { console.warn('[TavernOS HUD] печать', e); } });
-  подписи(корень);
+  // Фэнтези — поверх: в средневековом — по уже пересобранным видам старины.
+  if (фэнтези()) преобразитьФэнтези(корень);
 }
 
 let наблюдатель = null;
@@ -328,7 +344,7 @@ export function включитьЭпоху() {
     if (!включено()) return;
     for (const з of записи) for (const n of з.addedNodes) {
       if (n.nodeType !== 1) continue;
-      if (n.matches(ВСЁ) || n.querySelector(ВСЁ) || (n.closest('.hud-os-card') && !английский())) преобразитьЭпохой(n);
+      if (n.matches(ВСЁ) || n.querySelector(ВСЁ) || (старина() && n.closest('.hud-os-card') && !английский())) преобразитьЭпохой(n);
     }
   });
   наблюдатель.observe(document.body, { childList: true, subtree: true });

@@ -96,6 +96,23 @@ The model writes one block per reply:
 - `wd` — world: news, rumors, forecast, ads, economy, events, city services, horoscope.
 - `pet` — companions; `bb` — babies; `cb` — combat; `mw` — "meanwhile" in the world.
 
+
+### Era, technology and magic
+Three independent settings (Settings → HUD blocks → "Era, technology and magic") build almost any world:
+- **Era** — modern (phone and intercepts) or medieval (casket and overheard talk).
+- **Technology** — from the card and lorebook, primitive, pre-industrial, industrial, modern or future. It tells the model what the world lacks; the pair of blocks is chosen by the era.
+- **Magic** — none, hidden from society (the world looks ordinary, blocks keep their look) or open to all (a fantasy era: block styling changes). And its kind: spells or innate powers.
+
+The world's particulars — who wields magic, what it is called, what it cannot do — the model takes from the card and lorebook; the settings only set the frame. Magic does not by itself mean portals, scrolls and spells.
+
+### Powers in worlds with magic
+When the world has magic — hidden or open — people who wield it get powers. The parts are the same at both magic levels, the words differ: **high** magic means schools and spells (illusions, portals, wards, curses), **grounded** means innate elements and spirits, with no spells or portals. Each part has its own checkbox under the magic choice.
+- **Mana** — the `mn` label in Body state, a fifth gauge next to energy. Power spends it; story time brings it back: about 10 per hour of rest, a night's sleep refills it. The Abilities block shows by what hour it will be full; the HUD reminds the model how much mana there was last turn.
+- **Abilities** (`Ab`) — the school or gift, its level (novice → master), what it can do, what it CANNOT do, the cost. The model keeps power within these bounds: no dragon from a minor illusion, a new skill comes only through the story.
+- **Backlash** — overstrain goes to Illnesses and injuries as "backlash — …" at one of four stages: dizziness (~1 h), nosebleed (~3 h), fainting (~12 h), severe injury (days to weeks). The card shows the ladder and how long it will last by story time.
+- **Spells** (high magic) or **Effects** (grounded) — `Ef`: what acts on a person and until what hour. The HUD counts the time left and asks the model to remove what has expired.
+- **Body and power** — the cycle, pregnancy, wounds, fatigue and stress change control over power (at ovulation it pushes out, late in pregnancy it is hard to call). Whom to tell — the model, you, both or no one — is set in the settings.
+
 ### Fields by section
 
 The list is built from the "🔬 Fine tuning" catalog and the question-mark dictionary. The code on the left is what the model writes.

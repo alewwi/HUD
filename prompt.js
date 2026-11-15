@@ -10,15 +10,17 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.32';
+import { settings } from './settings.js?v=23.89.33';
+import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.33';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.33';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.32';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.32';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.32';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.32';
-import { возрастТочно } from './render/babies.js?v=23.89.32';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.32';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.32';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.33';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.33';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.33';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.33';
+import { возрастТочно } from './render/babies.js?v=23.89.33';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.33';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.33';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -89,14 +91,33 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   const повороты = settings.enableTwists !== false;
   // Эпоха: в средневековье телефона и перехватов нет — вместо них шкатулка
   // (письма, святцы, кошель, записи, карта, грамоты, памятки) и подслушанное.
-  const средневековье = settings.era === 'medieval';
-  const телефон = !средневековье && !!settings.enablePhone;
+  const средневековье = старина();
+  // «Связь в современности» (era.js): телефон, письма вместо него или оба.
+  const телефон = естьТелефоны() && !!settings.enablePhone;
+  const письмаСовр = письмаВСовременности();
   const переписки = телефон && settings.phoneAppMessages !== false;
   const кошелёк = телефон && settings.phoneAppWallet !== false;
   const перехваты = !средневековье && !!settings.enableIntercepts;
   const шкатулка = средневековье && settings.enableCasket !== false;
   const письма = шкатулка && settings.castAppLetters !== false;
   const подслушка = средневековье && settings.enableOverheard !== false;
+  // Фэнтези (era.js): та же пара блоков, но в мире есть магия — подсказки
+  // модели, чем её показать в телефоне и в шкатулке. Не обязательство.
+  // Уровень магии: явная (руны, зачарованные вещи) или приземлённая (врождённые
+  // силы и духи, без заклинаний и порталов). ф(явно, приземлённо) — нужный кусок.
+  // Магия в мире (era.js): скрытая или общедоступная — облик блоков тут ни при чём.
+  const чары = заклинанияВМире();
+  const земля = дарыВМире();
+  const скрыта = магияСкрыта();
+  const ф = (явно, приземлённо) => (чары ? явно : земля ? приземлённо : '');
+  // Силы фэнтези (render/powers.js): мана в Bs, дары или школы магии с
+  // пределами (Ab), чары или эффекты с таймером (Ef), отдача — в Ill. Части
+  // одни, слова — по уровню магии: ф(явно, приземлённо).
+  const магияЕсть = чары || земля;
+  const мана = магияЕсть && состояниеТела && частьСил('mana');
+  const дары = магияЕсть && частьСил('abilities');
+  const эффекты = магияЕсть && частьСил('effects');
+  const отдача = дары && частьСил('backlash');
   const игрок = !!settings.enableUserBlock;
   // Свои статы — полем "Cst" прямо в шаблоне: правило «в us только перечисленные
   // поля» иначе отсекало статы игрока, и модель их не писала.
@@ -106,6 +127,37 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   const формат = Object.fromEntries(ВИДЫ_СТАТОВ.map(в => [в.id, в.формат]));
   const полеСвоих = (чьи) => `,
    "Cst": {${своиСтаты(settings).filter(с => с.who === чьи).map(с => `"${String(с.name).replace(/"/g, '«')}": "[${формат[с.view]} — see CUSTOM STATS]"`).join(', ')}}`;
+
+  // Письма: в шкатулке старины и в современности, где пишут письма.
+  const блокПисем = (современно) => ` "lt": [
+  {
+   "fr": "[from: the sender]", "to": "[to: the recipient — {{char}} is one side of EVERY letter here]",
+   "tm": "[when written or received${современно ? '' : ", in the setting's own terms"}]",
+   "st": "[status: sealed (received, not yet opened) | read | draft (unfinished, unsent) | sent | transit (${современно ? 'in the post or with a courier now' : 'a courier is carrying it now'}) | burned | hidden]",
+   "sl": "${современно ? "[OPTIONAL: the envelope or seal — 'конверт с маркой Лиссабона', 'сургуч с инициалами']" : "[the seal: whose, wax colour and sign — 'красный воск, вепрь дома Эштон']"}", "via": "[OPTIONAL: how it travels — ${современно ? 'post, a courier, by hand, slipped under the door' : 'courier, pigeon, a servant, left under a stone'}${ф('; magic too — a raven familiar, a sending stone, parchment that writes itself, a message burned into a candle flame', '; a trained messenger hawk or falcon, a rider')}]",
+   "tx": "[the letter's text in ${современно ? "the writer's own voice" : 'the voice and manners of the age'}; a sealed one is still written in full]"
+  }
+  - One object per letter, as many as there are. ${современно ? (связь() === 'letters' ? 'In this world people keep in touch by paper letters, not texts or calls: a letter takes time to arrive and may cross with the answer.' : 'Paper letters exist here alongside phones: write one only when someone really sends or receives a letter.') : 'There are no phones, texts or calls in this world — people write letters or send word.'}${ф(' Magic is real here, so a letter may arrive by spell, but it is still a letter.', ' Abilities here are innate, never spells: a letter always travels by hand, rider or bird.')}
+ ]`;
+  // Правило мира для фэнтези: какая здесь магия.
+  // Уровень технологий и мир из карточки — три оси настройки «Эпоха» (era.js).
+  const ТЕХ = {
+    primitive: 'PRIMITIVE — stone, bone and bronze tools, fire, hunting and herding, tribes and villages; no writing machines, no engines, no metal mass production',
+    preindustrial: 'PRE-INDUSTRIAL — hand tools and crafts, iron and steel, horses, carts and sail ships, candles and oil lamps; no engines, no electricity, no firearms beyond the black-powder kind',
+    industrial: 'INDUSTRIAL — steam engines, railways, factories, the telegraph, gas light, early electricity and early cars; no mobile phones, computers or internet',
+    modern: 'MODERN — today’s technology: cars, planes, mobile phones, computers, the internet',
+    future: 'FUTURE — beyond today: advanced AI, cybernetics, space travel; how far exactly, the card and lorebook decide',
+  };
+  const правилоМира = (технологии() === 'auto' ? '' : `\n- 🔧 TECHNOLOGY: ${ТЕХ[технологии()]}. Never bring in technology beyond this level, and use what the level has.`)
+    + (чары || земля || технологии() !== 'auto' ? `\n- 🗺️ WORLD FROM THE CARD: the world's own rules — what exists here and what doesn't${чары || земля ? ', who has magic, how it works, what it is called and what it cannot do' : ''} — come from the character card and lorebook first; these HUD settings are only the frame. Never add what the card and lorebook do not support${чары || земля ? ': magic does NOT automatically mean portals, scrolls, circles and spellbooks' : ''}.` : '')
+    + (скрыта ? `\n- 🕯️ HIDDEN MAGIC: magic is real but hidden from ordinary society — most people do not know or do not believe. Those who know keep it secret and use it out of sight; exposure has consequences. News, rumors, phones and public places show nothing magical openly — only what slips through as an odd story.` : '');
+  const правилоМагии = правилоМира + ф(
+    `\n- ✨ HIGH MAGIC: magic is real${скрыта ? '' : ' and visible'} here — spells, enchanted things, familiars, wards. Use it where the story has it; it never replaces ordinary life or solves things for free.`,
+    `\n- 🍃 GROUNDED FANTASY: some people are born with innate abilities — elemental gifts — and spirits exist, but there are no spells, casting circles, summonings, magic scrolls, portals or teleportation, and no enchanted devices. Daily life is ordinary. Never invent overt magic tools.`)
+    + (дары ? `
+- 🎚️ POWERS STAY IN BOUNDS: ${ф('magic does only what the caster’s "Ab" allows at their level — the scale in cn, never past lim. A minor spell never yields a big effect: no dragon from a minor illusion, no portal across the sea from a novice’s door-spell, no raising the dead with a healing charm', 'a gift does only what its "Ab" allows at its level — the scale in cn, never past lim. A small gift never yields a big effect: no flood from a trickle, no wildfire from a candle flame; and no spells, portals or teleportation at all')}. Pushing past the limit fails${отдача ? ' or costs a backlash' : ''}; ${ф('a new spell or a higher level comes only through the story — study, a teacher, a grimoire, a price paid', 'a new gift or a higher level comes only through the story — training, a shock, a teacher')}.${мана ? ` Every ${ф('spell', 'use')} spends mana (mn in Bs) by its scale; with none left ${ф('the magic', 'the gift')} will not come.` : ''}` : '')
+    + (отдача ? `
+- 💫 BACKLASH: overstraining ${ф('magic — a spell beyond lim, casting with no mana, holding a working too long', 'a gift — beyond lim, with no mana, too long')} — hits the body. Write it in ${болезни ? 'Ill' : 'H'} as 'nm: отдача — <stage>' with ONE of four stages by how far they pushed: головокружение (passes in about an hour), кровь из носа (about 3 hours), обморок (out cold, weak for about 12 hours), тяжёлая травма (${ф('burned-out channels, a spell torn loose through the body', 'a burned-out channel or torn body')} — days to weeks, tracked like any injury with sg, rc, sy). The HUD counts the time; drop the entry when it passes.` : '');
 
   const задача = режим === 'regen'
     ? 'Output ONLY one [HUD] block for the latest message of the story above — no prose before or after it. Rebuild every field from the story; keep known facts instead of replacing them with empty values.'
@@ -151,7 +203,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
 - 🌍 LANG: write values in Russian; character names follow "N".
 - 🔓 No restrictions on imagination, length or content.
 - 🚨 LIVE SNAPSHOT: every field is the state at THIS turn. Update it, never copy stale text.${краткость}
-- 🌍 LIVING WORLD: off-screen characters keep living — they work, sleep, travel, message, plan, argue, buy, miss appointments. Never erase that life just because the protagonist cannot see it.
+- 🌍 LIVING WORLD: off-screen characters keep living — they work, sleep, travel, message, plan, argue, buy, miss appointments. Never erase that life just because the protagonist cannot see it.${правилоМагии}
 - 🪞 NO RETELLING: the HUD adds what the reply does not say. Thoughts (Th, K) and hidden subtext (D) never repeat or paraphrase lines, actions or narration from the reply — they show what is under them. Hidden subtext is always something NEW: often it is not in the reply at all.
 - 🧠 KNOWLEDGE BOUNDARIES: each character knows only what they plausibly could. Never leak another's private thoughts, messages or plans without a believable path.
 - 📦 SCHEMA FIXED: emit every section and every field of the schema below, every turn. Empty means [] / {} / "empty" — never drop a key to say "nothing changed". The only exceptions are fields marked OPTIONAL or "ONLY … otherwise omit"${ключиМира.length || ключиПамяти.length ? ', and the WORLD and MEMORY rules above' : ''}.
@@ -186,7 +238,9 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "Pp": "[after childbirth, ONLY for a woman who has given birth in the story — otherwise omit. 'bf: breast, formula or mixed; lfd: time of the last breastfeed as HH:MM; brs: breasts — fullness, pain, leaking, nipples; sy: how she feels — healing, bleeding, tiredness, mood'. Keep it while she recovers and feeds]",` : ''}${цикл ? `
    "Mns": "[menstrual cycle, ONLY for someone with a uterus. 'cyd: cycle day, a number; cyl: cycle length, days; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period date; pms: PMS window, dates; dly: days late, 0 if none; rsn: reason for a delay — stress, illness, contraception, pregnancy; empty if none'. Moves with story days: the day grows, the phase follows, the period comes on time unless something delays it. From a known pregnancy (Prg) until the period returns after birth — only 'phs: paused', no day count or delay]",` : ''}
    "Ph": "[physiology: bodily sensations right now — hunger, thirst, cold, pain, drowsiness${интим ? ', arousal' : ''}. What the body feels, not what it does. Not the phone]",
-${состояниеТела ? `   "Bs": "[body state, 0-100 each followed by a word: 'eng: energy; awk: alertness; sat: satiety; str: stress; slp: last night's sleep — hours and bedtime; dut: the work or study duty ahead and when'. Effort, hunger and sleepless hours lower them, food, rest and sleep restore; stress rises with danger and conflict]",
+${состояниеТела ? `   "Bs": "[body state, 0-100 each followed by a word: 'eng: energy; awk: alertness; sat: satiety; str: stress; slp: last night's sleep — hours and bedtime; dut: the work or study duty ahead and when${мана ? `; mn: mana — the reserve their ${ф('magic', 'gift')} draws on, ONLY for someone ${ф('who wields magic', 'with a gift')}` : ''}'. Effort, hunger and sleepless hours lower them, food, rest and sleep restore; stress rises with danger and conflict${мана ? `; mana is spent by using ${ф('magic', 'the gift')} and returns about ${МАНА_В_ЧАС} per hour of rest, fully after a night's sleep` : ''}]",
+` : ''}${дары ? `   "Ab": "[${ф("magic, ONLY for someone who wields it: one group per school or signature spell, separated by |: 'nm: the school or spell — e.g. огненная магия, иллюзии, порталы, целительство, обереги, проклятия; mst: novice, trained, adept or master; cn: what they can really cast at this level, with a concrete scale — how big, how far, how long, how many at once, and what it needs (words, gestures, a focus, a circle); lim: what they can NOT do; cst: what casting costs the body'. The SAME schools every turn; the level grows slowly and only through the story", "abilities, ONLY for someone with an innate gift: one group per gift, separated by |: 'nm: the gift — element or force, e.g. огонь, вода, земля, воздух, духи; mst: novice, trained, adept or master; cn: what it can really do at this level, with a concrete scale — how much, how far, how long; lim: what it can NOT do; cst: what using it costs the body'. Innate and physical — never spells, portals or teleportation. The SAME gifts every turn; the level grows slowly and only through the story")}]",
+` : ''}${эффекты ? `   "Ef": "[${ф("spells and enchantments acting on them right now, ONLY if any — a curse, a ward, a charm, a glamour, a geas, a tracking mark", "lasting effects acting on them right now, ONLY if any — a spirit's mark or blessing, chi blocked, a bending hold, frostbite or heat from a gift, a poison; never spells")}: one group per effect, separated by |: 'nm: what acts on them; src: who or what caused it; til: when it ends — HH:MM today or DD.MM HH:MM; sy: how it shows'. The HUD counts the time left by sc.T; remove it once til has passed, unless the story renews it]",
 ` : ''}   "L": "[location: the exact place right now — city, building, room, spot in the room]",
    "Th": "[thought: the one thought running through their head this very moment, in their own voice — the layer UNDER the reply: what they do not say aloud and what the reply does not already show. Never repeat or paraphrase their own lines, actions or the narration from the reply; if the reply says it, the thought says what lies behind it]",
    "K": "[key thoughts: what occupies their mind in context, each with a fitting emoji. At least 3; separate by ;]",
@@ -237,7 +291,7 @@ ${бельё ? `   "Un": "[OPTIONAL, only when it matters in the scene — under
     // Остальные поля персонажей — и игроку: берём их прямо из готового шаблона
     // "cs", так условия (дуэль, близость, состояние тела…) совпадают сами.
     // Свои у игрока: возраст…отношения выше, близость — UW вместо W.
-    const УЖЕ_У_ИГРОКА = new Set(['N', 'A', 'C', 'Ap', 'H', 'Ill', 'Prg', 'Pp', 'Mns', 'Rl', 'L', 'Mrk', 'W', 'Cst']);
+    const УЖЕ_У_ИГРОКА = new Set(['N', 'A', 'C', 'Ap', 'H', 'Ill', 'Prg', 'Pp', 'Mns', 'Ab', 'Ef', 'Rl', 'L', 'Mrk', 'W', 'Cst']);
     const шаблонПерсонажа = p.slice(p.lastIndexOf('"cs": ['));
     const прочиеИгрока = settings.userAllFields !== true ? '' : [...new Set([...шаблонПерсонажа.matchAll(/^   "([A-Za-z]+)": /gm)].map(м => м[1]))].filter(к => !УЖЕ_У_ИГРОКА.has(к))
       .map(к => `  "${к}": "[same field as for characters — same format and rules, about {{user}}]",
@@ -252,7 +306,9 @@ ${бельё ? `   "Un": "[OPTIONAL, only when it matters in the scene — under
   "Prg": "[pregnancy of {{user}}, ONLY if pregnant — same format and rules as for characters: 'wk; due; fa; sy; knw; cnd; gnd; bnm; vis; crv; brn; lost']",` : ''}${послеродовоеВПромпт ? `
   "Pp": "[after childbirth of {{user}}, ONLY if she has given birth — otherwise omit. Same format as for characters: 'bf: breast, formula or mixed; lfd: last breastfeed HH:MM; brs: breasts; sy: how she feels']",` : ''}${цикл ? `
   "Mns": "[menstrual cycle of {{user}}, ONLY with a uterus — same format and rules as for characters: 'cyd; cyl; phs; nxt; pms; dly; rsn'; while pregnant and until the period returns — only 'phs: paused']",` : ''}
-  "Rl": "[relationships: how {{user}} feels about EVERY other named person who matters now — same format and rules as for characters; bidirectional with their Rl; separate by ;]",
+${дары ? `  "Ab": "[${ф('magic of {{user}}, ONLY if {{user}} wields it', 'abilities of {{user}}, ONLY with an innate gift')} — same format and rules as for characters: groups by |, 'nm; mst; cn; lim; cst']",
+` : ''}${эффекты ? `  "Ef": "[${ф('spells and enchantments on {{user}} right now', 'lasting effects on {{user}} right now')}, ONLY if any — same format as for characters: groups by |, 'nm; src; til; sy']",
+` : ''}  "Rl": "[relationships: how {{user}} feels about EVERY other named person who matters now — same format and rules as for characters; bidirectional with their Rl; separate by ;]",
 ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and rules as for characters: '<what>: <where> — <how it looks and feels now> | <fade time: 12h, 3d>', and for scars, tattoos, piercings, birthmarks '| получен: <when>' instead of a fade time; the same mark keeps the same name every turn and is never also in Ill; 'empty' when there are none]",
 ` : ''}${интим ? `  "UW": "[user intimacy (phase 2 ONLY) — same phases and the same full, vivid descriptions as for characters. Each 'code: value': 'ar: arousal and how it shows; ds: strength of desire and for what; rdy: how ready the body is, what's still missing; tch: where/how {{user}} touches and is touched now; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips; pb: pubic hair — grooming, shape, feel; an: anatomy — shape, size, colour, how it changes with arousal; lb: wetness — where, how much, sound and feel; ch: breasts and nipples, only if {{user}} is a woman — shape, size, hardness, sensitivity; flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds of the act are and what they are${близость ? '' : '; mk: marks on skin; r2: readiness for the next round'}'. Skip a code only when it does not apply to this body. 'empty' when the scene ends; separate by ;]",
 ` : ''}  "L": "[location: the exact place {{user}} is right now]"${своиЧьи.has('user') ? полеСвоих('user') : ''}
@@ -347,7 +403,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
     // Сам аппарат просим только если от него хоть что-то осталось.
     if (ph.length) p += `,
  "phn": {
-  "ow": "[owner: ALWAYS {{char}}, the same name every turn — everything below is {{char}}'s own]",` + ph.join(',') + `
+  "ow": "[owner: ALWAYS {{char}}, the same name every turn — everything below is {{char}}'s own${ф('. Modern fantasy: magic lives alongside technology, and the phone shows it only where the story has it — a coven or guild group chat, a potion shop or ward repair in the wallet, a spell draft in notes, a ley-line spot on the map', '. Grounded modern fantasy: an ordinary phone — no spells or enchanted apps; innate gifts and spirits show up only as ordinary life does — a group chat of the gifted, a spirit sighting in notes, a temple on the map')}]",` + ph.join(',') + `
  }`;
   }
 
@@ -392,35 +448,29 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
    ]`);
     if (settings.castAppDocs !== false) sm.push(`
    "doc": [
-    {"ti": "[title of a document the owner carries — a charter, safe-conduct, writ, deed, marriage contract, debt note, warrant]", "kd": "[kind: charter | pass | debt | writ | contract | will | other]", "sl": "[whose seal is on it]", "tx": "[its substance in one or two sentences]", "st": "[status: valid | expired | forged | revoked]"}
+    {"ti": "[title of a document the owner carries — a charter, safe-conduct, writ, deed, marriage contract, debt note, warrant${ф(', a spell scroll, a mage-guild licence, a pact signed in blood', ', a travel permit stamped by a temple, a registry of the gifted')}]", "kd": "[kind: charter | pass | debt | writ | contract | will | other]", "sl": "[whose seal is on it]", "tx": "[its substance in one or two sentences]", "st": "[status: valid | expired | forged | revoked]"}
    ]`);
     if (settings.castAppKeeps !== false) sm.push(`
    "kp": [
-    {"ti": "[a keepsake the owner keeps close: a ring, a lock of hair, a pressed flower, a token from a tourney, a relic]", "dsc": "[what it looks like and what it means to them]", "frm": "[OPTIONAL: from whom]"}
+    {"ti": "[a keepsake the owner keeps close: a ring, a lock of hair, a pressed flower, a token from a tourney, a relic${ф(', a charm or amulet, a ward-stone, an enchanted ring — say in dsc what the magic does', ', a carved spirit charm or a talisman from a shrine — folk tokens that do nothing by themselves')}]", "dsc": "[what it looks like and what it means to them]", "frm": "[OPTIONAL: from whom]"}
    ]`);
     if (письма) p += `,
- "lt": [
-  {
-   "fr": "[from: the sender]", "to": "[to: the recipient — {{char}} is one side of EVERY letter here]",
-   "tm": "[when written or received, in the setting's own terms]",
-   "st": "[status: sealed (received, not yet opened) | read | draft (unfinished, unsent) | sent | transit (a courier is carrying it now) | burned | hidden]",
-   "sl": "[the seal: whose, wax colour and sign — 'красный воск, вепрь дома Эштон']", "via": "[OPTIONAL: how it travels — courier, pigeon, a servant, left under a stone]",
-   "tx": "[the letter's text in the voice and manners of the age; a sealed one is still written in full]"
-  }
-  - One object per letter, as many as there are. There are no phones, texts or calls in this world — people write letters or send word.
- ]`;
+${блокПисем(false)}`;
     if (sm.length) p += `,
  "sm": {
   "ow": "[owner: ALWAYS {{char}} — this casket and everything in it belongs to {{char}}]",` + sm.join(',') + `
  }`;
   }
 
+  if (письмаСовр) p += `,
+${блокПисем(true)}`;
+
   if (подслушка) {
     p += `,
  "ov": [
   {
    "kd": "[kind: talk (a conversation someone overheard) | letter (someone else's letter that was opened, read or stolen)]",
-   "wh": "[where: 'в конюшне за перегородкой', 'под окном трапезной']", "how": "[how it was heard or taken: through a wall crack, a servant's report, a seal lifted with a hot knife]",
+   "wh": "[where: 'в конюшне за перегородкой', 'под окном трапезной']", "how": "[how it was heard or taken: through a wall crack, a servant's report, a seal lifted with a hot knife${ф(', or by magic — a scrying bowl, a familiar’s ears, a whispering shell', ', or by an innate gift — feeling footsteps through the earth, catching words on the wind')}]",
    "tm": "[when]", "fr": "[letter only: sender]", "to": "[letter only: recipient]", "sl": "[letter only: its seal]",
    "ms": [
     "[talk: 'Speaker: words' one line per utterance; mark words that were not heard as [неразборчиво]. letter: its lines of text]"

@@ -18,7 +18,7 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.89.32';
+import { settings } from './settings.js?v=23.89.33';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';
@@ -47,8 +47,12 @@ export const ЧАСТИ = [
   ['underwear', (s) => s.enableUnderwear !== false],
   ['duel', (s) => s.enableVerbalDuel !== false],
   ['combat', (s) => s.enableCombat !== false],
-  // Виды блоков в обличье эпохи (render/era-medieval.js) — только в средневековье.
-  ['era-medieval', (s) => s.era === 'medieval'],
+  // Виды блоков в обличье эпохи (render/era-medieval.js) — только в средневековье
+  // и средневековом фэнтези; поверх — фэнтезийный слой обеих фэнтези-эпох (era.js).
+  ['era-medieval', (s) => s.era === 'medieval' || s.era === 'fantasy-medieval'],
+  ['era-fantasy', (s) => s.era === 'fantasy-modern' || s.era === 'fantasy-medieval'],
+  // Силы приземлённого фэнтези (render/powers.js): способности, чары, отдача.
+  ['powers', (s) => s.era === 'fantasy-modern' || s.era === 'fantasy-medieval' || s.magicPresence === 'hidden'],
   ['compact'],
   // Английские подписи, которые живут в CSS (content: '…').
   ['lang-en', (s) => s.language === 'en'],

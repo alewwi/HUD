@@ -12,18 +12,18 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.89.32';
+import { settings } from './settings.js?v=23.89.33';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { тМодели as т } from './i18n.js?v=23.89.32';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.32';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.89.32';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.32';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.89.32';
-import { заменитьHudБлоки } from './hud-block.js?v=23.89.32';
-import { упомянутВТексте } from './names.js?v=23.89.32';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.32';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.32';
-import { доверияБезПричин } from './turn-notes.js?v=23.89.32';
+import { тМодели as т } from './i18n.js?v=23.89.33';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.33';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.89.33';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.33';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.89.33';
+import { заменитьHudБлоки } from './hud-block.js?v=23.89.33';
+import { упомянутВТексте } from './names.js?v=23.89.33';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.33';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.33';
+import { доверияБезПричин } from './turn-notes.js?v=23.89.33';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -31,7 +31,7 @@ const объект = (v) => v !== null && typeof v === 'object' && !Array.isArra
 const ПОЛЯ_СЦЕНЫ = ['T', 'Wt', 'Dt', 'At', 'Md', 'Tw'];
 const ПОЛЯ_ПЕРСОНАЖА = ['N', 'A', 'C', 'Ap', 'R', 'B', 'H', 'Ill', 'Prg', 'Mns', 'Ph', 'Bs', 'L', 'Th', 'K', 'Ex', 'D', 'I', 'G', 'S', 'Rl', 'Mm', 'Fl',
   'Jl', 'Bt', 'St', 'Eo', 'X', 'SxL', 'SxC', 'SxR', 'Ln', 'Tr', 'Fr', 'SS', 'Pos', 'Rnd', 'Dur', 'Prt', 'Org', 'Vit', 'Snd', 'BM', 'W', 'Kn', 'Ft',
-  'NG', 'NT', 'ND', 'Mrk', 'AC', 'SxV'];
+  'NG', 'NT', 'ND', 'Mrk', 'AC', 'SxV', 'Ab', 'Ef'];
 // Игрок ведёт те же поля, что и персонажи; вместо W — своя близость UW.
 const ПОЛЯ_ИГРОКА = [...ПОЛЯ_ПЕРСОНАЖА.filter(к => к !== 'N' && к !== 'W'), 'Pp', 'UW'];
 

@@ -4,6 +4,32 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.33 — 2026-11-15
+
+The world is now built from three settings: era, technology and magic. Fantasy arrives in both eras and with two kinds of magic, and people who wield it get mana, abilities with limits, backlash and timed spells.
+
+### Added
+- **Era, technology and magic** (HUD blocks → Era, technology and magic) — three independent settings that build almost any world: the Middle Ages without magic, the modern day with hidden demons, elements without spells.
+  - **Era**: modern (phone and intercepts) or medieval (casket and overheard talk).
+  - **Technology**: from the card and lorebook, primitive, pre-industrial, industrial, modern or future. It tells the model what the world lacks.
+  - **Magic**: none, hidden from society or open. Hidden magic doesn't change how blocks look and the world seems ordinary, but the model knows magic is kept secret. Open magic is a fantasy era.
+  - **Kind of magic**: spells (schools, runes, portals, enchanted things) or innate powers (elements and spirits, no spells or portals).
+  - The world's particulars — who wields magic, what it is called, what it cannot do — the model takes from the card and lorebook, which are already in the request. The settings only set the frame, and magic does not by itself mean portals and scrolls.
+- **Fantasy in both eras.** Blocks change their look for magic.
+  - With spells: mana crystals instead of batteries, potions, a mage certificate, a ley line, an aura, portal passes, oracle orbs, a rune sign. In the Middle Ages: witch candles, a star charter, a healer sheet, hours of the planets and a sorcerer's coffer with messages, a moon book, a grimoire and wards.
+  - With innate powers: incense sticks, apothecary bottles, paper lanterns, the hours of the twelve beasts, ink mountains on the phone. Letters travel by rider and hawk.
+  - Any block can go back to its modern look: Customization → Era look.
+- **Powers.** People who wield magic get powers. Each part has its own checkbox under the magic choice:
+  - **Mana** — a fifth gauge in Body state. Power spends it and story time brings it back: about 10 per hour of rest, a night's sleep refills it. The HUD shows by what hour it will be full and reminds the model how much there was.
+  - **Abilities** — the school or gift, its level from novice to master, what it can do, what it cannot do and what it costs. The model keeps power within these bounds: no dragon from a minor illusion, and a new skill comes only through the story.
+  - **Backlash** from overstrain — four stages in Illnesses and injuries: dizziness (about an hour), nosebleed (about 3 h), fainting (about 12 h), severe injury (days). The card shows the ladder and how long it will last.
+  - **Spells** (with spellcasting) or **Effects** (with innate powers) — what acts on a person and until what hour. The HUD counts the time left by scene time and asks the model to remove what has expired.
+  - **Body and power** — the cycle, pregnancy, wounds, fatigue and stress change control over power. You choose whom to tell: the model, yourself, both or no one.
+- **Letters in the modern era** (Fine tuning → Communication in the modern era): phone, letters instead of it, or both — for worlds where people write paper letters.
+
+### Changed
+- **Purse in the casket** — a pouch of coins and an account book.
+
 ## 23.89.32 — 2026-11-15
 
 Each chat has its own look: a medieval story stays medieval and a modern one stays modern. A look can be copied from one chat to another. Plus a new physician's chart in the Middle Ages.

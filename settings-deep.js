@@ -10,12 +10,12 @@
 // Дерево глубокой настройки большое (две с половиной сотни галочек), поэтому
 // собирается при первом раскрытии, а не вместе со всеми настройками.
 
-import { settings } from './settings.js?v=23.89.32';
-import { escapeHtml, mapKey } from './utils.js?v=23.89.32';
-import { т, английский } from './i18n.js?v=23.89.32';
-import { уверены } from './confirm-erase.js?v=23.89.32';
-import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.89.32';
-import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.89.32';
+import { settings } from './settings.js?v=23.89.33';
+import { escapeHtml, mapKey } from './utils.js?v=23.89.33';
+import { т, английский } from './i18n.js?v=23.89.33';
+import { уверены } from './confirm-erase.js?v=23.89.33';
+import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.89.33';
+import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.89.33';
 
 // --- Глубокая настройка -------------------------------------------------------
 
@@ -24,6 +24,12 @@ export function разметкаГлубокой() {
     <summary>🔬 Глубокая настройка <span class="hud-fine-count"></span></summary>
     <div class="hud-set-body">
       <div class="hud-set-note">Внутри каждого блока — каждое поле, а где в поле несколько данных, то и каждое из них. Снятая галочка убирает это из промта (модель перестаёт писать) и с карточки — и в старых сообщениях тоже. Блок целиком выключается галочками выше.</div>
+      <label class="hud-set-check hud-fine-comms" title="Современный мир, где люди пишут друг другу бумажные письма">✉️ Связь в современности:
+        <select id="hud-modern-comms" class="hud-theme-select-input">
+          ${[['phone', '📱 Телефон'], ['letters', '✉️ Письма вместо телефона'], ['both', '📱✉️ Телефон и письма']].map(([к, п]) => `<option value="${к}"${(settings.modernComms || 'phone') === к ? ' selected' : ''}>${п}</option>`).join('')}
+        </select>
+      </label>
+      <div class="hud-set-note">Для современных миров, где пишут письма: эпистолярный роман, пансион, переписка через океан, мир без связи. «Письма вместо телефона» убирают телефон из промта, модель ведёт письма — с конвертом, доставкой и статусом, — и в карточке появляется вкладка «Письма». «Телефон и письма» оставляют оба. В средневековье письма и так в шкатулке.</div>
       <div class="hud-fine-tree" id="hud-fine-tree"></div>
       <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-fine-all" title="Снова включить все поля всех блоков в глубокой настройке">Включить всё</button></div>
     </div>
@@ -123,6 +129,12 @@ export function подключитьРазделы(основа) {
   let таймер = 0;
   const перерисовать = () => { clearTimeout(таймер); таймер = setTimeout(() => { try { основа.перерисоватьКарточкиЧата(); } catch (_) { /* карточки догонят */ } }, 700); };
   const сохранить = () => { основа.saveSettings(); перерисовать(); };
+
+  // Связь в современности: телефон, письма или оба (era.js).
+  document.getElementById('hud-modern-comms')?.addEventListener('change', (e) => {
+    settings.modernComms = ['letters', 'both'].includes(e.target.value) ? e.target.value : 'phone';
+    сохранить();
+  });
 
   // Глубокая настройка.
   const глубокая = document.getElementById('hud-fine');

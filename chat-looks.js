@@ -16,14 +16,15 @@
 //
 // Картинка фона в снимок не входит: она тяжёлая (до 3 МБ) и общая.
 
-import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.32';
-import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.32';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.32';
-import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.32';
-import { escapeHtml } from './utils.js?v=23.89.32';
+import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.33';
+import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.33';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.33';
+import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.33';
+import { escapeHtml } from './utils.js?v=23.89.33';
+import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.33';
 
 // Эпоха — тоже вид истории: в средневековом чате нет телефона.
-const ЭПОХА = ['era', 'fantasyMagic', 'modernComms', 'eraModern'];
+const ЭПОХА = ['era', 'fantasyMagic', 'magicPresence', 'techLevel', 'modernComms', 'eraModern'];
 const ЕЩЁ = ['themePreset', 'themePalette', 'iconSet', 'glassType', 'themeScene', 'noImages', 'headerOrnament', 'avatarDeco', 'avatarShape', 'sceneHidden'];
 // Не вид или не для снимка: картинки тяжёлые, остальное — поведение окна.
 const НЕ_В_СНИМОК = new Set(['bgImage', 'customDetailMode', 'customClickNav', 'tokenBudget', 'containerQueries', 'startingStyle', 'themeSwitchFade', 'secretsAutoRaise']);
@@ -136,8 +137,11 @@ function синхронизироватьПоля() {
     else if (inp.type === 'color' && !settings[k]) return;
     else inp.value = String(settings[k]);
   });
-  const эпоха = document.getElementById('hud-era');
-  if (эпоха && settings.era) эпоха.value = settings.era;
+  // Эпоха — три настройки (era.js): база, магия в мире и её вид, технологии.
+  const поле = (id, v) => { const э = document.getElementById(id); if (э && v) э.value = v; };
+  поле('hud-era', база()); поле('hud-magic-presence', присутствиеМагии()); поле('hud-tech-level', технологии());
+  if (магияВМире()) поле('hud-fantasy-magic', видМагииВМире());
+  document.querySelectorAll('.hud-era-magic, .hud-era-powers').forEach(б => { б.hidden = !магияВМире(); });
   document.querySelectorAll('.hud-era-block').forEach(б => { б.hidden = б.dataset.era !== (/medieval/.test(String(settings.era || '')) ? 'medieval' : 'modern'); });
 }
 

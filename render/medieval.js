@@ -12,12 +12,13 @@
 // Переключение разделов шкатулки — на радиокнопках и CSS, без скриптов:
 // карточка HUD перерисовывается целиком, и состояние не нужно восстанавливать.
 
-import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.89.32';
-import { английский } from '../i18n.js?v=23.89.32';
-import { settings } from '../settings.js?v=23.89.32';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.32';
-import { namesLikelySame } from '../names.js?v=23.89.32';
-import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.89.32';
+import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.89.33';
+import { английский } from '../i18n.js?v=23.89.33';
+import { settings } from '../settings.js?v=23.89.33';
+import { явнаяМагия, приземлённое } from '../era.js?v=23.89.33';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.33';
+import { namesLikelySame } from '../names.js?v=23.89.33';
+import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.89.33';
 
 const т = (v) => defeatWI(escapeHtml(String(v ?? '')));
 
@@ -288,19 +289,27 @@ export function hudHasCasket(satchel, letters) {
     || Boolean(s.wallet && (s.wallet.balance || (s.wallet.transactions || []).length));
 }
 
-export function buildCasketHTML(satchel, letters, uid, isChecked, fallbackOwner, sceneDate, characters) {
+// толькоПисьма — современный мир, где пишут письма (era.js, «Связь в современности»):
+// от шкатулки остаются одни письма.
+export function buildCasketHTML(satchel, letters, uid, isChecked, fallbackOwner, sceneDate, characters, { толькоПисьма = false } = {}) {
   const s = satchel && typeof satchel === 'object' ? satchel : {};
   const owner = (s.owner && !/^(empty|none)$/i.test(s.owner) ? s.owner : '') || fallbackOwner || '';
   const on = (k) => settings[k] !== false;
   const нераспечатано = (letters || []).filter(l => статусПисьма(l.status).ключ === 'sealed').length;
-  const разделы = [
-    on('castAppLetters') && { id: 'letters', icon: '✉️', label: 'Письма', badge: нераспечатано, body: buildLetters(letters, owner) },
-    on('castAppCalendar') && { id: 'almanac', icon: '📅', label: 'Святцы', body: buildAlmanac(s.calendar, characters, sceneDate, owner || null) },
+  // Средневековое фэнтези с явной магией: ларец чародея — святцы становятся
+  // лунником, записи — гримуаром, памятки — оберегами. В приземлённом — та же
+  // шкатулка, только без церкви: святцы — просто календарь.
+  const чары = !толькоПисьма && явнаяМагия();
+  const земля = !толькоПисьма && приземлённое();
+  const п = (обычно, вЧарах) => (чары ? вЧарах : обычно);
+  const разделы = толькоПисьма ? [{ id: 'letters', icon: '✉️', label: 'Письма', badge: нераспечатано, body: buildLetters(letters, owner) }] : [
+    on('castAppLetters') && { id: 'letters', icon: п('✉️', '🕊️'), label: п('Письма', 'Послания'), badge: нераспечатано, body: buildLetters(letters, owner) },
+    on('castAppCalendar') && { id: 'almanac', icon: п('📅', '🌙'), label: п(земля ? 'Календарь' : 'Святцы', 'Лунник'), body: buildAlmanac(s.calendar, characters, sceneDate, owner || null) },
     on('castAppPurse') && { id: 'purse', icon: '💰', label: 'Кошель', body: buildPurse(s.wallet) },
-    on('castAppNotes') && { id: 'notes', icon: '🪶', label: 'Записи', body: buildNotes(s.notes) },
+    on('castAppNotes') && { id: 'notes', icon: п('🪶', '📖'), label: п('Записи', 'Гримуар'), body: buildNotes(s.notes) },
     on('castAppMap') && { id: 'map', icon: '🗺️', label: 'Карта', body: buildMap(s.maps) },
-    on('castAppDocs') && { id: 'docs', icon: '📜', label: 'Грамоты', body: buildDocs(s.documents) },
-    on('castAppKeeps') && { id: 'keeps', icon: '🎀', label: 'Памятки', body: buildKeeps(s.keepsakes) },
+    on('castAppDocs') && { id: 'docs', icon: '📜', label: п('Грамоты', 'Свитки'), body: buildDocs(s.documents) },
+    on('castAppKeeps') && { id: 'keeps', icon: п('🎀', '🧿'), label: п('Памятки', 'Обереги'), body: buildKeeps(s.keepsakes) },
   ].filter(Boolean);
   if (!разделы.length) return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">${пусто('🗝️', 'Все разделы шкатулки выключены в настройках')}</div>`;
   const имя = `cask-${uid}`;
@@ -308,9 +317,9 @@ export function buildCasketHTML(satchel, letters, uid, isChecked, fallbackOwner,
   const вкладки = разделы.map(р => `<label class="hud-cask-tab" for="${имя}-${р.id}"><span>${р.icon}</span>${escapeHtml(р.label)}${р.badge ? `<i class="hud-cask-badge">${р.badge}</i>` : ''}</label>`).join('');
   const виды = разделы.map(р => `<section class="hud-cask-view" data-cask-view="${р.id}">${р.body}</section>`).join('');
   return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">
-    <div class="hud-cask">
+    <div class="hud-cask${чары ? ' is-arcane' : ''}${земля ? ' is-grounded' : ''}${толькоПисьма ? ' is-letters' : ''}">
       ${радио}
-      <div class="hud-cask-lid"><span class="hud-cask-lock" aria-hidden="true"></span><b>Шкатулка</b>${owner ? `<small>${т(owner)}</small>` : ''}</div>
+      <div class="hud-cask-lid"><span class="hud-cask-lock" aria-hidden="true"></span><b>${толькоПисьма ? 'Письма' : чары ? 'Ларец чародея' : 'Шкатулка'}</b>${owner ? `<small>${т(owner)}</small>` : ''}</div>
       <nav class="hud-cask-tabs">${вкладки}</nav>
       <div class="hud-cask-views">${виды}</div>
     </div>

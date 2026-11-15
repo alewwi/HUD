@@ -63,6 +63,24 @@ export const defaultSettings = {
   chatLooks: {},
   lookCommon: null,
   era: 'modern',
+  // Уровень магии в эпохах фэнтези (era.js): явная магия или приземлённое.
+  fantasyMagic: 'high',
+  // Магия в мире (era.js): none | hidden (скрыта от общества) | open. Эпоха
+  // фэнтези — всегда open; старые настройки без ключа переносятся сами.
+  magicPresence: 'none',
+  // Технологии (era.js): auto — из карточки и лорбука, или уровень явно.
+  techLevel: 'auto',
+  // Силы приземлённого фэнтези (render/powers.js): мана, способности, чары,
+  // отдача; тело и сила — кому подсказывать: модели, мне, обоим или никому.
+  powersMana: true,
+  powersAbilities: true,
+  powersEffects: true,
+  powersBacklash: true,
+  powersBody: 'both',
+  // Связь в современности: телефон, письма вместо него или и то и другое.
+  modernComms: 'phone',
+  // Блоки, которые в эпохе остаются в современном виде (Кастомизация → Обличье эпохи).
+  eraModern: {},
   enableCasket: true,
   enableOverheard: true,
   castAppLetters: true,

@@ -3898,5 +3898,27 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('пояснения: в видах боя — места для вопросиков', ['fight', 'tac', 'chess', 'sheet'].every(в => VS.видБоя(бой, в).includes('data-help-term="кто где"')) && VS.видБоя(бой, 'fight').includes('data-help-term="погоня"') && VS.видБоя(бой, 'tac').includes('data-help-term="укрытия и что под рукой"'));
 }
 
+// Эпохи фэнтези: уровень магии, письма в современности, обличья.
+{
+  const Ст = await модуль('settings.js'); const Пр = await модуль('prompt.js'); const Э = await модуль('era.js');
+  const было = { era: Ст.settings.era, fantasyMagic: Ст.settings.fantasyMagic, modernComms: Ст.settings.modernComms, enablePhone: Ст.settings.enablePhone, eraModern: Ст.settings.eraModern };
+  const промт = (o) => { Object.assign(Ст.settings, { enablePhone: true }, o); return Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true }); };
+  const г = промт({ era: 'fantasy-medieval', fantasyMagic: 'grounded' });
+  проверить('приземлённое: правило мира, ястребы, без воронов-фамильяров', г.includes('GROUNDED FANTASY') && г.includes('messenger hawk') && !г.includes('raven familiar') && !г.includes('HIGH MAGIC'));
+  const в = промт({ era: 'fantasy-medieval', fantasyMagic: 'high' });
+  проверить('явная магия: своё правило и вороны', в.includes('HIGH MAGIC') && в.includes('raven familiar') && !в.includes('GROUNDED'));
+  const п = промт({ era: 'modern', modernComms: 'letters' });
+  проверить('современность с письмами: lt есть, телефона нет, магии нет', п.includes('"lt"') && !п.includes('"phn"') && !п.includes('HIGH MAGIC') && п.includes('slipped under the door'));
+  const о = промт({ era: 'modern', modernComms: 'both' });
+  проверить('телефон и письма: оба в промте', о.includes('"lt"') && о.includes('"phn"'));
+  проверить('обычная современность: писем нет', !промт({ era: 'modern', modernComms: 'phone' }).includes('"lt"'));
+  проверить('магия вне фэнтези пустая, в фэнтези — high по умолчанию', Э.магия('modern', 'grounded') === '' && Э.магия('fantasy-modern', 'x') === 'high' && Э.магия('fantasy-medieval', 'grounded') === 'grounded');
+  Ст.settings.eraModern = { body: true };
+  проверить('обличье: блок можно оставить современным', Э.современныйВид('body') && !Э.современныйВид('age'));
+  проверить('обличья: в современности ничего не переодевается', Э.ОБЛИЧЬЯ.every(о => !о.вид('modern', '')));
+  проверить('обличья: в приземлённом нет рун и кругов', !Э.ОБЛИЧЬЯ.some(о => /рун|сферы|ауры?$|кристаллы/.test(о.вид('fantasy-modern', 'grounded') + о.вид('fantasy-medieval', 'grounded'))));
+  Object.assign(Ст.settings, было);
+}
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);
 if (провалы.length) { console.log(провалы.map(п => ' ✗ ' + п).join('\n')); process.exitCode = 1; }

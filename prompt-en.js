@@ -8,6 +8,12 @@
 // тоже понимает. Применяется к готовой инструкции целиком.
 
 const ЗАМЕНЫ = [
+  // Силы фэнтези (render/powers.js).
+  ['e.g. огонь, вода, земля, воздух, духи', 'e.g. fire, water, earth, air, spirits'],
+  ['e.g. огненная магия, иллюзии, порталы, целительство, обереги, проклятия', 'e.g. fire magic, illusions, portals, healing, wards, curses'],
+  ["'nm: отдача — <stage>'", "'nm: backlash — <stage>'"],
+  ['головокружение (passes in about an hour), кровь из носа (about 3 hours), обморок (out cold', 'dizziness (passes in about an hour), nosebleed (about 3 hours), fainting (out cold'],
+  ['), тяжёлая травма (', '), severe injury ('],
   // Язык и коды.
   ['- 🌍 LANG: write values in Russian; character names follow "N".', '- 🌍 LANG: write values in English; character names follow "N".'],
   // Последняя строка инструкции (prompt.js): начало чата могло пройти на
@@ -95,6 +101,8 @@ const ЗАМЕНЫ = [
   ['Жалованье от лорда', 'Wages from the lord'],
   ['Подкуп стражника', 'Bribing a guard'],
   ['красный воск, вепрь дома Эштон', 'red wax, the boar of House Ashton'],
+  ['конверт с маркой Лиссабона', 'an envelope with a Lisbon stamp'],
+  ['сургуч с инициалами', 'sealing wax with initials'],
   ['в конюшне за перегородкой', 'in the stable behind the partition'],
   ['под окном трапезной', 'under the refectory window'],
   ['рыжий кот', 'ginger cat'],

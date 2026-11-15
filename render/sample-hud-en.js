@@ -543,6 +543,30 @@ export const ПРИМЕР_БОЯ = {
   ch: 'dst: 40; to: the car by the arch; obs: trash bins, the neighbor with a dog; evt: the lookout ran for the car, Mark went after him',
 };
 export const ПРИМЕР_БОЯ_РАНЫ = 'nm: knife cut on the forearm; sg: fresh; rc: 10%; sy: bleeding, fingers going numb; trt: pressed it with his palm; zn: left forearm';
+export const ПРИМЕР_СИЛ = {
+  'Lilian': {
+    Ab: 'nm: water; mst: trained; cn: hold or turn a stream the size of a bucket, pull a handful of water out of the air, cool a burn; lim: cannot raise a wave, stop a river or touch the blood in another body; cst: chill in the fingers, then thirst | nm: sense for spirits; mst: novice; cn: hears a water spirit nearby if it calls her itself; lim: cannot see spirits or speak to them; cst: aching temples',
+    Ef: 'nm: mark of the river spirit; src: the river spirit by the old bridge; til: 23:30; sy: her palm goes cold near water, she hears the current in her sleep | nm: blocked chi in the left arm; src: Mark, a jab to the shoulder while sparring; til: 22:10; sy: her fingers will not obey, no water comes from the left hand',
+    mn: 'mn: 35 — running low',
+    Ill: 'nm: backlash — nosebleed; sg: fresh; sy: nosebleed and ringing ears — she held the burst kitchen pipe longer than she could; trt: cold on the bridge of the nose, lie down',
+  },
+  'Artyom': {
+    Ab: 'nm: fire; mst: adept; cn: light and put out flame in a room, hold fire in his palms for a long time, warm the air around; lim: cannot make flame from nothing in a downpour or hold a blaze bigger than a room; cst: heat in the chest, a dry throat after a strong push',
+    mn: 'mn: 80 — in reserve',
+  },
+};
+export const ПРИМЕР_СИЛ_ЯВНО = {
+  'Lilian': {
+    Ab: 'nm: water magic; mst: trained; cn: with a three-word spell hold or turn a stream the size of a bucket, draw water out of the air, cool a burn; lim: cannot raise a wave or stop a river, cannot cast without her voice; cst: chill in the fingers, then thirst | nm: small portals; mst: novice; cn: open a passage to the next room for a couple of breaths — needs a chalk sign on both doors; lim: no farther than one house, not through wards, nothing heavier than a bag; cst: nausea, ringing ears',
+    Ef: 'nm: ward against the evil eye; src: grandmother’s amulet, charmed by Eleanor; til: 23:30; sy: the amulet is warm, strangers’ stares slide off | nm: curse of a numb left hand; src: Mark, a practice duel, caught her with a spell; til: 22:10; sy: her fingers will not obey, she cannot shape a sign with the left hand',
+    mn: 'mn: 35 — running low',
+    Ill: 'nm: backlash — nosebleed; sg: fresh; sy: nosebleed and ringing ears — she held the spell over the burst pipe longer than she could; trt: cold on the bridge of the nose, lie down',
+  },
+  'Artyom': {
+    Ab: 'nm: fire magic; mst: adept; cn: a fireball the size of a fist, light or put out every candle in a hall with one word, a wall of fire as tall as a man for a dozen breaths; lim: cannot restore what burned, in a downpour the flame dies at once, cannot hold a blaze bigger than a room; cst: heat in the chest, a dry throat after a strong push',
+    mn: 'mn: 80 — in reserve',
+  },
+};
 const ПРОШЛОЕ_БЫТА = [
   { sc: { T: '19:20 | evening', Dt: 'Monday, 14.10.2024', Wt: 'cold wind, +6°C' },
     cs: [{ N: 'Lilian Grey', C: 'burgundy wool coat, plaid scarf, ankle boots, jeans', L: 'London, the embankment',

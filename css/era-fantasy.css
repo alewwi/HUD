@@ -1,0 +1,579 @@
+/* hud-manager/css/era-fantasy.css
+   Эпохи фэнтези (era.js): слой поверх обычного вида, а не замена.
+   На <html> стоят data-hud-era (эпоха) и data-hud-magic (high | grounded —
+   уровень магии), их ставит index.js (отметитьЭпоху). Файл, однажды
+   подключённый, не снимается (css-loader.js), поэтому каждое правило про
+   эпоху начинается с этих атрибутов: вернулись в современность — правила молчат.
+   Явная магия — руны, круги, кристаллы маны, зелья, свидетельство мага,
+   колдовские свечи, звёздная грамота, лист целителя, ларец чародея.
+   Приземлённое — без рун и кругов: благовония, склянки, бумажные фонари,
+   горы тушью на телефоне, резные облака на шкатулке.
+   Разметку видов строит render/era-fantasy.js; прототип и стенд —
+   tests/tools/fantasy-stand. Кошель — в css/era-medieval.css (он и в старине).
+   Цвета — из темы (--hud-accent, --hud-text): своя тема получает свои чары.
+   Анимации — только петли, чей остановленный кадр тоже хорош
+   (HUD останавливает анимации в карточках). */
+:root {
+  --fx-sigil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none' stroke='%23000' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='100' cy='100' r='97' stroke-width='1.6'/%3E%3Ccircle cx='100' cy='100' r='92.5' stroke-width='.7'/%3E%3Cpath transform='rotate(0 100 100) translate(98 9)' d='M0 0V10M0 2L4 0M0 5L4 3' stroke-width='1.1'/%3E%3Cpath transform='rotate(12.86 100 100) translate(98 9)' d='M4 0L0 5L4 10' stroke-width='1.1'/%3E%3Cpath transform='rotate(25.71 100 100) translate(98 9)' d='M4 0L0 4L4 6L0 10' stroke-width='1.1'/%3E%3Cpath transform='rotate(38.57 100 100) translate(98 9)' d='M2 0L4 3L0 8M2 0L0 3L4 8' stroke-width='1.1'/%3E%3Cpath transform='rotate(51.43 100 100) translate(98 9)' d='M0 10V0L3 2L0 4L4 10' stroke-width='1.1'/%3E%3Cpath transform='rotate(64.29 100 100) translate(98 9)' d='M2 0V10M0 2L2 4L4 2' stroke-width='1.1'/%3E%3Cpath transform='rotate(77.14 100 100) translate(98 9)' d='M0 10V0L4 4' stroke-width='1.1'/%3E%3Cpath transform='rotate(90 100 100) translate(98 9)' d='M0 0V10M0 0L4 2M0 3L4 5' stroke-width='1.1'/%3E%3Cpath transform='rotate(102.86 100 100) translate(98 9)' d='M2 0V10M2 0L4 2M2 10L0 8' stroke-width='1.1'/%3E%3Cpath transform='rotate(115.71 100 100) translate(98 9)' d='M0 0V10M4 0V10M0 0L4 5M4 0L0 5' stroke-width='1.1'/%3E%3Cpath transform='rotate(128.57 100 100) translate(98 9)' d='M0 0V10M0 3L3 5L0 7' stroke-width='1.1'/%3E%3Cpath transform='rotate(141.43 100 100) translate(98 9)' d='M0 0V10M4 0V10M0 3L4 6' stroke-width='1.1'/%3E%3Cpath transform='rotate(154.29 100 100) translate(98 9)' d='M0 0V10M0 0L3 2.5L0 5L3 7.5L0 10' stroke-width='1.1'/%3E%3Cpath transform='rotate(167.14 100 100) translate(98 9)' d='M0 10V0L4 3V10' stroke-width='1.1'/%3E%3Cpath transform='rotate(180 100 100) translate(98 9)' d='M0 0L4 10M4 0L0 10' stroke-width='1.1'/%3E%3Cpath transform='rotate(192.86 100 100) translate(98 9)' d='M2 0V10M0 3L2 0L4 3' stroke-width='1.1'/%3E%3Cpath transform='rotate(205.71 100 100) translate(98 9)' d='M0 0V10M0 2L4 0M0 5L4 3' stroke-width='1.1'/%3E%3Cpath transform='rotate(218.57 100 100) translate(98 9)' d='M4 0L0 5L4 10' stroke-width='1.1'/%3E%3Cpath transform='rotate(231.43 100 100) translate(98 9)' d='M4 0L0 4L4 6L0 10' stroke-width='1.1'/%3E%3Cpath transform='rotate(244.29 100 100) translate(98 9)' d='M2 0L4 3L0 8M2 0L0 3L4 8' stroke-width='1.1'/%3E%3Cpath transform='rotate(257.14 100 100) translate(98 9)' d='M0 10V0L3 2L0 4L4 10' stroke-width='1.1'/%3E%3Cpath transform='rotate(270 100 100) translate(98 9)' d='M2 0V10M0 2L2 4L4 2' stroke-width='1.1'/%3E%3Cpath transform='rotate(282.86 100 100) translate(98 9)' d='M0 10V0L4 4' stroke-width='1.1'/%3E%3Cpath transform='rotate(295.71 100 100) translate(98 9)' d='M0 0V10M0 0L4 2M0 3L4 5' stroke-width='1.1'/%3E%3Cpath transform='rotate(308.57 100 100) translate(98 9)' d='M2 0V10M2 0L4 2M2 10L0 8' stroke-width='1.1'/%3E%3Cpath transform='rotate(321.43 100 100) translate(98 9)' d='M0 0V10M4 0V10M0 0L4 5M4 0L0 5' stroke-width='1.1'/%3E%3Cpath transform='rotate(334.29 100 100) translate(98 9)' d='M0 0V10M0 3L3 5L0 7' stroke-width='1.1'/%3E%3Cpath transform='rotate(347.14 100 100) translate(98 9)' d='M0 0V10M4 0V10M0 3L4 6' stroke-width='1.1'/%3E%3Ccircle cx='100' cy='100' r='77' stroke-width='1.2'/%3E%3Ccircle cx='100' cy='100' r='74' stroke-width='.5' stroke-dasharray='1.5 3'/%3E%3Cpath d='M100 28L131.24 164.87L43.71 55.11L170.19 116.02L29.81 116.02L156.29 55.11L68.76 164.87L100 28Z' stroke-width='.9'/%3E%3Ccircle cx='100' cy='28' r='3.4' stroke-width='.9'/%3E%3Ccircle cx='156.29' cy='55.11' r='3.4' stroke-width='.9'/%3E%3Ccircle cx='170.19' cy='116.02' r='3.4' stroke-width='.9'/%3E%3Ccircle cx='131.24' cy='164.87' r='3.4' stroke-width='.9'/%3E%3Ccircle cx='68.76' cy='164.87' r='3.4' stroke-width='.9'/%3E%3Ccircle cx='29.81' cy='116.02' r='3.4' stroke-width='.9'/%3E%3Ccircle cx='43.71' cy='55.11' r='3.4' stroke-width='.9'/%3E%3Ccircle cx='100' cy='100' r='40' stroke-width='.9'/%3E%3Ccircle cx='100' cy='100' r='36' stroke-width='.4'/%3E%3Cpath d='M100 76a24 24 0 1 0 0 48a18 18 0 1 1 0-48z' stroke-width='.9'/%3E%3C/svg%3E");
+  --fx-runes: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 -.6 64 11.2' fill='none' stroke='%23000' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath transform='translate(2 0)' d='M0 10V0L4 3V10'/%3E%3Cpath transform='translate(10 0)' d='M0 10V0L3 2L0 4L4 10'/%3E%3Cpath transform='translate(18 0)' d='M0 0V10M4 0V10M0 3L4 6'/%3E%3Cpath transform='translate(26 0)' d='M4 0L0 4L4 6L0 10'/%3E%3Cpath transform='translate(34 0)' d='M0 0V10M4 0V10M0 0L4 5M4 0L0 5'/%3E%3Cpath transform='translate(42 0)' d='M0 0V10M0 2L4 0M0 5L4 3'/%3E%3Cpath transform='translate(50 0)' d='M0 0V10M0 0L4 2M0 3L4 5'/%3E%3Cpath transform='translate(58 0)' d='M0 0L4 10M4 0L0 10'/%3E%3C/svg%3E");
+  --fx-spark: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M10 0C10.6 7 13 9.4 20 10C13 10.6 10.6 13 10 20C9.4 13 7 10.6 0 10C7 9.4 9.4 7 10 0Z'/%3E%3C/svg%3E");
+}
+
+/* ═════════════════════ Современное фэнтези: зачарованный телефон ═════════════════════ */
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-shell {
+  /* Колдовской цвет: акцент телефона, оттянутый к лунно-голубому. */
+  --fx-arc: color-mix(in oklab, var(--hud-phone-accent, var(--hud-accent, #9b7bff)) 58%, #9fd4ff);
+  --fx-arc-hi: color-mix(in oklab, var(--fx-arc) 55%, #fff);
+  --fx-arc-lo: color-mix(in oklab, var(--fx-arc) 55%, #10081f);
+}
+/* Руны по верхней и нижней кромке рамки — гравировка, чуть светится. */
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-shell::before {
+  content: ''; position: absolute; inset: 0; z-index: 4; pointer-events: none;
+  border-radius: var(--hud-phone-body-r, 40px);
+  --fx-rh: max(4px, calc(var(--hud-phone-frame-w, 9px) - 3px));
+  background: linear-gradient(90deg, var(--fx-arc-lo), var(--fx-arc-hi) 30%, var(--fx-arc) 50%, var(--fx-arc-hi) 70%, var(--fx-arc-lo));
+  -webkit-mask: var(--fx-runes) 50% calc((var(--hud-phone-frame-w, 9px) - var(--fx-rh)) / 2) / calc(var(--fx-rh) * 6.4 * 3) var(--fx-rh) no-repeat,
+    var(--fx-runes) 50% calc(100% - (var(--hud-phone-frame-w, 9px) - var(--fx-rh)) / 2) / calc(var(--fx-rh) * 6.4 * 3) var(--fx-rh) no-repeat;
+  mask: var(--fx-runes) 50% calc((var(--hud-phone-frame-w, 9px) - var(--fx-rh)) / 2) / calc(var(--fx-rh) * 6.4 * 3) var(--fx-rh) no-repeat,
+    var(--fx-runes) 50% calc(100% - (var(--hud-phone-frame-w, 9px) - var(--fx-rh)) / 2) / calc(var(--fx-rh) * 6.4 * 3) var(--fx-rh) no-repeat;
+  opacity: .85; filter: drop-shadow(0 0 2px var(--fx-arc));
+}
+/* Ореол чар вокруг корпуса. «Свечение телефона: выключено» — без него. */
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"]:not(.hud-phone-noglow) .hud-phone-shell::after {
+  box-shadow: 0 0 0 1px rgba(0,0,0,.55), 0 0 0 2px color-mix(in oklab, var(--fx-arc) 45%, transparent),
+    0 0 18px color-mix(in oklab, var(--fx-arc) 38%, transparent), 0 0 42px color-mix(in oklab, var(--fx-arc) 16%, transparent),
+    inset 0 0 0 1px rgba(0,0,0,.5), inset 0 0 0 2px color-mix(in oklab, var(--fx-arc) 30%, transparent), inset 0 1px 0 rgba(255,255,255,.13);
+}
+/* Камера в вырезе — кристалл с бликом. */
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-emulator::before {
+  background: radial-gradient(circle at 73% 44%, #fff 0 .8px, transparent 1.4px),
+    radial-gradient(circle at 74% 52%, var(--fx-arc-hi, #cfe8ff) 0 1.6px, var(--fx-arc, #8fb8ff) 2.6px, var(--fx-arc-lo, #20163a) 3.6px, transparent 4.4px), #000;
+}
+
+/* Блокировка: магический круг за часами, медленно поворачивается. */
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-lockscreen { isolation: isolate; }
+@keyframes fx-sigil-turn { to { transform: rotate(360deg); } }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-lock-time { text-shadow: 0 0 18px color-mix(in oklab, var(--fx-arc) 70%, transparent), 0 4px 30px rgba(0,0,0,.4); }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-lock-notice { border-color: color-mix(in oklab, var(--fx-arc) 32%, transparent); box-shadow: 0 8px 22px rgba(0,0,0,.22), inset 0 0 14px color-mix(in oklab, var(--fx-arc) 12%, transparent); }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-lock-bar,
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-home-btn { background: linear-gradient(90deg, transparent, var(--fx-arc-hi) 30%, var(--fx-arc-hi) 70%, transparent); box-shadow: 0 0 10px var(--fx-arc); }
+
+/* Домашний экран: звёздная пыль поверх обычного света. */
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-home-screen {
+  background:
+    radial-gradient(1.2px 1.2px at 14% 22%, var(--fx-arc-hi), transparent), radial-gradient(1px 1px at 31% 9%, #fff, transparent),
+    radial-gradient(1.4px 1.4px at 62% 16%, var(--fx-arc-hi), transparent), radial-gradient(1px 1px at 83% 31%, #fffc, transparent),
+    radial-gradient(1px 1px at 9% 58%, #fffa, transparent), radial-gradient(1.3px 1.3px at 92% 64%, var(--fx-arc-hi), transparent),
+    radial-gradient(1px 1px at 47% 88%, #fffb, transparent), radial-gradient(1.2px 1.2px at 74% 82%, var(--fx-arc-hi), transparent),
+    radial-gradient(120% 55% at 18% 0%, color-mix(in srgb, var(--fx-arc) 22%, transparent), transparent 62%),
+    radial-gradient(90% 45% at 88% 12%, color-mix(in srgb, var(--fx-arc) 14%, transparent), transparent 60%),
+    radial-gradient(70% 40% at 50% 104%, color-mix(in srgb, var(--fx-arc) 16%, transparent), transparent 70%),
+    linear-gradient(180deg, rgba(255,255,255,.035), transparent 42%);
+}
+/* Под значками — бледный магический круг, как водяной знак. */
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-home-screen::before {
+  content: ''; position: absolute; z-index: -1; pointer-events: none; left: 50%; bottom: 18px; width: 300px; height: 300px; margin-left: -150px;
+  background: var(--fx-arc-hi); opacity: .07;
+  -webkit-mask: var(--fx-sigil) center / contain no-repeat; mask: var(--fx-sigil) center / contain no-repeat;
+}
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-app > span { box-shadow: 0 0 0 1px color-mix(in oklab, var(--fx-arc) 30%, transparent), 0 4px 12px color-mix(in oklab, var(--fx-arc) 22%, transparent); }
+
+/* Строка состояния: сигнал — четыре искры, батарея — кристалл маны. */
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-sig { gap: 2px; align-items: center; }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-sig i { width: 5px; height: 5px !important; border-radius: 0; background: var(--fx-arc-hi);
+  -webkit-mask: var(--fx-spark) center / contain no-repeat; mask: var(--fx-spark) center / contain no-repeat; }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-sig i:nth-child(2) { width: 6px; height: 6px !important; }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-sig i:nth-child(3) { width: 7.5px; height: 7.5px !important; }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-sig i:nth-child(4) { width: 9px; height: 9px !important; }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-bat { width: 20px; height: 10px; border: 0; border-radius: 0;
+  clip-path: polygon(0 50%, 18% 0, 82% 0, 100% 50%, 82% 100%, 18% 100%);
+  background: linear-gradient(180deg, rgba(255,255,255,.5), rgba(255,255,255,.18)); }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-bat::before { left: 1px; top: 1px; bottom: 1px; width: 66%; border-radius: 0;
+  clip-path: polygon(0 50%, 22% 0, 100% 0, 100% 100%, 22% 100%);
+  background: linear-gradient(90deg, var(--fx-arc-lo), var(--fx-arc) 60%, var(--fx-arc-hi)); }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-bat::after { right: auto; left: 50%; top: 1px; bottom: auto; width: 9px; height: 3px; border-radius: 0; margin-left: -4.5px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.75), transparent); }
+
+/* Переписка: свои сообщения — с лёгким колдовским светом, на фоне — редкие звёзды. */
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-emulator .hud-msg-wrapper.outgoing .hud-msg-bubble { box-shadow: 0 0 12px color-mix(in oklab, var(--fx-arc) 30%, transparent); }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-app-view[data-phone-view="messages"] .hud-phone-chat-area {
+  background:
+    radial-gradient(1px 1px at 18% 14%, #fff8, transparent), radial-gradient(1.2px 1.2px at 77% 24%, var(--fx-arc-hi), transparent),
+    radial-gradient(1px 1px at 41% 63%, #fff7, transparent), radial-gradient(1.2px 1.2px at 88% 86%, var(--fx-arc-hi), transparent),
+    radial-gradient(circle at 12% 8%, color-mix(in srgb, var(--fx-arc) 14%, transparent), transparent 42%),
+    radial-gradient(circle at 88% 92%, color-mix(in srgb, var(--fx-arc) 12%, transparent), transparent 46%),
+    #0a0b11;
+}
+@media (prefers-reduced-motion: reduce) { :root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-lockscreen::before { animation: none; } }
+
+/* ═════════════════════ Средневековое фэнтези: та же старина, но с чарами ═════════════════════ */
+/* Палитра эпохи (css/era-medieval.css) — с колдовским цветом. Золото
+   отливает лунным серебром, остальное выводится из него само. */
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era,
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask {
+  --fx-arc: color-mix(in oklab, var(--hud-accent, #9b7bff) 55%, #9fd4ff);
+  --fx-arc-hi: color-mix(in oklab, var(--fx-arc) 50%, #fff);
+  --fx-arc-lo: color-mix(in oklab, var(--fx-arc) 55%, #10081f);
+}
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era {
+  --e-gold: color-mix(in oklab, color-mix(in oklab, #d4a03c 72%, var(--hud-accent)) 68%, var(--fx-arc));
+}
+/* Уголки-орнаменты и разделители светятся. */
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era .orn::before, :root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era .orn::after,
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era.orn::before, :root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era.orn::after,
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era .rule { filter: drop-shadow(0 0 2.5px var(--fx-arc)); }
+
+/* Ларец чародея: звёзды в дереве, руны под крышкой, замок горит. */
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none; border-radius: inherit;
+  background:
+    radial-gradient(1.2px 1.2px at 8% 14%, var(--fx-arc-hi), transparent), radial-gradient(1px 1px at 23% 6%, #fffc, transparent),
+    radial-gradient(1.4px 1.4px at 71% 9%, var(--fx-arc-hi), transparent), radial-gradient(1px 1px at 93% 22%, #fffb, transparent),
+    radial-gradient(1px 1px at 4% 47%, #fffa, transparent), radial-gradient(1.3px 1.3px at 97% 58%, var(--fx-arc-hi), transparent),
+    radial-gradient(1px 1px at 6% 83%, var(--fx-arc-hi), transparent), radial-gradient(1.2px 1.2px at 95% 92%, #fffb, transparent),
+    radial-gradient(80% 50% at 50% 0%, color-mix(in oklab, var(--fx-arc) 18%, transparent), transparent 70%);
+}
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane > * { position: relative; z-index: 1; }
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane > .hud-cask-radio { position: absolute; }
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane.era-skin {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fx-arc) 55%, transparent), inset 0 0 0 4px color-mix(in oklab, var(--e-cwood) 35%, transparent),
+    inset 0 0 30px color-mix(in oklab, var(--fx-arc) 22%, transparent), 0 0 16px color-mix(in oklab, var(--fx-arc) 22%, transparent), 0 4px 14px rgba(0,0,0,.28) !important;
+}
+/* Под названием — строка рун вместо простой золотой черты. */
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane .hud-cask-lid { flex-wrap: wrap; padding-bottom: 20px !important; }
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane .hud-cask-lid::after {
+  content: ''; position: absolute; left: 50%; bottom: 4px; width: min(210px, 86%); height: 10px; transform: translateX(-50%); pointer-events: none;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--fx-arc-hi) 70%, #fff) 22%, color-mix(in oklab, var(--fx-arc-hi) 70%, #fff) 78%, transparent);
+  -webkit-mask: var(--fx-runes) center / auto 100% repeat-x; mask: var(--fx-runes) center / auto 100% repeat-x;
+  filter: drop-shadow(0 0 3px var(--fx-arc));
+}
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane .hud-cask-lid b { text-shadow: 0 0 10px color-mix(in oklab, var(--fx-arc) 65%, transparent), 0 1px 0 rgba(0,0,0,.4); }
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane .hud-cask-lock {
+  background: radial-gradient(3px 3px at 50% 40%, var(--fx-arc-hi) 90%, transparent), linear-gradient(var(--fx-arc-hi), var(--fx-arc-hi)) 50% 58% / 2px 7px no-repeat, var(--e-brass, linear-gradient(#e2c16a, #9c7a2a)) !important;
+  box-shadow: 0 0 8px var(--fx-arc), 0 1px 2px rgba(0,0,0,.5), inset 0 0 0 1px color-mix(in oklab, var(--e-gold-lo, #6b5216) 80%, #000) !important;
+  animation: fx-lock-glow 3.2s ease-in-out infinite alternate;
+}
+@keyframes fx-lock-glow { from { filter: brightness(1); } to { filter: brightness(1.25) drop-shadow(0 0 4px var(--fx-arc)); } }
+/* Открытый раздел — закладка с колдовским светом. */
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane.era-skin .hud-cask-radio:nth-of-type(1):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(1),
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane.era-skin .hud-cask-radio:nth-of-type(2):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(2),
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane.era-skin .hud-cask-radio:nth-of-type(3):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(3),
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane.era-skin .hud-cask-radio:nth-of-type(4):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(4),
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane.era-skin .hud-cask-radio:nth-of-type(5):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(5),
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane.era-skin .hud-cask-radio:nth-of-type(6):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(6),
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane.era-skin .hud-cask-radio:nth-of-type(7):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(7) {
+  box-shadow: 0 0 0 1.5px var(--fx-arc), 0 0 12px color-mix(in oklab, var(--fx-arc) 55%, transparent), 0 3px 5px rgba(0,0,0,.35) !important;
+}
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane.era-skin .hud-cask-tab > span { color: var(--fx-arc-hi); filter: drop-shadow(0 0 3px var(--fx-arc)); }
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane.era-skin .hud-cask-views {
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--fx-arc) 40%, transparent), inset 0 0 22px color-mix(in oklab, var(--fx-arc) 14%, transparent), 0 2px 6px rgba(0,0,0,.4) !important;
+}
+@media (prefers-reduced-motion: reduce) { :root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .hud-cask.is-arcane .hud-cask-lock { animation: none; } }
+
+/* ═════════════════════ Современное фэнтези: виды блоков ═════════════════════ */
+/* Колдовской цвет для всей карточки — его берут виды ниже. */
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-os-card {
+  --fx-arc: color-mix(in oklab, var(--hud-accent, #9b7bff) 58%, #9fd4ff);
+  --fx-arc-hi: color-mix(in oklab, var(--fx-arc) 55%, #fff);
+  --fx-arc-lo: color-mix(in oklab, var(--fx-arc) 55%, #10081f);
+}
+@keyframes fx-mana { from { opacity: .82; } to { opacity: 1; } }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-bs-chip i { box-shadow: 0 0 8px color-mix(in srgb, var(--c) 60%, transparent); }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-bs-sleep { box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 0 12px color-mix(in srgb, var(--fx-arc) 18%, transparent); }
+@media (prefers-reduced-motion: reduce) { .hud-bs .is-crystal .cr-fill { animation: none; } }
+
+/* ═══════════════════════ ВИДЫ БЛОКОВ (render/era-fantasy.js) ═══════════════════════ */
+:root[data-hud-magic] {
+  --fx-arc: color-mix(in oklab, var(--hud-accent, #9b7bff) 58%, #9fd4ff);
+  --fx-arc-hi: color-mix(in oklab, var(--fx-arc) 55%, #fff);
+  --fx-arc-lo: color-mix(in oklab, var(--fx-arc) 50%, #10081f);
+  --fx-metal-hi: color-mix(in oklab, var(--hud-text, #e8e6ee) 70%, #fff);
+  --fx-metal: color-mix(in oklab, var(--hud-text, #e8e6ee) 55%, #6f6a80);
+  --fx-metal-lo: color-mix(in oklab, var(--hud-text, #e8e6ee) 25%, #1c1826);
+  --fx-panel: linear-gradient(160deg, color-mix(in oklab, var(--fx-arc) 13%, rgba(255,255,255,.03)), color-mix(in oklab, var(--fx-arc-lo) 30%, rgba(0,0,0,.28)));
+  --fx-line: color-mix(in oklab, var(--fx-arc) 38%, transparent);
+}
+
+/* ───────── общая панель «чар»: тонкая двойная кайма и уголки-искры ───────── */
+.fx { position: relative; border-radius: 12px; background: var(--fx-panel); border: 1px solid var(--fx-line);
+  box-shadow: inset 0 0 0 3px color-mix(in oklab, var(--fx-arc-lo) 40%, transparent), inset 0 0 0 4px color-mix(in oklab, var(--fx-arc) 14%, transparent),
+    inset 0 0 26px color-mix(in oklab, var(--fx-arc) 10%, transparent), 0 6px 18px rgba(0,0,0,.25);
+  padding: 12px 12px 10px; margin: 4px 0 8px; color: var(--hud-text); isolation: isolate; width: 100%; flex: 1 1 100%; box-sizing: border-box; }
+.fx.fx-lic { max-width: 360px; } .fx.fx-ley { width: auto; flex: 0 1 auto; padding-right: 18px; }
+.fx::before, .fx::after { content: ''; position: absolute; width: 14px; height: 14px; pointer-events: none; background: var(--fx-arc-hi); opacity: .8;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 0C7.4 5 9 6.6 14 7 9 7.4 7.4 9 7 14 6.6 9 5 7.4 0 7 5 6.6 6.6 5 7 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 14'%3E%3Cpath d='M7 0C7.4 5 9 6.6 14 7 9 7.4 7.4 9 7 14 6.6 9 5 7.4 0 7 5 6.6 6.6 5 7 0Z'/%3E%3C/svg%3E") center / contain no-repeat;
+  filter: drop-shadow(0 0 3px var(--fx-arc)); }
+.fx::before { left: -6px; top: -6px; } .fx::after { right: -6px; bottom: -6px; }
+.fx svg { display: block; overflow: visible; }
+.fx .spark { fill: #fff; filter: drop-shadow(0 0 2px var(--c, var(--fx-arc))); }
+.fx .rune, .fx .etch, .fx .tag-rune { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ═══════════════ Кристаллы маны ═══════════════ */
+.fx-mana, .fx-potions { width: 100%; box-sizing: border-box; flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.fx-mana > .row, .fx-potions > .row { flex: 3 1 250px; }
+.fx-mana > .fx-bs-side, .fx-potions > .fx-bs-side { flex: 1 1 150px; margin-top: 0; grid-template-columns: 1fr; }
+.fx-mana .row, .fx-potions .row { display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: 6px 4px; align-items: end; }
+.fx-cr, .fx-po { margin: 0; display: grid; justify-items: center; text-align: center; gap: 1px; min-width: 0; }
+.fx-cr svg { width: 44px; height: 80px; }
+.fx-cr .core { filter: saturate(1.15); }
+.fx-cr .surface { fill: none; stroke-width: 1.2; filter: drop-shadow(0 0 2px #fff); }
+.fx-cr .beam { stroke: #fff; stroke-opacity: .35; stroke-width: 1.4; stroke-linecap: round; }
+.fx-cr .edge { fill: none; stroke-width: 1.1; stroke-linejoin: round; filter: drop-shadow(0 0 3px var(--c)); }
+.fx-cr .facet { fill: none; stroke: #fff; stroke-opacity: .22; stroke-width: .6; }
+.fx-cr .crack { fill: none; stroke: rgba(0,0,0,.75); stroke-width: 1; stroke-linejoin: round; } .fx-cr .crack.thin { stroke-width: .6; }
+.fx-cr .metal { stroke: color-mix(in oklab, var(--fx-metal-lo) 80%, #000); stroke-width: .6; }
+.fx-cr .claw { fill: none; stroke: var(--fx-metal-hi); stroke-width: 1.8; stroke-linecap: round; } .fx-cr .claw.thin { stroke-width: 1; stroke: var(--fx-metal); }
+.fx-cr .gem { stroke: #fff; stroke-opacity: .6; stroke-width: .5; filter: drop-shadow(0 0 2px var(--c)); }
+.fx-cr .etch { stroke: color-mix(in oklab, var(--fx-metal-lo) 70%, #000); stroke-width: 1.4; }
+.fx-cr.is-low svg { filter: saturate(.55) brightness(.85); }
+.fx-cr.is-low .core { animation: fx-flicker 2.6s steps(1) infinite; }
+.fx-cr.is-full .halo { animation: fx-breathe 3.6s ease-in-out infinite alternate; transform-origin: 22px 36px; }
+@keyframes fx-flicker { 0%, 100% { opacity: 1; } 47% { opacity: .55; } 50% { opacity: 1; } 53% { opacity: .7; } }
+@keyframes fx-breathe { from { opacity: .75; transform: scale(.94); } to { opacity: 1; transform: scale(1.04); } }
+.fx-cr b, .fx-po b { font: 700 17px/1 var(--hud-font-head, Georgia, serif); color: color-mix(in oklab, var(--c) 45%, var(--hud-text)); text-shadow: 0 0 10px color-mix(in oklab, var(--c) 60%, transparent); margin-top: 2px; }
+.fx-cr small, .fx-po small { font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; opacity: .78; }
+.fx-cr em, .fx-po em { font-size: 11px; line-height: 1.2; opacity: .85; font-style: italic; overflow-wrap: anywhere; }
+
+/* ═══════════════ Зелья ═══════════════ */
+.fx-po svg { width: 48px; height: 72px; }
+.fx-po .glass-in { fill: rgba(255,255,255,.05); }
+.fx-po .glass { fill: none; stroke: rgba(255,255,255,.55); stroke-width: 1.3; stroke-linejoin: round; filter: drop-shadow(0 0 4px color-mix(in oklab, var(--c) 55%, transparent)); }
+.fx-po .shine { fill: none; stroke: #fff; stroke-opacity: .55; stroke-width: 1.6; stroke-linecap: round; }
+.fx-po .meniscus { fill: none; stroke: #fff; stroke-opacity: .55; stroke-width: 1; }
+.fx-po .swirl { fill: none; stroke: #fff; stroke-opacity: .2; stroke-width: 1.2; stroke-linecap: round; }
+.fx-po .bub { fill: #fff; opacity: .85; filter: drop-shadow(0 0 1.5px var(--c)); }
+.fx-po .cork { fill: #9a6b3f; stroke: #5b3a1d; stroke-width: .6; } .fx-po .cork-grain { stroke: #6e4826; stroke-width: .5; fill: none; }
+.fx-po .wax { fill: color-mix(in oklab, var(--fx-arc) 55%, #4a1c5e); stroke: color-mix(in oklab, var(--fx-arc) 30%, #200a2a); stroke-width: .4; }
+.fx-po .twine { fill: none; stroke: #c9b48a; stroke-width: 1.3; stroke-linecap: round; } .fx-po .twine.thin { stroke-width: .7; }
+.fx-po .tag { fill: color-mix(in oklab, var(--hud-text) 18%, #efe2c4); stroke: #8c7a55; stroke-width: .4; } .fx-po .tag-hole { fill: #5b4a2e; }
+.fx-po .tag-rune { stroke: #6a4a2a; stroke-width: 1.5; }
+.fx-po.is-low svg { filter: saturate(.6); }
+
+/* ═══════════════ Бок: ночь и дела ═══════════════ */
+.fx-bs-side { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; margin-top: 10px; }
+.fx-night, .fx-chore { position: relative; display: flex; gap: 8px; align-items: center; padding: 7px 10px; border-radius: 9px; overflow: hidden;
+  background: linear-gradient(135deg, color-mix(in oklab, var(--fx-arc-lo) 70%, #050510), color-mix(in oklab, var(--fx-arc) 22%, #0b0b1a));
+  border: 1px solid var(--fx-line); color: #eef; }
+.fx-night svg { width: 28px; height: 28px; flex: none; } .fx-night .moon { fill: #f4ecc8; filter: drop-shadow(0 0 4px #fff6); } .fx-night .crater { fill: #d6cba0; } .fx-night .moon-halo { fill: color-mix(in oklab, var(--fx-arc) 25%, transparent); }
+.fx-night b { display: block; font-size: 12.5px; } .fx-night small { font-size: 10.5px; opacity: .75; }
+.fx-night .stars { position: absolute; inset: 0; pointer-events: none; background:
+  radial-gradient(1px 1px at 72% 22%, #fff, transparent), radial-gradient(1.2px 1.2px at 88% 70%, var(--fx-arc-hi), transparent), radial-gradient(1px 1px at 60% 82%, #fffa, transparent), radial-gradient(1px 1px at 94% 36%, #fff8, transparent); }
+.fx-chore svg { width: 26px; height: 26px; flex: none; fill: none; stroke: var(--fx-arc-hi); stroke-width: .7; filter: drop-shadow(0 0 2px var(--fx-arc)); }
+.fx-chore svg .thin { stroke-width: .4; } .fx-chore svg .rune { stroke-width: 1; }
+.fx-chore span { font-size: 12px; line-height: 1.3; }
+
+/* ═══════════════ Свидетельство мага ═══════════════ */
+.fx-lic { padding: 10px 12px 9px; overflow: hidden;
+  background: radial-gradient(120% 90% at 0% 0%, color-mix(in oklab, var(--fx-arc) 22%, transparent), transparent 60%), linear-gradient(160deg, color-mix(in oklab, var(--fx-arc-lo) 85%, #0a0814), #0b0a14); color: #eceaf6; }
+.fx-lic::before, .fx-lic::after { display: none; }
+.fx-lic .foil { position: absolute; inset: -40% -20%; pointer-events: none; opacity: .12; z-index: -1;
+  background: repeating-linear-gradient(115deg, #ff9ad5 0 8px, #9ad8ff 8px 16px, #b8ffda 16px 24px, #fff1a8 24px 32px); filter: blur(6px); }
+.fx-lic .head { display: flex; align-items: center; gap: 8px; padding-bottom: 7px; border-bottom: 1px solid color-mix(in oklab, var(--fx-arc) 40%, transparent); }
+.fx-lic .crest { width: 30px; height: 30px; flex: none; fill: none; stroke: var(--fx-arc-hi); stroke-width: .9; filter: drop-shadow(0 0 3px var(--fx-arc)); }
+.fx-lic .crest .thin, .fx-lic .holo .thin { stroke-width: .45; } .fx-lic .crest .rune { stroke-width: 1.1; }
+.fx-lic .head small { display: block; font-size: 9px; letter-spacing: .2em; text-transform: uppercase; opacity: .7; }
+.fx-lic .head b { display: block; font: 700 14px/1.1 var(--hud-font-head, Georgia, serif); letter-spacing: .03em; color: var(--fx-arc-hi); text-shadow: 0 0 10px color-mix(in oklab, var(--fx-arc) 60%, transparent); }
+.fx-lic .head .no { margin-left: auto; font: 600 10px/1 ui-monospace, monospace; opacity: .6; }
+.fx-lic .body { display: grid; grid-template-columns: 50px 1fr; gap: 10px; align-items: start; padding-top: 8px; position: relative; }
+.fx-lic .arch { width: 50px; height: 70px; overflow: visible; }
+.fx-lic .arch .bg { fill: color-mix(in oklab, var(--fx-arc) 25%, #141024); } .fx-lic .arch .ini { font: 700 20px Georgia, serif; fill: var(--fx-arc-hi); }
+.fx-lic .arch .frame { fill: none; stroke: var(--fx-arc-hi); stroke-width: 1.2; } .fx-lic .arch .frame.thin { stroke-width: .5; stroke-dasharray: 1 1.6; }
+.fx-lic .arch .spark { fill: #fff; filter: drop-shadow(0 0 3px var(--fx-arc)); }
+.fx-lic dl { margin: 0; display: grid; gap: 4px; min-width: 0; padding-right: 40px; }
+.fx-lic dl div { display: grid; } .fx-lic dt { font-size: 9px; letter-spacing: .14em; text-transform: uppercase; opacity: .6; } .fx-lic dd { margin: 0; font-size: 13px; font-weight: 600; }
+.fx-lic .holo { position: absolute; right: 0; bottom: 0; width: 46px; height: 46px; fill: none; stroke: #fff; stroke-width: 1; opacity: .75;
+  filter: drop-shadow(0 0 1px #ff9ad5) drop-shadow(0 0 2px #9ad8ff); transform: rotate(-12deg); }
+.fx-lic .mrzs { margin-top: 8px; padding-top: 6px; border-top: 1px dashed color-mix(in oklab, var(--fx-arc) 35%, transparent); display: grid; gap: 3px; }
+.fx-lic .mrz { width: 100%; height: 9px; fill: none; stroke: color-mix(in oklab, var(--fx-arc-hi) 60%, #fff); stroke-width: 1.1; opacity: .7; overflow: visible; }
+
+/* ═══════════════ Лей-линия ═══════════════ */
+.fx-ley ol { list-style: none; margin: 0; padding: 0 0 0 4px; position: relative; display: grid; gap: 9px; }
+.fx-ley ol::before { content: ''; position: absolute; left: 13px; top: 8px; bottom: 14px; width: 3px; border-radius: 3px;
+  background: linear-gradient(var(--fx-arc-lo), var(--fx-arc) 40%, var(--fx-arc-hi)); box-shadow: 0 0 8px var(--fx-arc), 0 0 2px #fff; }
+.fx-ley li { position: relative; display: flex; align-items: center; gap: 10px; min-height: 20px; }
+.fx-ley .node { width: 20px; height: 20px; flex: none; fill: color-mix(in oklab, var(--fx-arc-lo) 80%, #000); stroke: var(--fx-arc-hi); stroke-width: 1.2; filter: drop-shadow(0 0 3px var(--fx-arc)); position: relative; left: 1px; }
+.fx-ley .node path { fill: var(--fx-arc-hi); stroke: none; }
+.fx-ley li.is-here .node { width: 30px; height: 30px; left: -4px; margin-right: -10px; fill: none; stroke-width: .8; animation: fx-sigil-turn 40s linear infinite; }
+.fx-ley li.is-here .node .thin { stroke-width: .4; } .fx-ley li.is-here .node .rune { stroke-width: 1.2; }
+.fx-ley li span { font-size: 12.5px; opacity: .8; } .fx-ley li.is-here span { font-weight: 700; font-size: 13.5px; opacity: 1; color: var(--fx-arc-hi); text-shadow: 0 0 8px color-mix(in oklab, var(--fx-arc) 60%, transparent); }
+.fx-ley li small { display: block; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; font-weight: 500; opacity: .7; color: var(--hud-text); text-shadow: none; }
+@keyframes fx-sigil-turn { to { transform: rotate(360deg); } }
+
+/* ═══════════════ Сферы оракула ═══════════════ */
+.fx-orbs { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; }
+.fx-orbs .orb { display: grid; justify-items: center; text-align: center; gap: 2px; padding: 4px 2px; }
+.fx-orbs svg { width: 52px; height: 64px; overflow: visible; }
+.fx-orbs .rim { fill: none; stroke: #fff; stroke-opacity: .45; stroke-width: .8; }
+.fx-orbs .mist { fill: none; stroke-width: 1.4; stroke-linecap: round; stroke-opacity: calc(.25 + var(--k) * .5); }
+.fx-orbs .claw { stroke: var(--fx-metal-hi); stroke-width: 1.6; stroke-linecap: round; }
+.fx-orbs .glow { animation: fx-breathe 4s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+.fx-orbs .tx b { display: block; font-size: 12.5px; } .fx-orbs .tx small { font-size: 10.5px; opacity: .75; color: color-mix(in oklab, var(--c) 55%, var(--hud-text)); }
+.fx-orbs em { font: 700 15px/1 var(--hud-font-head, Georgia, serif); font-style: normal; color: color-mix(in oklab, var(--c) 50%, var(--hud-text)); text-shadow: 0 0 8px color-mix(in oklab, var(--c) 55%, transparent); }
+
+/* ═══════════════ Аура ═══════════════ */
+.fx-aura .cam { background: radial-gradient(80% 70% at 50% 40%, color-mix(in oklab, var(--fx-arc) 18%, transparent), transparent 70%), linear-gradient(160deg, #0d0b18, #07060d) !important; border-color: var(--fx-line) !important; }
+.fx-aura .aura .a1 { fill: none; stroke: var(--fx-arc); stroke-width: 7; opacity: .55; } .fx-aura .aura .a2 { fill: none; stroke: var(--fx-arc-hi); stroke-width: 2.5; opacity: .7; }
+.fx-aura .therm .cold { fill: color-mix(in oklab, var(--fx-arc-lo) 70%, #000) !important; }
+.fx-aura .therm .outline { stroke: var(--fx-arc-hi) !important; }
+.fx-aura .t1a { stop-color: var(--fx-arc) !important; } .fx-aura .t2a { stop-color: var(--fx-arc-hi) !important; } .fx-aura .t3a { stop-color: #fff !important; }
+.fx-aura .t1b, .fx-aura .t2b, .fx-aura .t3b { stop-color: var(--fx-arc) !important; stop-opacity: .45 !important; }
+.fx-aura .sig { fill: none; stroke: var(--fx-arc-hi); stroke-width: .5; opacity: .85; } .fx-aura .sig .thin { stroke-width: .3; }
+.fx-aura .scale { background: linear-gradient(#fff, var(--fx-arc-hi), var(--fx-arc), var(--fx-arc-lo)) !important; }
+.fx-aura .rec svg { width: 7px; height: 9px; display: inline-block; vertical-align: -1px; fill: none; stroke: currentColor; stroke-width: 1.3; }
+.fx-aura .reads i { background: var(--fx-arc) !important; box-shadow: 0 0 6px var(--fx-arc) !important; }
+
+/* ═══════════════ Рунная вывеска ═══════════════ */
+.fx-sign .board { background: radial-gradient(1px 1px at 12% 30%, #fff8, transparent), radial-gradient(1.2px 1.2px at 86% 22%, var(--fx-arc-hi), transparent), radial-gradient(1px 1px at 70% 80%, #fff6, transparent), linear-gradient(160deg, #0e0c1a, #07060d) !important; }
+.fx-sign .fx-mainrow { display: flex; align-items: center; justify-content: center; gap: 10px; max-width: 100%; }
+.fx-sign .fx-side { flex: none; width: 30px; height: 30px; fill: none; stroke: var(--fx-arc-hi); stroke-width: 1; filter: drop-shadow(0 0 4px var(--fx-arc)); animation: fx-sigil-turn 30s linear infinite; vertical-align: middle; }
+.fx-sign .fx-side.r { animation-direction: reverse; } .fx-sign .fx-side .thin { stroke-width: .5; }
+.fx-sign .fx-chain { display: block; width: 100%; height: 8px; fill: none; stroke: color-mix(in oklab, var(--fx-arc) 70%, #fff); stroke-width: 1; opacity: .5; }
+.fx-sign .wire { display: none !important; }
+
+/* ═══════════════ Пропуска через портал ═══════════════ */
+.fx-portal .tk { --h: 0 !important; }
+.fx-portal .tk .main { position: relative; isolation: isolate; }
+.fx-portal .tk .main::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit; background:
+  radial-gradient(1px 1px at 18% 28%, #fff, transparent), radial-gradient(1.3px 1.3px at 64% 18%, #fffc, transparent), radial-gradient(1px 1px at 82% 70%, #fff9, transparent),
+  radial-gradient(1px 1px at 40% 84%, #fffa, transparent), radial-gradient(70% 120% at 100% 50%, color-mix(in oklab, #fff 14%, transparent), transparent 60%); opacity: .8; }
+.fx-portal .fx-holo .h { width: 18px; height: 18px; fill: none; stroke: #fff; stroke-width: 1.2; filter: drop-shadow(0 0 1px #ff9ad5) drop-shadow(0 0 2px #9ad8ff); vertical-align: middle; margin-left: 6px; }
+.fx-portal .fx-code { width: 10px; height: 60px; fill: none; stroke: currentColor; stroke-width: 1.2; opacity: .75; }
+
+/* ═══════════════ Телефон ═══════════════ */
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-lockscreen { isolation: isolate; }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-lockscreen::before, :root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-lockscreen::after {
+  content: ''; position: absolute; z-index: -1; pointer-events: none; left: 50%; top: 30px; width: 236px; height: 236px; margin-left: -118px; }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-lockscreen::before { background: linear-gradient(160deg, var(--fx-arc-hi), var(--fx-arc) 55%, color-mix(in oklab, var(--fx-arc) 60%, #ff9ad5));
+  -webkit-mask: var(--fx-ring-out) center / contain no-repeat; mask: var(--fx-ring-out) center / contain no-repeat; opacity: .55; filter: drop-shadow(0 0 3px var(--fx-arc)); animation: fx-sigil-turn 160s linear infinite; }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-lockscreen::after { background: var(--fx-arc-hi);
+  -webkit-mask: var(--fx-ring-in) center / contain no-repeat; mask: var(--fx-ring-in) center / contain no-repeat; opacity: .38; filter: drop-shadow(0 0 4px var(--fx-arc)); animation: fx-sigil-turn 90s linear infinite reverse; }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-lock-time { text-shadow: 0 0 22px color-mix(in oklab, var(--fx-arc) 75%, transparent), 0 2px 0 rgba(0,0,0,.25); }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-screen, :root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-home-screen { background-image:
+  radial-gradient(1px 1px at 14% 22%, #fff, transparent), radial-gradient(1.4px 1.4px at 62% 16%, var(--fx-arc-hi), transparent), radial-gradient(1px 1px at 83% 31%, #fffc, transparent),
+  radial-gradient(1px 1px at 9% 58%, #fffa, transparent), radial-gradient(1.3px 1.3px at 92% 64%, var(--fx-arc-hi), transparent), radial-gradient(1px 1px at 47% 88%, #fffb, transparent),
+  radial-gradient(120% 50% at 20% 0%, color-mix(in oklab, var(--fx-arc) 24%, transparent), transparent 62%), radial-gradient(80% 40% at 90% 100%, color-mix(in oklab, #ff9ad5 14%, transparent), transparent 70%); }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-shell::after { box-shadow: 0 0 0 1px rgba(0,0,0,.55), 0 0 0 2.5px color-mix(in oklab, var(--fx-arc) 50%, transparent), 0 0 22px color-mix(in oklab, var(--fx-arc) 35%, transparent),
+  inset 0 0 0 1px rgba(0,0,0,.5), inset 0 0 0 2px color-mix(in oklab, var(--fx-arc) 30%, transparent); }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="high"] .hud-phone-app > span { box-shadow: 0 0 0 1px color-mix(in oklab, var(--fx-arc) 35%, transparent), 0 4px 12px color-mix(in oklab, var(--fx-arc) 25%, transparent); }
+
+/* ═══════════════════════ ПРИЗЕМЛЁННОЕ ФЭНТЕЗИ ═══════════════════════ */
+/* Природа, тушь, бумага, бронза. Панель — без искр по углам, как бумага на дереве. */
+:root[data-hud-magic="grounded"] {
+  --gr-paper: color-mix(in oklab, #f1dfb8 80%, var(--hud-accent, #c98a4a));
+  --gr-glaze: color-mix(in oklab, #3f6b5e 70%, var(--hud-accent, #3f6b5e));
+  --gr-ink: color-mix(in oklab, var(--hud-text, #e8e6ee) 85%, #000);
+}
+.fx.gr { background: linear-gradient(160deg, color-mix(in oklab, var(--gr-glaze) 14%, rgba(255,255,255,.03)), rgba(0,0,0,.22));
+  border-color: color-mix(in oklab, var(--gr-glaze) 45%, transparent);
+  box-shadow: inset 0 0 0 3px rgba(0,0,0,.18), inset 0 0 0 4px color-mix(in oklab, var(--gr-glaze) 18%, transparent), 0 6px 18px rgba(0,0,0,.25); }
+.fx.gr::before, .fx.gr::after { width: 22px; height: 10px; background: color-mix(in oklab, var(--gr-glaze) 70%, #fff); opacity: .55; filter: none;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 10' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M1 8c2-5 7-6 9-3 1-3 5-4 7-1 2-2 4-1 4 1'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 10' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M1 8c2-5 7-6 9-3 1-3 5-4 7-1 2-2 4-1 4 1'/%3E%3C/svg%3E") center / contain no-repeat; }
+.fx.gr::before { left: 8px; top: -5px; } .fx.gr::after { right: 8px; bottom: -5px; transform: scaleX(-1); }
+
+.fx.gr .fx-night, .fx.gr .fx-chore { background: linear-gradient(135deg, color-mix(in oklab, var(--gr-glaze) 30%, #0b0c10), color-mix(in oklab, var(--gr-glaze) 12%, #111216)); border-color: color-mix(in oklab, var(--gr-glaze) 40%, transparent); }
+.fx.gr .fx-night .moon-halo { fill: rgba(255,255,255,.06); }
+.fx-chore .brush { width: 24px; height: 24px; flex: none; fill: #c9a46a; stroke: none; filter: none; } .fx-chore .brush .tip { fill: #1a1a1a; stroke: #e8dcc0; stroke-width: .6; }
+
+/* Благовония */
+.gr-incense { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.gr-incense > .row { flex: 3 1 250px; display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: 6px 4px; align-items: end; }
+.gr-incense > .fx-bs-side { flex: 1 1 150px; margin-top: 0; grid-template-columns: 1fr; }
+.gr-inc { margin: 0; display: grid; justify-items: center; text-align: center; gap: 1px; min-width: 0; }
+.gr-inc svg { width: 40px; height: 92px; overflow: visible; }
+.gr-inc .stick-core { stroke: #c9a46a; stroke-width: 1.1; stroke-linecap: round; }
+.gr-inc .stick { stroke-width: 2.6; stroke-linecap: round; }
+.gr-inc .ember { fill: #ffe7a8; } .gr-inc .ember-glow { animation: fx-breathe 2.8s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+.gr-inc .smoke { fill: none; stroke: color-mix(in oklab, var(--hud-text) 55%, #fff); stroke-width: 1.3; stroke-linecap: round; filter: blur(.4px); }
+.gr-inc .ash { fill: #bdb6a8; } .gr-inc .rim { fill: none; stroke: color-mix(in oklab, var(--gr-glaze) 60%, #fff); stroke-width: .8; }
+.gr-inc .glaze-line { fill: none; stroke: color-mix(in oklab, var(--gr-glaze) 40%, #fff); stroke-width: .6; opacity: .6; }
+.gr-inc b, .gr-lan em { font: 700 17px/1 var(--hud-font-head, Georgia, serif); color: color-mix(in oklab, var(--c, #e3b23c) 40%, var(--hud-text)); margin-top: 2px; font-style: normal; }
+.gr-inc small { font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; opacity: .78; }
+.gr-inc em { font-size: 11px; line-height: 1.2; opacity: .85; font-style: italic; overflow-wrap: anywhere; }
+.gr-inc.is-low svg { filter: saturate(.7); }
+.era.gr-incense-m .gr-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(58px, 1fr)); gap: 6px; align-items: end; }
+.era.gr-incense-m .gr-inc b { color: var(--ink); font-family: var(--fh, Georgia, serif); } .era.gr-incense-m .gr-inc small { color: var(--e-rubric); }
+.era.gr-incense-m .gr-inc em { color: var(--ink-soft); }
+
+/* Аптекарские склянки */
+.fx-potions.is-plain .fx-po svg > ellipse:first-of-type { display: none; }
+.fx-potions.is-plain .fx-po .glass { filter: none; stroke: rgba(255,255,255,.6); }
+.fx-potions.is-plain .fx-po .wax { fill: #8a3a2a; stroke: #4a1a10; }
+.fx-potions.is-plain .fx-po .tag-leaf { fill: #6a8a4a; stroke: #3a5a2a; stroke-width: .4; }
+.fx-po .herb { fill: none; stroke: #4f6e36; stroke-width: 1.1; stroke-linecap: round; opacity: .85; }
+
+/* Бумажные фонари */
+.gr-lanterns { display: grid; grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); gap: 8px; }
+.gr-lan { display: grid; justify-items: center; text-align: center; gap: 2px; padding: 2px; }
+.gr-lan svg { width: 46px; height: 68px; overflow: visible; }
+.gr-lan .glow { fill: #ffc66a; filter: blur(5px); }
+.gr-lan .cord { stroke: #8a6a4a; stroke-width: 1; } .gr-lan .cap { fill: #3a2a1e; stroke: #1a120c; stroke-width: .4; }
+.gr-lan .rib { fill: none; stroke: #8a4a2a; stroke-opacity: .5; stroke-width: .6; }
+.gr-lan .tassel { fill: #b8322a; stroke: #b8322a; stroke-width: .8; }
+.gr-lan .tx b { display: block; font-size: 12.5px; } .gr-lan .tx small { font-size: 10.5px; opacity: .75; }
+.gr-lan em { --c: #ffc66a; text-shadow: 0 0 calc(var(--k) * 10px) #ffb44a; }
+
+/* Телефон: горы тушью на блокировке, туман на домашнем экране */
+:root[data-hud-era="fantasy-modern"][data-hud-magic="grounded"] .hud-phone-lockscreen { isolation: isolate; }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="grounded"] .hud-phone-lockscreen::before { content: ''; position: absolute; z-index: -1; left: 0; right: 0; bottom: 0; height: 72%; pointer-events: none;
+  background: linear-gradient(color-mix(in oklab, #f2ead6 50%, transparent), color-mix(in oklab, var(--hud-phone-accent, var(--hud-accent)) 45%, #1a1d24));
+  -webkit-mask: var(--gr-hills) bottom / 100% 100% no-repeat; mask: var(--gr-hills) bottom / 100% 100% no-repeat; opacity: .85; }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="grounded"] .hud-phone-lockscreen::after { content: ''; position: absolute; z-index: -1; left: 50%; top: 58px; width: 64px; height: 64px; margin-left: 58px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 42% 40%, #fbf5e6, #e2d6b8 62%, #cfc09a); box-shadow: 0 0 24px 6px rgba(246,239,224,.22); opacity: .82; }
+:root[data-hud-era="fantasy-modern"][data-hud-magic="grounded"] .hud-phone-home-screen { background-image: radial-gradient(120% 40% at 50% 100%, rgba(255,255,255,.08), transparent 70%), radial-gradient(90% 30% at 20% 70%, rgba(255,255,255,.05), transparent 70%); }
+
+/* Шкатулка: резные облака под крышкой вместо золотой черты */
+.hud-cask.is-grounded .hud-cask-lid { position: relative; padding-bottom: 18px !important; }
+.hud-cask.is-grounded .hud-cask-lid::after { content: ''; position: absolute; left: 50%; bottom: 3px; width: 180px; height: 10px; margin-left: -90px; pointer-events: none;
+  background: var(--e-gold, #c9a45a); opacity: .8;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 10' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M0 7h6c0-3 4-4 6-2 1-3 6-3 7 0 1-2 4-2 5 0 2-3 6-2 6 1 1-1 4-1 4 1h10'/%3E%3C/svg%3E") center / auto 100% repeat-x;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 10' fill='none' stroke='%23000' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M0 7h6c0-3 4-4 6-2 1-3 6-3 7 0 1-2 4-2 5 0 2-3 6-2 6 1 1-1 4-1 4 1h10'/%3E%3C/svg%3E") center / auto 100% repeat-x; }
+
+/* ═══════════════════════ СРЕДНЕВЕКОВОЕ ФЭНТЕЗИ ═══════════════════════ */
+/* Палитра старины — с колдовским цветом: золото отливает лунным серебром. */
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era {
+  --e-gold: color-mix(in oklab, color-mix(in oklab, #d4a03c 70%, var(--hud-accent)) 62%, var(--fx-arc));
+}
+/* Лист — со звёздной картой водяным знаком: созвездия бледными линиями. */
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era.sheet.fx-arcane::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; z-index: 0; opacity: .13;
+  background: var(--ink);
+  -webkit-mask: var(--fx-starmap) center / 240px 160px repeat; mask: var(--fx-starmap) center / 240px 160px repeat; }
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] {
+  --fx-starmap: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 160'%3E%3Cg fill='none' stroke='%23000' stroke-width='.6'%3E%3Cpath d='M18 30L44 22L62 38L90 30M62 38L58 64L80 78M170 20L190 36L214 28L226 50L204 62L190 36M120 110L146 98L170 112L160 136L132 132ZM30 120L52 104L70 124'/%3E%3C/g%3E%3Cg%3E%3Ccircle cx='18' cy='30' r='1.6'/%3E%3Ccircle cx='44' cy='22' r='1.2'/%3E%3Ccircle cx='62' cy='38' r='2'/%3E%3Ccircle cx='90' cy='30' r='1.2'/%3E%3Ccircle cx='58' cy='64' r='1.4'/%3E%3Ccircle cx='80' cy='78' r='1.1'/%3E%3Ccircle cx='170' cy='20' r='1.4'/%3E%3Ccircle cx='190' cy='36' r='2'/%3E%3Ccircle cx='214' cy='28' r='1.2'/%3E%3Ccircle cx='226' cy='50' r='1.5'/%3E%3Ccircle cx='204' cy='62' r='1.1'/%3E%3Ccircle cx='120' cy='110' r='1.3'/%3E%3Ccircle cx='146' cy='98' r='1.8'/%3E%3Ccircle cx='170' cy='112' r='1.2'/%3E%3Ccircle cx='160' cy='136' r='1.4'/%3E%3Ccircle cx='132' cy='132' r='1.1'/%3E%3Ccircle cx='30' cy='120' r='1.2'/%3E%3Ccircle cx='52' cy='104' r='1.6'/%3E%3Ccircle cx='70' cy='124' r='1.1'/%3E%3Ccircle cx='110' cy='18' r='.8'/%3E%3Ccircle cx='140' cy='52' r='.8'/%3E%3Ccircle cx='96' cy='140' r='.8'/%3E%3Ccircle cx='220' cy='130' r='.8'/%3E%3C/g%3E%3C/svg%3E");
+}
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era.fx-arcane > * { position: relative; z-index: 1; }
+
+/* Колдовские свечи */
+.fx-cand { margin: 0; display: grid; justify-items: center; text-align: center; gap: 1px; min-width: 0; }
+.fx-cand svg { width: 48px; height: 96px; overflow: visible; }
+.fx-cand .flame { animation: fx-flame 2.4s ease-in-out infinite alternate; transform-origin: 0 0; filter: drop-shadow(0 0 4px var(--fx-arc)); }
+@keyframes fx-flame { from { transform: scale(1, 1) skewX(0); } 50% { transform: scale(.94, 1.06) skewX(-3deg); } to { transform: scale(1.03, .96) skewX(2deg); } }
+.fx-cand .halo { animation: fx-breathe 3.2s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+.fx-cand .carve .rune { stroke: var(--fx-arc-hi); stroke-width: 1.5; filter: drop-shadow(0 0 1.5px var(--fx-arc)); }
+.fx-cand .wisp { fill: none; stroke: color-mix(in oklab, var(--fx-arc) 70%, #fff); stroke-opacity: .55; stroke-width: 1.2; stroke-linecap: round; }
+.fx-cand .mote { fill: var(--fx-arc-hi); filter: drop-shadow(0 0 1.5px var(--fx-arc)); }
+.fx-cand .spark { fill: #fff; filter: drop-shadow(0 0 2px var(--fx-arc)); }
+.fx-cand .tip { fill: var(--fx-arc-hi); filter: drop-shadow(0 0 2px var(--fx-arc)); }
+.fx-cand .crescent { filter: drop-shadow(0 0 2px color-mix(in oklab, var(--fx-arc) 50%, transparent)); }
+.fx-cand b { font: 700 18px/1 var(--fh, Georgia, serif); color: var(--ink); margin-top: 2px; }
+.fx-cand .nm { font: 600 11px/1.1 var(--fh, Georgia, serif); color: var(--e-rubric); letter-spacing: .04em; }
+.fx-cand .st { font-size: 11px; font-style: italic; color: var(--ink-soft); line-height: 1.2; }
+.fx-cand.is-low svg { filter: saturate(.7); }
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-cand .row4 { align-items: end; }
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .fx-night-m svg { filter: drop-shadow(0 0 5px color-mix(in oklab, var(--fx-arc) 60%, transparent)); }
+
+/* Звёздная грамота: натальный круг */
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-birth.fx-natal { grid-template-columns: 104px minmax(0, 1fr); align-items: center; }
+.fx-natal .natal { width: 104px; height: 104px; overflow: visible; }
+@media (max-width: 460px) { :root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-birth.fx-natal { grid-template-columns: 84px minmax(0, 1fr); } .fx-natal .natal { width: 84px; height: 84px; } }
+.fx-natal .natal .ring { fill: none; stroke: var(--ink); stroke-opacity: .7; stroke-width: .7; } .fx-natal .natal .ring.thin { stroke-opacity: .4; stroke-width: .5; }
+.fx-natal .natal .ring-o { fill: none; stroke: var(--e-gold); stroke-width: 1.1; stroke-dasharray: .8 1.6; }
+.fx-natal .natal .sec { fill: color-mix(in oklab, var(--ink) 4%, transparent); stroke: var(--ink); stroke-opacity: .35; stroke-width: .45; }
+.fx-natal .natal .sec.is-on { fill: color-mix(in oklab, var(--fx-arc) 40%, transparent); stroke: var(--fx-arc); stroke-opacity: 1; filter: drop-shadow(0 0 2px var(--fx-arc)); }
+.fx-natal .natal .zg { font-size: 6.4px; fill: var(--ink); opacity: .7; } .fx-natal .natal .zg.is-on { fill: var(--fx-arc-hi); opacity: 1; font-weight: 700; filter: drop-shadow(0 0 1.5px var(--fx-arc)); }
+.fx-natal .natal .asp { stroke: var(--e-rubric); stroke-opacity: .45; stroke-width: .5; } .fx-natal .natal .pl { fill: var(--e-gold); }
+.fx-natal .natal .ini { font: 700 20px var(--fh, Georgia, serif); fill: var(--ink); }
+
+/* Лист целителя: зодиакальное кольцо */
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-leech.fx-healer { grid-template-columns: 156px minmax(0, 1fr); }
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-leech.fx-healer > svg.fx-healer-chart { width: 156px; height: 154px; overflow: visible; }
+@media (max-width: 460px) { :root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-leech.fx-healer { grid-template-columns: minmax(0, 1fr); justify-items: center; } :root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-leech.fx-healer > svg.fx-healer-chart { width: 150px; height: 148px; } }
+.fx-healer .fx-zodiac .o { fill: none; stroke: var(--ink); stroke-opacity: .4; stroke-width: .6; } .fx-healer .fx-zodiac .o.thin { stroke-dasharray: .8 1.8; stroke: var(--e-gold); stroke-opacity: .8; }
+.fx-healer .fx-zodiac .tick { fill: none; stroke: var(--ink); stroke-opacity: .35; stroke-width: .45; }
+.fx-healer .fx-zg { font-size: 7.4px; fill: var(--ink); opacity: .7; } .fx-healer .fx-zg.is-on { fill: var(--fx-arc-hi); opacity: 1; filter: drop-shadow(0 0 1.6px var(--fx-arc)); }
+.fx-healer .fx-thread { stroke: var(--ink); stroke-opacity: .22; stroke-width: .4; stroke-dasharray: 1 1.4; }
+.fx-healer .fx-thread.is-on { stroke: var(--fx-arc-hi); stroke-opacity: .9; stroke-width: .6; stroke-dasharray: none; filter: drop-shadow(0 0 1.2px var(--fx-arc)); }
+.fx-healer .fx-knot { fill: var(--ink); opacity: .45; } .fx-healer .fx-knot.is-on { fill: #fff; opacity: 1; filter: drop-shadow(0 0 2px var(--fx-arc)); }
+.fx-healer .fx-elem circle { fill: color-mix(in oklab, var(--parch-2) 40%, transparent); stroke: var(--e-gold); stroke-width: .6; }
+.fx-healer .fx-elem path { fill: none; stroke: var(--e-rubric); stroke-width: .9; stroke-linejoin: round; }
+.fx-healer .fx-star { fill: var(--fx-arc); opacity: .75; filter: drop-shadow(0 0 1.5px var(--fx-arc)); }
+
+/* Часы светил */
+.fx-hours .fx-medal { width: 26px; height: 26px; flex: none; filter: drop-shadow(0 0 4px color-mix(in oklab, var(--fx-arc) 55%, transparent)); }
+.fx-hours .fx-medal .rim { fill: none; stroke: var(--e-gold); stroke-width: 1.2; } .fx-hours .fx-medal .rim.thin { stroke-width: .5; stroke-dasharray: .8 1.2; }
+.fx-hours .fx-medal .gl { font-size: 12.5px; fill: #fff; }
+
+/* Фонари с огоньком */
+.fx-lamps .fx-wisp { filter: drop-shadow(0 0 4px var(--fx-arc)); animation: fx-bob 3.4s ease-in-out infinite alternate; }
+@keyframes fx-bob { from { transform: translateY(1px); } to { transform: translateY(-1.5px); } }
+
+/* Печати с рунным кольцом */
+:root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .fx-arcane-seal, :root[data-hud-era="fantasy-medieval"][data-hud-magic="high"] .era-seal { --e-wax: color-mix(in oklab, var(--fx-arc) 45%, #3a1050); }
+.fx-seal-ring { fill: none; stroke: var(--fx-arc-hi); stroke-width: .6; filter: drop-shadow(0 0 2px var(--fx-arc)); } .fx-seal-ring .thin { stroke-width: .35; stroke-dasharray: 1 1.6; }
+.fx-seal-ring .rune { stroke-width: 1.6; }
+
+/* Указатель с рунами и огоньком */
+.fx-board-runes { display: block; width: 60%; height: 7px; margin: 3px auto 0; overflow: visible; fill: none; stroke: var(--fx-arc-hi); stroke-width: 1.1; filter: drop-shadow(0 0 2px var(--fx-arc)); opacity: .85; }
+.fx-post-wisp { position: absolute; right: 14%; top: 4px; width: 10px; height: 10px; border-radius: 50%; background: radial-gradient(circle, #fff, var(--fx-arc-hi) 40%, transparent 70%); box-shadow: 0 0 12px 4px color-mix(in oklab, var(--fx-arc) 50%, transparent); animation: fx-bob 3s ease-in-out infinite alternate; }
+
+/* Физиология в приземлённом: свиток лекаря (render/era-fantasy.js, свитокЛекаря).
+   Висячий свиток: шёлковая оправа цвета глазури, бумага темнее карточки, фигура тушью. */
+.era-leech.gr-scroll { grid-template-columns: 140px minmax(0, 1fr); gap: 8px 20px; align-items: center;
+  --sc-paper: color-mix(in oklab, var(--parch-2) 86%, #b8935a);
+  --sc-silk: color-mix(in oklab, var(--gr-glaze, #3f6b5e) 55%, var(--parch-2));
+  --sc-ink: color-mix(in oklab, var(--ink) 78%, var(--e-gold));
+  --sc-seal: color-mix(in oklab, #a8261c 72%, var(--e-rubric));
+  --sc-seal-txt: color-mix(in oklab, #fff3e0 80%, var(--e-rubric)); }
+.era-leech.gr-scroll > svg.gr-chart { width: 140px; height: auto; aspect-ratio: 118 / 232; overflow: visible; color: var(--ink); justify-self: center; }
+.gr-chart .pp0 { stop-color: color-mix(in oklab, var(--sc-paper) 90%, #fff); }
+.gr-chart .pp1 { stop-color: var(--sc-paper); }
+.gr-chart .pp2 { stop-color: color-mix(in oklab, var(--sc-paper) 80%, #000); }
+.gr-chart .paper-edge { fill: none; stroke: var(--e-gold); stroke-opacity: .5; stroke-width: .45; }
+.gr-chart .mount { fill: var(--sc-silk); }
+.gr-chart .brocade { fill: var(--e-gold); opacity: .14; }
+.gr-chart .band { fill: color-mix(in oklab, var(--sc-silk) 78%, var(--e-gold)); stroke: var(--e-gold); stroke-opacity: .5; stroke-width: .3; }
+.gr-chart .band-end { stroke: var(--e-gold); stroke-width: .6; }
+.gr-chart .shadow { fill: #000; opacity: .5; }
+.gr-chart .cord { fill: none; stroke: var(--e-gold-lo); stroke-width: .7; stroke-linecap: round; }
+.gr-chart .nail { fill: var(--e-iron); stroke: var(--e-gold-lo); stroke-width: .4; }
+.gr-chart .skin, .gr-chart .ear { fill: color-mix(in oklab, var(--sc-ink) 20%, var(--sc-paper)); }
+.gr-chart .ear { stroke: var(--sc-ink); stroke-opacity: .7; stroke-width: .6; }
+.gr-chart .hair { fill: color-mix(in oklab, var(--sc-ink) 50%, var(--sc-paper)); }
+.gr-chart .hatch { stroke: var(--sc-ink); stroke-opacity: .17; stroke-width: .5; }
+.gr-chart .outline { fill: none; stroke: var(--sc-ink); stroke-opacity: .88; stroke-width: .85; stroke-linejoin: round; }
+.gr-chart .outline.thin { stroke-width: .6; }
+.gr-chart .anat { fill: none; stroke: var(--sc-ink); stroke-opacity: .32; stroke-width: .5; stroke-linecap: round; }
+.gr-chart .chan { fill: none; stroke: color-mix(in oklab, var(--gr-glaze, #3f6b5e) 45%, var(--ink)); stroke-opacity: .55; stroke-width: .45; stroke-dasharray: 1.4 1.2; }
+.gr-chart .pt { fill: var(--sc-paper); stroke: color-mix(in oklab, var(--gr-glaze, #3f6b5e) 45%, var(--ink)); stroke-opacity: .8; stroke-width: .4; }
+.gr-chart .pt.hot { fill: var(--e-rubric); stroke: none; }
+.gr-chart .pt-on { fill: var(--e-rubric); }
+.gr-chart .pt-ring { fill: none; stroke: var(--e-rubric); stroke-width: .45; }
+.gr-chart .lead { fill: none; stroke: var(--e-rubric); stroke-opacity: .75; stroke-width: .45; }
+.gr-chart .lead-dot { fill: var(--e-rubric); }
+.gr-chart .seal > rect:first-child { fill: var(--sc-seal); }
+.gr-chart .grain { fill: var(--ink); opacity: .07; }
+.gr-chart .rim { fill: none; stroke: #000; stroke-opacity: .26; stroke-width: 5; }
+.gr-chart .bloom-edge { fill: none; stroke: var(--e-rubric); stroke-width: .7; }
+.gr-chart .seal .in { fill: none; stroke: var(--sc-seal-txt); stroke-opacity: .6; stroke-width: .35; }
+.gr-chart .seal text { font: 700 5.2px var(--fh); fill: var(--sc-seal-txt); }
+.gr-chart .seal .herb { fill: none; stroke: var(--sc-seal-txt); stroke-width: .55; stroke-linecap: round; }
+.gr-chart .seal.own { opacity: .8; }
+.era-leech.gr-scroll ol { gap: 8px; align-self: center; }
+.era-leech.gr-scroll li { grid-template-columns: 20px minmax(0, 1fr) auto; align-items: center; gap: 10px; padding-bottom: 8px; border-bottom: 1px solid color-mix(in oklab, var(--ink) 12%, transparent); }
+.era-leech.gr-scroll li:last-child { border-bottom: 0; padding-bottom: 0; }
+.era-leech.gr-scroll .seal-n { display: grid; place-items: center; width: 19px; height: 19px; border-radius: 3px; background: var(--sc-seal); color: var(--sc-seal-txt);
+  font: normal 700 10px/1 var(--fh); box-shadow: inset 0 0 0 1.6px var(--sc-seal), inset 0 0 0 2.3px color-mix(in oklab, var(--sc-seal-txt) 45%, transparent); transform: rotate(-3deg); }
+.era-leech.gr-scroll li:nth-child(2n) .seal-n { transform: rotate(2.5deg); }
+.era-leech.gr-scroll .pulse { display: inline-flex; gap: 3px; }
+.era-leech.gr-scroll .pulse b { width: 5px; height: 5px; border-radius: 50%; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--sc-seal) 70%, var(--ink)); }
+.era-leech.gr-scroll .pulse b.on { background: var(--sc-seal); box-shadow: none; }
+@media (max-width: 600px) {
+  .era-leech.gr-scroll { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .era-leech.gr-scroll > svg.gr-chart { width: 124px; }
+  .era-leech.gr-scroll ol { justify-self: stretch; }
+  .era-leech.gr-scroll li { grid-template-columns: 20px minmax(0, 1fr); gap: 4px 8px; font-size: 12.5px; }
+  .era-leech.gr-scroll .pulse { grid-column: 2; }
+  .era-leech.gr-scroll .seal-n { align-self: start; margin-top: 1px; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .era-leech.gr-scroll { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  .era-leech.gr-scroll > svg.gr-chart { width: 124px; }
+  .era-leech.gr-scroll ol { justify-self: stretch; }
+  .era-leech.gr-scroll li { grid-template-columns: 20px minmax(0, 1fr); gap: 4px 8px; font-size: 12.5px; }
+  .era-leech.gr-scroll .pulse { grid-column: 2; }
+  .era-leech.gr-scroll .seal-n { align-self: start; margin-top: 1px; }
+} }
+/* cq ↑ */

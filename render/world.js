@@ -7,12 +7,13 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { кнопкаПодсказки } from './erase-button.js?v=23.89.32';
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.89.32';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.32';
-import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.89.32';
-import { видБлока } from './views.js?v=23.89.32';
-import { settings } from '../settings.js?v=23.89.32';
+import { кнопкаПодсказки } from './erase-button.js?v=23.89.33';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.89.33';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.33';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.89.33';
+import { видБлока } from './views.js?v=23.89.33';
+import { settings } from '../settings.js?v=23.89.33';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.33';
 
 // Заголовки разделов «Мира» по эпохе: в средневековье нет «новостей»,
 // «афиши» и «комментариев Сети» — есть глашатай, ярмарки и пересуды.
@@ -27,15 +28,15 @@ const СРЕДНЕВЕКОВЬЕ = {
   '📌 Доска объявлений': '📌 Грамоты на столбе',
   '💬 Комментарии Сети': '💬 Пересуды',
 };
-const З = (заголовок) => (settings.era === 'medieval' && СРЕДНЕВЕКОВЬЕ[заголовок]) || заголовок;
-import { знакЗодиака } from '../i18n.js?v=23.89.32';
-import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.89.32';
+const З = (заголовок) => (старина() && СРЕДНЕВЕКОВЬЕ[заголовок]) || заголовок;
+import { знакЗодиака } from '../i18n.js?v=23.89.33';
+import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.89.33';
 
 // Вид блока «Мира» из «Кастомизации»: новый — если выбран и собрался,
 // иначе прежний (render/world-views.js).
 function вМире(ключ, новый, прежний) {
   // Неоновая доска объявлений в средневековье — отрывные листки на столбе.
-  const вид = ключ === 'adsView' && settings.era === 'medieval' && (видБлока(ключ) || 'classic') === 'classic' ? 'tearoff' : видБлока(ключ);
+  const вид = ключ === 'adsView' && старина() && (видБлока(ключ) || 'classic') === 'classic' ? 'tearoff' : видБлока(ключ);
   if (вид && вид !== 'classic') {
     const html = новый(вид);
     if (html) return html;
@@ -198,7 +199,7 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments, подГ
         const colClass = body.length > 220 ? ' article-text-columns' : '';
         h += `<details class="hud-news-article">
         <summary><span class="hud-news-headline">${escapeHtml(title)}</span>
-          ${settings.era === 'medieval' ? '' : `<span class="hud-news-stats">
+          ${старина() ? '' : `<span class="hud-news-stats">
             <button type="button" class="hud-news-vote hud-news-upvote${votes.votedUp ? ' is-on' : ''}" data-vote-key="${voteKey}" data-vote-kind="up" aria-pressed="${votes.votedUp ? 'true' : 'false'}">▲ <span class="hud-news-vote-n">${votes.up}</span></button>
             <span class="hud-news-stats-sep">|</span>
             <button type="button" class="hud-news-vote hud-news-cmt${votes.votedC ? ' is-on' : ''}" data-vote-key="${voteKey}" data-vote-kind="comments" aria-pressed="${votes.votedC ? 'true' : 'false'}">💬 <span class="hud-news-vote-n">${votes.comments}</span></button>
@@ -305,7 +306,7 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments, подГ
   if (headlineTitles.length > 0) {
     const seq = headlineTitles.map(t => `<span class="hud-breaking-item">${escapeHtml(t)}</span>`).join('<span class="hud-breaking-dot">◆</span>');
     const loop = `<span class="hud-breaking-seq">${seq}<span class="hud-breaking-dot">◆</span></span>`;
-    html += `<div class="hud-breaking-news" aria-hidden="true"><span class="hud-breaking-label">${settings.era === 'medieval' ? '📯 ВНЕМЛИТЕ' : '📺 СРОЧНО'}</span><div class="hud-breaking-track"><div class="hud-breaking-marquee">${loop}${loop}</div></div></div>`;
+    html += `<div class="hud-breaking-news" aria-hidden="true"><span class="hud-breaking-label">${старина() ? '📯 ВНЕМЛИТЕ' : '📺 СРОЧНО'}</span><div class="hud-breaking-track"><div class="hud-breaking-marquee">${loop}${loop}</div></div></div>`;
   }
   return html + `</div></div>`;
 }

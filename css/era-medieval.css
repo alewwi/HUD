@@ -505,3 +505,43 @@
   .era-seal .band { padding-left: 26px; }
 } }
 /* cq ↑ */
+
+/* Кошель шкатулки: мешочек с монетами и книга (render/era-fantasy.js, кошель).
+   В явной магии мешочек бархатный со светящимся знаком — цвет чар из css/era-fantasy.css. */
+.fx-purse { --fx-purse: #7a4a2a; gap: 10px !important; }
+.fx-purse.is-arcane { --fx-purse: color-mix(in oklab, var(--fx-arc) 35%, #3b1a52); }
+.fx-purse-top { display: flex; align-items: flex-end; justify-content: center; gap: 14px; flex-wrap: wrap; padding-top: 4px; }
+.fx-pouch { width: 112px; height: auto; aspect-ratio: 120 / 108; flex: none; overflow: visible; filter: drop-shadow(0 3px 4px rgba(0,0,0,.35)); }
+.fx-pouch .fold { fill: none; stroke: #000; stroke-opacity: .28; stroke-width: 1; stroke-linecap: round; }
+.fx-pouch .seam { fill: none; stroke: color-mix(in oklab, var(--e-gold, #d4a03c) 80%, #fff); stroke-width: .8; stroke-dasharray: 2 2; opacity: .75; }
+.fx-pouch .cord { fill: none; stroke: var(--e-gold, #d4a03c); stroke-width: 2.2; stroke-linecap: round; } .fx-pouch .cord.thin { stroke-width: 1.3; }
+.fx-pouch .tassel { fill: var(--e-gold, #d4a03c); stroke: color-mix(in oklab, var(--e-gold, #d4a03c) 50%, #000); stroke-width: .4; }
+.fx-pouch .emb circle { fill: color-mix(in oklab, var(--fx-purse) 70%, #000); stroke: var(--e-gold, #d4a03c); stroke-width: 1.1; } .fx-pouch .emb .thin { fill: none; stroke-width: .5; stroke-dasharray: 1 1.4; }
+.fx-pouch .emb .lily { fill: var(--e-gold, #d4a03c); }
+.fx-pouch .emb.arc .st { fill: var(--fx-arc-hi); filter: drop-shadow(0 0 2.5px var(--fx-arc)); }
+.fx-pouch .emb.arc circle.moon { fill: #fff6d8; stroke: none; filter: drop-shadow(0 0 2px var(--fx-arc)); }
+.fx-pouch .emb.arc circle.moon-cut { fill: color-mix(in oklab, var(--fx-purse) 70%, #000); stroke: none; filter: none; }
+.fx-pouch .emb.arc circle:first-child { stroke: var(--fx-arc-hi); filter: drop-shadow(0 0 3px var(--fx-arc)); }
+.fx-pouch .spark { fill: #fff; filter: drop-shadow(0 0 2px var(--fx-arc)); }
+.fx-coins { display: flex; align-items: flex-end; gap: 10px; }
+.fx-stack { display: grid; justify-items: center; gap: 1px; }
+.fx-stack svg { width: 44px; overflow: visible; filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
+.fx-stack b { font: 700 17px/1 var(--fh, Georgia, serif); color: var(--ink); }
+.fx-stack small { font: italic 11px/1.1 var(--hud-font-main, Georgia, serif); color: var(--ink-soft); }
+.fx-purse.is-arcane .fx-stack.m-gold svg { filter: drop-shadow(0 0 5px color-mix(in oklab, #ffd36a 45%, transparent)); }
+.fx-cur { text-align: center; }
+.fx-cur span { display: inline-block; position: relative; padding: 2px 18px; font: italic 12.5px/1.3 var(--fh, Georgia, serif); color: var(--parch, #efe2c4);
+  background: linear-gradient(var(--e-rubric), color-mix(in oklab, var(--e-rubric) 70%, #000)); clip-path: polygon(0 0, 100% 0, calc(100% - 8px) 50%, 100% 100%, 0 100%, 8px 50%); }
+.fx-purse.is-arcane .fx-cur span { background: linear-gradient(color-mix(in oklab, var(--fx-arc) 60%, #2a1040), color-mix(in oklab, var(--fx-arc) 35%, #12061c)); color: #fff; }
+.fx-ledger { border-top: 1px solid color-mix(in oklab, var(--ink) 25%, transparent); padding-top: 8px; display: grid; gap: 2px; }
+.fx-led-title { text-align: center; color: var(--e-gold, #b08a4a); }
+.fx-led-title span { display: block; font: 400 13px/1.2 var(--fh, Georgia, serif); letter-spacing: .1em; font-variant: small-caps; color: var(--ink); }
+.fx-led-title .rule { display: block; width: 60%; height: 8px; margin: 2px auto 4px; }
+.fx-led-row { display: grid; grid-template-columns: 16px auto minmax(12px, 1fr) auto; align-items: baseline; gap: 2px 6px; padding: 5px 0; border-bottom: 1px dotted color-mix(in oklab, var(--ink) 22%, transparent); }
+.fx-led-row .mark { align-self: center; display: grid; } .fx-led-row .mark svg { width: 14px; height: 14px; fill: none; stroke-width: 1.2; stroke-linecap: round; stroke-linejoin: round; }
+.fx-led-row.is-in .mark svg { stroke: #6fbf73; } .fx-led-row.is-out .mark svg { stroke: var(--e-rubric); }
+.fx-led-row .what { font: 600 13.5px/1.25 var(--fh, Georgia, serif); color: var(--ink); } .fx-led-row .what small { display: block; font: italic 11.5px/1.2 var(--hud-font-main, Georgia, serif); color: var(--ink-soft); }
+.fx-led-row .lead { border-bottom: 1px dotted color-mix(in oklab, var(--ink) 35%, transparent); transform: translateY(-4px); }
+.fx-led-row .sum { font: 700 14px/1 var(--fh, Georgia, serif); white-space: nowrap; } .fx-led-row.is-in .sum { color: #6fbf73; } .fx-led-row.is-out .sum { color: var(--e-rubric); }
+.fx-led-row .when { grid-column: 2 / -1; font: italic 11px/1.2 var(--hud-font-main, Georgia, serif); color: var(--ink-soft); }
+.fx-led-row.is-none { display: block; text-align: center; font-style: italic; color: var(--ink-soft); }

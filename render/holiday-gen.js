@@ -12,10 +12,11 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.32';
-import { settings } from '../settings.js?v=23.89.32';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.32';
-import { связьПраздников, разобратьПраздники, праздникиМира, добавитьПраздникиМира, убратьПраздникМира } from './holiday-lore.js?v=23.89.32';
+import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.33';
+import { settings } from '../settings.js?v=23.89.33';
+import { старина, заклинанияВМире, дарыВМире, магияСкрыта } from '../era.js?v=23.89.33';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.33';
+import { связьПраздников, разобратьПраздники, праздникиМира, добавитьПраздникиМира, убратьПраздникМира } from './holiday-lore.js?v=23.89.33';
 
 const ЖДЁМ_МС = 180000;
 const ЛОР_СИМВОЛОВ = 40000;
@@ -37,6 +38,13 @@ function своиЛорбуки(ctx) {
 }
 
 /** Промпт: что и в каком виде вернуть. */
+// Эпоха для модели: средневековье и какое фэнтези (era.js). Обычная современность — пусто.
+function эпохаПраздников() {
+  // Магия в мире (era.js), а не облик: скрытая магия тоже даёт свои праздники.
+  const магия = (заклинанияВМире() ? 'fantasy with overt magic (spells, enchanted things)' : дарыВМире() ? 'grounded fantasy: innate elemental gifts and spirits, no spells or magic tools' : '') + (магияСкрыта() ? ', magic hidden from ordinary society' : '');
+  if (!старина() && !магия) return '';
+  return [старина() ? 'medieval' : 'modern', магия].filter(Boolean).join(', ');
+}
 export function промптПраздников({ карточка = '', персона = '', лор = '', дата = '', сколько = 0, эпоха = '' } = {}) {
   const блоки = [];
   if (карточка) блоки.push(`<character_card>\n${карточка}\n</character_card>`);
@@ -197,7 +205,7 @@ export async function открытьГенераторПраздников({ д�
       if (!карта && !персона && !лор) throw new Error('в выбранных источниках пусто — нечего читать');
       const { system, user } = промптПраздников({
         карточка: карта ? `${карта.name}\n${карта.text}` : '', персона, лор, дата,
-        сколько: parseInt(settings.holidayCount, 10) || 0, эпоха: settings.era === 'medieval' ? 'medieval' : '',
+        сколько: parseInt(settings.holidayCount, 10) || 0, эпоха: эпохаПраздников(),
       });
       статус.textContent = 'Модель думает…';
       window.__tavernOSHudSkipInject = (window.__tavernOSHudSkipInject || 0) + 1;

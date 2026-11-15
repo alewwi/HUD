@@ -1,0 +1,131 @@
+/* hud-manager/css/powers.css
+   Силы приземлённого фэнтези (render/powers.js): способности с пределами,
+   полоска маны, тело и сила, чары с таймером и лесенка отдачи в «Болезнях
+   и травмах». Грузится только в эпохах фэнтези (css-loader.js). */
+
+/* --- Способности --------------------------------------------------------- */
+.hud-pw { display: flex; flex-direction: column; gap: 8px; width: 100%; min-width: 0; container-type: inline-size; }
+.hud-pw-list { display: flex; flex-direction: column; gap: 8px; }
+.hud-pw-card {
+  --pw: #e8c66a; padding: 9px 11px; border-radius: 12px; min-width: 0;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--pw) 9%, transparent), rgba(255,255,255,.03) 60%);
+  border: 1px solid color-mix(in srgb, var(--pw) 26%, var(--hud-border, rgba(255,255,255,.12)));
+  border-left: 3px solid var(--pw);
+}
+.hud-pw-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; min-width: 0; }
+.hud-pw-head > b { min-width: 0; overflow-wrap: anywhere; }
+.hud-pw-ico {
+  flex: none; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%;
+  color: var(--pw); background: color-mix(in srgb, var(--pw) 16%, transparent);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--pw) 40%, transparent), 0 0 10px color-mix(in srgb, var(--pw) 30%, transparent);
+}
+.hud-pw-ico svg { width: 15px; height: 15px; }
+.hud-pw-lv { margin-left: auto; display: inline-flex; align-items: center; gap: 3px; }
+.hud-pw-lv > i { width: 6px; height: 10px; border-radius: 2px; background: rgba(255,255,255,.12); }
+.hud-pw-lv > i.on { background: var(--pw); box-shadow: 0 0 5px color-mix(in srgb, var(--pw) 60%, transparent); }
+.hud-os-card :is(em, i).hud-pw-lv em, .hud-pw-lv em {
+  font-style: normal; font-size: 10.5px; margin-left: 4px; color: var(--pw); text-transform: uppercase; letter-spacing: .05em;
+}
+.hud-pw-row { display: grid; grid-template-columns: 6.5em minmax(0, 1fr); gap: 8px; margin-top: 5px; font-size: .9em; }
+.hud-pw-row > span { opacity: .65; }
+.hud-pw-row > p { margin: 0; line-height: 1.4; overflow-wrap: anywhere; }
+.hud-pw-row.is-can > span { color: var(--pw); opacity: .9; }
+.hud-pw-row.is-lim > span { color: #ef7a86; opacity: .95; }
+.hud-pw-row.is-lim > p { color: color-mix(in srgb, currentColor 88%, #ef7a86); }
+.hud-pw-row.is-cost > span { color: #d9a066; opacity: .9; }
+
+/* Мана: полоса с числом и сроком наполнения. */
+.hud-pw-mana {
+  display: grid; grid-template-columns: auto minmax(40px, 1fr) auto; align-items: center; gap: 4px 9px;
+  padding: 7px 11px; border-radius: 10px; background: rgba(127,214,207,.07); border: 1px solid rgba(127,214,207,.25);
+}
+.hud-pw-mana > span { font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: #7fd6cf; }
+.hud-pw-mana > i { display: block; height: 8px; border-radius: 4px; background: rgba(255,255,255,.08); overflow: hidden; }
+.hud-pw-mana > i > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #3f8f9a, #7fd6cf 70%, #d8fffb); box-shadow: 0 0 8px rgba(127,214,207,.55); }
+.hud-pw-mana > b { font-variant-numeric: tabular-nums; color: #bff3ee; }
+.hud-pw-mana > small { grid-column: 1 / -1; opacity: .7; font-size: .82em; }
+.hud-pw-mana.is-low { background: rgba(224,86,107,.08); border-color: rgba(224,86,107,.3); }
+.hud-pw-mana.is-low > i > i { background: linear-gradient(90deg, #8a2b3a, #e0566b); box-shadow: none; }
+
+/* Тело и сила: что в теле поднимает силу (тёплое) или глушит её (холодное). */
+.hud-pw-body { display: flex; flex-wrap: wrap; gap: 6px; align-items: stretch; }
+.hud-pw-body-t { flex: 1 0 100%; font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; opacity: .6; }
+.hud-pw-f {
+  --f: #f0a35a; flex: 1 1 150px; min-width: 0; display: grid; grid-template-columns: 16px minmax(0, 1fr); gap: 1px 6px; align-items: center;
+  align-content: start; padding: 6px 9px; border-radius: 10px; background: color-mix(in srgb, var(--f) 9%, transparent); border: 1px solid color-mix(in srgb, var(--f) 30%, transparent);
+}
+.hud-pw-f.is-down { --f: #7fa8e8; }
+.hud-pw-f > svg { width: 15px; height: 15px; color: var(--f); grid-row: span 2; align-self: start; margin-top: 1px; }
+.hud-pw-f > b { font-size: .88em; color: var(--f); overflow-wrap: anywhere; }
+.hud-pw-f > small { font-size: .8em; opacity: .75; line-height: 1.35; overflow-wrap: anywhere; }
+
+/* --- Чары -------------------------------------------------------------------- */
+.hud-ef { display: flex; flex-direction: column; gap: 7px; width: 100%; min-width: 0; container-type: inline-size; }
+.hud-ef-item {
+  padding: 8px 11px; border-radius: 12px; min-width: 0;
+  background: linear-gradient(135deg, rgba(185,163,255,.09), rgba(255,255,255,.03) 65%);
+  border: 1px solid rgba(185,163,255,.24); border-left: 3px solid #b9a3ff;
+}
+.hud-ef-head { display: flex; align-items: center; gap: 6px 10px; flex-wrap: wrap; }
+.hud-ef-head > b { min-width: 0; overflow-wrap: anywhere; }
+.hud-ef-left { margin-left: auto; display: inline-flex; align-items: center; gap: 5px; color: #cdbfff; white-space: nowrap; }
+.hud-ef-left svg { width: 14px; height: 14px; }
+.hud-ef-left b { font-size: .88em; font-variant-numeric: tabular-nums; }
+.hud-ef-left small { opacity: .7; font-size: .8em; }
+.hud-ef-left.is-soon { color: #f2c14e; }
+.hud-ef-left.is-over { color: #a8a5ad; }
+.hud-ef-item.is-over { opacity: .62; border-left-color: #6d6a75; }
+.hud-ef-item.is-over .hud-ef-head > b { text-decoration: line-through; text-decoration-color: rgba(255,255,255,.35); }
+.hud-ef-src, .hud-ef-sy { margin: 4px 0 0; font-size: .88em; line-height: 1.4; overflow-wrap: anywhere; }
+.hud-ef-src { opacity: .65; }
+
+/* --- Отдача: четыре ступени в карточке болезни ------------------------------- */
+.hud-ill.is-backlash { --ill: #c98cff; }
+.hud-bl { margin: 8px 0 4px; container-type: inline-size; }
+.hud-bl-now { display: none; margin-top: 6px; font-size: .86em; color: #e3c6ff; }
+.hud-bl ol { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; position: relative; }
+.hud-bl ol::before {
+  content: ''; position: absolute; left: 12.5%; right: 12.5%; top: 5px; height: 2px; border-radius: 1px;
+  background: linear-gradient(90deg, #c98cff calc((var(--bl) - 1) / 3 * 100%), rgba(255,255,255,.12) 0);
+}
+.hud-bl li { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; min-width: 0; }
+.hud-bl li > i { width: 12px; height: 12px; border-radius: 50%; background: #2a2433; border: 2px solid rgba(255,255,255,.2); }
+.hud-bl li > span { font-size: 10px; line-height: 1.2; opacity: .5; overflow-wrap: anywhere; hyphens: auto; }
+.hud-bl li.is-past > i { background: #8a5cb8; border-color: #8a5cb8; }
+.hud-bl li.is-past > span { opacity: .7; }
+.hud-bl li.is-now > i { background: #e8c7ff; border-color: #c98cff; box-shadow: 0 0 0 3px rgba(201,140,255,.25), 0 0 10px rgba(201,140,255,.7); }
+.hud-bl li.is-now > span { opacity: 1; font-weight: 700; color: #e3c6ff; }
+.hud-bl-left { display: block; margin-top: 6px; font-size: .82em; opacity: .75; }
+.hud-bl-left.is-over { color: #f2c14e; opacity: .9; }
+
+/* Светлые схемы: подложки темнее, текст подписей контрастнее. */
+:root.hud-scheme-light .hud-pw-card, :root.hud-scheme-light .hud-ef-item { background: color-mix(in srgb, var(--pw, #b9a3ff) 8%, rgba(255,255,255,.55)); }
+:root.hud-scheme-light .hud-pw-mana > b { color: #1f6f6a; }
+:root.hud-scheme-light .hud-ef-left { color: #5b3fb0; }
+:root.hud-scheme-light .hud-bl li > i { background: #efe8f7; }
+
+/* Узкая карточка (телефон): подписи над текстом, срок чар — своей строкой. */
+@container (max-width: 300px) {
+  .hud-pw-row { grid-template-columns: minmax(0, 1fr); gap: 0; margin-top: 6px; }
+  .hud-pw-row > span { font-size: .85em; }
+  .hud-pw-lv { margin-left: 32px; flex-basis: 100%; }
+  .hud-pw-f { flex-basis: 100%; }
+  .hud-ef-left { margin-left: 0; flex-basis: 100%; white-space: normal; flex-wrap: wrap; }
+}
+
+/* Мана — пятая шкала: батарейки, кристаллы, склянки, благовония и свечи
+   встают в один ряд, а не переносят ману под остальные. */
+:is(.gr-incense, .fx-mana, .fx-potions) > .row:has(> :nth-child(5)),
+.era.gr-incense-m .gr-row:has(> :nth-child(5)) { grid-template-columns: repeat(auto-fit, minmax(48px, 1fr)); }
+.era-cand .row4:has(> :nth-child(5)) { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+
+/* Отдача в узкой карточке (лента здоровья, телефон): подписи у точек рвались
+   по слогам — оставляем точки, а текущую ступень пишем одной строкой. */
+@container (max-width: 230px) {
+  .hud-bl li > span { display: none; }
+  .hud-bl-now { display: block; }
+}
+/* Свечи и благовония средневековья — пять в ряд тесно: ряд во всю ширину,
+   сон и дела под ним. */
+.era-cand .row4:has(> :nth-child(5)) { flex: 1 1 100%; }
+.era-cand .row4:has(> :nth-child(5)) ~ .side { flex: 1 1 100%; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px; }

@@ -5,35 +5,36 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { показатьЧтоНового } from './whats-new.js?v=23.89.32';
-import { показатьГайд } from './guide.js?v=23.89.32';
-import { settings, defaultSettings } from './settings.js?v=23.89.32';
-import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.32';
-import { видБлока } from './render/views.js?v=23.89.32';
-import { escapeHtml } from './utils.js?v=23.89.32';
-import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.32';
-import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.32';
-import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.89.32';
-import { убратьМетку } from './hud-erase.js?v=23.89.32';
-import { убратьЛетопись } from './chronicle-store.js?v=23.89.32';
-import { включитьПереводчик, т, английский, кодЯзыка, языкиМеню, файлПеревода, загрузитьФайлПеревода, убратьФайлПеревода } from './i18n.js?v=23.89.32';
+import { показатьЧтоНового } from './whats-new.js?v=23.89.33';
+import { показатьГайд } from './guide.js?v=23.89.33';
+import { settings, defaultSettings } from './settings.js?v=23.89.33';
+import { старина, основаЭпохи, эпоха, отметитьЭпоху, фэнтези, магия, естьТелефоны, база, присутствиеМагии, магияВМире, видМагииВМире, технологии, собратьЭпоху, ПРИСУТСТВИЕ } from './era.js?v=23.89.33';
+import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.33';
+import { видБлока } from './render/views.js?v=23.89.33';
+import { escapeHtml } from './utils.js?v=23.89.33';
+import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.33';
+import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.33';
+import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.89.33';
+import { убратьМетку } from './hud-erase.js?v=23.89.33';
+import { убратьЛетопись } from './chronicle-store.js?v=23.89.33';
+import { включитьПереводчик, т, английский, кодЯзыка, языкиМеню, файлПеревода, загрузитьФайлПеревода, убратьФайлПеревода } from './i18n.js?v=23.89.33';
 
 // Пункты меню языка: русский, английский, собранные из таблиц и свой файл.
 const optionЯзыков = () => языкиМеню().map(я => `<option value="${escapeHtml(я.code)}" ${кодЯзыка() === я.code ? 'selected' : ''}>${escapeHtml(я.name)}</option>`).join('');
-import { уверены } from './confirm-erase.js?v=23.89.32';
-import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.32';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.32';
-import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.32';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.32';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.89.32';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.32';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.32';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.32';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.32';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.32';
-import { меткаШапки } from './render/topbar-icons.js?v=23.89.32';
-import { обновитьПереводКарточек } from './translate-guard.js?v=23.89.32';
-import { разметкаВидаЧатов, обновитьПанель as обновитьВидыЧатов } from './chat-looks.js?v=23.89.32';
+import { уверены } from './confirm-erase.js?v=23.89.33';
+import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.33';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.33';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.33';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.33';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.89.33';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.33';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.33';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.33';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.33';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.33';
+import { меткаШапки } from './render/topbar-icons.js?v=23.89.33';
+import { обновитьПереводКарточек } from './translate-guard.js?v=23.89.33';
+import { разметкаВидаЧатов, обновитьПанель as обновитьВидыЧатов } from './chat-looks.js?v=23.89.33';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, getStContextSafe, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -117,15 +118,40 @@ export function addSettingsUI() {
       </div>
 
       ${группа('🧩 Блоки HUD', `
-        ${подгруппа('🕰 Эпоха: телефон или шкатулка', `
-          <label class="hud-set-check" title="Эпоха меняет пару блоков и их оформление: в современности — телефон и перехваты, в средневековье — шкатулка и подслушанное">Эпоха сеттинга:
+        ${подгруппа('🕰 Эпоха, технологии и магия', `
+          <label class="hud-set-check" title="Эпоха выбирает пару блоков и их оформление: в современности — телефон и перехваты, в средневековье — шкатулка и подслушанное">Эпоха:
             <select id="hud-era" class="hud-theme-select-input">
-              <option value="modern" ${settings.era !== 'medieval' ? 'selected' : ''}>📱 Современность — телефон и перехваты</option>
-              <option value="medieval" ${settings.era === 'medieval' ? 'selected' : ''}>🗝️ Средневековье — шкатулка и подслушанное</option>
+              ${[['modern', '📱 Современность — телефон и перехваты'], ['medieval', '🗝️ Средневековье — шкатулка и подслушанное']]
+                .map(([к, п]) => `<option value="${к}" ${база() === к ? 'selected' : ''}>${п}</option>`).join('')}
             </select>
           </label>
-          ${заметка('Работает только одна пара. В средневековье (любой век до телефонов) вместо телефона — шкатулка с письмами, святцами, кошелём, записями, картой, грамотами и памятками, а вместо перехватов — подслушанные разговоры и вскрытые чужие письма.')}
-          <div class="hud-era-block" data-era="medieval" ${settings.era === 'medieval' ? '' : 'hidden'}>
+          <label class="hud-set-check" title="Уровень техники в мире — подсказка модели, чего здесь нет и что есть. Пару блоков (телефон или шкатулку) выбирает эпоха. «Из карточки и лорбука» — модель берёт уровень оттуда сама.">Технологии:
+            <select id="hud-tech-level" class="hud-theme-select-input">
+              ${[['auto', '📖 Из карточки и лорбука'], ['primitive', '🪨 Первобытные — камень, бронза, огонь'], ['preindustrial', '⚒️ Доиндустриальные — ремёсла, железо, кони, парус'], ['industrial', '🚂 Индустриальные — пар, железные дороги, телеграф'], ['modern', '💻 Современные — телефоны, интернет'], ['future', '🚀 Будущее — ИИ, кибернетика, космос']]
+                .map(([к, п]) => `<option value="${к}" ${технологии() === к ? 'selected' : ''}>${п}</option>`).join('')}
+            </select>
+          </label>
+          <label class="hud-set-check" title="Есть ли в мире магия и знает ли о ней общество. Скрытая — мир с виду обычный, блоки не переодеваются, но модель и блоки сил знают о магии. Общедоступная — эпоха фэнтези: оформление блоков меняется вместе с магией.">Магия:
+            <select id="hud-magic-presence" class="hud-theme-select-input">
+              ${[['none', '🚫 Нет'], ['hidden', '🕯️ Скрыта от общества — мир с виду обычный'], ['open', '🔮 Общедоступна — все о ней знают']]
+                .map(([к, п]) => `<option value="${к}" ${присутствиеМагии() === к ? 'selected' : ''}>${п}</option>`).join('')}
+            </select>
+          </label>
+          <label class="hud-set-check hud-era-magic" ${магияВМире() ? '' : 'hidden'} title="Какая в мире магия: она меняет то, что модель может придумать, а при общедоступной — и оформление блоков">Вид магии:
+            <select id="hud-fantasy-magic" class="hud-theme-select-input">
+              ${[['high', '✨ Заклинания — школы, руны, порталы, зачарованные вещи'], ['grounded', '🍃 Врождённые силы — стихии и духи, без заклинаний и порталов']]
+                .map(([к, п]) => `<option value="${к}" ${(видМагииВМире() || 'high') === к ? 'selected' : ''}>${п}</option>`).join('')}
+            </select>
+          </label>
+          <div class="hud-era-powers" ${магияВМире() ? '' : 'hidden'}>
+          ${галка('hud-powers-mana', settings.powersMana !== false, '💧 Мана в «Состоянии тела»', 'Пятая шкала рядом с энергией и стрессом — запас, из которого берёт магия или дар. Тратится на заклинания и силу, возвращается по времени сцены: около 10 за час отдыха, ночь сна — полностью. HUD сам считает, к какому часу она наполнится, и напоминает модели, сколько её было.')}
+          ${галка('hud-powers-abilities', settings.powersAbilities !== false, '✨ Способности с пределами', 'У тех, кто владеет магией, — отдельный блок: школа или дар, уровень (новичок, обученный, опытный, мастер), что он может, чего НЕ может и чего стоит. В явной магии это школы и заклинания (иллюзии, порталы, обереги, проклятия), в приземлённой — врождённые стихии и духи, без заклинаний и порталов. Модель держит силу в этих рамках: малым заклинанием или даром не сделать большого, новое умение — только через сюжет.')}
+          ${галка('hud-powers-backlash', settings.powersBacklash !== false, '💫 Отдача при перенапряжении', 'Если перестараться — заклинание или дар за пределом, без маны, слишком долго — тело платит. Четыре ступени: головокружение (~1 ч), кровь из носа (~3 ч), обморок (~12 ч), тяжёлая травма (дни и недели). Запись уходит в «Болезни и травмы», срок HUD отсчитывает по времени сюжета.')}
+          ${галка('hud-powers-effects', settings.powersEffects !== false, '🌀 Чары и эффекты с таймером', 'Что действует на человека сейчас и до какого часа. В явной магии это «Чары»: проклятие, оберег, приворот, личина. В приземлённой — «Эффекты», без заклинаний: метка духа, перекрытая ци, захват водой, яд, благословение. Сколько осталось, HUD считает сам по времени сцены, а истёкшее просит модель снять.')}
+          <label class="hud-set-check" title="Цикл, беременность, раны и усталость меняют контроль над даром: на овуляции сила рвётся наружу, на позднем сроке её тяжело звать, свежая рана сбивает. HUD это уже знает из полей — решите, кому подсказывать.">🌗 Тело и сила: <select id="hud-powers-body" class="hud-set-num" style="width:auto">${[['both', 'мне и модели'], ['model', 'только модели'], ['me', 'только мне'], ['off', 'никому']].map(([к, п]) => `<option value="${к}"${(settings.powersBody || 'both') === к ? ' selected' : ''}>${п}</option>`).join('')}</select></label>
+          </div>
+          ${заметка('Три настройки независимы — так собирается почти любой мир: средневековье без магии, современность со скрытыми демонами, стихии без заклинаний. Эпоха выбирает пару блоков: в современности — телефон и перехваты, в средневековье (любой век до телефонов) — шкатулка с письмами, святцами, кошелём, записями, картой, грамотами и памятками и подслушанные разговоры. Технологии подсказывают модели, чего в мире нет. Магия: скрытая не меняет вид блоков; общедоступная — это эпоха фэнтези: с заклинаниями телефон зачарован, шкатулка становится ларцом чародея, письма приносят вороны; с врождёнными силами заклинаний и порталов нет, письма носят гонцы и ястребы. Особенности мира — кто владеет магией, как она зовётся, чего не может — модель берёт из карточки и лорбука, настройки задают только рамку. Что из оформления вернуть к современному виду — в «Кастомизации», раздел «Обличье эпохи».')}
+          <div class="hud-era-block" data-era="medieval" ${старина() ? '' : 'hidden'}>
           ${галка('hud-enable-casket', settings.enableCasket !== false, '🗝️ Шкатулка персонажа', 'Средневековая замена телефона: письма с печатями, святцы, кошель, записи, карта, грамоты и памятки')}
           <div class="hud-set-apps">
             ${[['castAppLetters','✉️ Письма','Письма с печатями: от кого, о чём и как доставлено'],['castAppCalendar','📅 Святцы','Святцы: дата, праздники и фаза луны'],['castAppPurse','💰 Кошель','Кошель: монеты и приходная книга'],
@@ -134,7 +160,7 @@ export function addSettingsUI() {
           </div>
           ${галка('hud-enable-overheard', settings.enableOverheard !== false, '👂 Подслушанное (чужие разговоры и письма)', 'Средневековая замена перехватов: чужие разговоры, услышанные сквозь стену или от слуги, и чужие письма, вскрытые тайком')}
           </div>
-          <div class="hud-era-block" data-era="modern" ${settings.era === 'medieval' ? 'hidden' : ''}>
+          <div class="hud-era-block" data-era="modern" ${старина() ? 'hidden' : ''}>
           ${галка('hud-enable-phone', settings.enablePhone, '📱 Личный телефон', 'Телефон персонажа: переписки, контакты, заметки, календарь, галерея, карты, кошелёк и поиск')}
           ${заметка('Экраны телефона можно включать по одному. Выключенный не просится у модели и не занимает места в запросе — весь телефон целиком стоит около 800 токенов на каждый ход, и половина из них уходит на экраны, которыми вы, возможно, не пользуетесь.')}
           <div class="hud-set-apps">
@@ -685,7 +711,7 @@ export function addSettingsUI() {
     const новая = document.getElementById('hud-settings-wrapper');
     if (новая && родитель) { родитель.insertBefore(новая, сосед); новая.open = открыта; }
     основа.перерисоватьКарточкиЧата({ сохранитьВид: true });
-    import('./render/music.js?v=23.89.32').then(м => { м.сброситьФон(); м.обновитьСтрокуСцены(); м.обновитьВсеПолосы(); }).catch(() => {});
+    import('./render/music.js?v=23.89.33').then(м => { м.сброситьФон(); м.обновитьСтрокуСцены(); м.обновитьВсеПолосы(); }).catch(() => {});
     основа.showHudToast('success', 'Настройки загружены', 'Всё уже применилось.');
   });
 
@@ -983,17 +1009,41 @@ export function addSettingsUI() {
   [['hud-date-format', 'dateFormat'], ['hud-temp-unit', 'tempUnit'], ['hud-time-format', 'timeFormat'], ['hud-wind-unit', 'windUnit']].forEach(([id, ключ]) => {
     document.getElementById(id)?.addEventListener('change', (e) => { settings[ключ] = e.target.value; основа.saveSettings(); основа.перерисоватьКарточкиЧата({ сохранитьВид: true }); });
   });
-  document.getElementById('hud-era').addEventListener('change', (e) => {
-    settings.era = e.target.value === 'medieval' ? 'medieval' : 'modern';
-    document.querySelectorAll('.hud-era-block').forEach(b => { b.hidden = b.dataset.era !== settings.era; });
+  // Эпоха и магия (era.js): settings.era собирается из двух — база и
+  // общедоступная ли магия ('fantasy-…'); скрытая хранится в magicPresence.
+  const собратьЭпохуИзПанели = () => {
+    const б = document.getElementById('hud-era')?.value === 'medieval' ? 'medieval' : 'modern';
+    const п = ПРИСУТСТВИЕ.includes(document.getElementById('hud-magic-presence')?.value) ? document.getElementById('hud-magic-presence').value : 'none';
+    settings.era = эпоха(собратьЭпоху(б, п));
+    settings.magicPresence = п;
+    document.querySelectorAll('.hud-era-block').forEach(b => { b.hidden = b.dataset.era !== основаЭпохи(); });
+    document.querySelectorAll('.hud-era-magic, .hud-era-powers').forEach(b => { b.hidden = !магияВМире(); });
+    отметитьЭпоху();
     основа.saveSettings();
     // Виды блоков меняют обличье с эпохой — карточки собираются заново.
+    document.dispatchEvent(new CustomEvent('hud-theme-changed', { detail: { разметка: true } }));
+  };
+  document.getElementById('hud-era').addEventListener('change', собратьЭпохуИзПанели);
+  document.getElementById('hud-magic-presence')?.addEventListener('change', собратьЭпохуИзПанели);
+  // Технологии — только подсказка модели.
+  document.getElementById('hud-tech-level')?.addEventListener('change', (e) => { settings.techLevel = технологии(e.target.value); основа.saveSettings(); });
+  // Вид магии: что модель может придумать, а при общедоступной — и вид блоков.
+  document.getElementById('hud-fantasy-magic')?.addEventListener('change', (e) => {
+    settings.fantasyMagic = e.target.value === 'grounded' ? 'grounded' : 'high';
+    document.querySelectorAll('.hud-era-powers').forEach(b => { b.hidden = !магияВМире(); });
+    отметитьЭпоху();
+    основа.saveSettings();
     document.dispatchEvent(new CustomEvent('hud-theme-changed', { detail: { разметка: true } }));
   });
   // Перенесены из «Кастомизации»: это не вид, а что HUD показывает и как себя ведёт.
   [['hud-cycle-libido', 'cycleLibido', true], ['hud-secrets-grid', 'secretsGrid', true], ['hud-secrets-raise', 'secretsAutoRaise', false]].forEach(([id, ключ, перерисовать]) => {
     document.getElementById(id)?.addEventListener('change', (e) => { settings[ключ] = e.target.value; основа.saveSettings(); if (перерисовать) основа.перерисоватьКарточкиЧата({ сохранитьВид: true }); });
   });
+  // Силы приземлённого фэнтези (render/powers.js): меняют и промт, и карточку.
+  [['hud-powers-mana', 'powersMana'], ['hud-powers-abilities', 'powersAbilities'], ['hud-powers-backlash', 'powersBacklash'], ['hud-powers-effects', 'powersEffects']].forEach(([id, ключ]) => {
+    document.getElementById(id)?.addEventListener('change', (e) => { settings[ключ] = e.target.checked; основа.saveSettings(); основа.перерисоватьКарточкиЧата({ сохранитьВид: true }); });
+  });
+  document.getElementById('hud-powers-body')?.addEventListener('change', (e) => { settings.powersBody = e.target.value; основа.saveSettings(); основа.перерисоватьКарточкиЧата({ сохранитьВид: true }); });
   document.getElementById('hud-combat-prompt')?.addEventListener('change', (e) => { settings.combatPrompt = e.target.value; основа.saveSettings(); });
   document.getElementById('hud-life-to-model')?.addEventListener('change', (e) => { settings.lifeToModel = e.target.value; основа.saveSettings(); });
   document.getElementById('hud-whats-new-open')?.addEventListener('click', () => { показатьЧтоНового(''); });
@@ -1075,7 +1125,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.89.32');
+      const mod = await import('./render/archive.js?v=23.89.33');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -1297,7 +1347,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.89.32').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.89.33').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -1327,20 +1377,20 @@ export function addSettingsUI() {
     ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.89.32').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.89.33').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('click', async () => {
       if ((settings[ключ] || []).length && !await уверены({ текст: ключ === 'musicLiked' ? 'Весь список понравившихся треков очистится.' : 'Весь список запрещённых треков очистится.', кнопка: 'Очистить' })) return;
       settings[ключ] = []; основа.saveSettings(); вкусМузыки();
-      import('./render/music.js?v=23.89.32').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      import('./render/music.js?v=23.89.33').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.32').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.33').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 

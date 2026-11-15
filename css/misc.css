@@ -4582,6 +4582,8 @@
 }
 /* Вкладки — закладки-ленты, торчащие из-под крышки. */
 .hud-cask-tabs { display: flex; flex-wrap: wrap; gap: 5px; padding: 10px 0 10px; justify-content: center; }
+/* Письма в современности (era.js, «Связь в современности»): раздел один — без закладок. */
+.hud-cask.is-letters .hud-cask-tabs { display: none !important; }
 .hud-cask-tab {
   position: relative; display: inline-flex; align-items: center; gap: 5px; cursor: pointer; user-select: none;
   padding: 5px 11px 7px; font-size: .9em; color: var(--tab-ink);

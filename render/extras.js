@@ -4,9 +4,10 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.89.32';
-import { settings } from '../settings.js?v=23.89.32';
-import { аватаркаПоИмени } from './views.js?v=23.89.32';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.89.33';
+import { settings } from '../settings.js?v=23.89.33';
+import { аватаркаПоИмени } from './views.js?v=23.89.33';
+import { магияВМире } from '../era.js?v=23.89.33';
 
 // Умения спутника — не больше четырёх: модель копит их ходами, и в карточке
 // выстраивалась стена пилюль. Короткие (до шести слов) — вперёд, в порядке
@@ -103,13 +104,15 @@ const ШКАЛЫ = [
   { к: 'awake', rx: /бодр|сонлив|^awk|alert|wakeful|sleepiness/i, имя: 'Бодрость', c: '#6fb7ff' },
   { к: 'food', rx: /сыт|голод|^sat|hunger|fullness|satiety/i, имя: 'Сытость', c: '#f08a4b' },
   { к: 'stress', rx: /стресс|напряж|^str|tension/i, имя: 'Стресс', c: '#ef5a6e' },
+  // Мана (render/powers.js) — только когда в мире есть магия; иначе метка уходит в заметку.
+  { к: 'mana', rx: /^мана|^mn$|^mana/i, имя: 'Мана', c: '#7fd6cf', фэнтези: true },
 ];
 export function разобратьСостояниеТела(value) {
   const шкалы = [], текст = { сон: '', дела: '', прочее: [] };
   String(value || '').split(/;|\n/).map(s => s.trim()).filter(Boolean).forEach(часть => {
     const m = часть.match(/^([^:]{1,24}):\s*(.+)$/);
     const метка = m ? m[1].trim() : '', тело = m ? m[2].trim() : часть;
-    const ш = ШКАЛЫ.find(x => x.rx.test(метка));
+    const ш = ШКАЛЫ.find(x => x.rx.test(метка) && (!x.фэнтези || магияВМире()));
     if (ш) {
       const n = число(тело);
       const слово = тело.replace(/^\s*-?\d+(?:[.,]\d+)?\s*%?\s*[—–:-]?\s*/, '').trim();

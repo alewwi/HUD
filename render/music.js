@@ -17,19 +17,20 @@
 // версии HUD, и сохраняется в файле чата. Запрос идёт с флагом
 // window.__tavernOSHudSkipInject: инструкция HUD в него не попадает.
 
-import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.32';
-import { settings } from '../settings.js?v=23.89.32';
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.32';
-import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.89.32';
-import { hudHasCombat } from './combat.js?v=23.89.32';
-import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.89.32';
-import { английский } from '../i18n.js?v=23.89.32';
-import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.89.32';
-import { ключСообщения } from '../chronicle.js?v=23.89.32';
+import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.33';
+import { settings } from '../settings.js?v=23.89.33';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.33';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.33';
+import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.89.33';
+import { hudHasCombat } from './combat.js?v=23.89.33';
+import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.89.33';
+import { английский } from '../i18n.js?v=23.89.33';
+import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.89.33';
+import { ключСообщения } from '../chronicle.js?v=23.89.33';
 import { норм, нормНазв, ключТрека, вСписке, переключить, безЗапрещённых, строкиВкуса, языкПесен, правилоЯзыка, мемныйРежим, правилоМемов,
-  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.89.32';
-import { станцииСцены } from './music-radio.js?v=23.89.32';
-import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.89.32';
+  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.89.33';
+import { станцииСцены } from './music-radio.js?v=23.89.33';
+import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.89.33';
 
 export { музыкаХода, норм, нормНазв };
 
@@ -117,7 +118,7 @@ export function родНастроения(s) {
 const НЕТ_БЛИЗОСТИ = /^(?:нет|none|no|off|вне сцены|нет сцены|—|-|n\/a)$/i;
 
 /** Сцена из разобранного HUD: то, по чему сравниваем, и то, что уйдёт в запрос. */
-export function сценаИзHUD(data, эра = settings.era) {
+export function сценаИзHUD(data, эра = основаЭпохи()) {
   const d = data && typeof data === 'object' ? data : {};
   const sc = d.scene || {};
   const люди = (Array.isArray(d.characters) ? d.characters : []).filter(c => c && typeof c === 'object');
@@ -692,7 +693,7 @@ async function собратьКонтекстМузыки(ctx, chat, индек�
   let карточка = null, персона = '';
   if (нуженПомощник) {
     try {
-      const A = await import('./assistant.js?v=23.89.32');
+      const A = await import('./assistant.js?v=23.89.33');
       if (settings.musicIncludeCard === true) карточка = A.карточкаПерсонажа(ctx);
       if (settings.musicIncludePersona === true) персона = A.персонаИгрока(ctx);
     } catch (e) { console.warn('[TavernOS HUD] музыка: карточка и персона', e); }
@@ -905,7 +906,7 @@ const ВИНИЛ = 'noir mafia academia cottage vamp witch egypt voodoo western 
 export function видПолосы() {
   const v = settings.musicStyle;
   if (v === 'cassette' || v === 'vinyl' || v === 'scroll') return v;
-  if (settings.era === 'medieval' || settings.themePreset === 'medieval') return 'scroll';
+  if (старина() || settings.themePreset === 'medieval') return 'scroll';
   return ВИНИЛ.includes(settings.themePreset) ? 'vinyl' : 'cassette';
 }
 
