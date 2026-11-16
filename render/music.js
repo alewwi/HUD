@@ -17,20 +17,20 @@
 // версии HUD, и сохраняется в файле чата. Запрос идёт с флагом
 // window.__tavernOSHudSkipInject: инструкция HUD в него не попадает.
 
-import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.49';
-import { settings } from '../settings.js?v=23.89.49';
-import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.49';
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.49';
-import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.89.49';
-import { hudHasCombat } from './combat.js?v=23.89.49';
-import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.89.49';
-import { английский } from '../i18n.js?v=23.89.49';
-import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.89.49';
-import { ключСообщения } from '../chronicle.js?v=23.89.49';
+import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.50';
+import { settings } from '../settings.js?v=23.89.50';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.50';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.50';
+import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.89.50';
+import { hudHasCombat } from './combat.js?v=23.89.50';
+import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.89.50';
+import { английский } from '../i18n.js?v=23.89.50';
+import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.89.50';
+import { ключСообщения } from '../chronicle.js?v=23.89.50';
 import { норм, нормНазв, ключТрека, вСписке, переключить, безЗапрещённых, строкиВкуса, языкПесен, правилоЯзыка, мемныйРежим, правилоМемов,
-  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.89.49';
-import { станцииСцены } from './music-radio.js?v=23.89.49';
-import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.89.49';
+  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.89.50';
+import { станцииСцены } from './music-radio.js?v=23.89.50';
+import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.89.50';
 
 export { музыкаХода, норм, нормНазв };
 
@@ -693,7 +693,7 @@ async function собратьКонтекстМузыки(ctx, chat, индек�
   let карточка = null, персона = '';
   if (нуженПомощник) {
     try {
-      const A = await import('./assistant.js?v=23.89.49');
+      const A = await import('./assistant.js?v=23.89.50');
       if (settings.musicIncludeCard === true) карточка = A.карточкаПерсонажа(ctx);
       if (settings.musicIncludePersona === true) персона = A.персонаИгрока(ctx);
     } catch (e) { console.warn('[TavernOS HUD] музыка: карточка и персона', e); }

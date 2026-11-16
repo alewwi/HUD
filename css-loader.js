@@ -18,8 +18,8 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.89.49';
-import { естьПодМагию } from './era.js?v=23.89.49';
+import { settings } from './settings.js?v=23.89.50';
+import { естьПодМагию } from './era.js?v=23.89.50';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';
@@ -38,7 +38,10 @@ export const ЧАСТИ = [
   // Свои статы (custom-stats.js) — только когда они заведены.
   ['custom-stats', (s) => s.customStatsOn !== false && Array.isArray(s.customStats) && s.customStats.length > 0],
   ['music', (s) => s.enableMusic === true],
-  ['deco'], ['scenes'], ['season-plus'], ['story-layers'], ['holiday-day'], ['scene-body'],
+  ['deco'], ['scenes'], ['season-plus'],
+  // Облик сцены погоды (render/scene-era.js): технологии мира и магия.
+  ['scene-era', (s) => (s.techLevel && !['auto', 'modern', 'preindustrial'].includes(s.techLevel)) || s.magicPresence === 'hidden' || s.era === 'fantasy-modern' || s.era === 'fantasy-medieval'],
+  ['story-layers'], ['holiday-day'], ['scene-body'],
   // В xray.css и шкала темпа (.hud-tempo), не только рентген.
   ['xray', (s) => s.enableTempo !== false],
   ['scene-clock', (s) => s.enableSceneClock !== false],

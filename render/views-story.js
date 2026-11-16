@@ -17,11 +17,11 @@
 // Конечный вид рисуется сразу: анимации HUD держит на паузе, пока на вид не
 // навели мышь или не нажали (css/views.css), — петли и на паузе законченны.
 
-import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.49';
-import { лицоЧеловека as лицо } from './views.js?v=23.89.49';
-import { normalizeDiaryMood } from './diary.js?v=23.89.49';
-import { relationVisualMeta, classifyRelationVisual, parseRelationList } from './relations-graph.js?v=23.89.49';
-import { namesLikelySame } from '../names.js?v=23.89.49';
+import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.50';
+import { лицоЧеловека as лицо } from './views.js?v=23.89.50';
+import { normalizeDiaryMood } from './diary.js?v=23.89.50';
+import { relationVisualMeta, classifyRelationVisual, parseRelationList } from './relations-graph.js?v=23.89.50';
+import { namesLikelySame } from '../names.js?v=23.89.50';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const ф = (n) => Number(n).toFixed(1);

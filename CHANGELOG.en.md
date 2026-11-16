@@ -4,6 +4,22 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.50 — 2026-11-16
+
+### Added
+- **A weather scene that fits the world.** The scene at the top now follows the world's technology and magic in all four seasons, by day and by night. The plain medieval and modern scenes stay as they were.
+  - **Primitive technology:** hide tents, standing stones, a dugout canoe, a fish-drying rack, a hide shelter, round huts. Houses, lamps, the lighthouse, boats, the scarecrow and the windmill are gone.
+  - **Industrial:** brick houses, a smoking factory, a gas lamp, a steamship, a bathing machine on wheels, a steam train, an airship.
+  - **Future:** domes, towers with lights, a light pylon, a hoverboard, a drone, a solar canopy, wind turbines, a greenhouse dome, a robot instead of the scarecrow.
+  - **Spells:** a mage tower with a crystal, a magic circle in the snow, a dragon, glowing crystals on the sand, a witch on a broom, a ring of glowing mushrooms, a floating island with a waterfall, fairies over the flowers.
+  - **Gifts and spirits:** a stone lantern, a spirit fox, a water arc over the sea, paper lanterns on the water, a whirl of leaves, a spirit deer, floating boulders, a wayside shrine.
+  - **Hidden magic:** a hint you barely notice by day — a fairy ring of mushrooms, a sign on the water, a circle in the snow; at night it shows a little more.
+  - Windows, lamps and magic glow above the night shade. Tap the scene and it comes alive: the dragon beats its wings, the train runs on its rails, smoke rolls, and the light moves with the drawing.
+  - On a narrow card, tents and domes no longer sink into the snowdrifts, and the mage tower and the floating island are not hidden behind houses and treetops.
+
+### Changed
+- The "Technology" setting now also changes the weather scene, so cards are redrawn at once.
+
 ## 23.89.49 — 2026-11-16
 
 ### Changed

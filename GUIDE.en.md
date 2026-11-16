@@ -116,7 +116,7 @@ The model writes one block per reply:
 ### Era, technology and magic
 Three independent settings (Settings → HUD blocks → "Era, technology and magic") build almost any world:
 - **Era** — modern (phone and intercepts) or medieval (casket and overheard talk).
-- **Technology** — from the card and lorebook, primitive, pre-industrial, industrial, modern or future. It tells the model what the world lacks; the pair of blocks is chosen by the era.
+- **Technology** — from the card and lorebook, primitive, pre-industrial, industrial, modern or future. It tells the model what the world lacks and sets the look of the weather scene (tents, factories, domes); the pair of blocks is chosen by the era.
 - **Magic** — none, hidden from society (the world looks ordinary and blocks keep their look — though any block can be restyled "for magic" in Customization → Era look) or open to all (a fantasy era: block styling changes). And its kind: spells or innate powers.
 
 The world's particulars — who wields magic, what it is called, what it cannot do — the model takes from the card and lorebook; the settings only set the frame. Magic does not by itself mean portals, scrolls and spells.

@@ -1,0 +1,390 @@
+/* =========================================================================
+   ОБЛИК СЦЕНЫ ПОГОДЫ ПО ЭПОХЕ (render/scene-era.js)
+   Технологии мира (tech-primitive / tech-industrial / tech-future) прячут то,
+   чего в нём нет, и ставят своё; магия (magic-high / magic-grounded /
+   magic-hidden) добавляет поверх. Обычное средневековье — css/misc.css
+   (.era-medieval), современность — сама сцена.
+   Рисунки — в сцене (.hud-se), их свет — в слое огней над ночным
+   затемнением (.hud-se-l внутри .hud-fx-lights, смешение screen).
+   ========================================================================= */
+.hud-se { position: absolute; inset: 0; pointer-events: none; }
+.hud-se-p { position: absolute; pointer-events: none; }
+.hud-se-p > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+/* Твёрдые предметы темнеют ночью, как вся сцена. */
+.hud-se:not(.hud-se-l) .hud-se-p {
+  filter: brightness(calc(1 - var(--scene-night-strength, 0) * .16)) saturate(calc(.92 - var(--scene-night-strength, 0) * .15));
+}
+/* Свет: окна и фонари — ночью; магия видна и днём, ночью ярче. */
+.hud-se-l .hud-se-p { opacity: var(--scene-night-strength, 0); }
+.hud-se-l :is(.se-tower, .se-circle, .se-crystals, .se-broom, .se-fring, .se-fox, .se-waterarc, .se-deer) { opacity: calc(.12 + var(--scene-night-strength, 0) * .75); }
+.hud-se-l :is(.se-floats, .se-lantern, .se-shrine, .se-gaslamp) { opacity: calc(.08 + var(--scene-night-strength, 0) * .75); }
+
+/* Мягкая тень в точке опоры. Ночные двойники содержат только свет. */
+.hud-se:not(.hud-se-l) :is(.se-tent, .se-shelter, .se-row, .se-dome, .se-gaslamp, .se-pylon,
+  .se-stones, .se-rack, .se-hut, .se-factory, .se-towers, .se-greenhouse, .se-turbine,
+  .se-bathing, .se-canopy, .se-robo, .se-tower, .se-crystals, .se-lantern, .se-shrine)::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: -12%;
+  bottom: -8%;
+  height: 16%;
+  border-radius: 50%;
+  background: radial-gradient(ellipse, var(--se-shadow, #30294069), transparent 71%);
+}
+.hud-se:not(.hud-se-l) .hud-se-p > svg { position: relative; }
+.hud-se.is-spring { --se-shadow: #2d4b3773; }
+.hud-se.is-summer { --se-shadow: #68453373; }
+.hud-se.is-autumn { --se-shadow: #49334080; }
+
+/* Рельеф за дальними предметами уходит вниз в существующий склон.
+   Верх гребня подведён к уровню их подножия в каждом сезоне. */
+.hud-se:not(.hud-se-l):is(.is-autumn, .is-winter, .is-spring):has(
+  :is(.se-train, .se-towers, .se-factory, .se-stones, .se-tower, .se-hut, .se-greenhouse)
+)::before {
+  content: "";
+  position: absolute;
+  z-index: 0;
+  left: var(--se-shelf-left);
+  right: var(--se-shelf-right);
+  bottom: var(--se-shelf-bottom);
+  height: var(--se-shelf-height);
+  clip-path: polygon(0 46%, 7% 29%, 16% 13%, 23% 9%, 39% 9%, 54% 4%, 69% 5%, 80% 9%, 90% 22%, 97% 38%, 100% 57%, 100% 100%, 0 100%);
+  background: linear-gradient(180deg, var(--se-shelf-crest) 0 12%, var(--se-shelf-face) 75%);
+  filter: brightness(calc(1 - var(--scene-night-strength, 0) * .5)) saturate(calc(1 - var(--scene-night-strength, 0) * .4));
+  mask-image: linear-gradient(#000 0 30%, #000b 66%, transparent 100%);
+}
+.hud-se.is-autumn {
+  --se-shelf-left: 13%; --se-shelf-right: 15%; --se-shelf-bottom: 5%; --se-shelf-height: 19%;
+  --se-shelf-crest: #8a6a3f; --se-shelf-face: #6b4f2c;
+}
+.tech-future .hud-se.is-autumn { --se-shelf-left: 53%; --se-shelf-right: 13%; }
+.hud-se.is-winter {
+  --se-shelf-left: 39%; --se-shelf-right: 21%; --se-shelf-bottom: 6%; --se-shelf-height: 16%;
+  --se-shelf-crest: #dbe6f2; --se-shelf-face: #c3d2e4;
+}
+.hud-se.is-spring {
+  --se-shelf-left: 28%; --se-shelf-right: 29%; --se-shelf-bottom: 18%; --se-shelf-height: 13%;
+  --se-shelf-crest: #5a9b52; --se-shelf-face: #457c3f;
+}
+.tech-industrial .hud-se.is-spring { --se-shelf-left: 47%; --se-shelf-right: 32%; }
+
+/* ───────────── что прятать ───────────── */
+.tech-primitive :is(.hud-winter-house, .hud-era-castle, .hud-sp-lamp, .hud-spl-lamp, .hud-sp-sled, .hud-sp-lighthouse, .hud-spl-lighthouse, .hud-sailboat, .hud-rowboat, .hud-fishnet,
+  .hud-sp-scarecrow, .hud-sp-pumpkins, .hud-sp-lantern, .hud-spl-lantern, .hud-sp-farm, .hud-sp-mill, .hud-watering-can, .hud-birdhouse, .hud-sp-kite, .hud-fence),
+.tech-industrial :is(.hud-winter-house, .hud-era-castle, .hud-sp-lamp, .hud-spl-lamp, .hud-surfboard, .hud-surfboard-shadow, .hud-volleyball-net, .hud-volleyball, .hud-towel, .hud-towel-shadow,
+  .hud-sailboat, .hud-sp-lantern, .hud-spl-lantern, .hud-sp-mill),
+.tech-future :is(.hud-winter-house, .hud-era-castle, .hud-sp-lamp, .hud-spl-lamp, .hud-surfboard, .hud-surfboard-shadow, .hud-umbrella, .hud-sp-scarecrow, .hud-sp-lantern, .hud-spl-lantern,
+  .hud-sp-mill, .hud-sp-farm, .hud-watering-can),
+.magic-high .hud-era-castle { display: none !important; }
+
+/* Старинные варианты, у которых уже есть собственная разметка. */
+.tech-preindustrial .hud-era-castle {
+  opacity: .82;
+  filter: brightness(calc(1 - var(--scene-night-strength, 0) * .22));
+}
+.tech-preindustrial .hud-castle-art .cs-hill { fill: #d8e0ea; }
+.tech-preindustrial .hud-castle-art .cs-tower { fill: #9eaabd; stroke: #d3dce7; stroke-width: .45; }
+.tech-preindustrial .hud-castle-art .cs-keep { fill: #7e8ca4; stroke: #bbc7d7; stroke-width: .55; }
+.tech-preindustrial .hud-castle-art .cs-cone { fill: #5f728e; }
+.tech-preindustrial .hud-castle-art .cs-wall { fill: #92a5ba; }
+.tech-preindustrial .hud-castle-art .cs-road { stroke: #8f9aab78; }
+.tech-preindustrial .hud-castle-art .cs-flag { fill: #a06b7a; }
+.tech-preindustrial .hud-iz-art .iz-snow { fill: #ebf1fa; stroke: #cbd8e8; }
+.tech-preindustrial .hud-iz-art .iz-roof { fill: #584b49; }
+.tech-preindustrial .hud-iz-art .iz-gable { fill: #7a655b; }
+.tech-preindustrial .hud-iz-art .iz-log { fill: #906f53; }
+.tech-preindustrial .hud-iz-art .iz-log.t2 { fill: #765949; }
+.tech-preindustrial .hud-iz-art .iz-end { fill: #ba9a75; }
+.tech-preindustrial .hud-iz-art .iz-trim { fill: #d5bea2; stroke: #695b5d; }
+.tech-preindustrial .hud-iz-art .iz-glow { fill: #ffc683; }
+.tech-preindustrial .hud-sp-sled.is-era .w-deck { fill: #a88664; }
+.tech-preindustrial .hud-sp-sled.is-era .w-runner { fill: #90664a; stroke: #664e43; }
+.tech-preindustrial .hud-sp-sled.is-era .w-slat { stroke: #654839; stroke-width: .75; }
+:is(.tech-preindustrial, .tech-primitive) .hud-sm-era .pot { fill: #a66b58; stroke: #66493f; }
+:is(.tech-preindustrial, .tech-primitive) .hud-sm-era .pot-rim { fill: #80554c; }
+:is(.tech-preindustrial, .tech-primitive) .hud-sm-era .sash { fill: #b79772; }
+:is(.tech-preindustrial, .tech-primitive) .hud-sandcastle.is-svg .bk { fill: #a17d5a; }
+:is(.tech-preindustrial, .tech-primitive) .hud-sandcastle.is-svg .bk-rim { stroke: #655b5b; }
+:is(.tech-preindustrial, .tech-primitive) .hud-sandcastle.is-svg .sp-b { fill: #ae8d67; }
+.tech-preindustrial .hud-rowboat-hull {
+  background: repeating-linear-gradient(176deg, #ffdfa62c 0 1px, transparent 1px 4px, #5033216b 4px 5px),
+    linear-gradient(155deg, #b68c61, #7c5942 55%, #514034);
+  box-shadow: inset -8px -2px 6px #51392a70, inset 0 2px #c49b72;
+}
+.tech-preindustrial .hud-rowboat-keel { background: #634a38; }
+.tech-preindustrial .hud-rowboat-oar { background: linear-gradient(#c8a67a, #785b47); }
+.tech-preindustrial .hud-fishnet-stake { background: linear-gradient(90deg, #b38f6d, #73503c 65%, #4f4038); }
+.tech-preindustrial .hud-fishnet-mesh {
+  border-top-color: #a2835e;
+  background: repeating-linear-gradient(47deg, transparent 0 4px, #7d634a9e 4px 5px),
+    repeating-linear-gradient(-51deg, transparent 0 4px, #a88b64bb 4px 5px);
+  mask-image: linear-gradient(180deg, #000 0 76%, transparent);
+}
+.tech-preindustrial .hud-fishnet-float {
+  background: radial-gradient(circle at 32% 25%, #e3bd89, #a87849 63%, #795339);
+  box-shadow: 34px 3px #aa7f50, 62px 1px #aa7f50;
+}
+
+/* ───────────── краски света ───────────── */
+.hud-se-p .w { fill: #ffd98a; }
+.hud-se-p .w-line { stroke: #ffd98a; }
+.hud-se-l .gl-cyan { fill: #6fdcff; opacity: .55; filter: blur(3px); }
+.hud-se-l .gl-cyan.s { opacity: .4; }
+.hud-se-l .gl-violet { fill: #a77bff; opacity: .55; filter: blur(3px); }
+.hud-se-l .gl-violet.faint { opacity: .3; }
+.hud-se-l .gl-amber { fill: #ffb24a; opacity: .6; filter: blur(3px); }
+.hud-se-l .gl-teal { fill: #7ff0d8; opacity: .45; filter: blur(3.4px); }
+.hud-se-l .gl-fire { fill: #ff8a3a; opacity: .5; filter: blur(3px); }
+.hud-se-l .hot { fill: #ffe2a0; }
+.hud-se-l .hot-cyan { fill: #c8f6ff; }
+.hud-se-l .hot-violet { fill: #e6d8ff; }
+.hud-se-l .hot-amber { fill: #ffd27a; }
+.hud-se-l .hot-fire { fill: #ffb05a; }
+.hud-se-l .hot-red { fill: #ff6a78; }
+.hud-se-l .hot-teal { fill: #c8fff2; stroke: #c8fff2; }
+.hud-se-l .hot-line { fill: none; stroke: #ffe2a0; stroke-width: 1.6; stroke-linecap: round; }
+.hud-se-l .hot-line-cyan { fill: none; stroke: #9ff0ff; stroke-width: 1.8; stroke-linecap: round; filter: blur(.6px); }
+.hud-se-l .beam { fill: rgba(255,226,160,.25); filter: blur(2px); }
+.hud-se-l .beam-cyan { fill: rgba(127,227,255,.14); filter: blur(2px); }
+
+/* ───────────── огоньки и феи ───────────── */
+.hud-se-motes { position: absolute; inset: 0; z-index: 9; }
+.hud-se-motes i { position: absolute; border-radius: 50%; animation: hud-se-float 7s ease-in-out infinite alternate; }
+.hud-se-motes.is-day i { width: 2.5px; height: 2.5px; background: #faf4ed; }
+.hud-se-motes.is-day.is-arcane i { background: #f5dfff; box-shadow: 0 0 5px 1px #b797e59c; }
+.hud-se-motes.is-day.is-arcane i:nth-child(2n) { background: #d9f7ff; box-shadow: 0 0 4px 1px #a5daefab; }
+.hud-se-motes.is-day.is-spirit i { width: 3px; height: 4px; border-radius: 45% 45% 60% 60% / 72% 72% 32% 32%; background: #d1eee1; box-shadow: 0 0 5px 1px #8ff0e099; }
+.hud-se-motes.is-day.is-hint i { width: 1.8px; height: 1.8px; opacity: .5; box-shadow: 0 0 4px 1px #aa82ff7d; }
+.hud-se-motes.is-glow i { width: 10px; height: 10px; margin: -3px 0 0 -3px; opacity: var(--scene-night-strength, 0); }
+.hud-se-motes.is-glow.is-arcane i { background: radial-gradient(circle, #fff 0 12%, #b48cff 30%, rgba(140,110,255,0) 70%); }
+.hud-se-motes.is-glow.is-arcane i:nth-child(2n) { background: radial-gradient(circle, #fff 0 12%, #7fe3ff 30%, rgba(127,227,255,0) 70%); }
+.hud-se-motes.is-glow.is-spirit i { background: radial-gradient(circle, #fff 0 12%, #8ff0e0 30%, rgba(143,240,224,0) 70%); }
+.hud-se-motes.is-glow.is-hint i { background: radial-gradient(circle, #f2e6ff 0 12%, #a47cff 30%, rgba(164,124,255,0) 70%); opacity: calc(var(--scene-night-strength, 0) * .7); }
+.hud-se-motes .m1 { left: 22%; top: 46%; } .hud-se-motes .m2 { left: 41%; top: 62%; animation-delay: -2s; } .hud-se-motes .m3 { left: 66%; top: 44%; animation-delay: -4s; }
+.hud-se-motes .m4 { left: 79%; top: 64%; animation-delay: -1s; } .hud-se-motes .m5 { left: 11%; top: 68%; animation-delay: -5s; } .hud-se-motes .m6 { left: 90%; top: 50%; animation-delay: -3s; }
+.hud-se-motes.is-hint .m1 { left: 67%; top: 72%; }
+@keyframes hud-se-float { from { transform: translate(0, 0); } to { transform: translate(6px, -10px); } }
+
+.hud-se-fairies { position: absolute; inset: 0; z-index: 9; }
+.hud-se-fairy { position: absolute; width: clamp(8px, 3%, 14px); aspect-ratio: 18 / 14; animation: hud-se-float 5s ease-in-out infinite alternate; }
+.hud-se-fairy svg { width: 100%; height: 100%; overflow: visible; }
+.hud-se-fairy .fw { fill: #e0eff7cd; stroke: #8fb8e8; stroke-width: .65; }
+.hud-se-fairy .fairy-veins { fill: none; stroke: #728ca8; stroke-width: .43; }
+.hud-se-fairy .fb { fill: #fff3b0; stroke: #e0a83a; stroke-width: .5; }
+.hud-se-fairies.is-glow .hud-se-fairy { opacity: calc(.4 + var(--scene-night-strength, 0) * .6); }
+.hud-se-fairy.f1 { left: 13%; bottom: 24%; } .hud-se-fairy.f2 { left: 34%; bottom: 18%; animation-delay: -2s; }
+.hud-se-fairy.f3 { left: 63%; bottom: 26%; animation-delay: -1s; } .hud-se-fairy.f4 { left: 87%; bottom: 20%; animation-delay: -3s; }
+
+/* ───────────── зима ───────────── */
+.hud-se.is-winter .se-tent { bottom: 8%; width: 14%; aspect-ratio: 50 / 44; z-index: 4; }
+.hud-se .se-tent.t1 { left: 15%; width: 12%; max-width: 66px; } .hud-se .se-tent.t2 { left: 31%; width: 12%; } .hud-se .se-tent.t3 { left: 76%; bottom: 12%; width: 9%; }
+.hud-se.is-winter .se-stones { left: 49%; bottom: 19%; width: 11%; aspect-ratio: 60 / 30; z-index: 1; }
+.hud-se .se-row { bottom: 8%; aspect-ratio: 70 / 46; z-index: 4; }
+.hud-se .se-row.w1 { left: 19%; width: 23%; max-width: 92px; } .hud-se .se-row.w2 { left: 76%; bottom: 12%; width: 12.5%; }
+.hud-se.is-winter .se-factory { left: 45%; bottom: 16%; width: 19%; aspect-ratio: 110 / 60; z-index: 1; }
+.hud-se .se-gaslamp { right: 7%; bottom: 5%; width: 4.4%; aspect-ratio: 30 / 90; z-index: 5; }
+.hud-se .se-dome { bottom: 8%; aspect-ratio: 60 / 34; z-index: 4; }
+.hud-se .se-dome.d1 { left: 11%; width: 18%; } .hud-se .se-dome.d2 { left: 31%; width: 11%; } .hud-se .se-dome.d3 { left: 76%; bottom: 12%; width: 10%; }
+.hud-se.is-winter .se-towers { left: 47%; bottom: 17%; width: 20%; aspect-ratio: 120 / 70; z-index: 1; }
+.hud-se .se-pylon { right: 7%; bottom: 5%; width: 3.2%; aspect-ratio: 20 / 90; z-index: 5; }
+.hud-se .se-tower { left: 68%; bottom: 15%; width: 5%; max-width: 30px; aspect-ratio: 44 / 96; z-index: 2; }
+.hud-se .se-circle { left: 44%; bottom: 1.5%; width: 22%; max-width: 120px; aspect-ratio: 120 / 24; z-index: 6; }
+.hud-scene-widget:not(:is(.phase-night, .phase-deep-night)) .hud-se .se-circle { display: none; }
+.hud-se .se-lantern { left: 37%; bottom: 2%; width: 4.3%; max-width: 23px; aspect-ratio: 26 / 44; z-index: 6; }
+.hud-se .se-fox { left: 60%; bottom: 2%; width: 11%; max-width: 57px; aspect-ratio: 48 / 36; z-index: 7; }
+.tech-primitive .hud-se.is-winter .se-lantern { left: 44%; }
+.tech-industrial .hud-se.is-winter .se-lantern { left: 44%; bottom: 1%; max-width: 18px; }
+.tech-future .hud-se.is-winter .se-lantern { left: 43%; bottom: 1%; }
+:is(.tech-industrial,.tech-future) .hud-se .se-fox { left: 68%; width: 7.5%; }
+
+/* ───────────── лето ───────────── */
+.hud-se .se-dugout { right: 5%; bottom: 3%; width: 24%; aspect-ratio: 90 / 20; z-index: 7; }
+.hud-se.is-summer .se-rack { left: 6%; bottom: 6%; width: 18%; aspect-ratio: 70 / 44; z-index: 7; }
+.hud-se .se-steamer { left: 14%; bottom: 29%; width: 12%; max-width: 64px; aspect-ratio: 60 / 30; z-index: 1; }
+.hud-se .se-bathing { left: 7%; bottom: 6%; width: 9%; aspect-ratio: 40 / 50; z-index: 7; }
+.hud-se .se-hover { left: 22%; bottom: 2%; width: 18%; max-width: 70px; aspect-ratio: 70 / 20; z-index: 8; }
+.hud-se.is-summer .se-drone { left: 87%; top: 18%; width: 7%; max-width: 40px; aspect-ratio: 36 / 18; z-index: 9; }
+.hud-se.is-summer .se-towers { left: 78%; bottom: 33%; width: 16%; max-width: 83px; aspect-ratio: 120 / 70; z-index: 0; opacity: .7; }
+.hud-se .se-canopy { right: 3%; bottom: 5%; width: 9%; max-width: 47px; aspect-ratio: 50 / 60; z-index: 7; }
+.hud-se .se-dragon { left: 73%; top: 40%; width: 16%; max-width: 80px; aspect-ratio: 80 / 36; z-index: 2; }
+.tech-future .hud-se .se-dragon { top: 29%; }
+.hud-se .se-crystals { left: 43%; bottom: 2%; width: 10%; aspect-ratio: 34 / 28; z-index: 8; }
+.hud-se .se-waterarc { left: 40%; bottom: 31%; width: 21%; max-width: 104px; aspect-ratio: 120 / 50; z-index: 2; }
+.hud-se .se-floats { left: 25%; bottom: 17%; width: 45%; max-width: 188px; aspect-ratio: 120 / 18; z-index: 3; }
+.tech-industrial .hud-se .se-floats { left: 41%; }
+.hud-se .se-glint { left: 30%; bottom: 25%; width: 11%; aspect-ratio: 40 / 12; z-index: 3; }
+.tech-industrial .hud-se .se-glint { left: 44%; }
+
+/* ───────────── осень ───────────── */
+.hud-se .se-shelter { left: 62%; bottom: 6%; width: 17%; max-width: 95px; aspect-ratio: 72 / 53; z-index: 4; }
+.hud-se .se-rack.r2 { left: 20%; bottom: 7%; width: 12%; aspect-ratio: 70 / 44; z-index: 4; }
+.hud-se .se-train { left: 22%; bottom: 18%; width: 26%; max-width: 118px; aspect-ratio: 110 / 30; z-index: 0; }
+.hud-se .se-factory.f2 { left: 61%; bottom: 20%; width: 17%; max-width: 90px; aspect-ratio: 110 / 60; z-index: 0; }
+.hud-se .se-gaslamp.g2 { right: auto; left: 12%; bottom: 7%; width: 3.8%; }
+.hud-se .se-robo { left: 55%; bottom: 8.5%; width: 8%; aspect-ratio: 40 / 60; z-index: 3; }
+.hud-se .se-pylon.p2 { right: auto; left: 14%; bottom: 6%; width: 2.8%; }
+.hud-se.is-autumn .se-towers { left: 63%; bottom: 20%; width: 16%; max-width: 98px; aspect-ratio: 120 / 70; z-index: 0; opacity: .7; }
+.hud-se .se-broom { right: 4%; top: 5%; width: 20%; max-width: 115px; aspect-ratio: 96 / 40; z-index: 2; }
+.hud-se .se-fring { left: 36%; bottom: 0; width: 18%; max-width: 100px; aspect-ratio: 80 / 24; z-index: 6; }
+.hud-se .se-whirl { left: 36%; bottom: 4%; width: 10%; max-width: 47px; aspect-ratio: 48 / 78; z-index: 8; }
+.tech-industrial .hud-se .se-whirl { left: 52%; width: 9%; }
+.hud-se .se-lantern.l2 { left: 48%; bottom: 2%; width: 4.3%; }
+.tech-industrial .hud-se .se-lantern.l2 { left: 46%; bottom: 1%; max-width: 18px; }
+.hud-se .se-deer { left: 80%; bottom: 14%; width: 8.5%; max-width: 48px; aspect-ratio: 48 / 42; z-index: 3; }
+
+/* ───────────── весна ───────────── */
+.hud-se .se-hut { bottom: 27%; aspect-ratio: 46 / 34; z-index: 1; }
+.hud-se .se-hut.u1 { left: 35%; width: 9%; } .hud-se .se-hut.u2 { left: 46%; bottom: 28%; width: 7%; }
+.hud-se .se-stones.s2 { left: 56%; bottom: 28%; width: 8%; aspect-ratio: 60 / 30; z-index: 1; }
+.hud-se .se-airship { left: 18%; top: 3%; width: 17%; aspect-ratio: 80 / 30; z-index: 2; }
+.hud-se .se-factory.f3 { left: 51%; bottom: 28%; width: 12%; aspect-ratio: 110 / 60; z-index: 1; }
+.hud-se .se-turbine { bottom: 28%; width: 4.4%; aspect-ratio: 40 / 90; z-index: 1; }
+.hud-se .se-turbine.u1 { left: 51%; } .hud-se .se-turbine.u2 { left: 58%; width: 3.4%; }
+.hud-se .se-greenhouse { left: 34%; bottom: 28%; width: 12%; aspect-ratio: 70 / 36; z-index: 1; }
+.hud-se .se-drone.d2 { left: 22%; top: 28%; width: 6.4%; aspect-ratio: 36 / 18; z-index: 9; }
+.hud-se .se-island { left: 67%; top: 20%; width: 15%; max-width: 80px; aspect-ratio: 80 / 66; z-index: 2; }
+.hud-se .se-rocks { left: 75%; bottom: 6%; width: 13%; max-width: 70px; aspect-ratio: 80 / 50; z-index: 6; }
+.hud-se .se-shrine { left: 36%; bottom: 5%; width: 6%; max-width: 30px; aspect-ratio: 30 / 40; z-index: 6; }
+.hud-se .se-fring.f2 { left: 58%; bottom: 3%; }
+
+/* На широкой плашке время у левого края, погода у правого. */
+@media (min-width: 601px) {
+  @container hud (min-width: 471px) {
+    .hud-se .se-broom { right: 36%; top: 5%; max-width: 85px; }
+    .hud-se.is-summer .se-drone { left: 72%; top: 4%; max-width: 34px; }
+    .hud-se.is-summer .se-towers { max-width: 62px; }
+    .hud-se .se-steamer { left: 8%; bottom: 25%; max-width: 56px; --se-boat-end: 50%; }
+    .hud-se .se-bathing { bottom: 3%; max-width: 24px; }
+    .tech-future .hud-se .se-dragon { left: 63%; top: 28%; }
+    .tech-industrial .hud-se.is-winter .se-lantern { left: 39%; }
+  }
+}
+
+/* ───────────── краски рисунков ───────────── */
+.se-tower .w { fill: #9fe9ff; } .se-tower .ring { fill: none; stroke: #9fe9ff; stroke-width: .7; stroke-dasharray: 2 1.6; }
+.hud-se-l .se-tower .ring-gl { fill: none; stroke: #c8f6ff; stroke-width: 1.2; stroke-dasharray: 2 1.6; filter: blur(.4px); }
+.se-circle .lines { fill: none; stroke: #8e78b3; stroke-width: .9; opacity: .63; }
+.se-circle .lines.faint { stroke: #8a7ab8; opacity: .16; }
+.hud-se-l .se-circle .lines-gl { fill: none; stroke: #d8c8ff; stroke-width: 1; filter: blur(.4px); }
+.hud-se-l .se-circle.is-faint { opacity: calc(var(--scene-night-strength, 0) * .3); }
+.se-dragon .d-eye { fill: #ffcf88; }
+.se-broom .b-trail { fill: none; stroke: rgba(170,140,255,.9); stroke-width: 1.2; stroke-dasharray: 2 2.4; }
+.hud-se-l .se-broom .trail-gl { fill: none; stroke: #d8c8ff; stroke-width: 2; stroke-dasharray: 2 2.4; filter: blur(.6px); }
+.se-broom .b-spark { fill: none; stroke: #dac7ff; stroke-width: .85; stroke-linecap: round; }
+.se-fring .f-stem { fill: #e4cec1; } .se-fring .f-cap { fill: #a479ad; stroke: #795a88; stroke-width: .45; } .se-fring .f-dot { fill: #f4e6ff; }
+.se-fring .faint .f-cap { fill: #a7744a; } .se-fring .faint .f-dot { fill: #e8d8c0; }
+.se-fring.f2 .faint .f-cap { fill: #9a9671; stroke: #757e67; }
+.hud-se-l .se-fring.is-faint { opacity: calc(var(--scene-night-strength, 0) * .35); }
+.se-island .i-grass { fill: #83955e; } .se-island .i-leaf { fill: #9daf6a; } .se-island .i-leaf.l2 { fill: #70864d; } .se-island .i-rock { fill: #837987; }
+.se-deer .o-horn { fill: none; stroke: #e1faf4d9; stroke-width: 1.1; stroke-linecap: round; }
+.hud-se-l .se-deer .hot-teal { stroke-width: 1.1; stroke-linecap: round; }
+.se-waterarc .a-drops circle { fill: #e8fbff; }
+.hud-se-l .se-waterarc .arc-gl { fill: none; stroke: #9ff0ff; stroke-width: 5; opacity: .45; filter: blur(2px); }
+.se-floats .p-cap { fill: #644334; }
+.se-floats .p-refl { opacity: .62; }
+.se-whirl .v-gust { fill: none; stroke: rgba(255,255,255,.7); stroke-width: 1; stroke-dasharray: 2 3; }
+.se-glint .sigil { fill: none; stroke: #e8dcff; stroke-width: .6; opacity: .14; }
+.hud-se-l .se-glint .sigil-gl { fill: none; stroke: #d8c8ff; stroke-width: 1; filter: blur(.5px); opacity: .7; }
+.hud-se-l .se-glint { opacity: calc(var(--scene-night-strength, 0) * .7); }
+.hud-se .se-steam { opacity: .65; filter: blur(.85px); }
+.hud-se .se-wake { fill: none; stroke: #d5f3f7; stroke-width: .85; stroke-linecap: round; opacity: .48; }
+.hud-se-l :is(.se-factory, .se-towers, .se-train) .hot,
+.hud-se-l .se-towers .hot-cyan { opacity: .58; }
+.hud-scene-widget:is(.weather-fog, .weather-storm) .hud-se-l {
+  opacity: .58;
+}
+.se-towers .w rect { fill: #9ff0ff; }
+.se-dome .ring-l { stroke: #2fb8f0; stroke-width: 1.2; fill: none; }
+
+/* Движение на рисунке и на его ночном свете должно совпадать. */
+.hud-se :is(.se-airship, .se-broom, .se-dragon, .se-drone, .se-island, .se-hover, .se-floats) > svg {
+  animation: hud-se-drift var(--se-period, 8s) ease-in-out infinite;
+}
+.hud-se .se-airship { --se-period: 17s; --se-dx: -23%; --se-dy: -6%; }
+.hud-se .se-broom { --se-period: 9s; --se-dx: -7%; --se-dy: 13%; --se-roll: -3deg; }
+.hud-se .se-dragon { --se-period: 7s; --se-dx: 8%; --se-dy: -11%; --se-roll: 2deg; }
+.hud-se .se-drone { --se-period: 6s; --se-dx: -9%; --se-dy: 10%; --se-roll: -4deg; }
+.hud-se .se-island { --se-period: 13s; --se-dx: 2%; --se-dy: -6%; }
+.hud-se .se-hover { --se-period: 4.5s; --se-dy: -13%; --se-roll: 1.2deg; }
+.hud-se .se-floats { --se-period: 9s; --se-dx: 6%; --se-dy: -5%; }
+
+/* Корпус, огни и кильватер идут по одному маршруту вдоль горизонта. */
+.hud-se .se-steamer > svg { animation: hud-se-cross-water 24s linear -13s infinite; }
+
+.hud-se .se-steam { animation: hud-se-steam 5.8s ease-in-out infinite; transform-box: fill-box; transform-origin: 12% 92%; }
+.hud-se .se-steamer .se-steam { transform-origin: 92% 95%; }
+.hud-se .se-train-cars { animation: hud-se-travel 18s linear -9s infinite; }
+.hud-se .se-train-wheel { animation: hud-se-turn var(--se-wheel-period) linear infinite reverse; transform-origin: 0 0; }
+.hud-se .se-reflected-light { opacity: .55; animation: hud-se-reflection 12s ease-in-out infinite; }
+.hud-se .se-tower :is(.ring, .ring-gl) { animation: hud-se-roof-ring 9s linear infinite; }
+.hud-se-l :is(.se-factory, .se-towers, .se-hut, .se-greenhouse) svg > :is(.hot, .hot-cyan, .hot-fire, .gl-violet) {
+  animation: hud-se-breathe 9s ease-in-out infinite;
+}
+.hud-se .se-blades { animation: hud-se-turn 12s linear infinite; transform-origin: 20px 26px; }
+.hud-se .se-turbine.u2 .se-blades { animation-duration: 15s; animation-delay: -3s; }
+.hud-se .se-waterflow { animation: hud-se-flow 4s linear infinite; }
+.hud-se .se-lift { animation: hud-se-lift 6s ease-in-out var(--se-delay, 0s) infinite; }
+.hud-se .se-tail { animation: hud-se-tail 5s ease-in-out infinite; transform-origin: 27px 29px; }
+.hud-se .se-breathe,
+.hud-se-l :is(.se-lantern, .se-shrine, .se-gaslamp, .se-tent, .se-circle, .se-deer, .se-pylon, .se-fring, .se-crystals) > svg {
+  animation: hud-se-breathe 5s ease-in-out infinite;
+}
+.hud-se .b-spark, .hud-se .se-leaves { animation: hud-se-lift 4.6s ease-in-out infinite; }
+.hud-se .se-circle-flow { stroke: #f1ddff; stroke-width: 1.2; stroke-dasharray: 2 8; animation: hud-se-flow 13s linear infinite; }
+.hud-se .se-wing { animation: hud-se-wing 2.8s ease-in-out infinite; transform-origin: 41px 22px; }
+.hud-se .fw { animation: hud-se-wing 1.1s ease-in-out infinite; transform-origin: 9px 7px; }
+.hud-se .se-cloth { animation: hud-se-tail 4.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 10%; }
+.hud-se .se-cloak { animation: hud-se-tail 4.2s ease-in-out infinite; transform-origin: 63px 14px; }
+.hud-se .se-splash { animation: hud-se-breathe 2.8s ease-in-out infinite; }
+.hud-se .se-rotors { animation: hud-se-breathe 1.2s ease-in-out infinite; }
+.hud-se :is(.se-drone, .se-robo, .se-towers) .hot-red { animation: hud-se-breathe 3.9s ease-in-out infinite; }
+
+.hud-scene-widget:not(.fx-active) :is(.hud-se, .hud-se *) { animation-play-state: paused !important; }
+.hud-scene-widget.fx-active .hud-fx-lights :is(.hud-se-l, .hud-se-l *) { animation-play-state: running !important; }
+
+@keyframes hud-se-drift {
+  0%, 100% { transform: translate(0, 0) rotate(0); }
+  50% { transform: translate(var(--se-dx, 0), var(--se-dy, 0)) rotate(var(--se-roll, 0deg)); }
+}
+@keyframes hud-se-cross-water {
+  0% { opacity: 0; transform: translateX(-155%); }
+  16%, 84% { opacity: 1; }
+  100% { opacity: 0; transform: translateX(var(--se-boat-end, 112%)); }
+}
+@keyframes hud-se-steam {
+  0%, 100% { opacity: .48; transform: scale(.94) skewX(-3deg); }
+  50% { opacity: .72; transform: scale(1.12) skewX(4deg); }
+}
+@keyframes hud-se-turn { to { transform: rotate(360deg); } }
+@keyframes hud-se-travel {
+  from { transform: translateX(125px); }
+  to { transform: translateX(-116px); }
+}
+@keyframes hud-se-reflection { 0%, 100% { opacity: .3; } 50% { opacity: .85; } }
+@keyframes hud-se-roof-ring { to { stroke-dashoffset: -36; } }
+@keyframes hud-se-flow { to { stroke-dashoffset: -50; } }
+@keyframes hud-se-breathe { 50% { opacity: .58; } }
+@keyframes hud-se-lift { 50% { transform: translateY(-2.5px); } }
+@keyframes hud-se-tail { 50% { transform: rotate(-5deg); } }
+@keyframes hud-se-wing { 50% { transform: scaleY(.68) rotate(-5deg); } }
+
+@media (prefers-reduced-motion: reduce) { .hud-se, .hud-se * { animation: none !important; } }
+
+/* Узкая карточка: башню мага не закрывают дома и ели, остров — крона. */
+@media (max-width: 600px) {
+  .hud-se .se-tower { left: 71%; bottom: 17%; width: 8%; }
+  .hud-se .se-island { left: 73%; top: 8%; width: 23%; }
+  /* Низкие шатры и купола иначе тонут в переднем сугробе. */
+  .hud-se.is-winter :is(.se-tent, .se-dome) { bottom: 14%; z-index: 8; }
+  .hud-se.is-winter :is(.se-tent.t3, .se-dome.d3) { bottom: 16%; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-se .se-tower { left: 71%; bottom: 17%; width: 8%; }
+  .hud-se .se-island { left: 73%; top: 8%; width: 23%; }
+  /* Низкие шатры и купола иначе тонут в переднем сугробе. */
+  .hud-se.is-winter :is(.se-tent, .se-dome) { bottom: 14%; z-index: 8; }
+  .hud-se.is-winter :is(.se-tent.t3, .se-dome.d3) { bottom: 16%; }
+} }
+/* cq ↑ */
