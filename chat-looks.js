@@ -24,16 +24,16 @@
 //
 // Картинка фона в снимок не входит: она тяжёлая (до 3 МБ) и общая.
 
-import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.51';
-import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.51';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.51';
-import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.51';
-import { escapeHtml } from './utils.js?v=23.89.51';
-import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.51';
+import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.52';
+import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.52';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.52';
+import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.52';
+import { escapeHtml } from './utils.js?v=23.89.52';
+import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.52';
 
 // Эпоха — тоже вид истории: в средневековом чате нет телефона.
 const ЭПОХА = ['era', 'fantasyMagic', 'magicPresence', 'techLevel', 'modernComms', 'eraModern', 'eraMagic'];
-const ЕЩЁ = ['themePreset', 'themePalette', 'iconSet', 'glassType', 'themeScene', 'noImages', 'headerOrnament', 'avatarDeco', 'avatarShape', 'sceneHidden',
+const ЕЩЁ = ['themePreset', 'themePalette', 'iconSet', 'glassType', 'themeScene', 'noImages', 'headerOrnament', 'avatarDeco', 'avatarShape', 'sceneHidden', 'petPortrait',
   // Вкладки (Кастомизация → Вкладки): порядок, закреплённые, скрытые.
   'tabOrder', 'tabPinned', 'tabHidden',
   // Что стояло до «Минимализма»: снять его в чате — вернуть вид этого чата.

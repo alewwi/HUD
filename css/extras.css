@@ -669,7 +669,7 @@
 .hud-pet2-band .pat { position: absolute; inset: 0; opacity: .9;
   background: radial-gradient(circle at 50% 60%, var(--pat) 0 2.4px, transparent 2.8px) 0 0 / 22px 20px; }
 /* Следы лап — у зверей. */
-.hud-pet2:is(.k-cat, .k-dog, .k-fox, .k-bear, .k-rabbit, .k-rodent) .hud-pet2-band .pat {
+.hud-pet2:is(.k-cat, .k-dog, .k-fox, .k-bear, .k-rabbit, .k-rodent, .k-lion, .k-wolf, .k-lynx) .hud-pet2-band .pat {
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 34'%3E%3Cg fill='%23fff' fill-opacity='.16'%3E%3Cpath d='M9 15c-2.6 0-4.6-1.8-4.6-3.6S6.8 8 9 8s4.6 2 4.6 3.4S11.6 15 9 15Z'/%3E%3Ccircle cx='4.2' cy='5.6' r='1.6'/%3E%3Ccircle cx='7.4' cy='3.2' r='1.6'/%3E%3Ccircle cx='11' cy='3.2' r='1.6'/%3E%3Ccircle cx='14' cy='5.6' r='1.6'/%3E%3Cpath d='M29 31c-2.6 0-4.6-1.8-4.6-3.6S26.8 24 29 24s4.6 2 4.6 3.4S31.6 31 29 31Z'/%3E%3Ccircle cx='24.2' cy='21.6' r='1.6'/%3E%3Ccircle cx='27.4' cy='19.2' r='1.6'/%3E%3Ccircle cx='31' cy='19.2' r='1.6'/%3E%3Ccircle cx='34' cy='21.6' r='1.6'/%3E%3C/g%3E%3C/svg%3E");
   background-size: 40px 34px; transform: rotate(-12deg) scale(1.3); }
 /* Перья — у птиц. */
@@ -691,16 +691,19 @@
 
 /* Портрет. */
 .hud-pet2-ava { position: relative; font-size: 0; overflow: hidden; }
-.hud-pet2-face { width: 86%; height: 86%; margin-top: 6%; overflow: visible; animation: hud-pet-breathe 4.2s ease-in-out infinite; transform-origin: 50% 90%; }
+.hud-pet2-face { width: 86%; height: 86%; margin: 0; overflow: visible; animation: hud-pet-breathe 4.2s ease-in-out infinite; transform-origin: 50% 50%; }
 .hud-pet2-face .fur { fill: var(--fur); }
 .hud-pet2-face .fur2 { fill: var(--fur2); }
 .hud-pet2-face .inner { fill: #f0a6b4; opacity: .85; }
+.hud-pet2-face .cheek { fill: #ee9bac; opacity: .63; }
+.hud-pet2.k-lynx .hud-pet2-face .nose { fill: #a65b70; }
 .hud-pet2-face .ear { fill: color-mix(in srgb, var(--fur) 78%, #000); }
 .hud-pet2-face .tuft { fill: none; stroke: color-mix(in srgb, var(--fur) 60%, #000); stroke-width: 1.6; stroke-linecap: round; }
 /* Глаза: цвет из внешности (--eye, правый --eye2), иначе цвет рода (--eye-d). Моргают целиком, со зрачком и бликом. */
 .hud-pet2 { --eye-d: #17141a; }
+.hud-pet2:is(.k-lion, .k-wolf, .k-lynx) { --eye-d: #d7a159; }
 .hud-pet2.k-cat { --eye-d: #8fd06a; } .hud-pet2:is(.k-fox, .k-owl) { --eye-d: #f2b93a; } .hud-pet2.k-dragon { --eye-d: #f0c24a; }
-.hud-pet2:is(.k-dog, .k-bear) { --eye-d: #6e4322; } .hud-pet2.k-horse { --eye-d: #4a2c1a; } .hud-pet2.k-rabbit { --eye-d: #5a2a2a; } .hud-pet2.k-snake { --eye-d: #e0c040; } .hud-pet2.k-robot { --eye-d: #7ff0ff; } .hud-pet2.k-bat { --eye-d: #ff8a6a; }
+.hud-pet2:is(.k-dog, .k-bear) { --eye-d: #6e4322; } .hud-pet2.k-horse { --eye-d: #4a2c1a; } .hud-pet2.k-rabbit { --eye-d: #5a2a2a; } .hud-pet2.k-snake { --eye-d: #e0c040; } .hud-pet2.k-robot { --eye-d: #7ff0ff; } .hud-pet2.k-bat { --eye-d: #6a4632; }
 .hud-pet2-face .eyes { transform-box: fill-box; transform-origin: 50% 50%; animation: hud-pet-blink 5.6s ease-in-out infinite; }
 .hud-pet2-face .eye { fill: var(--eye, var(--eye-d)); stroke: #17141a; stroke-width: .7; }
 .hud-pet2-face .eye.r { fill: var(--eye2, var(--eye, var(--eye-d))); }

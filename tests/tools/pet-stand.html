@@ -1,0 +1,119 @@
+<!doctype html><html class="hud-glass-frosted"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Портреты спутников — стенд</title>
+<style>
+body { margin: 0; padding: 14px; background: #1d1a22; color: #ddd; font: 13px system-ui, sans-serif; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+.cell { display: grid; justify-items: center; gap: 6px; padding: 10px; border-radius: 12px; background: rgba(255,255,255,.04); }
+.big { width: 128px; height: 128px; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 35%, rgba(255,255,255,.12), rgba(255,255,255,.02)); }
+.big .hud-pet2-face { width: 92%; height: 92%; }
+.cell small { color: #9a96a6; text-align: center; }
+.cards { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 380px), 1fr)); gap: 14px; }
+.mix { display: grid; grid-template-columns: 110px repeat(7, 64px); gap: 6px; align-items: center; }
+.mix .hud-pet2-ava { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; background: rgba(255,255,255,.06); }
+.mix .hud-pet2-face { width: 92%; height: 92%; }
+.mix small { color: #9a96a6; font-size: 10px; line-height: 1.15; }
+.stand-switch { display: flex; gap: 6px; margin-bottom: 12px; }
+.stand-switch button { background: #312a39; color: #ddd; border: 1px solid #665771; border-radius: 8px; padding: 5px 10px; cursor: pointer; }
+.stand-switch button[aria-pressed="true"] { background: #594365; color: #fff; border-color: #ae8ebf; }
+.natural-pet.hud-pet2-face {
+  --natural-highlight: color-mix(in srgb, var(--fur) 50%, #fff0db);
+  --natural-shadow: color-mix(in srgb, var(--fur) 63%, #352535);
+  --natural-deep: color-mix(in srgb, var(--fur) 35%, #201a27);
+  --natural-strand: color-mix(in srgb, var(--fur2) 58%, var(--fur));
+  --natural-marking: color-mix(in srgb, var(--fur) 36%, #221c25);
+  --natural-ear: color-mix(in srgb, var(--fur) 48%, #b87d83);
+  animation: none;
+}
+.natural-pet .natural-form { filter: drop-shadow(0 1px 1.2px rgb(15 10 20 / .6)); }
+</style></head>
+<body><h1 style="font-size:15px">Портреты спутников: крупно и в карточке</h1><div class="stand-switch" id="portrait-style" role="group" aria-label="Стиль портретов"><button type="button" data-style="cute">Милые</button><button type="button" data-style="realistic">Реализм</button><button type="button" data-style="colors">Окрасы</button><button type="button" data-style="colors-real">Окрасы: реализм</button></div><div class="grid" id="grid">загрузка…</div><div class="cards" id="cards"></div>
+<script type="module">
+// Стенд портретов «Спутников» (render/extras.js, портрет в карточке спутника).
+// Открывать через сервер расширения: …/HUD/tests/tools/pet-stand.html; ?t=kawaii — светлая тема; ?cards=1 — и сами карточки.
+// Клички и описания выдуманы.
+const P = new URLSearchParams(location.search);
+const V = '?v=' + (await (await fetch('../../manifest.json', { cache: 'no-store' })).json()).version;
+const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '../../css/all.css' + V; document.head.append(css);
+if (P.get('t')) document.documentElement.classList.add('hud-theme-' + P.get('t'), 'hud-scheme-light', 'hud-kinds-light');
+const X = await import('../../render/extras.js' + V);
+const Л = await import('../../render/pet-looks.js' + V);
+// ?portrait=real — карточки рисуются с настройкой «Портреты спутников: Реализм».
+if (P.get('portrait')) (await import('../../settings.js' + V)).settings.petPortrait = P.get('portrait');
+const R = await import('../../render/pet-real.js' + V);
+// Реализм: тот же род, окрас и узор, что у карточки, — другой рисунок.
+const УЗОР_ВИДА = [[/тигр|tiger|зебр|zebra/i, 'stripes'], [/леопард|барс|ягуар|гепард|оцелот|рыс[ьи]|далматин|leopard|jaguar|cheetah|ocelot|lynx|dalmatian/i, 'spots']];
+let счёт = 0;
+function реализм(name, species, look) {
+  const род = X.родПортрета(species, name);
+  const узор = (Л.окрасИзТекста(look) || {}).узор || (УЗОР_ВИДА.find(([rx]) => rx.test(species)) || [])[1] || '';
+  return R.реальныйПортрет(род, species, узор, 'st' + (++счёт));
+}
+const звери = [
+  ['Мурка', 'кошка', 'рыжая полосатая, зелёные глаза', 'tabby'], ['Шустрик', 'рысь', 'серая пятнистая, жёлтые глаза', 'lynx'], ['Тень', 'кот', 'чёрный, гетерохромия: голубой и жёлтый', 'black-cat'],
+  ['Рекс', 'овчарка', 'палевый, карие глаза', 'shepherd'], ['Бим', 'далматин', 'белый с чёрными пятнами', 'dalmatian'], ['Огонёк', 'лис', 'рыжий', 'fox'],
+  ['Топтыжка', 'медвежонок', 'бурый', 'bear'], ['Буран', 'конь', 'вороной, белая проточина', 'horse'], ['Искра', 'единорог', 'белая, голубые глаза', 'unicorn'],
+  ['Ушастик', 'кролик', 'серый', 'rabbit'], ['Пискля', 'мышь', 'серая', 'mouse'], ['Кеша', 'попугай', 'зелёно-жёлтый', 'parrot'],
+  ['Филя', 'филин', 'бурый, оранжевые глаза', 'owl'], ['Нетопырь', 'летучая мышь', 'тёмно-серый', 'bat'], ['Шёлк', 'змея', 'изумрудная', 'snake'],
+  ['Пиксель', 'робот-дрон', 'серебристый', 'drone'], ['Искряк', 'дракончик', 'изумрудный, золотые глаза', 'dragon'], ['Огонь', 'дух-огонёк', 'сиреневый', 'spirit'], ['Нечто', 'существо', 'розовое', 'blob'],
+  ['Симба', 'лев', 'золотистый, янтарные глаза', 'lion'], ['Север', 'волк', 'серебристый, голубые глаза', 'wolf'],
+];
+function рисоватьРеализм(к, species, look) { const з = звери.find(з => з[1] === species); return реализм(з[0], species, look); }
+const кнопки = document.querySelectorAll('#portrait-style button');
+
+// «Окрасы»: каждый зверь в семи разных цветах шерсти и глаз — любой окрас должен ложиться без поломок.
+const ОКРАСЫ = ['белый, голубые глаза', 'чёрный, жёлтые глаза', 'голубой, розовые глаза', 'фиолетовый с белым, зелёные глаза', 'золотой, карие глаза', 'красный, гетерохромия: голубой и зелёный', 'серебристый, фиолетовые глаза'];
+let рисовать = null;
+function окрасы() {
+  const ряды = [];
+  for (const [name, species] of звери) {
+    const ячейки = ОКРАСЫ.map((look) => {
+      const tmp = document.createElement('div');
+      tmp.innerHTML = X.карточкаСпутника({ name, species, condition: 'здоров', mood: 'доволен', appearance: look }, '', 70, '', { окрас: Л.окрасИзТекста(look) || {}, глаза: Л.глазаИзТекста(look) });
+      const к = tmp.firstElementChild;
+      const лицо = рисовать ? рисовать(к, species, look) : к.querySelector('.hud-pet2-face').outerHTML;
+      return `<div class="${к.className}" style="${к.getAttribute('style') || ''};padding:0;border:0;background:none;box-shadow:none;width:auto" title="${look}"><div class="hud-pet2-ava">${лицо}</div></div>`;
+    });
+    ряды.push(`<small>${species}</small>${ячейки.join('')}`);
+  }
+  document.getElementById('grid').innerHTML = `<div class="mix"><small></small>${ОКРАСЫ.map(o => `<small>${o}</small>`).join('')}${ряды.join('')}</div>`;
+  document.getElementById('cards').innerHTML = '';
+}
+function показать(стиль) {
+  if (стиль === 'colors' || стиль === 'colors-real') {
+    рисовать = стиль === 'colors-real' ? рисоватьРеализм : null;
+    окрасы();
+    for (const кнопка of кнопки) кнопка.setAttribute('aria-pressed', кнопка.dataset.style === стиль);
+    return;
+  }
+  const сетка = [], карты = [];
+  for (const [name, species, look, portrait] of звери) {
+    const p = { name, species, condition: 'здоров', mood: 'доволен', appearance: look };
+    const внеш = { окрас: Л.окрасИзТекста(look) || {}, глаза: Л.глазаИзТекста(look) };
+    const tmp = document.createElement('div');
+    tmp.innerHTML = X.карточкаСпутника(p, '', 70, '', внеш);
+    const карта = tmp.firstElementChild;
+    const лицо = карта.querySelector('.hud-pet2-face');
+    const исходныйПортрет = лицо.outerHTML;
+    const реал = стиль === 'realistic';
+    if (реал && P.get('cards')) лицо.outerHTML = реализм(name, species, look);
+    const крупно = реал ? реализм(name, species, look) : исходныйПортрет;
+    const мини = реал ? реализм(name, species, look) : исходныйПортрет;
+    const цвета = карта.getAttribute('style') || '';
+    сетка.push(`<div class="cell"><div class="${карта.className}" style="${цвета};display:contents"><div class="big">${крупно}</div></div><div class="${карта.className}" style="${цвета};padding:0;border:0;background:none;box-shadow:none;width:auto"><div class="hud-pet2-ava">${мини}</div></div><small>${name} — ${species}<br>${look}</small></div>`);
+    if (P.get('cards')) карты.push(`<div class="mes_text"><div class="hud-os-card"><div class="hud-tab-content active">${карта.outerHTML}</div></div></div>`);
+  }
+  document.getElementById('grid').innerHTML = сетка.join('');
+  document.getElementById('cards').innerHTML = карты.join('');
+  for (const кнопка of кнопки) кнопка.setAttribute('aria-pressed', кнопка.dataset.style === стиль);
+}
+
+for (const кнопка of кнопки) {
+  кнопка.addEventListener('click', () => {
+    const стиль = кнопка.dataset.style;
+    const адрес = new URL(location.href);
+    адрес.searchParams.set('style', стиль);
+    history.replaceState(null, '', адрес);
+    показать(стиль);
+  });
+}
+показать(['realistic', 'colors', 'colors-real'].includes(P.get('style')) ? P.get('style') : 'cute');
+</script></body></html>

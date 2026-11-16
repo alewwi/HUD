@@ -489,6 +489,9 @@ export const defaultSettings = {
   // 'pixel' | 'ink' | 'rounded'.
   iconSet: 'header',
   iconSetHeaderMigration: 1,
+  // Портрет на карточке спутника: 'cute' — милый рисунок; 'real' — реалистичный
+  // (render/pet-real.js). Окрас и глаза у обоих одни и те же.
+  petPortrait: 'cute',
   // Сводки [HUD_SUMMARY] в тексте сообщений — карточкой (render/summary-card.js);
   // нажатие раскрывает полный HUD сообщения, если он есть. Только вид.
   summaryCards: true,

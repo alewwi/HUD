@@ -4,6 +4,18 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.52 — 2026-11-16
+
+### Added
+- **Realistic companion portraits.** A new "🐾 Companion portraits" item in Display: "Cute" or "Realistic". Realistic is the animal seen from the front, fur in strands following its growth, a fluffy edge, volume from light and shade, and eyes with an iris and the species' own pupil (a slit for cats, the fox, the snake and the dragon, round for dogs and the lion, horizontal for the horse). The lynx has ear tufts, the lion a mane, the fox dark ear tips and tear marks, the owl facial discs. Coat, pattern and eye colour come from the companion's description, as with the cute ones. The choice is remembered per chat.
+- **New cute faces:** the lion, wolf, lynx, mouse and parrot have their own drawings; the others have bigger eyes and rosy cheeks.
+
+### Fixed
+- **Eye colour shows on cute portraits again.** The pupil was bigger than the eye itself, so green, blue or odd eyes looked plain black.
+- **Eye colour no longer tints the fur.** "Red eyes" or "pink eyes" in a description no longer make the animal red or pink; "a ginger cat with green eyes" stays ginger.
+- **Heterochromia no longer takes the fur colour.** "Red, heterochromia: blue and green" now gives blue and green eyes, not red and blue.
+- **Pink eyes** are understood, and an albino with no eye colour named gets pink eyes.
+
 ## 23.89.51 — 2026-11-16
 
 ### Fixed
