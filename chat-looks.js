@@ -12,20 +12,34 @@
 // — saveSettings (index.js) зовёт запомнитьВидЧата: вид поменялся — снимок
 //   уходит в открытый чат, без чата — в общий. Неизменный вид ничего не
 //   создаёт: чат получает свой вид, только когда в нём что-то поменяли;
-// — при смене чата видЧатаПриСмене кладёт его вид (или общий) в settings.
+// — при смене чата видЧатаПриСмене кладёт его вид (или общий) в settings;
+// — свой вид чата лежит ещё и в самом чате (chat_metadata, КЛЮЧ_В_ЧАТЕ).
+//   Настройки HUD — одна копия на всё, и вкладка, открытая на другом
+//   устройстве, сохраняя свою копию, затирала виды чатов, заведённые тут:
+//   чат терял свой вид и брал общий, а с ним — правки из другого чата.
+//   Свой файл чат хранит сам, и из двух записей берётся более свежая;
+//   chatLooks остаётся списком для «Взять в этот чат»;
+// — вид в settings всегда чей-то: чатВида. Сохранение, пришедшее, когда
+//   чат уже сменился, а его вид ещё не лёг, не пишет прежний вид в новый чат.
 //
 // Картинка фона в снимок не входит: она тяжёлая (до 3 МБ) и общая.
 
-import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.48';
-import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.48';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.48';
-import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.48';
-import { escapeHtml } from './utils.js?v=23.89.48';
-import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.48';
+import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.49';
+import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.49';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.49';
+import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.49';
+import { escapeHtml } from './utils.js?v=23.89.49';
+import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.49';
 
 // Эпоха — тоже вид истории: в средневековом чате нет телефона.
 const ЭПОХА = ['era', 'fantasyMagic', 'magicPresence', 'techLevel', 'modernComms', 'eraModern', 'eraMagic'];
-const ЕЩЁ = ['themePreset', 'themePalette', 'iconSet', 'glassType', 'themeScene', 'noImages', 'headerOrnament', 'avatarDeco', 'avatarShape', 'sceneHidden'];
+const ЕЩЁ = ['themePreset', 'themePalette', 'iconSet', 'glassType', 'themeScene', 'noImages', 'headerOrnament', 'avatarDeco', 'avatarShape', 'sceneHidden',
+  // Вкладки (Кастомизация → Вкладки): порядок, закреплённые, скрытые.
+  'tabOrder', 'tabPinned', 'tabHidden',
+  // Что стояло до «Минимализма»: снять его в чате — вернуть вид этого чата.
+  'minimalBackup'];
+// Ключи, которых может не быть вовсе: нет в виде чата — нет и в настройках.
+const МОЖЕТ_НЕ_БЫТЬ = new Set(['minimalBackup']);
 // Не вид или не для снимка: картинки тяжёлые, остальное — поведение окна.
 const НЕ_В_СНИМОК = new Set(['bgImage', 'customDetailMode', 'customClickNav', 'tokenBudget', 'containerQueries', 'startingStyle', 'themeSwitchFade', 'secretsAutoRaise']);
 
@@ -66,27 +80,86 @@ const включено = () => settings.lookPerChat !== false;
 const виды = () => (settings.chatLooks && typeof settings.chatLooks === 'object' ? settings.chatLooks : (settings.chatLooks = {}));
 let последний = '';   // снимок вида, который уже записан (или только что положен)
 let начато = false;
+let чатВида = null;   // чей вид сейчас в settings: id чата, '' — общий, null — ещё ничей
 
 /** Первый запуск: нынешний вид — общий, от него и считаем изменения. */
 function начать() {
   if (начато) return;
   начато = true;
   if (!settings.lookCommon || typeof settings.lookCommon !== 'object') settings.lookCommon = снимокВидаЧата();
+  // Ключи, которых общий вид ещё не знал (появились в новых версиях), — какие
+  // есть сейчас. Иначе смена чата сбрасывала бы их к заводским.
+  for (const k of КЛЮЧИ_ВИДА_ЧАТА()) if (!(k in settings.lookCommon) && settings[k] !== undefined) settings.lookCommon[k] = копия(settings[k]);
   последний = JSON.stringify(снимокВидаЧата());
+}
+
+// --- Вид в самом чате ----------------------------------------------------------
+
+export const КЛЮЧ_В_ЧАТЕ = 'tavernOS_hud_look';
+// Виды, убранные из списка кнопкой ✕, — когда: запись в чате старее — не в счёт.
+const забытые = () => (settings.chatLooksGone && typeof settings.chatLooksGone === 'object' ? settings.chatLooksGone : (settings.chatLooksGone = {}));
+/** Вид, записанный в открытом чате: { at, vars } или null. */
+function видВЧате() {
+  const м = контекст()?.chatMetadata;
+  const в = м && м[КЛЮЧ_В_ЧАТЕ];
+  return в && typeof в === 'object' && в.vars && typeof в.vars === 'object' ? в : null;
+}
+// Чат загружен: пока Таверна его грузит, id уже новый, а метаданные — пустая
+// заготовка и сообщений нет. Запись туда пропала бы, а её сохранение
+// записало бы в файл недогруженный чат.
+const чатГотов = (ctx) => !!ctx && ((Array.isArray(ctx.chat) && ctx.chat.length > 0) || !!(ctx.chatMetadata && ctx.chatMetadata.integrity));
+/** Записать вид в открытый чат (null — убрать). Сам файл чата сохраняет Таверна. */
+function записатьВЧат(запись) {
+  const ctx = контекст();
+  const м = ctx?.chatMetadata;
+  if (!м || typeof м !== 'object' || !чатГотов(ctx)) return;
+  if (запись) м[КЛЮЧ_В_ЧАТЕ] = { at: запись.at || Date.now(), vars: копия(запись.vars) };
+  else if (КЛЮЧ_В_ЧАТЕ in м) delete м[КЛЮЧ_В_ЧАТЕ];
+  else return;
+  try {
+    if (typeof ctx.saveMetadataDebounced === 'function') ctx.saveMetadataDebounced();
+    else if (typeof ctx.saveMetadata === 'function') Promise.resolve(ctx.saveMetadata()).catch(e => console.warn('[TavernOS HUD] вид не записан в чат', e));
+  } catch (e) { console.warn('[TavernOS HUD] вид не записан в чат', e); }
+}
+const время = (в) => Number(в && в.at) || 0;
+/** Свой вид открытого чата: более свежий из записи в чате и из списка. */
+function свойВид(id) {
+  if (!id) return null;
+  let свой = виды()[id] || null;
+  const вЧате = видВЧате();
+  if (вЧате) {
+    // Вид убрали из списка позже, чем записали в чат, — его больше нет.
+    const убран = Number(забытые()[id]) || 0;
+    if (убран && убран >= время(вЧате)) { записатьВЧат(null); return свой && время(свой) > убран ? свой : null; }
+    if (!свой || время(вЧате) > время(свой)) свой = виды()[id] = { name: имяЧата(), at: время(вЧате) || Date.now(), vars: копия(вЧате.vars) };
+    else if (время(свой) > время(вЧате)) записатьВЧат(свой);
+  } else if (свой) записатьВЧат(свой);   // вид из прежних версий — переезжает в чат
+  return свой;
+}
+/** Запомнить вид за открытым чатом: в список и в сам чат. */
+function запомнитьЗаЧатом(id, vars) {
+  const запись = { name: имяЧата(), at: Date.now(), vars };
+  виды()[id] = запись;
+  delete забытые()[id];
+  записатьВЧат(запись);
 }
 
 /** Из saveSettings: вид поменялся — запомнить его за открытым чатом (или общим). */
 export function запомнитьВидЧата() {
   if (!включено()) return;
   начать();
+  const id = idЧата();
+  // Чат уже другой, а вид в настройках — прежнего (или ещё ничей): сначала
+  // положить вид этого чата. Иначе прежний вид записался бы за новым чатом.
+  // Пока чат грузится — ждём CHAT_CHANGED, ничего не пишем.
+  if (чатВида !== id) { if (!id || чатГотов(контекст())) видЧатаПриСмене(); return; }
   const снимок = снимокВидаЧата();
   const json = JSON.stringify(снимок);
   if (json === последний) return;
   последний = json;
-  const id = idЧата();
   if (!id) { settings.lookCommon = снимок; return; }
   const новый = !виды()[id];
-  виды()[id] = { name: имяЧата(), at: Date.now(), vars: снимок };
+  запомнитьЗаЧатом(id, снимок);
   if (новый) связь.showHudToast('info', 'Оформление этого чата', 'HUD запомнил вид для этой истории. Другие чаты остались как были. Сделать вид общим — в настройках, «Оформление по чатам».');
 }
 
@@ -97,6 +170,7 @@ function положить(vars) {
     if (vars && k in vars) settings[k] = копия(vars[k]);
     else if (k in общий) settings[k] = копия(общий[k]);
     else if (defaultSettings[k] !== undefined) settings[k] = копия(defaultSettings[k]);
+    else if (МОЖЕТ_НЕ_БЫТЬ.has(k)) delete settings[k];
   }
 }
 
@@ -106,6 +180,7 @@ function применить(vars, { тихо = false } = {}) {
   положить(vars);
   const после = JSON.stringify(снимокВидаЧата());
   последний = после;
+  чатВида = idЧата();
   if (до === после) return false;
   связь.saveSettings?.();
   try { связь.applyThemeColors(); } catch (e) { console.warn('[TavernOS HUD] вид чата', e); }
@@ -120,7 +195,7 @@ export function видЧатаПриСмене() {
   if (!включено()) { обновитьПанель(); return; }
   начать();
   const id = idЧата();
-  const свой = id && виды()[id];
+  const свой = свойВид(id);
   if (свой && имяЧата() && свой.name !== имяЧата()) свой.name = имяЧата();
   применить(свой ? свой.vars : settings.lookCommon, { тихо: true });
   обновитьПанель();
@@ -158,7 +233,7 @@ export function сделатьОбщим() {
 /** Забыть свой вид открытого чата и вернуть общий. */
 export function вернутьОбщий() {
   const id = idЧата();
-  if (id) delete виды()[id];
+  if (id) { delete виды()[id]; записатьВЧат(null); }
   применить(settings.lookCommon, { тихо: true });
   связь.saveSettings?.();
   связь.showHudToast('success', 'Общее оформление', 'У этого чата больше нет своего вида.');
@@ -170,7 +245,7 @@ export function взятьВид(откуда) {
   const источник = откуда === 'common' ? settings.lookCommon : виды()[откуда]?.vars;
   if (!источник) return;
   применить(источник, { тихо: true });
-  if (id) виды()[id] = { name: имяЧата(), at: Date.now(), vars: снимокВидаЧата() };
+  if (id) запомнитьЗаЧатом(id, снимокВидаЧата());
   else settings.lookCommon = снимокВидаЧата();
   последний = JSON.stringify(снимокВидаЧата());
   связь.saveSettings?.();
@@ -182,7 +257,9 @@ export function забытьВид(id) {
   if (!id || !виды()[id]) return;
   const открытый = id === idЧата();
   delete виды()[id];
-  if (открытый) применить(settings.lookCommon, { тихо: true });
+  // Запись в том чате останется в его файле: помечаем, что вид убран.
+  забытые()[id] = Date.now();
+  if (открытый) { записатьВЧат(null); применить(settings.lookCommon, { тихо: true }); }
   связь.saveSettings?.();
   обновитьПанель();
 }

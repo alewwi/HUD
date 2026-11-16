@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.48**:
+The latest version is **23.89.49**:
 
+- Companions are drawn anew: one whole head, volume, lively eyes. A chat's own look is kept in the chat itself and no longer leaks into other chats. A tab's "?" help closes when you switch tabs.
 - The cycle no longer disappears when the model leaves it out: the HUD keeps the previous one, counts the day on and sends it back in the snapshot.
 - A new diary emotion, longing, with its own page in the notebook, spread, blog and typewriter views.
 - A companion from "Companions" no longer shows up in the family tree as a relative; "parity" in a verbal duel is not taken for a rival; yearning in the diary no longer goes to the passion page.

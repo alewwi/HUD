@@ -16,29 +16,29 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.48';
-import { уверены } from './confirm-erase.js?v=23.89.48';
-import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.48';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.89.48';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.48';
-import { прикрытьСырой } from './raw-guard.js?v=23.89.48';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.48';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.48';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.48';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.48';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.48';
-import { полныйПорядок } from './tabs-order.js?v=23.89.48';
-import { getWorldVotes } from './render/world.js?v=23.89.48';
-import { действиеМира } from './render/world-views.js?v=23.89.48';
-import { действиеМузыки } from './render/music.js?v=23.89.48';
-import { раскрытьПорцию } from './render/long-list.js?v=23.89.48';
-import { прогретьИсторию } from './render/carryover.js?v=23.89.48';
-import { подключитьПалитру } from './color-picker.js?v=23.89.48';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.48';
-import { замер } from './utils.js?v=23.89.48';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.48';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.48';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.48';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.49';
+import { уверены } from './confirm-erase.js?v=23.89.49';
+import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.49';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.89.49';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.49';
+import { прикрытьСырой } from './raw-guard.js?v=23.89.49';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.49';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.49';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.49';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.49';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.49';
+import { полныйПорядок } from './tabs-order.js?v=23.89.49';
+import { getWorldVotes } from './render/world.js?v=23.89.49';
+import { действиеМира } from './render/world-views.js?v=23.89.49';
+import { действиеМузыки } from './render/music.js?v=23.89.49';
+import { раскрытьПорцию } from './render/long-list.js?v=23.89.49';
+import { прогретьИсторию } from './render/carryover.js?v=23.89.49';
+import { подключитьПалитру } from './color-picker.js?v=23.89.49';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.49';
+import { замер } from './utils.js?v=23.89.49';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.49';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.49';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.49';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -688,6 +688,14 @@ export function initGlobalEvents(ctx) {
       // Высота до смены — от неё плавно едем к высоте новой вкладки.
       const телоВкладок = parent.querySelector('.hud-tabs-body');
       const былаВысота = телоВкладок && !tab.classList.contains('active') ? телоВкладок.offsetHeight : null;
+      // Подсказка вкладки лежит одна на всю полосу, под ярлыками: со сменой
+      // вкладки она закрывается, иначе «Память» объясняла бы и «Дневник».
+      // Сразу, без схлопывания: высоту тела сейчас плавно ведёт смена вкладки.
+      if (!tab.classList.contains('active')) {
+        const подсказка = parent.querySelector('.hud-tab-hint');
+        if (подсказка && !подсказка.hidden) { подсказка.classList.remove('is-open'); подсказка.style.maxHeight = ''; подсказка.hidden = true; delete подсказка.dataset.helpKey; }
+        parent.querySelectorAll('.hud-help-mark[data-tab-help].is-open').forEach(з => з.classList.remove('is-open'));
+      }
       parent.querySelectorAll('.hud-tab').forEach(t => { t.classList.remove('active'); if (t.hasAttribute('role')) { t.setAttribute('aria-selected', 'false'); t.tabIndex = -1; } });
       parent.querySelectorAll('.hud-tab-content').forEach(c => c.classList.remove('active'));
       tab.classList.add('active');

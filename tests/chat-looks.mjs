@@ -3,7 +3,9 @@
 // Своё оформление у каждого чата (chat-looks.js): вид запоминается за чатом,
 // в котором его поменяли, и возвращается при переходе; чат без своего вида
 // получает общий; промпты и блоки не переносятся; вид можно взять из другого
-// чата и вернуть общий.
+// чата и вернуть общий. Свой вид лежит и в самом чате (chat_metadata): его
+// не затрёт копия настроек с другого устройства; сохранение, пришедшее до
+// смены вида, не пишет прежний вид в новый чат.
 // node tests/chat-looks.mjs
 
 import fs from 'fs';
@@ -17,7 +19,11 @@ globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} }
 const узел = () => ({ style: {}, dataset: {}, classList: { add() {}, remove() {}, toggle() {}, contains: () => false }, querySelector: () => null, querySelectorAll: () => [], setAttribute() {}, append() {}, appendChild() {} });
 globalThis.document = { createElement: узел, createElementNS: узел, querySelector: () => null, querySelectorAll: () => [], documentElement: узел(), getElementById: () => null, addEventListener() {}, head: узел(), body: узел() };
 let чат = 'Нора - 2026-11-01@10h00m', имя = 'Нора';
-globalThis.SillyTavern = { getContext: () => ({ chat: [], getCurrentChatId: () => чат, name2: имя }) };
+// Метаданные у каждого чата свои, как в Таверне.
+const метаданные = {};
+let записейЧата = 0, грузится = false;
+// Пока Таверна грузит чат: id уже новый, сообщений нет, метаданные — пустая заготовка.
+globalThis.SillyTavern = { getContext: () => ({ chat: грузится ? [] : [{ mes: '' }], getCurrentChatId: () => чат, name2: имя, chatMetadata: грузится ? {} : чат ? (метаданные[чат] ||= {}) : {}, saveMetadataDebounced: () => { записейЧата++; } }) };
 for (const k of ['info', 'debug', 'warn']) console[k] = () => {};
 const м = (ф) => import('file:///' + path.join(КОРЕНЬ, ф).replace(/\\/g, '/') + '?v=' + ВЕРСИЯ);
 const { settings } = await м('settings.js');
@@ -48,6 +54,7 @@ settings.era = 'medieval'; settings.themePreset = 'medieval'; сохранить
 const А = чат;
 проверить('правка вида запоминается за открытым чатом', settings.chatLooks[А]?.vars.era === 'medieval' && settings.chatLooks[А].vars.themePreset === 'medieval' && settings.chatLooks[А].name === 'Нора');
 проверить('при первом своём виде — подсказка', тосты.includes('Оформление этого чата'));
+проверить('свой вид записан и в сам чат', метаданные[А]?.[В.КЛЮЧ_В_ЧАТЕ]?.vars?.themePreset === 'medieval' && записейЧата > 0);
 
 // Чат Б без своего вида — общий.
 чат = 'Ида - 2026-11-02@12h00m'; имя = 'Ида';
@@ -85,8 +92,53 @@ settings.themePreset = 'noir'; сохранить();
 проверить('вид чата можно убрать из списка', !settings.chatLooks[А]);
 
 // Стартовый экран: правки — в общий вид.
-чат = ''; settings.themePreset = 'ocean'; сохранить();
+чат = ''; В.видЧатаПриСмене(); settings.themePreset = 'ocean'; сохранить();
 проверить('без открытого чата правки идут в общий вид', settings.lookCommon.themePreset === 'ocean' && !settings.chatLooks['']);
+
+// Сохранение до смены вида: чат уже другой, вид в настройках — прежнего.
+чат = 'Нора - 2026-11-01@10h00m'; имя = 'Нора'; В.видЧатаПриСмене();
+settings.noImages = 'on'; settings.bgDragon = 'on'; сохранить();
+const Н = чат;
+проверить('у чата свой вид: без картинок и с драконом', settings.chatLooks[Н].vars.noImages === 'on' && settings.chatLooks[Н].vars.bgDragon === 'on');
+чат = Б; имя = 'Ида'; грузится = true;
+const записейДо = записейЧата;
+settings.headerOrnament = 'off'; сохранить();   // чат грузится, CHAT_CHANGED ещё не дошёл
+проверить('пока чат грузится, вид не пишется ни в чат, ни в список', записейЧата === записейДо && settings.noImages === 'on' && settings.chatLooks[Б]?.vars?.noImages !== 'on');
+грузится = false;
+settings.headerOrnament = 'theme'; сохранить();   // загрузился, CHAT_CHANGED ещё не дошёл
+проверить('сохранение до смены вида не пишет прежний вид в новый чат', settings.chatLooks[Б]?.vars?.noImages !== 'on' && settings.noImages !== 'on' && settings.bgDragon !== 'on');
+В.видЧатаПриСмене();
+settings.noImages = 'off'; settings.bgDragon = 'off'; сохранить();
+проверить('правка в другом чате не трогает вид первого', settings.chatLooks[Н].vars.noImages === 'on' && settings.chatLooks[Н].vars.bgDragon === 'on');
+
+// Другое устройство затёрло настройки: списка видов нет, вид — в самом чате.
+const затёрто = structuredClone(settings.chatLooks);
+settings.chatLooks = {};
+чат = Н; имя = 'Нора'; В.видЧатаПриСмене();
+проверить('вид чата возвращается из самого чата, если список затёрт', settings.noImages === 'on' && settings.bgDragon === 'on' && settings.chatLooks[Н]?.vars?.bgDragon === 'on');
+// В списке запись свежее, чем в чате (чат не успел сохраниться) — берётся она и пишется в чат.
+settings.chatLooks[Н] = { name: 'Нора', at: Date.now() + 5000, vars: { ...затёрто[Н].vars, bgDragon: 'off' } };
+чат = Б; имя = 'Ида'; В.видЧатаПриСмене();
+чат = Н; имя = 'Нора'; В.видЧатаПриСмене();
+проверить('из двух записей — более свежая, и чат догоняет', settings.bgDragon === 'off' && метаданные[Н][В.КЛЮЧ_В_ЧАТЕ].vars.bgDragon === 'off');
+// Вид из прежних версий (только в списке) переезжает в чат при открытии.
+const Т = 'Тая - 2026-11-04@08h00m';
+settings.chatLooks[Т] = { name: 'Тая', at: 1, vars: { themePreset: 'rose' } };
+чат = Т; имя = 'Тая'; В.видЧатаПриСмене();
+проверить('вид из списка переезжает в чат', settings.themePreset === 'rose' && метаданные[Т]?.[В.КЛЮЧ_В_ЧАТЕ]?.vars?.themePreset === 'rose');
+// Убрали из списка, находясь в другом чате: запись в том чате больше не действует.
+чат = Б; имя = 'Ида'; В.видЧатаПриСмене();
+В.забытьВид(Т);
+чат = Т; имя = 'Тая'; В.видЧатаПриСмене();
+проверить('убранный из списка вид не возвращается из чата', settings.themePreset !== 'rose' && !settings.chatLooks[Т] && !метаданные[Т][В.КЛЮЧ_В_ЧАТЕ]);
+
+// Вкладки и «Минимализм» — тоже вид чата.
+проверить('порядок, закреплённые и скрытые вкладки — в виде чата', ['tabOrder', 'tabPinned', 'tabHidden', 'minimalBackup'].every(k => ключи.includes(k)));
+settings.tabHidden = ['phone']; settings.minimalBackup = { pillIcons: 'on' }; сохранить();
+чат = Б; имя = 'Ида'; В.видЧатаПриСмене();
+проверить('скрытые вкладки и запас «Минимализма» не переходят в другой чат', !(settings.tabHidden || []).includes('phone') && settings.minimalBackup === undefined);
+чат = Т; имя = 'Тая'; В.видЧатаПриСмене();
+проверить('и возвращаются в своём', (settings.tabHidden || []).includes('phone') && settings.minimalBackup?.pillIcons === 'on');
 
 // Выключено — оформление одно.
 settings.lookPerChat = false;

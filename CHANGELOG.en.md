@@ -4,6 +4,31 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.49 — 2026-11-16
+
+### Changed
+- **Companions: new faces.** Every animal is drawn anew, and the head reads as one picture, not a set of shapes. The head has one fur outline, a soft shadow on the cheeks and jaw, and a highlight on the forehead. Eyes are almonds with a lid and two glints. Pupils are slits for the cat, fox and reptiles and round for the rest. Each kind has its own features:
+  - **Cat:** fluffy cheeks in one outline with the head.
+  - **Dog:** floppy ears and a light blaze.
+  - **Fox:** dark ear tips, white cheeks.
+  - **Bear:** round ears, a wide muzzle.
+  - **Horse:** a long head, a forelock.
+  - **Rabbit:** plump cheeks, front teeth.
+  - **Owl:** a facial disc.
+  - **Bat:** wing membranes and fangs.
+  - **Snake:** body coils.
+  - **Robot:** a visor with a sheen.
+  - **Dragon:** horns and cheek frills.
+  - **Spirit:** a flame with sparks.
+- The dog, bear, horse and rabbit have their own default eye colour.
+
+### Fixed
+- **A chat's own look no longer leaks into other chats.** HUD settings are one copy for everything. A tab open on another device (phone and PC) saved its own copy and wiped the chat looks made on this one. The chat lost its look and took the common one, and the common look held edits from another chat: pictures, the dragon behind the plates, block views. Now a chat's own look is also kept in the chat itself, in its file. The newer of the two records wins, and someone else's copy of the settings cannot erase it.
+- **Switching chats.** While a chat is loading, the HUD writes no look. Before, a save at that moment could store the previous chat's look for the new one.
+- **A chat's look remembers more.** It now holds tab order, pinned and hidden tabs, and what was set before Minimalism. Settings added in newer versions no longer reset to defaults when you switch chats.
+- **A tab's "?" help closes when you go to another tab.** Before, the Memory explanation stayed over the Diary too, and you had to go back to that tab to close it.
+- **Compact values:** for lists with no item cap the model writes as many entries as without compacting: facts, threads, promises, plans, appointments, marks and people. Each entry is just shorter. Compacting does not override "updates only", "nc" and "the world once a day".
+
 ## 23.89.48 — 2026-11-16
 
 ### Fixed

@@ -14,7 +14,7 @@
 // Размер поля: { w } — слов во всём значении; { i, w } — список: не больше
 // i пунктов (0 — сколько угодно) по w слов в каждом.
 
-import { строкаПоляСхемы } from './deep-fields.js?v=23.89.48';
+import { строкаПоляСхемы } from './deep-fields.js?v=23.89.49';
 
 const п = (путь, имя, лимит) => [путь, имя, лимит];
 
@@ -104,7 +104,7 @@ export function сжатыеПоля(s) {
 export function текстЛимита(л) {
   if (!л) return '';
   if (!('i' in л)) return `at most ${л.w} words`;
-  return л.i > 0 ? `at most ${л.i} items, ${л.w} words each` : `every item kept, at most ${л.w} words each`;
+  return л.i > 0 ? `at most ${л.i} items, ${л.w} words each` : `at most ${л.w} words per item, as many items as without a limit`;
 }
 
 /** Размер словами для настроек. */
@@ -127,7 +127,7 @@ function пометитьСтроку(строка, метка) {
 }
 
 export const ПРАВИЛО_СЖАТИЯ = `
-- 🗜️ COMPACT VALUES: a field marked «LIMIT» has a hard size set by the user. It overrides any "at least", "as many as", sentence count, "in full" or "every turn in detail" asked anywhere in these instructions or in that field. Shorter, never poorer: keep every fact the HUD tracks — every person, item, mark, plan, thread, promise and fear; every label and code of the field's format (xp:, gt:, nw:, sn:, lt:, dt:, pr:, en:); every number, time, date, fade time, level, status, protection and name — and cut only the describing words around them. Labels, codes, numbers, times, dates, names and emoji do not count as words. A limit with an item count caps entries that are written anew each turn; "every item kept" means no entry may be dropped to fit — only shortened. Quoted lines («…») are chosen shorter, never cut mid-phrase. A diary stays a real entry in full sentences, just a shorter one.`;
+- 🗜️ COMPACT VALUES: a field marked «LIMIT» has a hard size set by the user. It overrides any "at least", "as many as", sentence count, "in full" or "every turn in detail" asked anywhere in these instructions or in that field. Shorter, never poorer: keep every fact the HUD tracks — every person, item, mark, plan, thread, promise and fear; every label and code of the field's format (xp:, gt:, nw:, sn:, lt:, dt:, pr:, en:); every number, time, date, fade time, level, status, protection and name — and cut only the describing words around them. Labels, codes, numbers, times, dates, names and emoji do not count as words. A limit with an item count caps entries that are written anew each turn; "as many items as without a limit" means the same number of entries you would write anyway — never fewer facts, threads, promises, plans, appointments, marks or people to make room; each entry is just shorter. A limit never changes WHAT is written: fields written as updates only (MEMORY AS UPDATES), "nc" and the world once a day stay as those rules say — a limit only shortens what you do write. Quoted lines («…») are chosen shorter, never cut mid-phrase. A diary stays a real entry in full sentences, just a shorter one.`;
 
 /**
  * Схема промта с размерами сжатых полей и правило о них (после правила
