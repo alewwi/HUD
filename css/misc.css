@@ -7552,3 +7552,6 @@ html.hud-scheme-light .hud-mw-know.is-guess { --kn: #8f6a14; }
     }
 } }
 /* cq ↑ */
+
+/* Цикл взят из прошлого хода (render/carryover.js, вернутьЦикл): тихая подпись под кольцом. */
+.hud-cycle-carried { display: block; margin-top: 4px; font-size: 10.5px; line-height: 1.3; opacity: .62; font-style: italic; }

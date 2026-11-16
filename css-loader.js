@@ -18,8 +18,8 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.89.47';
-import { естьПодМагию } from './era.js?v=23.89.47';
+import { settings } from './settings.js?v=23.89.48';
+import { естьПодМагию } from './era.js?v=23.89.48';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';

@@ -6,24 +6,24 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.89.47';
-import { форматВремени } from '../units.js?v=23.89.47';
-import { английский } from '../i18n.js?v=23.89.47';
-import { settings } from '../settings.js?v=23.89.47';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.89.47';
-import { G_ICONS } from './icons.js?v=23.89.47';
-import { значокПриложения, естьНабор } from './phone-icons.js?v=23.89.47';
-import { buildMessengerHTML } from './messenger.js?v=23.89.47';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.47';
-import { безШапокСообщения } from './msg-parts.js?v=23.89.47';
-import { сортироватьЧаты } from './msg-feed.js?v=23.89.47';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.89.47';
-import { buildCalendarApp } from './calendar.js?v=23.89.47';
-import { приложениеМузыки } from './music.js?v=23.89.47';
-import { временаСлухов, ключСлуха } from './rumor-times.js?v=23.89.47';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.89.48';
+import { форматВремени } from '../units.js?v=23.89.48';
+import { английский } from '../i18n.js?v=23.89.48';
+import { settings } from '../settings.js?v=23.89.48';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.89.48';
+import { G_ICONS } from './icons.js?v=23.89.48';
+import { значокПриложения, естьНабор } from './phone-icons.js?v=23.89.48';
+import { buildMessengerHTML } from './messenger.js?v=23.89.48';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.48';
+import { безШапокСообщения } from './msg-parts.js?v=23.89.48';
+import { сортироватьЧаты } from './msg-feed.js?v=23.89.48';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.89.48';
+import { buildCalendarApp } from './calendar.js?v=23.89.48';
+import { приложениеМузыки } from './music.js?v=23.89.48';
+import { временаСлухов, ключСлуха } from './rumor-times.js?v=23.89.48';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.89.47';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.89.48';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -152,8 +152,8 @@ function buildWalletApp(wallet, owner) {
 // --- Календарь ---------------------------------------------------------------
 // Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
 // (render/medieval.js).
-export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.89.47';
-import { ближайшиеДела } from './calendar.js?v=23.89.47';
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.89.48';
+import { ближайшиеДела } from './calendar.js?v=23.89.48';
 
 // Слухи города: то, что модель и так пишет в мир, — последние десять, свежие
 // сверху. Два раздела вкладками (радиокнопками, без скриптов): «Говорят» —

@@ -1,5 +1,7 @@
 ﻿english,translation,context,kind,notes
 @language,,"Name of your language as shown in the language menu, e.g. 中文 or Español",name,
+from the previous turn,,по прошлому ходу,text,
+"from the previous turn, day counted on",,"по прошлому ходу, день досчитан",text,
 Compress every field in the list,,Сжать все поля из списка,text,
 Give every field its normal length back,,Вернуть всем полям обычную длину,text,
 Keep the sizes set above,,"Запомнить размеры, заданные выше",text,

@@ -6,6 +6,9 @@
 // Шаблоны — для строк с числами и вставками («3 трека», «с хода 5»).
 
 export const СЛОВАРЬ_EN = {
+  // Цикл из прошлого хода (render/character.js, пометкаЦикла)
+  "по прошлому ходу": "from the previous turn",
+  "по прошлому ходу, день досчитан": "from the previous turn, day counted on",
   // Подсказки кнопок «Сжатых значений» и «Оформления по чатам»
   "Сжать все поля из списка": "Compress every field in the list",
   "Вернуть всем полям обычную длину": "Give every field its normal length back",

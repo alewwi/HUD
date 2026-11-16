@@ -3114,6 +3114,30 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     проверить('назревает: «Тристан Кингсли и Софи Ховард» — оба в списке', ['Тристан Кингсли', 'Софи Ховард', 'Арес Бомонт'].every(и => К.последствияЧеловека(о('16.06.2030'), и).length === 1));
     К.задатьКонтекстПоследствий({});
   }
+  {
+    // Цикл, который модель не прислала, — из прошлого хода, день досчитан по дате сцены.
+    const CO = await import('../render/carryover.js');
+    проверить('цикл: сдвиг на 5 дней и по кругу', CO.сдвинутьЦикл('cyd: 12; cyl: 28; phs: ovulation', 5) === 'cyd: 17; cyl: 28' && CO.сдвинутьЦикл('cyd: 26; cyl: 28', 4) === 'cyd: 2; cyl: 28' && CO.сдвинутьЦикл('phs: paused', 9) === 'phs: paused' && CO.сдвинутьЦикл('cyd: 3; cyl: 30', 0) === 'cyd: 3; cyl: 30');
+    const ход = (дата, us, cs) => ({ is_user: false, mes: '[HUD]\n' + JSON.stringify({ sc: { T: '12:00', Dt: дата }, cs, us }) + '\n[/HUD]' });
+    const чатЦикла = [{ is_user: true, mes: 'привет' },
+      ход('10.06.2030', { A: '17', Mns: 'cyd: 12; cyl: 28; phs: ovulation' }, [{ N: 'Ава', Mns: 'cyd: 3; cyl: 30' }, { N: 'Лена', Mns: 'cyd: 5; cyl: 28', Prg: 'wk: 6' }]),
+      { is_user: true, mes: 'дальше' },
+      ход('13.06.2030', { A: '17' }, [{ N: 'Ава' }, { N: 'Лена', Prg: 'wk: 6' }])];
+    const было = globalThis.SillyTavern;
+    globalThis.SillyTavern = { getContext: () => ({ chat: чатЦикла, name1: 'Мари', name2: 'Дамиан' }) };
+    const { parseHUDComplex: разбор } = await import('../hud-parser.js');
+    const { normalizeJSONData: норма } = await import('../schema.js');
+    const данные = норма(разбор(чатЦикла[3].mes));
+    const место = { getAttribute: () => '3' };
+    const итог = CO.вернутьЦикл(данные, место);
+    проверить('цикл: игроку — прежний, +3 дня', итог.user['Цикл'] === 'cyd: 15; cyl: 28' && итог.user.__циклПрежний && итог.user.__циклПрежний.дней === 3, JSON.stringify(итог.user['Цикл']));
+    проверить('цикл: персонажу — прежний, +3 дня', итог.characters[0]['Цикл'] === 'cyd: 6; cyl: 30', JSON.stringify(итог.characters[0]['Цикл']));
+    проверить('цикл: беременной не подставляется', !итог.characters[1]['Цикл']);
+    const снимок = { sc: { Dt: '14.06.2030' }, us: { A: '17' }, cs: [{ N: 'Ава' }] };
+    CO.дополнитьЦиклСнимка(снимок, чатЦикла);
+    проверить('цикл: снимок для модели получает Mns с досчитанным днём', снимок.us.Mns === 'cyd: 16; cyl: 28' && снимок.cs[0].Mns === 'cyd: 7; cyl: 30', JSON.stringify(снимок));
+    globalThis.SillyTavern = было;
+  }
   for (const т of ['1', '2', '3', '4']) N.добавитьПодсказку('news', т);
   проверить('подсказок не больше трёх', N.подсказки().length === 3);
   N.подсказки().forEach(п => N.убратьПодсказку(п.id));

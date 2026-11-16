@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.47**:
+The latest version is **23.89.48**:
 
+- The cycle no longer disappears when the model leaves it out: the HUD keeps the previous one, counts the day on and sends it back in the snapshot.
 - A new diary emotion, longing, with its own page in the notebook, spread, blog and typewriter views.
 - A companion from "Companions" no longer shows up in the family tree as a relative; "parity" in a verbal duel is not taken for a rival; yearning in the diary no longer goes to the passion page.
 - Building up reaches everyone a gun involves and badges update in every tab; English without Russian leftovers; the guide explains every setting and field and has new sections.

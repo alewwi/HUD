@@ -11,10 +11,10 @@
 //     настройки» (код и название) и словарь вопросиков (что это).
 // Слева оглавление по разделам, сверху поиск по всему тексту.
 
-import { английский, т } from './i18n.js?v=23.89.47';
-import { escapeHtml } from './utils.js?v=23.89.47';
-import { TAB_HELP, findTermHelp } from './help.js?v=23.89.47';
-import { КАТАЛОГ } from './deep-fields.js?v=23.89.47';
+import { английский, т } from './i18n.js?v=23.89.48';
+import { escapeHtml } from './utils.js?v=23.89.48';
+import { TAB_HELP, findTermHelp } from './help.js?v=23.89.48';
+import { КАТАЛОГ } from './deep-fields.js?v=23.89.48';
 
 let открыто = false;
 const э = (s) => escapeHtml(String(s ?? ''));

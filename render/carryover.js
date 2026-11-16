@@ -14,18 +14,18 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.47';
-import { проставитьДень } from './msg-feed.js?v=23.89.47';
-import { normalizeJSONData } from '../schema.js?v=23.89.47';
-import { settings } from '../settings.js?v=23.89.47';
-import { статусРужья } from '../codes.js?v=23.89.47';
-import { extractHudBlock } from '../hud-block.js?v=23.89.47';
-import { развернутьHUD } from '../offload.js?v=23.89.47';
-import { namesLikelySame } from '../names.js?v=23.89.47';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.89.47';
-import { readParsed, writeParsed } from '../store.js?v=23.89.47';
-import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.89.47';
-import { ключСлуха } from './rumor-times.js?v=23.89.47';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.48';
+import { проставитьДень } from './msg-feed.js?v=23.89.48';
+import { normalizeJSONData } from '../schema.js?v=23.89.48';
+import { settings } from '../settings.js?v=23.89.48';
+import { статусРужья } from '../codes.js?v=23.89.48';
+import { extractHudBlock } from '../hud-block.js?v=23.89.48';
+import { развернутьHUD } from '../offload.js?v=23.89.48';
+import { namesLikelySame } from '../names.js?v=23.89.48';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.89.48';
+import { readParsed, writeParsed } from '../store.js?v=23.89.48';
+import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.89.48';
+import { ключСлуха } from './rumor-times.js?v=23.89.48';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -878,6 +878,96 @@ export function вернутьЧерты(data, messageElement) {
   // выглядела бы короткой.
   const помечено = пометитьВнеСцены(data, вернули);
   return { ...data, characters: characters.map((c, i) => (помечено.characters[i] && помечено.characters[i].__вне ? помечено.characters[i] : c)) };
+}
+
+// --- Цикл: прежний, если модель его не прислала --------------------------------
+// Модель то и дело роняет «Mns» — чаще всего у игрока, в длинных мирах с
+// магией, где схема большая. Без переноса цикл пропадал с экрана, а снимок
+// уходил модели без него, и следующий ход она тоже писала без цикла. Берём
+// последний известный цикл человека из прошлых ходов и досчитываем день по
+// дате сцены; фазу, окно и даты картинка выводит из дня сама.
+const ГЛУБИНА_ЦИКЛА = 60;
+const ЕСТЬ_ЦИКЛ = /"Mns"|Цикл"|cyd\s*[:：]/;
+const циклВыключен = (кто) => settings.enableMenstruation === false
+  || (Array.isArray(settings.fieldsOff) && settings.fieldsOff.includes((кто === 'user' ? 'us' : 'cs') + '.Mns'));
+function деньСцены(s) {
+  const t = текст(s);
+  let m = t.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})/);
+  if (m) return Date.UTC(+m[1], +m[2] - 1, +m[3]);
+  m = t.match(/(\d{1,2})[-./](\d{1,2})[-./](\d{2,4})/);
+  if (m) { const y = +m[3]; return Date.UTC(y < 100 ? 2000 + y : y, +m[2] - 1, +m[1]); }
+  return null;
+}
+/** Цикл через «дней» дней сцены: день растёт по кругу, прочие метки устаревают. */
+export function сдвинутьЦикл(значение, дней) {
+  const s = текст(Array.isArray(значение) ? значение.join('; ') : значение);
+  if (!s || !Number.isFinite(дней) || дней <= 0 || /paus|пауз/i.test(s)) return s;
+  const метка = (код) => { const m = s.match(new RegExp('(?:^|;)\\s*' + код + '\\s*[:：]\\s*(\\d{1,3})', 'i')); return m ? +m[1] : null; };
+  const день = метка('(?:cyd|день цикла)'), длина = Math.min(45, Math.max(21, метка('(?:cyl|длина цикла)') || 28));
+  if (!день) return s;
+  return `cyd: ${((день + дней - 1) % длина) + 1}; cyl: ${длина}`;
+}
+// Последний известный цикл человека до хода «индекс»: { значение, дней }.
+function прежнийЦикл(chat, индекс, кто, имя, деньСейчас) {
+  for (let j = Math.min(индекс, chat.length) - 1; j >= 0 && j >= индекс - ГЛУБИНА_ЦИКЛА; j--) {
+    const сообщение = chat[j];
+    if (!сообщение || сообщение.is_user || !ЕСТЬ_ЦИКЛ.test(текст(сообщение.mes))) continue;
+    const ход = разобратьХод(сообщение);
+    if (!ход) continue;
+    const человек = кто === 'user' ? ход.user : (Array.isArray(ход.characters) ? ход.characters : []).find(c => namesLikelySame(текст(c && c['Имя']), имя));
+    const значение = человек && человек['Цикл'];
+    if (пустоЗначение(значение)) continue;
+    const тогда = деньСцены(ход.scene && ход.scene['Дата']);
+    const дней = Number.isFinite(деньСейчас) && Number.isFinite(тогда) ? Math.max(0, Math.round((деньСейчас - тогда) / 864e5)) : 0;
+    return { значение: текст(Array.isArray(значение) ? значение.join('; ') : значение), дней };
+  }
+  return null;
+}
+const беременна = (о) => !пустоЗначение(о && (о['Беременность'] ?? о.Prg)) && !/lost|потер|выкид|аборт/i.test(текст(о && (о['Беременность'] ?? о.Prg)));
+
+/** Возвращает на экран цикл, который модель в этом ходу не прислала. Новый объект. */
+export function вернутьЦикл(data, messageElement) {
+  if (!data || settings.enableMenstruation === false) return data;
+  const индекс = Number(messageElement && messageElement.getAttribute('mesid'));
+  if (!Number.isInteger(индекс) || индекс <= 0) return data;
+  let chat = null;
+  try { const ctx = window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext(); chat = ctx && Array.isArray(ctx.chat) ? ctx.chat : null; } catch (_) { chat = null; }
+  if (!chat) return data;
+  const сейчас = деньСцены(data.scene && data.scene['Дата']);
+  const дополнить = (о, кто, имя) => {
+    if (!о || typeof о !== 'object' || !пустоЗначение(о['Цикл']) || беременна(о) || циклВыключен(кто)) return о;
+    const было = прежнийЦикл(chat, индекс, кто, имя, сейчас);
+    if (!было) return о;
+    const копия = { ...о, 'Цикл': сдвинутьЦикл(было.значение, было.дней) };
+    for (const k of Object.getOwnPropertyNames(о)) if (!Object.prototype.propertyIsEnumerable.call(о, k) && !(k in копия)) Object.defineProperty(копия, k, Object.getOwnPropertyDescriptor(о, k));
+    Object.defineProperty(копия, '__циклПрежний', { value: { дней: было.дней }, enumerable: false, configurable: true });
+    return копия;
+  };
+  const итог = { ...data };
+  let было = false;
+  if (data.user && typeof data.user === 'object' && Object.keys(data.user).length) {
+    const u = дополнить(data.user, 'user', '');
+    if (u !== data.user) { итог.user = u; было = true; }
+  }
+  if (Array.isArray(data.characters)) {
+    const cs = data.characters.map(c => дополнить(c, 'char', текст(c && c['Имя'])));
+    if (cs.some((c, i) => c !== data.characters[i])) { итог.characters = cs; было = true; }
+  }
+  return было ? итог : data;
+}
+/** Снимок для модели: у кого нет «Mns», а раньше был, — прежний цикл с досчитанным днём. */
+export function дополнитьЦиклСнимка(снимок, chat) {
+  if (!снимок || !Array.isArray(chat) || settings.enableMenstruation === false) return снимок;
+  const сейчас = деньСцены(снимок.sc && снимок.sc.Dt);
+  const индекс = chat.length;
+  const дополнить = (о, кто, имя) => {
+    if (!о || typeof о !== 'object' || !пустоЗначение(о.Mns) || беременна(о) || циклВыключен(кто)) return;
+    const было = прежнийЦикл(chat, индекс, кто, имя, сейчас);
+    if (было) о.Mns = сдвинутьЦикл(было.значение, было.дней);
+  };
+  if (снимок.us && typeof снимок.us === 'object') дополнить(снимок.us, 'user', '');
+  for (const c of Array.isArray(снимок.cs) ? снимок.cs : []) дополнить(c, 'char', текст(c && c.N));
+  return снимок;
 }
 
 // Разбор хода нужен и истории близости: таймеру следов и графикам пульса.

@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.48 — 2026-11-16
+
+### Fixed
+- **The cycle no longer disappears.** The model sometimes leaves out the menstrual cycle — most often for the player and in big worlds with magic where the instruction is long — and it vanished from the card, and the next turn the model got a snapshot without it and forgot it completely. Now the HUD takes the person's last known cycle from past turns and counts the day on by the scene date, with a quiet "from the previous turn" note under the ring. The model gets this cycle in the snapshot too, so it picks it up again. No cycle is filled in for a pregnant person.
+
 ## 23.89.47 — 2026-11-16
 
 ### Added
