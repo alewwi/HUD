@@ -657,8 +657,10 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.46**:
+The latest version is **23.89.47**:
 
+- A new diary emotion, longing, with its own page in the notebook, spread, blog and typewriter views.
+- A companion from "Companions" no longer shows up in the family tree as a relative; "parity" in a verbal duel is not taken for a rival; yearning in the diary no longer goes to the passion page.
 - Building up reaches everyone a gun involves and badges update in every tab; English without Russian leftovers; the guide explains every setting and field and has new sections.
 - Building up: a gun does not fire on its own deadline day, and a fired one leaves the plate at once.
 - "nc" for companions expands to the previous values.

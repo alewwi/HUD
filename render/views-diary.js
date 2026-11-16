@@ -17,10 +17,10 @@
 // Конечный вид рисуется сразу, без анимации появления: HUD держит анимации
 // на паузе, пока на вид не навели мышь или не нажали (css/views.css).
 
-import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.89.46';
-import { лицоЧеловека as лицо } from './views.js?v=23.89.46';
-import { ико } from './view-icons.js?v=23.89.46';
-import { градусы } from '../units.js?v=23.89.46';
+import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.89.47';
+import { лицоЧеловека as лицо } from './views.js?v=23.89.47';
+import { ико } from './view-icons.js?v=23.89.47';
+import { градусы } from '../units.js?v=23.89.47';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -33,7 +33,7 @@ const свои = (s) => `<span data-i18n-skip>${э(s)}</span>`;
 
 // Оттенок записи по теме настроения: лента закладки, полоса поста, лента машинки.
 const ОТТЕНОК = {
-  love: 345, tenderness: 340, devotion: 330, cozy: 28, lust: 352, longing: 318, jealousy: 355, codependency: 300, obsession: 290,
+  love: 345, tenderness: 340, devotion: 330, cozy: 28, lust: 352, craving: 318, longing: 256, jealousy: 355, codependency: 300, obsession: 290,
   joy: 44, triumph: 40, relief: 150, respect: 48, realization: 52, peace: 175, neutral: 200,
   sad: 214, apathy: 225, bored: 230, disappointment: 236, collapse: 250, cold: 200,
   angry: 4, irritation: 14, panic: 10, madness: 280, stress: 22, nervous: 30,
@@ -45,7 +45,7 @@ export const оттенокНастроения = (ключ) => ОТТЕНОК[�
 // Восемь «погод» настроения. Тема листа → погода.
 const СЕМЬЯ = {};
 for (const [семья, ключи] of Object.entries({
-  love: 'love tenderness devotion cozy longing lust codependency protection',
+  love: 'love tenderness devotion cozy longing craving lust codependency protection',
   joy: 'joy triumph relief respect realization curiosity',
   calm: 'neutral peace cold calc bored',
   sad: 'sad apathy disappointment collapse',
@@ -64,8 +64,16 @@ export const семьяНастроения = (ключ) => СЕМЬЯ[ключ]
 const СЕРДЦЕ = 'M0 4.6C-3.4 2.2-5.6-.2-5.6-2.6a2.8 2.8 0 0 1 5.6-1 2.8 2.8 0 0 1 5.6 1C5.6-.2 3.4 2.2 0 4.6Z';
 const ИСКРА = 'M0-6 1.4-1.4 6 0 1.4 1.4 0 6-1.4 1.4-6 0-1.4-1.4Z';
 /** Приметы погоды на странице книги: рисунки на полях, пятна, надрывы. */
-function приметыСтраницы(семья, r) {
+function приметыСтраницы(семья, r, ключ = '') {
   const svg = (класс, тело, vb = '0 0 60 60') => `<svg class="deco ${класс}" viewBox="${vb}" aria-hidden="true">${тело}</svg>`;
+  // Томление: на полях одуванчик, и ветер уносит его семена к далёкой звезде.
+  if (ключ === 'longing') {
+    const лучи = Array.from({ length: 11 }, (_, k) => { const a = (-150 + k * 30) * Math.PI / 180; return `M14 40L${ф(14 + Math.cos(a) * 8)} ${ф(40 + Math.sin(a) * 8)}`; }).join('');
+    const семя = (x, y, a) => `<g class="seed" transform="translate(${x} ${y}) rotate(${a})"><path d="M0 0V-5M0 -5l-2.6 -2.2M0 -5l2.6 -2.2M0 -5V-8.4"/><circle cx="0" cy=".6" r=".7"/></g>`;
+    return svg('longing', `<path class="stalk" d="M14 58C15 52 13 47 14 40"/><path class="puff" d="${лучи}"/><circle class="core" cx="14" cy="40" r="1.6"/>`
+      + `<path class="wind" d="M20 34C30 30 34 22 44 18"/>${семя(28, 28, 18)}${семя(38, 20, 32)}${семя(46, 14, 50)}`
+      + `<path class="star" transform="translate(54 6) scale(.6)" d="${ИСКРА}"/>`);
+  }
   if (семья === 'love') return svg('love', [[22, 40, 1.5, -12], [40, 26, 1.1, 14], [44, 46, .8, 4]].map(([x, y, s, a]) => `<path transform="translate(${x} ${y}) rotate(${a}) scale(${s})" d="${СЕРДЦЕ}"/>`).join('') + '<path class="arrow" d="M8 52 52 14M46 14h6v6"/>');
   if (семья === 'joy') return svg('joy', `<circle cx="30" cy="30" r="9"/>${Array.from({ length: 10 }, (_, k) => { const a = k * 36 * Math.PI / 180; return `<path class="ray" d="M${ф(30 + Math.cos(a) * 13)} ${ф(30 + Math.sin(a) * 13)}L${ф(30 + Math.cos(a) * (k % 2 ? 18 : 21))} ${ф(30 + Math.sin(a) * (k % 2 ? 18 : 21))}"/>`; }).join('')}`
     + [[8, 10, .7], [52, 50, .9], [50, 8, .55]].map(([x, y, s]) => `<path class="spark" transform="translate(${x} ${y}) scale(${s})" d="${ИСКРА}"/>`).join(''));
@@ -95,7 +103,7 @@ function дневникРазворот(записи) {
       + `<small class="lbl">${ико('book')}<span>о ней</span></small><div class="txt hud-jv-mtext" data-i18n-skip>${з.оНей}</div><span class="hint">загнутый уголок — отогни</span></div>` : '';
     return `<article class="hud-jv-bk-page hud-diary-mood-${з.ключ} is-m-${семья}" style="--jv-h:${оттенокНастроения(з.ключ)}">`
       + `<i class="hud-jv-bk-spine" aria-hidden="true"></i><i class="hud-jv-bk-edge" aria-hidden="true"></i>`
-      + `<span class="hud-jv-bk-wm" aria-hidden="true">${ико(з.значок || 'heart')}</span>${приметыСтраницы(семья, r)}`
+      + `<span class="hud-jv-bk-wm" aria-hidden="true">${ико(з.значок || 'heart')}</span>${приметыСтраницы(семья, r, з.ключ)}`
       + `<i class="hud-jv-bk-ribbon" aria-hidden="true"></i>`
       + `<header class="hud-jv-bk-head"><span class="mono" aria-hidden="true"><svg viewBox="0 0 40 40"><circle class="r1" cx="20" cy="20" r="18"/><circle class="r2" cx="20" cy="20" r="14.5"/>`
       + `<path class="laurel" d="M8 26c2 4 6 7 10 8M32 26c-2 4-6 7-10 8M7 21c1 2 2 3 4 4M33 21c-1 2-2 3-4 4"/></svg><b>${э(моно)}</b></span>`
@@ -139,7 +147,8 @@ function дневникМашинка(записи) {
       + `<span class="txt" data-i18n-skip>${з.оНей}</span><span class="hint">забито иксами — нажми</span></div>` : '';
     // Замазка корректора — на полях внизу листа, слов не закрывает.
     const приметы = семья === 'shame' ? [0, 1].map(k => `<i class="wo" style="--x:${Math.round(k ? 66 + r() * 12 : 8 + r() * 14)}%;--w:${Math.round(22 + r() * 18)}px" aria-hidden="true"></i>`).join('')
-      : семья === 'anger' ? `<i class="holes" aria-hidden="true"></i>` : '';
+      : семья === 'anger' ? `<i class="holes" aria-hidden="true"></i>`
+      : з.ключ === 'longing' ? `<i class="unsent" aria-hidden="true">не отправлено</i>` : '';
     return `<article class="hud-jv-tp-sheet hud-diary-mood-${з.ключ} is-m-${семья}" style="--tilt:${ф((r() - .5) * (семья === 'fear' ? 2.6 : 1.4))}deg;--jv-h:${оттенокНастроения(з.ключ)}">`
       + `<div class="hud-jv-tp-platen" aria-hidden="true"><i class="knob"></i><i class="roll"></i><i class="knob"></i><i class="bail"></i></div>`
       + `<div class="hud-jv-tp-paper">${приметы}<span class="hud-jv-tp-stamp" style="--sr:${ф(-18 + r() * 14)}deg" aria-hidden="true">${ико(з.значок || 'heart')}</span><p class="head" data-i18n-skip>${э(з.время)}${з.автор ? ` — ${э(имя(з.автор)).toUpperCase()}` : ''}</p>`

@@ -878,7 +878,7 @@ settings.tempoView = 'xray';
   const D = await модуль('render/diary.js');
   const тема = (м) => D.normalizeDiaryMood(м);
   const ждём = {
-    'тоска': 'sad', longing: 'longing', 'скучает по нему': 'longing', 'контроль': 'control', 'самоконтроль': 'control', 'безумие': 'madness',
+    'тоска': 'sad', longing: 'longing', 'скучает по нему': 'longing', yearning: 'longing', 'longing for home': 'longing', 'томление по нему': 'longing', 'тоска по дому': 'longing', 'strong desire': 'craving', 'сильное желание': 'craving', 'тянется к нему': 'craving', lust: 'lust', 'контроль': 'control', 'самоконтроль': 'control', 'безумие': 'madness',
     'растерзанное самообладание': 'madness', 'холодная рассудительность': 'calc', 'решимость': 'resolve', 'непреклонность': 'resolve',
     'азарт': 'thrill', 'ирония': 'irony', 'уважение': 'respect', 'любопытство': 'curiosity', 'стресс': 'stress', 'напряжение': 'stress',
     'усталость': 'apathy', tired: 'apathy', 'холодное спокойствие': 'cold', 'удовлетворение': 'triumph', 'обладание': 'jealousy',
@@ -894,7 +894,7 @@ settings.tempoView = 'xray';
   const штамп = D.штампНастроения('Холодная ярость', 'angry');
   проверить('дневник: штамп — слово модели и SVG-значок', штамп.includes('холодная ярость') && штамп.includes('<svg') && штамп.includes('лист «'));
   проверить('дневник: английский код в штампе — русским именем темы', D.штампНастроения('lng', 'longing').includes(D.ТЕМЫ_ДНЕВНИКА.longing.имя));
-  проверить('дневник: английское слово в штампе — переводом слова, не именем листа', D.штампНастроения('melancholy', 'sad').includes('меланхолия') && D.штампНастроения('quiet longing', 'longing').includes('сильное желание'));
+  проверить('дневник: английское слово в штампе — переводом слова, не именем листа', D.штампНастроения('melancholy', 'sad').includes('меланхолия') && D.штампНастроения('quiet longing', 'longing').includes('томление') && D.штампНастроения('craving', 'obsession').includes('жажда'));
   проверить('дневник: русское слово в штампе — как написала модель', D.штампНастроения('тоска', D.normalizeDiaryMood('тоска')).includes('>тоска<'));
   проверить('дневник: без настроения и для нейтрального — без штампа', D.штампНастроения('', 'neutral') === '' && D.штампНастроения('neutral', 'neutral') === '');
   проверить('дневник: штамп в листе', D.buildDiaryHTML([{ author: 'А', time: '21:40', text: 'текст', mood: 'тоска' }], 'd', true).includes('hud-diary-stamp'));
@@ -940,9 +940,9 @@ settings.tempoView = 'xray';
   const цвета = Object.fromEntries([...css('css/base.css').matchAll(/\.hud-diary-mood-([a-z]+) \{ --dm: (#[0-9a-f]{6}); \}/g)].map(м => [м[1], м[2]]));
   const ргб = (h) => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const даль = (a, b) => { const [x, y] = [ргб(a), ргб(b)]; const r = (x[0] + y[0]) / 2; return Math.sqrt((2 + r / 256) * (x[0] - y[0]) ** 2 + 4 * (x[1] - y[1]) ** 2 + (2 + (255 - r) / 256) * (x[2] - y[2]) ** 2); };
-  const переделаны = ['obsession', 'jealousy', 'codependency', 'guilt', 'contempt', 'irritation', 'sad', 'control', 'resolve', 'thrill', 'irony', 'stress', 'shame', 'embarrassment', 'tenderness', 'protection'];
+  const переделаны = ['obsession', 'jealousy', 'codependency', 'guilt', 'contempt', 'irritation', 'sad', 'control', 'resolve', 'thrill', 'irony', 'stress', 'shame', 'embarrassment', 'tenderness', 'protection', 'longing'];
   const тесно = переделаны.flatMap(к => Object.keys(цвета).filter(о => о !== к && даль(цвета[к], цвета[о]) < 45).map(о => `${к}~${о}`));
-  проверить('дневник: у переделанных листов цвет не путается с соседями', Object.keys(цвета).length === 40 && тесно.length === 0, тесно.join(', '));
+  проверить('дневник: у переделанных листов цвет не путается с соседями', Object.keys(цвета).length === 41 && тесно.length === 0, тесно.join(', '));
   проверить('дневник: презрение больше не красное (не рядом с любовью и страстью)', даль(цвета.contempt, цвета.love) > 120 && даль(цвета.contempt, цвета.lust) > 120);
   проверить('дневник: у переделанных листов своё движение', ['obsession', 'jealousy', 'codependency', 'guilt', 'contempt', 'thrill', 'stress'].every(к => new RegExp(`\\.hud-diary-mood-${к} \\.hud-diary-fx::(?:before|after)[^{]*\\{[^}]*animation:`).test(dm)) && /\.hud-diary-mood-irritation \.hud-dp \{[^}]*hud-dmp-scratch/.test(dm));
 

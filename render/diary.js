@@ -6,12 +6,12 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.89.46';
-import { settings } from '../settings.js?v=23.89.46';
-import { ико } from './view-icons.js?v=23.89.46';
-import { английский } from '../i18n.js?v=23.89.46';
-import { видБлока } from './views.js?v=23.89.46';
-import { видДневника, видДневникаТела } from './views-diary.js?v=23.89.46';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.89.47';
+import { settings } from '../settings.js?v=23.89.47';
+import { ико } from './view-icons.js?v=23.89.47';
+import { английский } from '../i18n.js?v=23.89.47';
+import { видБлока } from './views.js?v=23.89.47';
+import { видДневника, видДневникаТела } from './views-diary.js?v=23.89.47';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -44,8 +44,9 @@ export const ТЕМЫ_ДНЕВНИКА = {
   bored: { имя: 'скука', пример: 'скука', значок: 'clock' }, cold: { имя: 'холод', пример: 'хладнокровие', значок: 'snow' },
   sad: { имя: 'грусть', пример: 'sadness', значок: 'umbrella' },
   // Новые (замер по 22 чатам: эти слова уходили в «ровно»).
-  // «Longing» — сильное желание, тяга, а не тоска: тоска — это грусть.
-  longing: { имя: 'сильное желание', пример: 'longing', значок: 'gem' }, control: { имя: 'контроль', пример: 'абсолютная доминация', значок: 'lock' },
+  // «Сильное желание» — тяга к нему сейчас; «томление» (longing) — тяга к
+  // тому, кого нет рядом, вдаль и надолго. Тоска без «по ком» — это грусть.
+  craving: { имя: 'сильное желание', пример: 'тяга', значок: 'gem' }, longing: { имя: 'томление', пример: 'longing', значок: 'letter' }, control: { имя: 'контроль', пример: 'абсолютная доминация', значок: 'lock' },
   madness: { имя: 'надлом', пример: 'безумие', значок: 'ghost' }, calc: { имя: 'расчёт', пример: 'холодный расчет', значок: 'chart' },
   resolve: { имя: 'решимость', пример: 'стальная решимость', значок: 'target' }, thrill: { имя: 'азарт', пример: 'хищный азарт', значок: 'dagger' },
   irony: { имя: 'ирония', пример: 'сардоническая ирония', значок: 'lips' }, respect: { имя: 'уважение', пример: 'admiration', значок: 'star' },
@@ -109,9 +110,13 @@ export function normalizeDiaryMood(value) {
       'контрол','самоконтрол','авторитар','директив','осада','осаду','осадой','доминац','доминир','власт','диктат','тирани','повелева','командова','управля','владеет ситуац','держит все в руках',
       'control','controlling','dominance','dominant','dominating','domination','dominate','command','commanding','authority','authoritative','power','tyranny','tyrant','dictate','in charge','mastery'
     ]},
+    { key: 'craving', tests: [
+      'сильное желание','тяга','страстно хочет','рвется к','тянется к','тяга к','жаждет его','жаждет ее','жажда его','жажда ее','не может без',
+      'strong desire','intense desire','pull toward','pulled toward','drawn to him','drawn to her','aching for him','aching for her'
+    ]},
     { key: 'lust', tests: [
-      'похот','вожделен','возбужд','возбужден','желани','желает','страст','страстн','влечени','влеком','томлени по','жар в тел','дрожь по кож','хочет его','хочет ее','плотск','эротич','чувственн','искушени','соблазн','экстаз','пожар','медленный огонь',
-      'lust','lustful','arousal','aroused','arousing','desire','desirous','yearning','longing for','carnal','erotic','sensual','sultry','heat','wanting','want him','want her','temptation','tempted','seduce','seduction','turned on','ache for','ecstasy','ecstatic'
+      'похот','вожделен','возбужд','возбужден','желани','желает','страст','страстн','влечени','влеком','жар в тел','дрожь по кож','хочет его','хочет ее','плотск','эротич','чувственн','искушени','соблазн','экстаз','пожар','медленный огонь',
+      'lust','lustful','arousal','aroused','arousing','desire','desirous','carnal','erotic','sensual','sultry','heat','wanting','want him','want her','temptation','tempted','seduce','seduction','turned on','ache for','ecstasy','ecstatic'
     ]},
     { key: 'tenderness', tests: [
       'нежност','нежн','ласк','ласков','трепетн','бережн','умилени','умиля','мягкост','теплот к','гладит','прижимает к себе',
@@ -134,8 +139,8 @@ export function normalizeDiaryMood(value) {
       'cozy','cosy','coziness','snug','snugly','snuggle','curled up','blanket','fireplace','hearth','warm socks','hot cocoa','cup of tea','homely','homey','hygge','safe place','nest','tucked in'
     ]},
     { key: 'longing', tests: [
-      'томлени','страстно хочет','рвется к','тянется к','скучает по','скучаю по','ждет его','ждет ее',
-      'longing','long for','yearn','yearning','pining','pine for','miss him','miss her','missing him','missing her'
+      'томлени','томит','тоскует по','тоскую по','тоска по','скучает по','скучаю по','ждет его','ждет ее','ждет встречи','мечтает о нем','мечтает о ней',
+      'longing','long for','yearn','yearning','pining','pine for','miss him','miss her','missing him','missing her','missing you','homesick','ache of absence'
     ]},
     { key: 'embarrassment', tests: [
       'смущен','смущ','сконфуж','неловк','неудобн','застенчив','робост','робе','краснеет','покраснел','зарделас','зардел','растерялас','стесня',
@@ -309,7 +314,7 @@ function buildDiaryStains(seed) {
 }
 
 // Английские слова настроения по-русски — для штампа в русском интерфейсе.
-// Перевод слова, а не имя листа: «longing» — «сильное желание», «melancholy» —
+// Перевод слова, а не имя листа: «craving» — «жажда», «melancholy» —
 // «меланхолия», хотя оба лежат на своих листах.
 const НАСТРОЕНИЕ_ПО_РУССКИ = {
   sadness: 'грусть', sad: 'грусть', sorrow: 'печаль', grief: 'горе', melancholy: 'меланхолия', loneliness: 'одиночество', lonely: 'одиночество',
@@ -318,7 +323,7 @@ const НАСТРОЕНИЕ_ПО_РУССКИ = {
   anger: 'злость', angry: 'злость', rage: 'ярость', fury: 'ярость', furious: 'ярость', irritation: 'раздражение', irritated: 'раздражение', annoyed: 'раздражение', frustration: 'досада', frustrated: 'досада', resentment: 'обида', hurt: 'обида',
   panic: 'паника', calm: 'спокойствие', peace: 'покой', peaceful: 'покой', serenity: 'безмятежность', relief: 'облегчение', relieved: 'облегчение',
   guilt: 'вина', guilty: 'вина', shame: 'стыд', ashamed: 'стыд', embarrassment: 'смущение', embarrassed: 'смущение', shy: 'смущение', flustered: 'смущение',
-  longing: 'сильное желание', yearning: 'томление', pining: 'тоска', wistful: 'светлая грусть', nostalgia: 'ностальгия', nostalgic: 'ностальгия',
+  longing: 'томление', yearning: 'томление', pining: 'томление', wistful: 'светлая грусть', nostalgia: 'ностальгия', nostalgic: 'ностальгия',
   joy: 'радость', happy: 'радость', happiness: 'счастье', delight: 'восторг', excitement: 'волнение', excited: 'волнение', elation: 'ликование', euphoria: 'эйфория', bliss: 'блаженство',
   triumph: 'триумф', pride: 'гордость', proud: 'гордость', smug: 'самодовольство', satisfaction: 'удовлетворение', satisfied: 'удовлетворение', victory: 'победа',
   love: 'любовь', affection: 'нежность', tenderness: 'нежность', tender: 'нежность', adoration: 'обожание', devotion: 'преданность', loyalty: 'верность', warmth: 'тепло',
@@ -336,7 +341,7 @@ const НАСТРОЕНИЕ_ПО_РУССКИ = {
   bittersweet: 'светлая грусть', neutral: 'ровно',
 };
 // Перевод слова модели: целиком, иначе по последнему знакомому слову
-// («quiet longing» — «сильное желание»). Не знаем — имя листа.
+// («quiet longing» — «томление»). Не знаем — имя листа.
 function настроениеПоРусски(сырое, тема) {
   const s = сырое.toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
   if (НАСТРОЕНИЕ_ПО_РУССКИ[s]) return НАСТРОЕНИЕ_ПО_РУССКИ[s];
@@ -366,7 +371,7 @@ export function штампНастроения(mood, key) {
 
 // Живой слой листа (css/diary-moods.css): у тем с частицами — шесть частиц,
 // у остальных пустой слой, на нём рисуют ::before и ::after. Нейтральному не нужен.
-const С_ЧАСТИЦАМИ = new Set(['love', 'lust', 'cozy', 'disgust', 'joy', 'cold', 'collapse', 'jealousy', 'sad', 'longing', 'disappointment', 'apathy', 'triumph', 'respect', 'irritation', 'relief', 'angry', 'panic', 'madness', 'guilt', 'tenderness']);
+const С_ЧАСТИЦАМИ = new Set(['love', 'lust', 'cozy', 'disgust', 'joy', 'cold', 'collapse', 'jealousy', 'sad', 'longing', 'craving', 'disappointment', 'apathy', 'triumph', 'respect', 'irritation', 'relief', 'angry', 'panic', 'madness', 'guilt', 'tenderness']);
 const ЧАСТИЦЫ = '<i class="hud-dp"></i>'.repeat(6);
 const живойСлой = (key) => key === 'neutral' ? '' : `<span class="hud-diary-fx" aria-hidden="true">${С_ЧАСТИЦАМИ.has(key) ? ЧАСТИЦЫ : ''}</span>`;
 

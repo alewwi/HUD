@@ -9,10 +9,10 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.46';
-import { settings } from '../settings.js?v=23.89.46';
-import { namesLikelySame } from '../names.js?v=23.89.46';
-import { раскрывашка } from './fold.js?v=23.89.46';
+import { escapeHtml } from '../utils.js?v=23.89.47';
+import { settings } from '../settings.js?v=23.89.47';
+import { namesLikelySame } from '../names.js?v=23.89.47';
+import { раскрывашка } from './fold.js?v=23.89.47';
 
 /** «Гильдия | Лилиан | 80 | уважают | за что» → { кто, к, число, как, почему }. */
 export function разобратьФракцию(строка) {
@@ -156,7 +156,7 @@ function растение(n, кл) {
   } else {
     тело = `<g class="sway"><path class="stem" d="M30 55V47"/>${лист(30, 48.5, 1, .7)}${лист(30, 48.5, -1, .7)}</g>`;
   }
-  const колышек = n === null ? '' : `<path class="stake" d="M17 56V40"/><rect class="tag" x="8" y="31" width="18" height="10" rx="1.5"/><text class="tag-n" x="17" y="38.6">${n > 0 ? '+' : ''}${n}</text>`;
+  const колышек = n === null ? '' : `<path class="stake" d="M17 56V40"/><rect class="rp-tag" x="5.5" y="31" width="23" height="10" rx="1.5"/><text class="rp-tag-n" x="17" y="38.4">${n > 0 ? '+' : ''}${n}</text>`;
   const трещина = кл === 'is-bad' ? '<path class="crack" d="M33 61l-2.5 4 2 3-3 6"/>' : '';
   return `<svg class="plant" viewBox="0 0 60 78" aria-hidden="true">${тело}<path class="rim" d="M12.5 54.5h35v6.5h-35Z"/><path class="pot" d="M14.5 61h31l-3.6 15h-23.8Z"/>`
     + `<path class="pot-hi" d="M17 62.5h5l-2.4 11.5h-1.6Z"/>${трещина}<ellipse class="soil" cx="30" cy="55.6" rx="15.6" ry="2.2"/>${колышек}</svg>`;

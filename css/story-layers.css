@@ -403,11 +403,11 @@
 .hud-rep-plant .petal.is-dead { fill: #6e4a40; } .hud-rep-plant .crack { fill: none; stroke: #4a2414; stroke-width: 1; stroke-linejoin: round; }
 .hud-rep-plant.is-bad .pot { fill: #8d5536; } .hud-rep-plant.is-bad .rim { fill: #9c6040; }
 .hud-rep-plant .stake { stroke: #c9b48a; stroke-width: 1; }
-.hud-rep-plant .tag { fill: #efe6cf; stroke: color-mix(in srgb, var(--rep) 70%, #000); stroke-width: .8; }
-.hud-rep-plant .tag-n { font-size: 6.4px; font-weight: 800; text-anchor: middle; fill: color-mix(in srgb, var(--rep) 55%, #000); font-variant-numeric: tabular-nums; }
+.hud-rep-plant .rp-tag { fill: #efe6cf; stroke: color-mix(in srgb, var(--rep) 70%, #000); stroke-width: .8; }
+.hud-rep-plant .rp-tag-n { font-size: 6.2px; font-weight: 800; text-anchor: middle; fill: color-mix(in srgb, var(--rep) 55%, #000); font-variant-numeric: tabular-nums; }
 .hud-rep-plant .t { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 3px 6px; min-width: 0; }
 .hud-rep-plant .t b { width: 100%; font-size: 12.5px; line-height: 1.25; overflow-wrap: anywhere; }
-.hud-rep-plant .t em { font-style: normal; font-size: 10.5px; padding: 0 8px; border-radius: 999px; color: color-mix(in srgb, var(--rep) 50%, #fff); background: color-mix(in srgb, var(--rep) 20%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--rep) 35%, transparent); }
+.hud-rep-plant .t em { font-style: normal; font-size: 10.5px; line-height: 1.3; padding: 1px 8px; border-radius: 9px; color: color-mix(in srgb, var(--rep) 50%, #fff); background: color-mix(in srgb, var(--rep) 20%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--rep) 35%, transparent); }
 .hud-rep-plant .why { font-size: 11px; line-height: 1.35; opacity: .78; }
 /* Живое — под курсором или после касания карточки: растения качаются,
    путь сдвига в зале бежит. Пауза показывает тот же кадр. */

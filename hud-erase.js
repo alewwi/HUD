@@ -32,14 +32,14 @@
 // Здесь — логика. Кнопки и окно подтверждения — index.js, разметка кнопки —
 // render/erase-button.js.
 
-import { hudБлоки, развернутьЗаглушки, заглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.46';
-import { HUDвКодах } from './hud-snapshot.js?v=23.89.46';
-import { namesLikelySame } from './names.js?v=23.89.46';
-import { ячейки, подготовитьВыгруженные, подгрузитьЧат, развернутьHUD, ключБлока } from './offload.js?v=23.89.46';
-import { ключСекрета, правки, снятьПравку } from './snapshot-edits.js?v=23.89.46';
-import { ключСообщения } from './chronicle.js?v=23.89.46';
-import { стеретьВЛетописи, выжимкиЛетописи, пополнитьЛетопись, сохранитьЛетописьСейчас } from './chronicle-store.js?v=23.89.46';
-import { стеретьБеременность, снимокБеременности, вернутьБеременность } from './render/conception.js?v=23.89.46';
+import { hudБлоки, развернутьЗаглушки, заглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.47';
+import { HUDвКодах } from './hud-snapshot.js?v=23.89.47';
+import { namesLikelySame } from './names.js?v=23.89.47';
+import { ячейки, подготовитьВыгруженные, подгрузитьЧат, развернутьHUD, ключБлока } from './offload.js?v=23.89.47';
+import { ключСекрета, правки, снятьПравку } from './snapshot-edits.js?v=23.89.47';
+import { ключСообщения } from './chronicle.js?v=23.89.47';
+import { стеретьВЛетописи, выжимкиЛетописи, пополнитьЛетопись, сохранитьЛетописьСейчас } from './chronicle-store.js?v=23.89.47';
+import { стеретьБеременность, снимокБеременности, вернутьБеременность } from './render/conception.js?v=23.89.47';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };

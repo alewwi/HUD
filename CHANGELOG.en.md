@@ -4,6 +4,22 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.47 — 2026-11-16
+
+### Added
+- **A new diary emotion: longing.** Longing is not lust and not "strong desire": it is the pull toward someone who is not there. It now has its own page in every diary view:
+  - **Notebook:** a dusk page from lilac to ink, a distant star in the corner and handwriting. Dandelion seeds drift slowly up and away, and the page appears out of a light haze.
+  - **Spread:** a dandelion in the margin, its seeds carried off by the wind toward a twinkling star.
+  - **Private blog:** seeds drift up and to the right in the post header.
+  - **Typewriter:** "not sent" in pencil in the corner of the sheet.
+- The previous "strong desire" page (wine-red, a pull toward him right now) stays as its own emotion for "strong desire", "craving to be near", "drawn to him".
+
+### Fixed
+- **A companion is not family.** When a child in "Relationships" calls a lynx or a cat from "Companions" their "older brother", the animal no longer shows up in the family tree as the children's uncle. The relationship graph keeps that label: it is their relationship, not blood.
+- **"Parity" in a verbal duel is not a rival.** The model writes "ini: parity 50", and the HUD took the word "parity" for the rival's name, with a letter instead of a face. Now "parity", "draw", "equal", "tie" and their Russian forms mean nobody leads, and the rival is found from the concessions.
+- **Diary: yearning is not lust.** Entries with the mood "yearning", "longing for…" and its Russian form went to the passion page. Now they go to the "longing" page, about pull and yearning.
+- **Greenhouse:** the number plate on the plant stake was invisible (SillyTavern's own tag style hid it), and "+100" did not fit. A long attitude under a plant no longer swells its round plate.
+
 ## 23.89.46 — 2026-11-16
 
 ### Fixed

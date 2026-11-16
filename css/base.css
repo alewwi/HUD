@@ -2712,7 +2712,7 @@
 .hud-diary-mood-disappointment { --dm: #b9a48a; } .hud-diary-mood-apathy { --dm: #8d8d94; }
 .hud-diary-mood-bored { --dm: #c2b46a; } .hud-diary-mood-cold { --dm: #a8dcff; }
 .hud-diary-mood-sad { --dm: #4a98bf; }
-.hud-diary-mood-longing { --dm: #e8445a; } .hud-diary-mood-control { --dm: #3ad07a; }
+.hud-diary-mood-craving { --dm: #e8445a; } .hud-diary-mood-control { --dm: #3ad07a; }
 .hud-diary-mood-madness { --dm: #ff4fd8; } .hud-diary-mood-calc { --dm: #4fd1e8; }
 .hud-diary-mood-resolve { --dm: #4f7cff; } .hud-diary-mood-thrill { --dm: #ffb02e; }
 .hud-diary-mood-irony { --dm: #e0895a; } .hud-diary-mood-respect { --dm: #e8d7a8; }
@@ -2748,24 +2748,49 @@
 
 /* --- Новые темы ------------------------------------------------------------------ */
 
-/* Сильное желание (longing): не тоска, а тяга к кому-то. Винный лист,
+/* Сильное желание (craving): не тоска, а тяга к кому-то. Винный лист,
    тёплое рубиново-золотое свечение у правого края — туда, куда тянет, — и
    искры, что поднимаются вверх и вправо. От «страсти» (розовый жар снизу)
    отличается направлением и цветом: здесь не горит, а тянет. */
-.hud-diary-entry.hud-diary-mood-longing {
+.hud-diary-entry.hud-diary-mood-craving {
     background: linear-gradient(100deg, rgba(30,13,20,0.97), rgba(38,15,22,0.96) 70%, rgba(52,20,24,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,190,170,0.05) 25px, rgba(255,190,170,0.05) 26px);
     border-left-color: #e8445a; transform: rotate(0.2deg);
     box-shadow: 0 6px 18px rgba(0,0,0,0.38), inset -26px 0 34px -22px rgba(232,68,90,0.40), inset 0 0 22px rgba(255,170,110,0.06);
 }
-.hud-diary-entry.hud-diary-mood-longing::before { background: rgba(232,68,90,0.6); }
-.hud-diary-entry.hud-diary-mood-longing::after {
+.hud-diary-entry.hud-diary-mood-craving::before { background: rgba(232,68,90,0.6); }
+.hud-diary-entry.hud-diary-mood-craving::after {
     content: ''; position: absolute; inset: 0; pointer-events: none;
     background:
         radial-gradient(48% 80% at 106% 50%, rgba(255,150,110,0.24), transparent 70%),
         linear-gradient(100deg, transparent 55%, rgba(255,196,140,0.07) 78%, transparent 92%);
 }
-.hud-diary-entry.hud-diary-mood-longing .hud-diary-text::first-letter { color: #ff8a8f; text-shadow: 0 2px 10px rgba(232,68,90,0.45); }
-.hud-diary-entry.hud-diary-mood-longing .hud-diary-sticker { background: rgba(255,200,190,0.88); }
+.hud-diary-entry.hud-diary-mood-craving .hud-diary-text::first-letter { color: #ff8a8f; text-shadow: 0 2px 10px rgba(232,68,90,0.45); }
+.hud-diary-entry.hud-diary-mood-craving .hud-diary-sticker { background: rgba(255,200,190,0.88); }
+
+/* Томление (longing): тяга к тому, кого нет рядом. Сумеречный лист — вечернее
+   небо от сиреневого к чернильному, одна далёкая звезда в правом верхнем углу
+   и бледная полоса горизонта внизу: смотрят вдаль. Не винное «сильное
+   желание» (тянет сейчас, к нему) и не синяя «грусть» (слёзы). */
+.hud-diary-mood-longing { --dm: #a99be6; }
+.hud-diary-entry.hud-diary-mood-longing {
+    background: linear-gradient(180deg, rgba(36,27,56,0.97), rgba(23,21,42,0.97) 62%, rgba(15,16,30,0.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(200,190,255,0.05) 25px, rgba(200,190,255,0.05) 26px);
+    border-left-color: #a99be6;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.38), inset 0 -20px 26px -20px rgba(169,155,230,0.38), inset 0 0 22px rgba(140,130,220,0.06);
+}
+.hud-diary-entry.hud-diary-mood-longing::before { background: rgba(169,155,230,0.55); }
+.hud-diary-entry.hud-diary-mood-longing::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(circle at 89% 13%, rgba(255,250,235,0.95) 0 1.3px, rgba(225,215,255,0.55) 2.2px, transparent 6px),
+        radial-gradient(20% 32% at 89% 13%, rgba(190,175,255,0.24), transparent 70%),
+        radial-gradient(circle at 72% 22%, rgba(235,230,255,0.6) 0 .8px, transparent 2px),
+        radial-gradient(circle at 80% 30%, rgba(235,230,255,0.45) 0 .7px, transparent 2px),
+        linear-gradient(180deg, transparent 80%, rgba(200,180,255,0.08) 88%, transparent 96%);
+}
+.hud-diary-entry.hud-diary-mood-longing .hud-diary-text::first-letter { color: #d6ccff; text-shadow: 0 0 12px rgba(169,155,230,0.65); }
+.hud-diary-entry.hud-diary-mood-longing .hud-diary-sticker { background: rgba(222,214,255,0.88); }
+/* Светлая бумага: буквица и звезда темнее, иначе сиреневое пропадает. */
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-diary-entry.hud-diary-mood-longing .hud-diary-text::first-letter { color: #5f4cc0; text-shadow: 0 1px 6px rgba(120,100,220,0.3); }
 
 
 /* Надлом: лист пересекают трещины, буквы двоятся красным и голубым. */
@@ -2854,7 +2879,7 @@
 }
 .hud-diary-entry.hud-diary-mood-stress .hud-diary-text { letter-spacing: -0.01em; }
 .hud-diary-entry.hud-diary-mood-stress .hud-diary-sticker { background: rgba(255,200,160,0.92); }
-.hud-diary-entry:is(.hud-diary-mood-longing, .hud-diary-mood-control, .hud-diary-mood-madness, .hud-diary-mood-calc, .hud-diary-mood-resolve, .hud-diary-mood-thrill, .hud-diary-mood-irony, .hud-diary-mood-respect, .hud-diary-mood-curiosity, .hud-diary-mood-stress) { --dm-letter: var(--dm); }
+.hud-diary-entry:is(.hud-diary-mood-craving, .hud-diary-mood-longing, .hud-diary-mood-control, .hud-diary-mood-madness, .hud-diary-mood-calc, .hud-diary-mood-resolve, .hud-diary-mood-thrill, .hud-diary-mood-irony, .hud-diary-mood-respect, .hud-diary-mood-curiosity, .hud-diary-mood-stress) { --dm-letter: var(--dm); }
 
 /* Отклик на прикосновение. Это transition, а не анимация: в фоне ничего
    не крутится, а лист всё равно оживает под пальцем. Меняем opacity слоя

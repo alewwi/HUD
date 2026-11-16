@@ -7,12 +7,12 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.46';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.46';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.46';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.46';
-import { settings } from '../settings.js?v=23.89.46';
-import { ответыПроДядей } from './family-asks.js?v=23.89.46';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.47';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.47';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.47';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.47';
+import { settings } from '../settings.js?v=23.89.47';
+import { ответыПроДядей } from './family-asks.js?v=23.89.47';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -391,7 +391,17 @@ function деревоСИсторией(nodes, edges, дайХоды, hudData = 
     const имя = [...имена].find(n => n.split(/\s+/).length >= слов && namesLikelySame(р.чей, n));
     if (имя) узел(имя);
   }
-  return { nodes: люди, edges: рёбра };
+  // Спутники (кот, рысь, конь) — не родня, даже если ребёнок зовёт рысь
+  // «старшим братом»: иначе зверь вставал в дерево дядей детей. В графе
+  // отношений такая подпись остаётся — это их отношения, а не кровь.
+  const спутники = new Set();
+  const учестьСпутников = (d) => { for (const p of (Array.isArray(d && d.companions) ? d.companions : [])) { const и = String((p && (p.name || p['Имя'] || p.N)) || '').trim(); if (hudFilled(и)) спутники.add(и); } };
+  учестьСпутников(hudData);
+  for (const d of (сИсторией ? дайХоды(глубина) : null) || []) учестьСпутников(d);
+  const зверь = (n) => n && !n.isUser && [...спутники].some(и => namesLikelySame(и, n.name));
+  const звериId = new Set(люди.filter(зверь).map(n => n.id));
+  if (!звериId.size) return { nodes: люди, edges: рёбра };
+  return { nodes: люди.filter(n => !звериId.has(n.id)), edges: рёбра.filter(e => !звериId.has(e.from) && !звериId.has(e.to)) };
 }
 
 // «Дядя» без родства в HUD: чьи он брат или сестра — или вовсе не родня.

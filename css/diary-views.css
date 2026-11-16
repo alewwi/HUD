@@ -109,6 +109,13 @@
 .hud-jv-bk-page.is-m-love { box-shadow: inset -22px 0 34px -22px color-mix(in srgb, var(--jv-acc) 55%, transparent), 0 16px 26px -16px rgba(0, 0, 0, .8); }
 .hud-jv-bk-page.is-m-love .deco { fill: color-mix(in srgb, var(--jv-acc) 22%, transparent); }
 .hud-jv-bk-page.is-m-love .deco .arrow { fill: none; stroke-dasharray: 3 3; opacity: .8; }
+/* Томление: одуванчик на полях, семена улетают к далёкой звезде — у звезды мерцание. */
+.hud-jv-bk-page.hud-diary-mood-longing .deco { right: 10px; bottom: 30px; width: 74px; height: 74px; fill: none; opacity: .78; }
+.hud-jv-bk-page.hud-diary-mood-longing .deco .puff { stroke-width: .8; opacity: .8; }
+.hud-jv-bk-page.hud-diary-mood-longing .deco .core, .hud-jv-bk-page.hud-diary-mood-longing .deco .seed circle { fill: var(--jv-acc); stroke: none; }
+.hud-jv-bk-page.hud-diary-mood-longing .deco .seed { stroke-width: .8; }
+.hud-jv-bk-page.hud-diary-mood-longing .deco .wind { stroke-dasharray: 1.5 3.2; stroke-width: .9; opacity: .6; }
+.hud-jv-bk-page.hud-diary-mood-longing .deco .star { fill: var(--jv-acc); stroke: none; transform-box: fill-box; transform-origin: center; animation: hud-jv-twinkle 3.2s ease-in-out infinite; }
 .hud-jv-bk-page.is-m-joy { background-color: transparent; }
 .hud-jv-bk-page.is-m-joy::after { content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: radial-gradient(80% 60% at 90% 10%, color-mix(in srgb, var(--jv-acc) 22%, transparent), transparent 70%); }
 .hud-jv-bk-page.is-m-joy .deco { opacity: .8; }
@@ -231,6 +238,7 @@
   --sh-cross: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M10 3h4v7h7v4h-7v7h-4v-7H3v-4h7z'/%3E%3C/svg%3E");
   --sh-burst: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1l2 6 6-3-3 6 6 2-6 2 3 6-6-3-2 6-2-6-6 3 3-6-6-2 6-2-3-6 6 3z'/%3E%3C/svg%3E");
   --sh-bar: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='9' y='1' width='6' height='22' rx='3'/%3E%3C/svg%3E");
+  --sh-seed: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 24' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M10 23V10M10 10 2.5 4.5M10 10 5.5 2.2M10 10V1M10 10l4.5-7.8M10 10l7.5-5.5M10 10 1.2 9M10 10h8.8'/%3E%3Cellipse cx='10' cy='21' rx='1.4' ry='2.4' fill='%23000'/%3E%3C/svg%3E");
   --sh-link: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cellipse cx='12' cy='12' rx='9' ry='5.5' fill='none' stroke='black' stroke-width='3'/%3E%3C/svg%3E");
 }
 .hud-jv-bl-fx b {
@@ -272,7 +280,8 @@
 .hud-jv-bl-post.hud-diary-mood-bored { --sh: var(--sh-dot); --pan: hud-jb-tick; --pw: 4px; --pd: 2s; --py: 58%; --po: 0.7; }
 .hud-jv-bl-post.hud-diary-mood-cold { --sh: var(--sh-snow); --pan: hud-jb-zigzag; --pw: 9px; --pd: 5s; --py: 0%; --po: 0.9; }
 .hud-jv-bl-post.hud-diary-mood-sad { --sh: var(--sh-drop); --pan: hud-jb-rain; --pw: 4px; --ph: 9px; --pd: 1.3s; --py: -6%; --po: 0.8; }
-.hud-jv-bl-post.hud-diary-mood-longing { --sh: var(--sh-diamond); --pan: hud-jb-yearn; --pw: 8px; --pd: 4s; --py: 52%; --po: 0.85; }
+.hud-jv-bl-post.hud-diary-mood-longing { --sh: var(--sh-seed); --pan: hud-jb-away; --pc: #ece6ff; --pw: 9px; --ph: 11px; --pd: 5.2s; --py: 58%; --po: 0.8; }
+.hud-jv-bl-post.hud-diary-mood-craving { --sh: var(--sh-diamond); --pan: hud-jb-yearn; --pw: 8px; --pd: 4s; --py: 52%; --po: 0.85; }
 .hud-jv-bl-post.hud-diary-mood-control { --sh: var(--sh-square); --pan: hud-jb-scan; --pw: 5px; --pd: 2.4s; --py: 30%; --po: 0.75; }
 .hud-jv-bl-post.hud-diary-mood-madness { --sh: var(--sh-crescent); --pan: hud-jb-swirl; --pw: 7px; --pd: 3s; --py: 44%; --po: 0.85; }
 .hud-jv-bl-post.hud-diary-mood-calc { --sh: var(--sh-cross); --pan: hud-jb-matrix; --pw: 6px; --pd: 2.2s; --py: 0%; --po: 0.8; }
@@ -308,6 +317,7 @@
 @keyframes hud-jb-zigzag { 0% { transform: translate(0, -12px) rotate(0); opacity: 0; } 15% { opacity: var(--po); } 30% { transform: translate(9px, 6px) rotate(60deg); } 55% { transform: translate(-8px, 24px) rotate(120deg); } 80% { transform: translate(7px, 42px) rotate(180deg); } 100% { transform: translate(0, 60px) rotate(220deg); opacity: 0; } }
 @keyframes hud-jb-rain { from { transform: translateY(-8px); } to { transform: translateY(66px); } }
 @keyframes hud-jb-yearn { 0%, 100% { transform: translateY(0) scale(.85); opacity: calc(var(--po) * .6); } 50% { transform: translateY(-9px) scale(1.1); opacity: var(--po); } }
+@keyframes hud-jb-away { 0% { transform: translate(-6px, 18px) rotate(-8deg); opacity: 0; } 20% { opacity: var(--po); } 60% { transform: translate(22px, -10px) rotate(12deg); } 100% { transform: translate(46px, -34px) rotate(-6deg); opacity: 0; } }
 @keyframes hud-jb-scan { 0%, 100% { opacity: .08; transform: scale(.7); } 50% { opacity: var(--po); transform: scale(1); } }
 @keyframes hud-jb-swirl { 0% { transform: rotate(0) translateX(2px) scale(.5); opacity: 0; } 20% { opacity: var(--po); } 100% { transform: rotate(540deg) translateX(18px) scale(1); opacity: 0; } }
 @keyframes hud-jb-matrix { from { transform: translateY(-6px); opacity: var(--po); } to { transform: translateY(60px); opacity: 0; } }
@@ -369,6 +379,10 @@
 .hud-jv-tp-sheet.is-m-sad .hud-jv-tp-paper .red { opacity: .65; }
 .hud-jv-tp-sheet.is-m-anger .hud-jv-tp-text { text-shadow: .8px 0 0 var(--tp-ink), -.4px .4px 0 color-mix(in srgb, var(--tp-ink) 50%, transparent), 0 0 1px var(--tp-ink); }
 .hud-jv-tp-sheet.is-m-anger .hud-jv-tp-paper .head { text-decoration: underline wavy var(--tp-red); text-underline-offset: 4px; }
+/* Томление: в углу листа карандашом — «не отправлено». */
+.hud-jv-tp-paper .unsent { position: absolute; right: 12px; bottom: 6px; z-index: 0; pointer-events: none; font: 400 12px/1 'Bad Script', 'Marck Script', cursive; font-style: normal;
+  color: color-mix(in srgb, var(--tp-soft) 85%, var(--dm, #a99be6)); opacity: .8; transform: rotate(-4deg); }
+.hud-jv-tp-paper .unsent::before { content: ''; position: absolute; left: -4px; right: -4px; bottom: -3px; height: 1px; background: currentColor; opacity: .5; transform: rotate(1.5deg); }
 .hud-jv-tp-paper .holes { position: absolute; inset: 40px 10px 20px; z-index: -1; pointer-events: none;
   background: radial-gradient(circle, rgba(0, 0, 0, .55) 0 1.2px, transparent 1.8px) 17px 9px / 53px 41px, radial-gradient(circle, rgba(0, 0, 0, .45) 0 1px, transparent 1.6px) 38px 27px / 71px 57px; }
 .hud-jv-tp-sheet.is-m-fear .hud-jv-tp-text { text-shadow: 1.3px .7px 0 color-mix(in srgb, var(--tp-ink) 32%, transparent), -.6px -.3px 0 color-mix(in srgb, var(--tp-ink) 22%, transparent); }

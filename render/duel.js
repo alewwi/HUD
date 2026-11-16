@@ -12,11 +12,11 @@
 //   всплыло       — запись памяти (таймлайн, важное), с которой совпадает
 //                   суть спора: «это про тот вечер 12-го».
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.46';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.46';
-import { settings } from '../settings.js?v=23.89.46';
-import { getAvatarUrl } from '../avatars.js?v=23.89.46';
-import { ико, медаль } from './view-icons.js?v=23.89.46';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.47';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.47';
+import { settings } from '../settings.js?v=23.89.47';
+import { getAvatarUrl } from '../avatars.js?v=23.89.47';
+import { ико, медаль } from './view-icons.js?v=23.89.47';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const поле = (о, имя) => {
@@ -63,8 +63,11 @@ export function разобратьДуэль(value) {
   s.split(';').forEach(x => { const м = x.match(/^\s*(ini|gv|tn|tone?)\s*[:：]\s*(.+)$/i); if (м) ч[/^ton/i.test(м[1]) ? 'tn' : м[1].toLowerCase()] = м[2].trim(); });
   if (!ч.ini && !ч.gv && !ч.tn) return null;
   const м = String(ч.ini || '').match(/^(.*?)[,:—–-]?\s*(\d{1,3})\s*%?\s*$/);
-  const ведёт = м ? м[1].replace(/[,:—–-]\s*$/, '').trim() : String(ч.ini || '').trim();
-  const сила = м ? Math.max(0, Math.min(100, +м[2])) : null;
+  let ведёт = м ? м[1].replace(/[,:—–-]\s*$/, '').trim() : String(ч.ini || '').trim();
+  let сила = м ? Math.max(0, Math.min(100, +м[2])) : null;
+  // «ini: паритет 50», «ничья», «equal» — никто не ведёт: это не имя
+  // соперника, а равенство сил.
+  if (/^(?:паритет|равенство|равны|поровну|ничья|никто|нейтрально|parity|equal(?:ly)?|even|tie|draw|nobody|none|neutral)$/i.test(ведёт)) { ведёт = ''; сила = 50; }
   // «холод | укол | приказ» — модель называет несколько тонов: берём самый
   // горячий из названных. Слова вне списка — по синонимам ступеней.
   const тон = String(ч.tn || '');

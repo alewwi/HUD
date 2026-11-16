@@ -35,11 +35,12 @@
 @keyframes hud-dmp-twinkle { 0%, 100% { scale: .2; opacity: 0; } 50% { scale: 1; opacity: var(--po, .9); } }
 @keyframes hud-dmp-drift   { 0% { translate: 0 0; opacity: 0; } 15%, 85% { opacity: var(--po, .6); } 100% { translate: 440px var(--dy); opacity: 0; } }
 @keyframes hud-dmp-burst   { 0% { translate: 0 0; scale: .3; opacity: 0; } 10% { opacity: var(--po, 1); } 100% { translate: var(--bx) var(--by); scale: 1; opacity: 0; } }
+@keyframes hud-dmp-yearn   { 0% { translate: 0 0; rotate: -6deg; opacity: 0; } 15% { opacity: var(--po, .7); } 55% { translate: calc(var(--dx) * .55) -58px; rotate: 14deg; } 85% { opacity: var(--po, .7); } 100% { translate: var(--dx) -118px; rotate: -8deg; opacity: 0; } }
 @keyframes hud-dmp-flicker { 0%, 100%, 12%, 40%, 48% { opacity: 0; } 8%, 44% { opacity: var(--po, .8); } 44% { translate: 3px 0; } }
 
 
 /* Группы движения. Скорость темы — множитель --dm-speed. */
-.hud-diary-entry:is(.hud-diary-mood-love, .hud-diary-mood-lust, .hud-diary-mood-cozy, .hud-diary-mood-disgust, .hud-diary-mood-longing) .hud-dp {
+.hud-diary-entry:is(.hud-diary-mood-love, .hud-diary-mood-lust, .hud-diary-mood-cozy, .hud-diary-mood-disgust, .hud-diary-mood-craving) .hud-dp {
   top: calc(100% - 14px); animation: hud-dmp-rise calc(var(--pd) * var(--dm-speed, 1)) ease-out var(--pdl) infinite; animation-play-state: paused;
 }
 .hud-diary-entry:is(.hud-diary-mood-joy, .hud-diary-mood-cold, .hud-diary-mood-collapse, .hud-diary-mood-sad, .hud-diary-mood-disappointment, .hud-diary-mood-apathy) .hud-dp {
@@ -50,6 +51,9 @@
 }
 .hud-diary-entry.hud-diary-mood-relief .hud-dp {
   left: -40px; animation: hud-dmp-drift calc(var(--pd) * var(--dm-speed, 1)) linear var(--pdl) infinite; animation-play-state: paused;
+}
+.hud-diary-entry.hud-diary-mood-longing .hud-dp {
+  top: calc(100% - 18px); animation: hud-dmp-yearn calc(var(--pd) * var(--dm-speed, 1)) ease-in-out var(--pdl) infinite; animation-play-state: paused;
 }
 .hud-diary-entry.hud-diary-mood-angry .hud-dp { animation: hud-dmp-burst calc(var(--pd) * .35) ease-out var(--pdl) infinite; animation-play-state: paused; }
 .hud-diary-entry:is(.hud-diary-mood-panic, .hud-diary-mood-madness) .hud-dp { animation: hud-dmp-flicker calc(var(--pd) * .5) steps(1, end) var(--pdl) infinite; animation-play-state: paused; }
@@ -80,7 +84,12 @@
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 24'%3E%3Cpath d='M8 1S1 10 1 15.5a7 7 0 0 0 14 0C15 10 8 1 8 1z'/%3E%3C/svg%3E") center / contain no-repeat;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 24'%3E%3Cpath d='M8 1S1 10 1 15.5a7 7 0 0 0 14 0C15 10 8 1 8 1z'/%3E%3C/svg%3E") center / contain no-repeat; }
 .hud-diary-mood-sad .hud-dp:nth-child(n+4) { display: none; }
-.hud-diary-mood-longing .hud-dp { --pw: 4px; --ph: 4px; --po: .85; --dm-speed: 1.25; --dx: 26px; background: radial-gradient(circle, #ffe0b0, #ff7a6a 55%, rgba(232,68,90,0) 72%); box-shadow: 0 0 6px rgba(255,120,100,.7); }
+.hud-diary-mood-craving .hud-dp { --pw: 4px; --ph: 4px; --po: .85; --dm-speed: 1.25; --dx: 26px; background: radial-gradient(circle, #ffe0b0, #ff7a6a 55%, rgba(232,68,90,0) 72%); box-shadow: 0 0 6px rgba(255,120,100,.7); }
+.hud-diary-mood-longing .hud-dp { --pw: 9px; --ph: 11px; --pr: 0; --po: .78; --dm-speed: 1.9; --dx: 72px; background: #e8e2ff; filter: drop-shadow(0 0 3px rgba(190,175,255,.7));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 24' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M10 23V10M10 10 2.5 4.5M10 10 5.5 2.2M10 10V1M10 10l4.5-7.8M10 10l7.5-5.5M10 10 1.2 9M10 10h8.8'/%3E%3Cellipse cx='10' cy='21' rx='1.4' ry='2.4' fill='%23000'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 24' fill='none' stroke='%23000' stroke-width='1.3' stroke-linecap='round'%3E%3Cpath d='M10 23V10M10 10 2.5 4.5M10 10 5.5 2.2M10 10V1M10 10l4.5-7.8M10 10l7.5-5.5M10 10 1.2 9M10 10h8.8'/%3E%3Cellipse cx='10' cy='21' rx='1.4' ry='2.4' fill='%23000'/%3E%3C/svg%3E") center / contain no-repeat; }
+.hud-diary-mood-longing .hud-dp:nth-child(even) { --pw: 7px; --ph: 9px; --dx: 48px; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-diary-mood-longing .hud-dp { background: #7d6ad0; filter: none; }
 .hud-diary-mood-disappointment .hud-dp { --pw: 3px; --ph: 3px; --po: .45; --dm-speed: 2.2; background: #c9b79c; }
 .hud-diary-mood-apathy .hud-dp { --pw: 2px; --ph: 2px; --po: .35; --dm-speed: 3.2; background: #9a9aa2; }
 .hud-diary-mood-triumph .hud-dp, .hud-diary-mood-respect .hud-dp { --pw: 10px; --ph: 10px; --pr: 0; background: #ffe7a0;
@@ -643,8 +652,10 @@
 .hud-diary-mood-respect :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext),
 .hud-diary-mood-devotion :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Lora', Georgia, serif; --hud-dm-k: var(--hud-dm-gate) .86; }
 /* Сильное желание — курсив с наклоном вперёд и крупной рубиновой буквицей. */
-.hud-diary-mood-longing :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Cormorant Garamond', 'Lora', serif; --hud-dm-k: var(--hud-dm-gate) .98; font-style: italic; }
-.hud-diary-mood-longing :is(.hud-diary-text, .hud-jv-mtext)::first-letter { font-family: 'Cormorant Garamond', 'Lora', serif; font-size: 2.6em; line-height: .7; }
+.hud-diary-mood-craving :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Cormorant Garamond', 'Lora', serif; --hud-dm-k: var(--hud-dm-gate) .98; font-style: italic; }
+.hud-diary-mood-craving :is(.hud-diary-text, .hud-jv-mtext)::first-letter { font-family: 'Cormorant Garamond', 'Lora', serif; font-size: 2.6em; line-height: .7; }
+/* Томление — письмо от руки, которое так и не отправят: Bad Script. */
+.hud-diary-mood-longing :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Bad Script', 'Marck Script', cursive; --hud-dm-k: var(--hud-dm-gate) .92; font-style: normal; }
 .hud-diary-mood-respect :is(.hud-diary-text, .hud-jv-mtext)::first-letter,
 .hud-diary-mood-devotion :is(.hud-diary-text, .hud-jv-mtext)::first-letter { font-family: 'Cormorant Garamond', 'Lora', serif; font-size: 2.7em; line-height: .7; }
 .hud-diary-mood-irony :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Philosopher', sans-serif; --hud-dm-k: var(--hud-dm-gate) .89; }
@@ -685,7 +696,8 @@
 .hud-diary-mood-apathy { --dm-in: hud-dm-in-fade; --dm-in-d: 2s; --dm-in-e: linear; }
 .hud-diary-mood-bored { --dm-in: hud-dm-in-yawn; --dm-in-d: 1.5s; --dm-in-e: ease-in-out; }
 .hud-diary-mood-cold { --dm-in: hud-dm-in-fade; --dm-in-d: .9s; }
-.hud-diary-mood-longing { --dm-in: hud-dm-in-tug; --dm-in-d: 1s; --dm-in-e: ease-out; }
+.hud-diary-mood-craving { --dm-in: hud-dm-in-tug; --dm-in-d: 1s; --dm-in-e: ease-out; }
+.hud-diary-mood-longing { --dm-in: hud-dm-in-yearn; --dm-in-d: 1.8s; --dm-in-e: ease-out; }
 .hud-diary-mood-control { --dm-in: hud-dm-in-snap; --dm-in-d: .45s; --dm-in-e: steps(3, end); }
 .hud-diary-mood-calc { --dm-in: hud-dm-in-type; --dm-in-d: .9s; --dm-in-e: steps(12, end); }
 .hud-diary-mood-thrill { --dm-in: hud-dm-in-dash; --dm-in-d: .45s; --dm-in-e: cubic-bezier(.1,.9,.2,1); }
@@ -715,6 +727,7 @@
 @keyframes hud-dm-in-slam    { 0% { opacity: 0; translate: 0 -14px; scale: 1.02; } 55% { opacity: 1; translate: 0 2px; scale: 1; } 70% { translate: -2px 0; } 85% { translate: 2px 0; } }
 @keyframes hud-dm-in-droop   { 0% { opacity: 0; translate: 0 -6px; rotate: .8deg; } 60% { opacity: 1; } }
 @keyframes hud-dm-in-yawn    { 0% { opacity: 0; scale: 1 .94; } 50% { opacity: 1; scale: 1 1.015; } }
+@keyframes hud-dm-in-yearn   { 0% { opacity: 0; translate: 0 10px; filter: blur(2px); } 60% { opacity: .85; filter: blur(0); } 100% { opacity: 1; translate: 0 0; } }
 @keyframes hud-dm-in-drift   { from { opacity: 0; translate: -16px 0; } }
 @keyframes hud-dm-in-snap    { from { opacity: 0; scale: .97; } }
 @keyframes hud-dm-in-type    { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
