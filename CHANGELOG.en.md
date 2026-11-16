@@ -4,6 +4,13 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.53 — 2026-11-16
+
+### Fixed
+- **The winter scene that fits the world: buildings stand on the ground.** The future city, the standing stones, the factory and the mage tower stand on their own snowdrift instead of hanging above the ground, and no longer overlap the spruces: in these worlds the left spruce makes way for them. The added slope is gone in winter.
+- On a narrow card, the distant buildings rise above the front snowdrift instead of sinking into it. The mage tower takes the place of the small far hut, since there is no room for it behind the huts.
+- **The witch on the broom is drawn anew.** She sits sideways on a straight broomstick, with one head in a hat, a cloak flying behind her and a skirt hanging from the stick. One hand holds the broom, and her two booted legs are apart.
+
 ## 23.89.52 — 2026-11-16
 
 ### Added

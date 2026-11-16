@@ -15,14 +15,14 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.52';
-import { settings } from '../settings.js?v=23.89.52';
-import { т } from '../i18n.js?v=23.89.52';
-import { текстБезHUD } from '../hud-block.js?v=23.89.52';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.52';
-import { связьПраздников, деталиПраздника, сохранитьДеталиПраздника, деталиСтрокой, забытьДеталиПраздника, ключПраздника } from './holiday-lore.js?v=23.89.52';
-import { отправить, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили } from './holiday-gen.js?v=23.89.52';
-import { добавитьПодсказку, подсказки } from '../turn-notes.js?v=23.89.52';
+import { escapeHtml } from '../utils.js?v=23.89.53';
+import { settings } from '../settings.js?v=23.89.53';
+import { т } from '../i18n.js?v=23.89.53';
+import { текстБезHUD } from '../hud-block.js?v=23.89.53';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.53';
+import { связьПраздников, деталиПраздника, сохранитьДеталиПраздника, деталиСтрокой, забытьДеталиПраздника, ключПраздника } from './holiday-lore.js?v=23.89.53';
+import { отправить, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили } from './holiday-gen.js?v=23.89.53';
+import { добавитьПодсказку, подсказки } from '../turn-notes.js?v=23.89.53';
 
 const СООБЩЕНИЙ_ПО_УМОЛЧАНИЮ = 6;
 const СИМВОЛОВ_СООБЩЕНИЯ = 1500;

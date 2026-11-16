@@ -18,7 +18,7 @@
 //
 // Настройка fixStSlowCss (по умолчанию включена); выключение возвращает всё как было.
 
-import { settings } from './settings.js?v=23.89.52';
+import { settings } from './settings.js?v=23.89.53';
 
 const ПРИЗНАК_1 = ':has(> .del_checkbox[style*=';
 const ПРИЗНАК_2 = '#adaptive_p_block:has(';

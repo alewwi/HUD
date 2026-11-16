@@ -39,7 +39,7 @@
 
 /* Рельеф за дальними предметами уходит вниз в существующий склон.
    Верх гребня подведён к уровню их подножия в каждом сезоне. */
-.hud-se:not(.hud-se-l):is(.is-autumn, .is-winter, .is-spring):has(
+.hud-se:not(.hud-se-l):is(.is-autumn, .is-spring):has(
   :is(.se-train, .se-towers, .se-factory, .se-stones, .se-tower, .se-hut, .se-greenhouse)
 )::before {
   content: "";
@@ -179,16 +179,18 @@
 /* ───────────── зима ───────────── */
 .hud-se.is-winter .se-tent { bottom: 8%; width: 14%; aspect-ratio: 50 / 44; z-index: 4; }
 .hud-se .se-tent.t1 { left: 15%; width: 12%; max-width: 66px; } .hud-se .se-tent.t2 { left: 31%; width: 12%; } .hud-se .se-tent.t3 { left: 76%; bottom: 12%; width: 9%; }
-.hud-se.is-winter .se-stones { left: 49%; bottom: 19%; width: 11%; aspect-ratio: 60 / 30; z-index: 1; }
+.hud-se.is-winter .se-stones { left: 43.5%; bottom: 10%; width: 12.5%; aspect-ratio: 60 / 30; z-index: 1; }
 .hud-se .se-row { bottom: 8%; aspect-ratio: 70 / 46; z-index: 4; }
 .hud-se .se-row.w1 { left: 19%; width: 23%; max-width: 92px; } .hud-se .se-row.w2 { left: 76%; bottom: 12%; width: 12.5%; }
-.hud-se.is-winter .se-factory { left: 45%; bottom: 16%; width: 19%; aspect-ratio: 110 / 60; z-index: 1; }
+.hud-se.is-winter .se-factory { left: 42%; bottom: 9.5%; width: 15%; aspect-ratio: 110 / 60; z-index: 1; }
 .hud-se .se-gaslamp { right: 7%; bottom: 5%; width: 4.4%; aspect-ratio: 30 / 90; z-index: 5; }
 .hud-se .se-dome { bottom: 8%; aspect-ratio: 60 / 34; z-index: 4; }
 .hud-se .se-dome.d1 { left: 11%; width: 18%; } .hud-se .se-dome.d2 { left: 31%; width: 11%; } .hud-se .se-dome.d3 { left: 76%; bottom: 12%; width: 10%; }
-.hud-se.is-winter .se-towers { left: 47%; bottom: 17%; width: 20%; aspect-ratio: 120 / 70; z-index: 1; }
+.hud-se.is-winter .se-towers { left: 42.5%; bottom: 9.5%; width: 14.5%; aspect-ratio: 120 / 70; z-index: 1; }
 .hud-se .se-pylon { right: 7%; bottom: 5%; width: 3.2%; aspect-ratio: 20 / 90; z-index: 5; }
-.hud-se .se-tower { left: 68%; bottom: 15%; width: 5%; max-width: 30px; aspect-ratio: 44 / 96; z-index: 2; }
+.hud-se .se-tower { left: 50.5%; bottom: 10%; width: 5.4%; max-width: 30px; aspect-ratio: 44 / 96; z-index: 1; }
+/* Дальняя постройка встаёт на место левой ели — на ёлки ничего не налезает. */
+:is(.tech-primitive, .tech-industrial, .tech-future, .magic-high).season-winter .hud-sp-spruce.e1 { display: none !important; }
 .hud-se .se-circle { left: 44%; bottom: 1.5%; width: 22%; max-width: 120px; aspect-ratio: 120 / 24; z-index: 6; }
 .hud-scene-widget:not(:is(.phase-night, .phase-deep-night)) .hud-se .se-circle { display: none; }
 .hud-se .se-lantern { left: 37%; bottom: 2%; width: 4.3%; max-width: 23px; aspect-ratio: 26 / 44; z-index: 6; }
@@ -335,7 +337,7 @@
 .hud-se .se-wing { animation: hud-se-wing 2.8s ease-in-out infinite; transform-origin: 41px 22px; }
 .hud-se .fw { animation: hud-se-wing 1.1s ease-in-out infinite; transform-origin: 9px 7px; }
 .hud-se .se-cloth { animation: hud-se-tail 4.2s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 10%; }
-.hud-se .se-cloak { animation: hud-se-tail 4.2s ease-in-out infinite; transform-origin: 63px 14px; }
+.hud-se .se-cloak { animation: hud-se-tail 4.2s ease-in-out infinite; transform-origin: 55px 14px; }
 .hud-se .se-splash { animation: hud-se-breathe 2.8s ease-in-out infinite; }
 .hud-se .se-rotors { animation: hud-se-breathe 1.2s ease-in-out infinite; }
 .hud-se :is(.se-drone, .se-robo, .se-towers) .hot-red { animation: hud-se-breathe 3.9s ease-in-out infinite; }
@@ -373,7 +375,11 @@
 
 /* Узкая карточка: башню мага не закрывают дома и ели, остров — крона. */
 @media (max-width: 600px) {
-  .hud-se .se-tower { left: 71%; bottom: 17%; width: 8%; }
+  /* Башне мага за избами места нет: она встаёт вместо дальней маленькой избы. */
+  .hud-se .se-tower { left: 80%; bottom: 15.5%; width: 8.5%; z-index: 1; }
+  .magic-high.season-winter .hud-winter-house.h3 { display: none !important; }
+  /* Дальние постройки — над передним сугробом и чуть крупнее, иначе на узкой карточке их не видно. */
+  .hud-se.is-winter :is(.se-stones, .se-towers, .se-factory) { bottom: 14%; width: 17%; left: 41%; z-index: 2; }
   .hud-se .se-island { left: 73%; top: 8%; width: 23%; }
   /* Низкие шатры и купола иначе тонут в переднем сугробе. */
   .hud-se.is-winter :is(.se-tent, .se-dome) { bottom: 14%; z-index: 8; }
@@ -381,7 +387,11 @@
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
-  .hud-se .se-tower { left: 71%; bottom: 17%; width: 8%; }
+  /* Башне мага за избами места нет: она встаёт вместо дальней маленькой избы. */
+  .hud-se .se-tower { left: 80%; bottom: 15.5%; width: 8.5%; z-index: 1; }
+  .magic-high.season-winter .hud-winter-house.h3 { display: none !important; }
+  /* Дальние постройки — над передним сугробом и чуть крупнее, иначе на узкой карточке их не видно. */
+  .hud-se.is-winter :is(.se-stones, .se-towers, .se-factory) { bottom: 14%; width: 17%; left: 41%; z-index: 2; }
   .hud-se .se-island { left: 73%; top: 8%; width: 23%; }
   /* Низкие шатры и купола иначе тонут в переднем сугробе. */
   .hud-se.is-winter :is(.se-tent, .se-dome) { bottom: 14%; z-index: 8; }

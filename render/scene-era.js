@@ -50,6 +50,14 @@ function кусок(класс, [тело, свет = '']) {
   return тело ? `<div class="hud-se-p ${класс}">${тело}</div>` : '';
 }
 const svg = (vb, тело) => `<svg viewBox="${vb}" overflow="visible">${тело}</svg>`;
+// Сугроб у подножия: волной поперёк нижнего края рисунка — постройка стоит
+// в снегу, а не висит над землёй.
+function наСнегу([тело, свет = '']) {
+  const [, , w, h] = ((тело.match(/viewBox="([^"]+)"/) || [])[1] || '0 0 100 50').split(/\s+/).map(Number);
+  const x = (k) => р(w * k), y = (k) => р(h - h * k), низ = р(h + 1);
+  const сугроб = `<path d="M${x(-.08)} ${низ}Q${x(.12)} ${y(.16)} ${x(.3)} ${y(.1)}T${x(.62)} ${y(.12)}T${x(1.08)} ${низ}Z" fill="#edf2f9"/><path d="M${x(.02)} ${y(.06)}Q${x(.3)} ${y(.12)} ${x(.6)} ${y(.08)}" stroke="#c9d6e6" stroke-width=".8" fill="none"/>`;
+  return [тело.replace(/<\/svg>$/, сугроб + '</svg>'), свет];
+}
 
 // Свет и тень внутри рисунков. Свои ID нужны, когда на стенде несколько сцен.
 function заливка(g, верх, низ, средний = '') {
@@ -114,16 +122,27 @@ function кристаллы() {
 }
 
 function метла() {
-  const g = id('cloak');
-  const искры = '<path d="M4 31h4m-2-2v4m8-8h6m-3-3v6m8 1h4m-2-2v4"/>';
-  return [svg('0 0 96 40', `<defs>${заливка(g, '#987994', '#352943', '#654b73')}</defs>`
-      + `<path class="b-trail" d="M2 32q12-9 31-2M8 37q9-7 20-5"/><g class="b-spark">${искры}</g>`
-      + `<path d="M31 30Q58 25 86 20q4-1 6-3" fill="none" stroke="#52392e" stroke-width="3" stroke-linecap="round"/><path d="M30 29q27-4 51-9" stroke="#b69363" stroke-width=".9"/>`
-      + `<path d="M34 28Q24 23 16 30l6 1-8 6q13 0 22-7Z" fill="#9d744b"/><path d="M17 35q12-5 18-6m-13 1 12-1" stroke="#dbb87d" stroke-width=".85"/><path d="m33 27 2 5m1-6 2 5" stroke="#d5a867" stroke-width="1"/>`
-      + `<g class="se-cloak"><path fill="url(#${g})" d="M63 13q-6-2-12 5-8 3-19 2 4 5 13 5l-4 4q12 0 21-6l6-7Z"/><path d="M62 15q-6 7-18 8m18-1q-4 4-11 5" fill="none" stroke="#b68fbc" stroke-opacity=".7" stroke-width=".9"/></g>`
-      + `<path d="M62 18l8 5-4 9 5 1 3-2-4-1 5-8-8-5Z" fill="#4c3549"/><path d="M65 15q6 0 10 6l5-1" fill="none" stroke="#675276" stroke-linecap="round" stroke-width="2.8"/><path d="M62 8q4-3 7 1l2 4-3 1-2 2-4-2Z" fill="#ddad89"/>`
-      + `<path d="M57 9 61 1l7 3-3 1 3 3 8-1q-5 5-21 5l-5-2Z" fill="#473350"/><path d="m56 9 12-2" stroke="#b58aaf" stroke-width="1.15"/>`),
-    svg('0 0 96 40', `<path class="trail-gl" d="M2 32q12-9 31-2"/><g class="b-spark">${искры}</g>`)];
+  const g = id('cloak'), d = id('dress');
+  const искры = '<path d="M5 31h4m-2-2v4m8 2h5m-2.5-2.5v5m7-9h4m-2-2v4"/>';
+  return [svg('0 0 96 40', `<defs>${заливка(g, '#5d4683', '#241a36', '#3d2d5a')}${заливка(d, '#6a4f95', '#33264d')}</defs>`
+      + `<path class="b-trail" d="M2 31q12-6 24-1M7 36q9-4 18-2"/><g class="b-spark">${искры}</g>`
+      // древко чуть вверх по ходу полёта, метёлка сзади, перевязь
+      + '<path d="M22 30.5 88 21.5" stroke="#5a3d26" stroke-width="2.6" stroke-linecap="round"/><path d="M24 29.6 86 21" stroke="#9a7348" stroke-width=".7"/>'
+      + '<path d="M24 30.6Q15 26 6 29l5 1.6L4 33l7 .4L5 37q11-1 19-5.4Z" fill="#c99a52"/><path d="M8 30.6q8-.6 15 .2M7 34q8-1.4 16-2.6" stroke="#8e6a34" stroke-width=".6" fill="none"/><path d="m22.6 28.4 1.4 4.4" stroke="#6b4a2b" stroke-width="1.6"/>'
+      // плащ развевается назад
+      + `<path class="se-cloak" fill="url(#${g})" d="M55 13q-7 1-12 6-5 3-11 3 5 3 11 2-3 3-7 4 9 1 17-5l5-7Z"/>`
+      // юбка: сидит на древке, ткань свисает по обе стороны
+      + `<path fill="url(#${d})" d="M53 14h8l3 9 2 5-6 2.4-9 .6-3-1.4 2-6Z"/><path d="M50 28.6q6 1.4 15-.8" stroke="#8d74b8" stroke-width=".7" fill="none"/>`
+      // ноги: дальняя чуть позади, ближняя вперёд, сапоги носком по ходу
+      + '<path d="M56 29.4 57 35" stroke="#2c2233" stroke-width="2.2" stroke-linecap="round"/><path d="M55.6 34.6h3.6l1.8 1.6-.4 .8h-5Z" fill="#1f1820"/>'
+      + '<path d="M61.5 28.6 65 34" stroke="#3a2d40" stroke-width="2.4" stroke-linecap="round"/><path d="M63.4 33.4l3.4-.6 2.6 1.6-.2 .9-5.2.4Z" fill="#2a1f2a"/>'
+      // рука к древку
+      + '<path d="M59 16.4q4 3 9.6 4.4" stroke="#4a3566" stroke-width="2.2" stroke-linecap="round" fill="none"/><circle cx="69" cy="21.4" r="1.3" fill="#e8c3a0"/>'
+      // голова: волосы назад, лицо в профиль, нос
+      + '<path d="M55.6 9q-4 1-6 6 3-1 5-1Z" fill="#3a2a2a"/><circle cx="58.6" cy="10.2" r="3.1" fill="#e8c3a0"/><path d="M61.5 10.2l1.4.8-1.4.4" fill="#e1b48e"/><circle cx="60" cy="9.6" r=".45" fill="#2a1f2a"/>'
+      // шляпа: поля и колпак с заломом назад
+      + '<path d="M51.4 8.2q7.6-2.4 14.6-.6-7 1.8-14.6.6Z" fill="#2a2036"/><path d="M54.4 7.4q.6-5 2-8 2-3.6-3.4-5.6 6 .2 7 4.6 1 3.6 1.2 8.4Z" fill="#30243f"/><path d="M54.6 6.2q3.4-.8 6.4-.2" stroke="#b48cff" stroke-width="1.1" fill="none"/>'),
+    svg('0 0 96 40', `<path class="trail-gl" d="M2 31q12-6 24-1"/><g class="b-spark">${искры}</g>`)];
 }
 
 function грибнойКруг(тихо, весна = false) {
@@ -423,19 +442,19 @@ function собрать(сезон, { tech = 'modern', magic = 'none' } = {}) {
   const зима = сезон === 'season-winter', лето = сезон === 'season-summer', осень = сезон === 'season-autumn', весна = сезон === 'season-spring';
   // ── технологии ──
   if (tech === 'primitive') {
-    if (зима) h += кусок('se-tent t1', шатёр(0)) + кусок('se-tent t2', шатёр(1)) + кусок('se-tent t3', шатёр(2)) + кусок('se-stones', менгиры());
+    if (зима) h += кусок('se-tent t1', шатёр(0)) + кусок('se-tent t2', шатёр(1)) + кусок('se-tent t3', шатёр(2)) + кусок('se-stones', наСнегу(менгиры()));
     if (лето) h += кусок('se-dugout', долблёнка()) + кусок('se-rack', вешала());
     if (осень) h += кусок('se-shelter', осеннийНавес()) + кусок('se-rack r2', вешала());
     if (весна) h += кусок('se-hut u1', хижина()) + кусок('se-hut u2', хижина()) + кусок('se-stones s2', менгиры());
   }
   if (tech === 'industrial') {
-    if (зима) h += кусок('se-row w1', кирпичныйРяд(true)) + кусок('se-row w2', кирпичныйРяд(true)) + кусок('se-factory', фабрика(сезон)) + кусок('se-gaslamp', газовыйФонарь());
+    if (зима) h += кусок('se-row w1', кирпичныйРяд(true)) + кусок('se-row w2', кирпичныйРяд(true)) + кусок('se-factory', наСнегу(фабрика(сезон))) + кусок('se-gaslamp', газовыйФонарь());
     if (лето) h += кусок('se-steamer', пароход()) + кусок('se-bathing', купальнаяКабинка());
     if (осень) h += кусок('se-train', паровоз()) + кусок('se-factory f2', фабрика(сезон)) + кусок('se-gaslamp g2', газовыйФонарь());
     if (весна) h += кусок('se-airship', дирижабль()) + кусок('se-factory f3', фабрика(сезон));
   }
   if (tech === 'future') {
-    if (зима) h += кусок('se-dome d1', купол(true)) + кусок('se-dome d2', купол(true)) + кусок('se-dome d3', купол(true)) + кусок('se-towers', башниБудущего()) + кусок('se-pylon', световойСтолб());
+    if (зима) h += кусок('se-dome d1', купол(true)) + кусок('se-dome d2', купол(true)) + кусок('se-dome d3', купол(true)) + кусок('se-towers', наСнегу(башниБудущего())) + кусок('se-pylon', световойСтолб());
     if (лето) h += кусок('se-hover', ховерборд()) + кусок('se-drone', дрон()) + кусок('se-towers t2', башниБудущего(true)) + кусок('se-canopy', солнечныйНавес());
     if (осень) h += кусок('se-robo', роботПугало()) + кусок('se-pylon p2', световойСтолб()) + кусок('se-towers t3', башниБудущего());
     if (весна) h += кусок('se-turbine u1', ветряк()) + кусок('se-turbine u2', ветряк()) + кусок('se-greenhouse', теплицаКупол()) + кусок('se-drone d2', дрон());
