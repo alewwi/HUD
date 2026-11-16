@@ -2676,6 +2676,8 @@ export const СЛОВАРЬ_EN = {
   "Сделать общим": "Make common",
   "Вернуть общее": "Back to common",
   "Оформление этого чата": "This chat's look",
+  "Настройки с другого устройства": "Settings from another device",
+  "Подтянуты изменения, сделанные на другом устройстве или в другой вкладке.": "Changes made on another device or in another tab have been brought in.",
   "HUD запомнил вид для этой истории. Другие чаты остались как были. Сделать вид общим — в настройках, «Оформление по чатам»": "HUD remembered the look for this story. Other chats stay as they were. To make it common, see Settings, \"Look per chat\"",
   "Этот вид получат все чаты, у которых нет своего": "All chats without their own look will get this one",
   "У этого чата больше нет своего вида": "This chat no longer has its own look",

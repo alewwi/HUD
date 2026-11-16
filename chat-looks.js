@@ -24,12 +24,12 @@
 //
 // Картинка фона в снимок не входит: она тяжёлая (до 3 МБ) и общая.
 
-import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.53';
-import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.53';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.53';
-import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.53';
-import { escapeHtml } from './utils.js?v=23.89.53';
-import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.53';
+import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.54';
+import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.54';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.54';
+import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.54';
+import { escapeHtml } from './utils.js?v=23.89.54';
+import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.54';
 
 // Эпоха — тоже вид истории: в средневековом чате нет телефона.
 const ЭПОХА = ['era', 'fantasyMagic', 'magicPresence', 'techLevel', 'modernComms', 'eraModern', 'eraMagic'];
@@ -233,7 +233,8 @@ export function сделатьОбщим() {
 /** Забыть свой вид открытого чата и вернуть общий. */
 export function вернутьОбщий() {
   const id = idЧата();
-  if (id) { delete виды()[id]; записатьВЧат(null); }
+  // Отметка «убран»: иначе вид вернулся бы из копии настроек другого устройства.
+  if (id) { delete виды()[id]; забытые()[id] = Date.now(); записатьВЧат(null); }
   применить(settings.lookCommon, { тихо: true });
   связь.saveSettings?.();
   связь.showHudToast('success', 'Общее оформление', 'У этого чата больше нет своего вида.');

@@ -4,6 +4,17 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.54 — 2026-11-16
+
+### Fixed
+- **Settings are no longer lost between devices and tabs.** Before, every tab held a full copy of the settings and sent the whole copy when saving. A tab left open on the phone since the evening wiped everything changed on the PC later. Now:
+  - **A time for every setting.** The HUD notes when each setting changed, and when two copies meet it takes the later change for each one.
+  - **One light shared file.** The copy lives as a separate file in Tavern's files folder, about 130 KB, not in the multi-megabyte settings.json with presets.
+  - **When it syncs.** After saving (once, not on every slider step), when you come back to the tab, and once a minute while it is in view. The file is rewritten only when the tab has something newer.
+  - **What you see.** Incoming changes show at once in the cards and the settings panel, with a "Settings from another device" notice. A panel you are editing right now is not rebuilt.
+  - **Chat looks.** When chats have their own look, the open chat's look does not move to the other device. Chat looks merge per chat, and a look removed with "Back to common" does not come back from another device.
+  - **Big pictures** still stay on their own device.
+
 ## 23.89.53 — 2026-11-16
 
 ### Fixed
