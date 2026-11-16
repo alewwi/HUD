@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.51 — 2026-11-16
+
+### Fixed
+- **"Trying" in the cycle without extra years.** The line counted months from the very first intimacy without conception in the whole chat, so a mother of two got "67 mo. without result — a reason to see a fertility specialist". Now it counts only after the last conception, birth or loss, a break longer than three months starts the count again, and if the attempts ended long ago there is no line.
+
 ## 23.89.50 — 2026-11-16
 
 ### Added

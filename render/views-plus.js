@@ -6,9 +6,9 @@
 // прежний, его рисуют сами блоки; здесь только новые. Данные те же —
 // модель ничего нового не пишет. Оформление — css/views-plus.css.
 
-import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени } from '../utils.js?v=23.89.50';
-import { лицоЧеловека as лицо } from './views.js?v=23.89.50';
-import { ико } from './view-icons.js?v=23.89.50';
+import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени } from '../utils.js?v=23.89.51';
+import { лицоЧеловека as лицо } from './views.js?v=23.89.51';
+import { ико } from './view-icons.js?v=23.89.51';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
