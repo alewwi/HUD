@@ -7,12 +7,12 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.56';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.56';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.56';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.56';
-import { settings } from '../settings.js?v=23.89.56';
-import { ответыПроДядей } from './family-asks.js?v=23.89.56';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.57';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.57';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.57';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.57';
+import { settings } from '../settings.js?v=23.89.57';
+import { ответыПроДядей } from './family-asks.js?v=23.89.57';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -480,7 +480,10 @@ export function buildRelGraphHTML(hudData, uid, дайХоды = null, опци�
   // почти не подрезался, и подписи оставались мелкими.
   if (n === 2) {
     placeRing(orderedNodes, 230, 0, Math.PI);
-  } else if (n <= 12) {
+  } else if (n <= 20) {
+    // Одно кольцо держим до 20 человек: с 13-го граф переходил на два кольца,
+    // и в узкой карточке внутреннее кольцо с крупными именами сбивалось в кашу.
+    // Узлы с 14 человек и так мельче, на кольце им хватает места.
     const rx = n <= 3 ? 315 : n <= 6 ? 330 : 345;
     const ry = n <= 3 ? 285 : n <= 6 ? 300 : 320;
     placeRing(orderedNodes, rx, ry, -Math.PI / 2);
@@ -625,10 +628,15 @@ export function buildRelGraphHTML(hudData, uid, дайХоды = null, опци�
     // Wide invisible hit target sits directly under the visible line. This makes
     // relations easy to tap/click on both desktop and touch screens without
     // making the visual line thicker.
-    svg += `<path class="hud-rel-edge-hit" data-rel-type="${type}" data-edge-from="${escapeHtml(e.from)}" data-edge-to="${escapeHtml(e.to)}" data-edge-key="${escapeHtml(edgeKey)}" data-edge-direction="${escapeHtml(e.from)}=>${escapeHtml(e.to)}" data-edge-label="${escapeHtml(label)}" data-rel-bidir="${bidirectional ? 'true' : 'false'}" d="${d}"/>`;
-    svg += `<path class="hud-rel-edge hud-rel-${type}" data-rel-type="${type}" data-edge-from="${escapeHtml(e.from)}" data-edge-to="${escapeHtml(e.to)}" data-edge-key="${escapeHtml(edgeKey)}" data-edge-direction="${escapeHtml(e.from)}=>${escapeHtml(e.to)}" data-edge-label="${escapeHtml(label)}" data-rel-bidir="${bidirectional ? 'true' : 'false'}" d="${d}" marker-end="url(#${markerId})"/>`;
-    svg += `<g class="hud-rel-edge-badge" data-edge-from="${escapeHtml(e.from)}" data-edge-to="${escapeHtml(e.to)}" data-edge-key="${escapeHtml(edgeKey)}" data-edge-direction="${escapeHtml(e.from)}=>${escapeHtml(e.to)}" data-edge-label="${escapeHtml(label)}" data-rel-type="${type}" data-rel-bidir="${bidirectional ? 'true' : 'false'}"><circle cx="${lp.x.toFixed(1)}" cy="${lp.y.toFixed(1)}" r="10" class="hud-rel-edge-dot hud-rel-${type}"/><text x="${lp.x.toFixed(1)}" y="${(lp.y + 3.3).toFixed(1)}" text-anchor="middle">${meta.icon}</text></g>`;
-    svg += `<text class="hud-rel-edge-label" data-edge-from="${escapeHtml(e.from)}" data-edge-to="${escapeHtml(e.to)}" data-edge-key="${escapeHtml(edgeKey)}" data-edge-direction="${escapeHtml(e.from)}=>${escapeHtml(e.to)}" data-edge-label="${escapeHtml(label)}" data-rel-type="${type}" data-rel-bidir="${bidirectional ? 'true' : 'false'}" x="${lx.toFixed(1)}" y="${labelBaseY.toFixed(1)}" text-anchor="middle">${labelTspans}</text>`;
+    // Полный текст связи (data-edge-label) и направление — только у самой
+    // линии: их читает инспектор. Линия, её полоса под палец, значок и подпись
+    // несут лишь ключи для подсветки — в графе на 70 связей это треть разметки.
+    const ключи = `data-rel-type="${type}" data-edge-from="${escapeHtml(e.from)}" data-edge-to="${escapeHtml(e.to)}" data-edge-key="${escapeHtml(edgeKey)}"`;
+    const встречная = `data-rel-bidir="${bidirectional ? 'true' : 'false'}"`;
+    svg += `<path class="hud-rel-edge-hit" ${ключи} ${встречная} d="${d}"/>`;
+    svg += `<path class="hud-rel-edge hud-rel-${type}" ${ключи} data-edge-direction="${escapeHtml(edgeKey)}" data-edge-label="${escapeHtml(label)}" ${встречная} d="${d}" marker-end="url(#${markerId})"/>`;
+    svg += `<g class="hud-rel-edge-badge" ${ключи} ${встречная}><circle cx="${lp.x.toFixed(1)}" cy="${lp.y.toFixed(1)}" r="10" class="hud-rel-edge-dot hud-rel-${type}"/><text x="${lp.x.toFixed(1)}" y="${(lp.y + 3.3).toFixed(1)}" text-anchor="middle">${meta.icon}</text></g>`;
+    svg += `<text class="hud-rel-edge-label" ${ключи} ${встречная} x="${lx.toFixed(1)}" y="${labelBaseY.toFixed(1)}" text-anchor="middle">${labelTspans}</text>`;
   });
 
   nodes.forEach(node => {

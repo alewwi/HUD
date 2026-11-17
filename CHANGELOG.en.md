@@ -4,6 +4,12 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.57 — 2026-11-17
+
+### Fixed
+- **The relations graph is a circle again with a large cast.** From 13 people the graph switched to two rings, and on a narrow phone card the inner ring with its large names turned into a mess. Now everyone stands on one ring up to 20 people.
+- The graph is lighter: the full text of a relation is kept only on the line itself instead of being repeated on its badge, its label and its touch strip. In a graph with 70 relations this is a tenth of the markup.
+
 ## 23.89.56 — 2026-11-17
 
 ### Changed

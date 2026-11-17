@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.56**:
+The latest version is **23.89.57**:
 
+- The relations graph is a circle again with a large cast: one ring up to 20 people, no mess on phones; lighter graph markup.
 - Settings and customization are clearer for newcomers: a quick start (world, how much HUD, 18+, model, how the HUD appears), a "?" explanation on every item, search, Essentials / All, sections by task, token prices on blocks and plain names.
 - Daily life, Nursery, weight, sleep, clothes, marks and factions checked against a live chat: a time skip no longer means "7 days without a shower", a suit with a "bare hand" is no longer naked, babies' age follows the calendar, starvation moves weight as it should, alertness is checked against sleep.
 - Settings are no longer lost between phone, PC and tabs: the later change wins for each setting, and the shared copy is one light file.
