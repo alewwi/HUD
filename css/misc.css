@@ -7555,3 +7555,55 @@ html.hud-scheme-light .hud-mw-know.is-guess { --kn: #8f6a14; }
 
 /* Цикл взят из прошлого хода (render/carryover.js, вернутьЦикл): тихая подпись под кольцом. */
 .hud-cycle-carried { display: block; margin-top: 4px; font-size: 10.5px; line-height: 1.3; opacity: .62; font-style: italic; }
+
+/* --- Настройки для новичка (settings-easy.js) ----------------------------
+   Поиск и «Основные / Все» над разделами, быстрый старт кнопками-вариантами,
+   «?» у пункта раскрывает пояснение прямо под ним (на телефоне подсказок мыши
+   нет), зависимые пункты — сдвинуты под главный и бледнеют без него. */
+.hud-set-top { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
+.hud-set-search { flex: 1 1 180px; min-width: 0; box-sizing: border-box; background: rgba(0,0,0,.3); border: 1px solid var(--hud-border); color: inherit; padding: 5px 8px; border-radius: 6px; font-size: 13px; }
+.hud-set-found { flex: 1 1 100%; font-size: 11.5px; opacity: .7; }
+.hud-set-found:empty { display: none; }
+.hud-qs-seg { display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
+.hud-qs-opt { flex: 1 1 auto; display: inline-flex; flex-direction: column; align-items: center; gap: 1px; min-width: 0; padding: 5px 10px; border-radius: 7px; border: 1px solid var(--hud-border); background: rgba(0,0,0,.22); color: inherit; font: inherit; font-size: 12.5px; cursor: pointer; line-height: 1.25; }
+.hud-qs-opt[aria-pressed="true"] { border-color: var(--hud-accent, #d9a64a); background: color-mix(in srgb, var(--hud-accent, #d9a64a) 22%, rgba(0,0,0,.25)); font-weight: 600; }
+.hud-qs-opt small { font-size: 10.5px; opacity: .7; font-weight: 400; }
+.hud-qs-opt small:empty { display: none; }
+@media (hover: hover) and (pointer: fine) { .hud-qs-opt:hover { border-color: var(--hud-accent, #d9a64a); } }
+.hud-qs-row { display: flex; flex-direction: column; gap: 5px; padding: 6px 0 8px; border-top: 1px solid rgba(255,255,255,.06); }
+.hud-qs-name { font-weight: 600; font-size: 12.5px; }
+.hud-qs-note { font-size: 11.5px; opacity: .72; line-height: 1.4; }
+.hud-qs-go { margin-left: 4px; padding: 1px 8px; border-radius: 5px; border: 1px solid var(--hud-border); background: rgba(0,0,0,.2); color: inherit; font-size: 11.5px; cursor: pointer; }
+.hud-set-q { flex: none; width: 18px; height: 18px; padding: 0; margin-left: auto; border-radius: 50%; border: 1px solid var(--hud-border); background: rgba(0,0,0,.25); color: inherit; font-size: 11px; line-height: 16px; text-align: center; cursor: pointer; opacity: .7; }
+/* «?» всегда справа, по центру строки: в подписи с полем внутри он иначе
+   уезжал на свою строку. */
+.hud-set-check.hud-set-hasq { position: relative; padding-right: 26px; }
+.hud-set-check.hud-set-hasq > .hud-set-q { position: absolute; right: 0; top: 50%; transform: translateY(-50%); margin: 0; }
+.hud-set-q.is-open { opacity: 1; border-color: var(--hud-accent, #d9a64a); }
+.hud-set-hint { margin: -2px 0 4px 26px; padding: 6px 8px; border-left: 2px solid var(--hud-accent, #d9a64a); background: rgba(0,0,0,.18); border-radius: 0 6px 6px 0; font-size: 12px; line-height: 1.45; opacity: .9; }
+.hud-set-hint[hidden] { display: none; }
+.hud-set-check > .hud-set-cost { flex: none; font-size: 10.5px; padding: 0 5px; border-radius: 8px; background: rgba(255,255,255,.07); opacity: .75; white-space: nowrap; }
+.hud-set-dep { margin-left: 22px; }
+.hud-set-hint.hud-set-dep { margin-left: 48px; }
+.hud-set-dep-off { opacity: .42; }
+.hud-set-dep-off { pointer-events: none; }
+.hud-set-dep-off .hud-set-q { pointer-events: auto; }
+#hud-settings-wrapper.hud-set-simple:not(.hud-set-searching) .hud-set-adv:not(.hud-set-reveal) { display: none !important; }
+#hud-settings-wrapper.hud-set-searching .hud-set-miss { display: none !important; }
+#hud-settings-wrapper.hud-set-searching :is(.hud-set-note, [data-guide-note], .hud-set-hint):not(.hud-qs-row *) { display: none; }
+.hud-set-flash { outline: 2px solid var(--hud-accent, #d9a64a); outline-offset: 2px; border-radius: 4px; transition: outline-color .4s; }
+
+/* --- Кастомизация для новичка (customize-easy.js): поиск и «?» у рядов --- */
+.hud-custom-find { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.hud-custom-search { flex: 1 1 180px; min-width: 0; box-sizing: border-box; background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.2); color: inherit; padding: 6px 8px; border-radius: 6px; font-size: 13px; }
+.hud-custom-found { font-size: 11.5px; opacity: .7; }
+.hud-custom-found:empty { display: none; }
+.hud-custom-q { flex: none; width: 18px; height: 18px; padding: 0; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: rgba(0,0,0,.25); color: inherit; font-size: 11px; line-height: 16px; text-align: center; cursor: pointer; opacity: .7; }
+.hud-custom-q.is-open { opacity: 1; border-color: var(--hud-accent, #d9a64a); }
+.hud-custom-hint { grid-column: 1 / -1; margin-top: -6px; padding: 6px 8px; border-left: 2px solid var(--hud-accent, #d9a64a); background: rgba(0,0,0,.22); border-radius: 0 6px 6px 0; font-size: 12px; line-height: 1.45; white-space: normal; }
+.hud-custom-hint[hidden] { display: none; }
+.hud-custom-searching .hud-custom-miss { display: none !important; }
+.hud-custom-searching :is(.hud-theme-presets-note, .hud-custom-hint, .hud-detail-toggle, .hud-theme-presets-title) { display: none; }
+/* Подпись ряда в окне — целиком, в две строки при нужде: на телефоне
+   многоточие делало «Портрет: в…» дважды подряд неразличимым. */
+.hud-custom-settings .hud-theme-row > label { white-space: normal; overflow: visible; text-overflow: clip; min-width: 0; line-height: 1.25; }

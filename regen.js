@@ -5,12 +5,12 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings } from './settings.js?v=23.89.55';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.55';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.55';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.55';
-import { генерацияТаверны } from './utils.js?v=23.89.55';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.55';
+import { настройка, settings, defaultSettings } from './settings.js?v=23.89.56';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.56';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.56';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.56';
+import { генерацияТаверны } from './utils.js?v=23.89.56';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.56';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, getMessageUpdateFunction, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -758,7 +758,7 @@ export async function handleHudRegenButton(regenBtn) {
               loadingToast.classList.add('hide');
               setTimeout(() => loadingToast.remove(), 400);
           }
-          if (вышлоВремя) основа.showHudToast('error', 'Нет ответа', `Провайдер не ответил за ${пределМин} мин — HUD не записан. Рассуждающие модели думают долго: увеличь «Ждать ответа» или уменьши «Лимит токенов HUD» (Генерация → Перегенерация HUD).`);
+          if (вышлоВремя) основа.showHudToast('error', 'Нет ответа', `Провайдер не ответил за ${пределМин} мин — HUD не записан. Рассуждающие модели думают долго: увеличь «Ждать ответа» или уменьши «Лимит токенов HUD» (Как HUD получается → Перегенерация HUD).`);
           else if (отменено() || (err && err.name === 'AbortError')) основа.showHudToast('success', 'Отменено', телефон ? 'Генерация телефона остановлена, сообщение не изменилось.' : 'Генерация HUD остановлена, сообщение не изменилось.');
           else основа.showHudToast('error', 'Ошибка', (телефон ? 'Не удалось обновить телефон: ' : 'Не удалось обновить HUD: ') + err.message);
       } finally {

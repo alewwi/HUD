@@ -161,7 +161,7 @@ const сохр = инд.slice(инд.indexOf('  function saveSettings() {'), и�
 проверить('код: saveSettings запоминает вид чата до записи', сохр.includes('запомнитьВидЧата()') && сохр.indexOf('запомнитьВидЧата()') < сохр.indexOf("localStorage.setItem('hud_settings'"));
 проверить('код: смена чата подменяет вид', /CHAT_CHANGED, \(\) => \{ try \{ видЧатаПриСмене\(\)/.test(инд));
 const ui = fs.readFileSync(path.join(КОРЕНЬ, 'settings-ui.js'), 'utf8');
-проверить('код: блок в «Отображении», с выключателем', ui.indexOf("подгруппа('🎨 Оформление по чатам'") > ui.indexOf("группа('✨ Отображение'") && ui.includes("getElementById('hud-look-per-chat')"));
+проверить('код: блок в «Виде и языке», с выключателем', ui.indexOf("группа('✨ Вид и язык'") > 0 && ui.indexOf("подгруппа('🎨 Оформление по чатам'") > ui.indexOf("группа('✨ Вид и язык'") && ui.includes("getElementById('hud-look-per-chat')"));
 const en = fs.readFileSync(path.join(КОРЕНЬ, 'i18n-en.js'), 'utf8');
 проверить('английский: подписи блока переведены', ['Своё оформление у каждого чата', 'Взять в этот чат', 'Сделать общим', 'Вернуть общее', 'Оформление этого чата'].every(с => en.includes(JSON.stringify(с) + ':')));
 

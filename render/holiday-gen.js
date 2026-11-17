@@ -12,13 +12,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.55';
-import { settings } from '../settings.js?v=23.89.55';
-import { старина, заклинанияВМире, дарыВМире, магияСкрыта } from '../era.js?v=23.89.55';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.55';
-import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.55';
-import { праздникиГода } from './holidays.js?v=23.89.55';
-import { т, английский, языкЗначенийМодели } from '../i18n.js?v=23.89.55';
+import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.56';
+import { settings } from '../settings.js?v=23.89.56';
+import { старина, заклинанияВМире, дарыВМире, магияСкрыта } from '../era.js?v=23.89.56';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.56';
+import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.56';
+import { праздникиГода } from './holidays.js?v=23.89.56';
+import { т, английский, языкЗначенийМодели } from '../i18n.js?v=23.89.56';
 
 export const ЖДЁМ_МС = 180000;
 export const ЛОР_СИМВОЛОВ = 40000;

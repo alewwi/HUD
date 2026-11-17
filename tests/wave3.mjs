@@ -1144,15 +1144,18 @@ settings.tempoView = 'xray';
       // Настройки — каждая в своём разделе: блок по смыслу, «… в промпте» — у своей функции.
       const су = css('settings-ui.js');
       const разметка = су.slice(су.indexOf('wrapper.innerHTML'), су.indexOf('container.appendChild(wrapper)'));
-      const раздел = (заголовок) => { const i = разметка.indexOf(заголовок); let глубина = 0, j = i; for (; j < разметка.length; j++) { if (разметка.startsWith('`)}', j)) { if (--глубина === 0) break; } else if (разметка.startsWith(", `\n", j)) глубина++; } return разметка.slice(i, j); };
+      const раздел = (заголовок) => { const i = разметка.indexOf(заголовок); let глубина = 0, j = i; for (; j < разметка.length; j++) { if (разметка.startsWith('`)}', j) || разметка.startsWith("`, '", j)) { if (--глубина === 0) break; } else if (разметка.startsWith(", `\n", j)) глубина++; } return разметка.slice(i, j); };
       const где = { "('🔞 Близость'": ['hud-enable-intimacy-extras', 'hud-nsfw-prompt', 'hud-enable-tempo', 'hud-enable-sceneclock', 'hud-enable-underwear'],
         "('⚔️ Бой и споры'": ['hud-enable-combat', 'hud-combat-prompt', 'hud-enable-duel'],
         "('🧺 Быт'": ['hud-enable-life', 'hud-life-to-model', 'hud-sleep-norm'],
         "('🧠 Память и сюжет'": ['hud-enable-memory', 'hud-enable-guns', 'hud-enable-twists'],
         "('💊 Тело и здоровье'": ['hud-enable-illness', 'hud-enable-bodystate', 'hud-enable-menstruation', 'hud-enable-pregnancy', 'hud-enable-babies'],
-        "('✨ Отображение'": ['hud-memory-max-height', 'hud-carry-over', 'hud-away-fill'],
-        "('🤖 Генерация'": ['hud-auto-inject', 'hud-snapshot', 'hud-away-short', 'hud-complete-check', 'hud-regen-profile'],
-        "('📚 Лорбуки'": ['hud-lorebooks', 'hud-mb-link'],
+        "('✨ Вид и язык'": ['hud-memory-max-height', 'hud-carry-over', 'hud-away-fill', 'hud-language', 'hud-date-format', 'hud-ava-list'],
+        "('💰 Экономия токенов'": ['hud-snapshot', 'hud-away-short', 'hud-no-change', 'hud-one-line', 'hud-keep-count'],
+        "('🤖 Как HUD получается'": ['hud-auto-inject', 'hud-complete-check', 'hud-regen-profile', 'hud-lorebooks', 'hud-cache-stable'],
+        "('🚀 Быстрый старт'": ['hud-era', 'hud-tech-level', 'hud-magic-presence', 'hud-fantasy-magic'],
+        "('🤝 Помощники'": ['hud-enable-assistant', 'hud-music-enable'],
+        "('🧰 Служебное'": ['hud-mb-link', 'hud-whats-new-auto', 'hud-settings-export', 'hud-strip-chat'],
         "('⚡ Производительность'": ['hud-card-limit', 'hud-clear-cache'] };
       const мимо = Object.entries(где).flatMap(([з, ids]) => ids.filter(id => !раздел(з).includes("'" + id + "'") && !раздел(з).includes('"' + id + '"')).map(id => id + ' не в ' + з));
       проверить('настройки: каждая в своём разделе', !мимо.length, мимо.join('; '));
@@ -1172,7 +1175,7 @@ settings.tempoView = 'xray';
       const безHUD = SC.карточкаСводки('[HUD_SUMMARY] 25.10.2024 · 16:35 | Gordon — коридор [/HUD_SUMMARY]', false);
       проверить('сводка: с полным HUD в сообщении — кнопка «открыть полный HUD», без — просто карточка', карт.includes('class="hud-sum can-open"') && карт.includes('role="button"') && карт.includes('открыть полный HUD') && !безHUD.includes('can-open') && !безHUD.includes('открыть полный HUD'));
       проверить('сводка: исходная строка хранится в карточке, текст сообщения не правится', карт.includes('data-raw="[HUD_SUMMARY] 25.10.2024 · 16:35 | Gordon — коридор [/HUD_SUMMARY]"') && !/\.mes\s*=|swipes\[/.test(css('render/summary-card.js')));
-      проверить('сводка: после разбора сообщения, по нажатию и Enter, с выключателем в «Отображении»', инд.includes("try { оформитьСводки(messageElement); }") && css('events.js').includes("e.target.closest('.hud-sum.can-open')") && раздел("('✨ Отображение'").includes("'hud-summary-cards'") && css('css/misc.css').includes('.hud-sum.can-open'));
+      проверить('сводка: после разбора сообщения, по нажатию и Enter, с выключателем в «Виде и языке»', инд.includes("try { оформитьСводки(messageElement); }") && css('events.js').includes("e.target.closest('.hud-sum.can-open')") && раздел("('✨ Вид и язык'").includes("'hud-summary-cards'") && css('css/misc.css').includes('.hud-sum.can-open'));
       // Значки свёрнутой шапки: рисунки по делу, эмодзи — по выбору.
       const TI = await модуль('render/topbar-icons.js');
       const { settings: настр } = await модуль('settings.js');
@@ -1190,12 +1193,12 @@ settings.tempoView = 'xray';
       проверить('шапка: «Эмодзи везде» — прежние эмодзи, иначе рисунки', эмодзи === '🕒 🌤️ 📅 ❓ 🔄 ▼ ➕' && рисунки, эмодзи);
       const шапка = инд.slice(инд.indexOf('let subTags = [];'), инд.indexOf('<div class="hud-os-wrapper">'));
       проверить('шапка: в разметке карточки эмодзи нет — только метки', !/[🕒🌤📅❓🔄▼]/u.test(шапка) && (шапка.match(/меткаШапки\('/g) || []).length === 6 && инд.includes("${меткаШапки('создать')} Создать HUD"));
-      проверить('значки: выбор в «Отображении», три варианта; в «Новом оформлении» дубля нет; разовый переход на рисунки в шапке', раздел("('✨ Отображение'").includes('data-key="iconSet"') && /value="emoji"[\s\S]*value="header"[\s\S]*value="svg"/.test(раздел("('✨ Отображение'")) && !css('customize.js').includes("в('iconSet'") && инд.includes("if (settings.iconSetHeaderMigration !== 1) {"));
+      проверить('значки: выбор в «Виде и языке», три варианта; в «Новом оформлении» дубля нет; разовый переход на рисунки в шапке', раздел("('✨ Вид и язык'").includes('data-key="iconSet"') && /value="emoji"[\s\S]*value="header"[\s\S]*value="svg"/.test(раздел("('✨ Вид и язык'")) && !css('customize.js').includes("в('iconSet'") && инд.includes("if (settings.iconSetHeaderMigration !== 1) {"));
       const близость = раздел("('🔞 Близость'");
       проверить('настройки: «Усиления» — не внутри подписи «Часть про близость»', !близость.includes('hud-adapt-prompt') && /🔞 Часть про близость:\s*<select id="hud-nsfw-prompt"/.test(близость));
       // Раздел вырезан точно, а не до конца разметки: иначе проверка выше прошла бы зря.
       const порядок = [...разметка.matchAll(/\$\{группа\('([^']+)'/g)].map(m => m[1]).join(' → ');
-      проверить('настройки: разделы по порядку — что показывает, как просит модель, вид, служебное', порядок === '🧩 Блоки HUD → 📊 Свои статы → 🤖 Генерация → 📚 Лорбуки → ✨ Отображение → 🖼️ Аватарки персонажей → ❓ Ассистент → 🎵 Музыка сцены → ⚡ Производительность → 💾 Настройки в файл → 🧳 Перед удалением расширения → ⚠️ !!ОПАСНО!! Удалить HUD из чата', порядок);
+      проверить('настройки: разделы по задачам — быстрый старт, что показывает, вид, экономия, как получается, помощники, служебное', порядок === '🚀 Быстрый старт → 🧩 Что показывает HUD → 📊 Свои статы → ✨ Вид и язык → 💰 Экономия токенов → 🤖 Как HUD получается → 🤝 Помощники → ⚡ Производительность → 🧰 Служебное', порядок);
       проверить('настройки: карта тела картинкой — только видом блока в «Кастомизации», без дубля-галки', !су.includes('hud-enable-heatmap') && css('customize.js').includes('пунктыСилуэта()'));
       // «Без сознания» — только у того, кто сам упал: чужой обморок в его тексте не в счёт.
       const Чр = await модуль('render/character.js');
@@ -1929,7 +1932,7 @@ settings.tempoView = 'xray';
   проверить('кеш: Custom-заголовки и тело с вложенными секретами исключены', ['custom_include_headers', 'custom_include_body', 'proxy_password', 'api_key'].every(k => secretPattern.test(k)) && !secretPattern.test('custom_url'));
   const кто = ['render/music.js', 'render/assistant.js', 'lore-dialog.js', 'regen.js'].filter(ф => /(?:ctx|stContext)\.generateRaw\(/.test(fs.readFileSync(path.join(КОРЕНЬ, ф), 'utf8')));
   проверить('музыка, помощник и лорбук зовут генерацию через генерацияТаверны', !кто.length, кто.join(', '));
-  проверить('настройка «HUD в каждом ответе» объясняет режим «только по кнопке»', /HUD в каждом ответе \(сетевой перехват\)[\s\S]{0,200}Выключено — ответы приходят без HUD/.test(fs.readFileSync(path.join(КОРЕНЬ, 'settings-ui.js'), 'utf8')));
+  проверить('настройка «HUD вместе с ответом персонажа» объясняет режим «только по кнопке»', /HUD вместе с ответом персонажа'[\s\S]{0,200}Выключено — ответы приходят без HUD/.test(fs.readFileSync(path.join(КОРЕНЬ, 'settings-ui.js'), 'utf8')));
 }
 
 // --- KoboldCpp: кэш контекста (отзыв Maxim, 30.10.2026) ---

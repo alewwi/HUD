@@ -11,10 +11,10 @@
 //     настройки» (код и название) и словарь вопросиков (что это).
 // Слева оглавление по разделам, сверху поиск по всему тексту.
 
-import { английский, т } from './i18n.js?v=23.89.55';
-import { escapeHtml } from './utils.js?v=23.89.55';
-import { TAB_HELP, findTermHelp } from './help.js?v=23.89.55';
-import { КАТАЛОГ } from './deep-fields.js?v=23.89.55';
+import { английский, т } from './i18n.js?v=23.89.56';
+import { escapeHtml } from './utils.js?v=23.89.56';
+import { TAB_HELP, findTermHelp } from './help.js?v=23.89.56';
+import { КАТАЛОГ } from './deep-fields.js?v=23.89.56';
 
 let открыто = false;
 const э = (s) => escapeHtml(String(s ?? ''));
@@ -73,7 +73,7 @@ export function разобратьГайд(текст) {
 const чисто = (s) => String(s || '').replace(/\s+/g, ' ').trim();
 function подписьЭлемента(эл) {
   const копия = эл.cloneNode(true);
-  копия.querySelectorAll('select, input, textarea, option, .hud-help-mark, script, style').forEach(x => x.remove());
+  копия.querySelectorAll('select, input, textarea, option, .hud-help-mark, .hud-set-q, .hud-set-cost, .hud-qs-cost, script, style').forEach(x => x.remove());
   return чисто(копия.textContent).replace(/[:：]\s*$/, '');
 }
 function пунктНастройки(эл) {

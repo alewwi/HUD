@@ -11,12 +11,12 @@
 // флаг window.__tavernOSHudSkipInject: без него перехват запросов в index.js
 // вшил бы в вопрос HUD-инструкцию, и модель ответила бы HUD-блоком.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.55';
-import { settings } from '../settings.js?v=23.89.55';
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.55';
-import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.89.55';
-import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.89.55';
-import { английский, т } from '../i18n.js?v=23.89.55';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.56';
+import { settings } from '../settings.js?v=23.89.56';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.56';
+import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.89.56';
+import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.89.56';
+import { английский, т } from '../i18n.js?v=23.89.56';
 
 const ЖДЁМ_МС = 180000;
 
@@ -231,7 +231,7 @@ export function openAssistantDialog({ mesId = null, лорбуки = null, со�
         <div class="hud-ask-ctx" role="group" aria-label="Что увидит ассистент">
           <label class="hud-ask-num" title="Сколько последних сообщений чата прочитает ассистент">💬 <input type="number" min="0" max="60" value="${Math.max(0, Math.min(60, Number(settings.assistantContextMessages ?? 12)))}"> сообщ.</label>
           ${переключатели.map(([ключ, подпись, пояснение]) => `<button type="button" class="hud-ask-toggle" data-key="${ключ}" aria-pressed="${settings[ключ] !== false}" title="${escapeHtml(пояснение)}">${подпись}</button>`).join('')}
-          <span class="hud-ask-info" title="${escapeHtml(книги.length ? 'Лорбуки: ' + книги.join(', ') : 'Лорбуки выбираются в настройках расширения, группа «Ассистент»')}">📚 ${книги.length || 'нет'}</span>
+          <span class="hud-ask-info" title="${escapeHtml(книги.length ? 'Лорбуки: ' + книги.join(', ') : 'Лорбуки выбираются в настройках расширения: «Помощники» → «Ассистент»')}">📚 ${книги.length || 'нет'}</span>
           <span class="hud-ask-info" title="Профиль подключения выбирается в настройках расширения">🧠 ${escapeHtml(профильИмя)}</span>
         </div>
         <div class="hud-ask-log" aria-live="polite"></div>

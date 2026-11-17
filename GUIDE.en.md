@@ -13,8 +13,8 @@ TavernOS asks the model to send a `[HUD] … [/HUD]` block with every reply — 
 ## Quick start
 
 1. Install the extension: **Extensions → Install extension**, address `https://github.com/alewwi/HUD`.
-2. Open the **📊 TavernOS** settings in "Extensions". The very first item is **🌐 Язык / Language**.
-3. In **🧩 HUD blocks**, turn off what you do not need. The fewer blocks, the cheaper each reply and the more attentive the model is to the rest.
+2. Open the **📊 TavernOS** settings in "Extensions". The language is in **✨ Look and language → 🌐 Язык / Language**.
+3. In **🚀 Quick start**, pick the world, how much HUD (light, normal or full), 18+, which model you use and how the HUD appears. Each choice applies a ready set; every item has a **?** with an explanation, and the search at the top finds any setting. Single blocks are in **🧩 What the HUD shows**: the fewer blocks, the cheaper each reply and the more attentive the model is to the rest. Each block shows how many tokens it costs.
 4. Send a message. A card appears under the reply. If it does not — see "Problems and fixes".
 5. Looks live in the **🎨 Customization** window: theme, fonts, colors, the view of every block.
 
@@ -49,7 +49,7 @@ When something piles up over several days — lack of sleep, hunger, stress thro
 - **Tab badge.** The person's tab shows a number: how many such things wait for your decision. A gun that involves several people shows up for each of them.
 - **"Suggest to the model"** sends it to the model once, with the next reply. **"No thanks"** removes the plate, and it is not offered again.
 - **Guns.** A gun due "15.06" does not go off on the 15th itself, only from the next day. If the model has already marked it fired or removed it, the plate disappears at once.
-- Turned on and off by **⚡ Consequences** in "🧩 HUD blocks".
+- Turned on and off by **⚡ Consequences** in "🧩 What the HUD shows".
 
 ### Holidays
 - The phone calendar shows the holidays of your era and, with **✨ World holidays** on, the world's own holidays from the fandom or the lorebook: the model finds them or makes them up.
@@ -75,7 +75,7 @@ The **🎨 Customization** window changes looks only, not content.
 - **Sample** — show an example with all blocks, even if the chat has none yet. Handy for seeing everything and trying the question marks.
 - **Icon drawing** — emoji or drawings in the theme color: line, ink, pixel, rounded.
 - **Era look** — in the Middle Ages and in fantasy, blocks change their look for the era. Here any block can go back to its modern look, and with hidden magic, the other way round, take on the look of magic.
-- **Each chat has its own look** (settings → ✨ Display → 🎨 Look per chat) — era, theme, colors, fonts and block views are remembered per chat. One chat's look can be taken into another or made common.
+- **Each chat has its own look** (settings → ✨ Look and language → 🎨 Look per chat) — era, theme, colors, fonts and block views are remembered per chat. One chat's look can be taken into another or made common.
 
 ## All settings
 
@@ -96,8 +96,8 @@ The model writes one block per reply:
 - **Keys are short codes**, values are plain text in the interface language (or in English, if set so). Labels inside values are codes too: `Bs: "eng: 80 rested; slp: 40"`.
 - **An empty field** is written as `empty` or left out.
 - **`nc` means "no change".** For slow fields (looks, character, companions and the like) the model can write `nc` instead of rewriting them every turn, and the HUD fills in the previous value from past turns. On screen you see the full text.
-- **Shorter and cheaper.** In "🤖 Generation" there is **📏 HUD on one line** (JSON without line breaks, about a tenth fewer tokens) and **🗜️ Compact values**: checked fields get a firm size in words and points, set in "🎛️ Fine tuning" below them.
-- **A disabled block or field** is not in the instruction, and the model does not write it. Single fields are turned off in "🔬 Fine tuning" (HUD blocks).
+- **Shorter and cheaper.** In "💰 Saving tokens" there is **📏 HUD on one line** (JSON without line breaks, about a tenth fewer tokens) and **🗜️ Compact values**: checked fields get a firm size in words and points, set in "🎛️ Fine tuning" below them.
+- **A disabled block or field** is not in the instruction, and the model does not write it. Single fields are turned off in "🔬 Fine tuning" (What the HUD shows).
 - **The latest HUD snapshot** goes to the model with the instruction: it updates the world instead of building it anew.
 - **The parser forgives mistakes**: a cut-off reply, missing commas, quotes inside strings, YAML instead of JSON, sections in the wrong place.
 
@@ -114,7 +114,7 @@ The model writes one block per reply:
 
 
 ### Era, technology and magic
-Three independent settings (Settings → HUD blocks → "Era, technology and magic") build almost any world:
+Three independent settings (Settings → 🚀 Quick start → "World") build almost any world:
 - **Era** — modern (phone and intercepts) or medieval (casket and overheard talk).
 - **Technology** — from the card and lorebook, primitive, pre-industrial, industrial, modern or future. It tells the model what the world lacks and sets the look of the weather scene (tents, factories, domes); the pair of blocks is chosen by the era.
 - **Magic** — none, hidden from society (the world looks ordinary and blocks keep their look — though any block can be restyled "for magic" in Customization → Era look) or open to all (a fantasy era: block styling changes). And its kind: spells or innate powers.
@@ -143,18 +143,18 @@ The list is built from the "🔬 Fine tuning" catalog and the question-mark dict
 ## Problems and fixes
 
 ### No card appeared
-- **The model did not send a block.** Check that **🤖 Generation → 🔌 HUD in every reply** is on. If it is off, HUD is created only with the **➕ Create HUD** button.
+- **The model did not send a block.** Check that **🚀 Quick start → "How the HUD appears" → "With the reply"** is on. If it is off, HUD is created only with the **➕ Create HUD** button.
 - **The backend does not accept a system message at the end.** Turn off **"🧩 HUD instruction as a separate message"** — the schema goes inside the normal prompt.
 - **The block is in the text but there is no card.** Reload the page. If the block still shows as text, open the browser console (F12) and send the error to the contacts below.
 - **The card came out empty.** HUD rebuilds it by itself; if it stays empty — press 🔄.
 
 ### HUD is incomplete or broken
-- **"Incomplete HUD: the model skipped …"** — in **🤖 Generation → 🩺 Incomplete HUD** choose "Complete it by regeneration": HUD completes what is missing with a regeneration. Or press 🔄 by hand.
-- **"The reply was cut off by the token limit"** — raise **"🧠 HUD token limit"** (🤖 Generation). HUD retries with a doubled limit by itself, but the last sections may be missing.
+- **"Incomplete HUD: the model skipped …"** — in **🤖 How the HUD is made → 🩺 Reply check → "Incomplete HUD"** choose "Complete it by regeneration": HUD completes what is missing with a regeneration. Or press 🔄 by hand.
+- **"The reply was cut off by the token limit"** — raise **"🧠 HUD token limit"** (🤖 How the HUD is made → 🔄 HUD regeneration). HUD retries with a doubled limit by itself, but the last sections may be missing.
 - **"The model spent the whole limit on reasoning"** — for thinking models raise the limit or turn reasoning off for HUD regeneration.
 - **"The model returned an empty reply"** — often a provider filter. Try another connection profile for HUD regeneration.
 - **The model mixes up fields or writes extra.** Turn off unneeded blocks and fields in "🔬 Fine tuning": a shorter instruction means fewer mistakes. Weak models are helped by **"📸 Snapshot of the last HUD at the end of the instruction"**.
-- **The model contradicts everyday life** (ate an hour ago, yet writes "hungry") — turn on the contradiction check in 🤖 Generation.
+- **The model contradicts everyday life** (ate an hour ago, yet writes "hungry") — turn on the contradiction check in 🤖 How the HUD is made → 🩺 Reply check.
 
 ### HUD regeneration does not work
 - **"The provider did not reply within N min"** — reasoning models think for a long time: raise "Wait for a reply" or lower "HUD token limit".
@@ -162,7 +162,7 @@ The list is built from the "🔬 Fine tuning" catalog and the question-mark dict
 - **Local model (KoboldCpp, text completion).** For profiles with a local model HUD uses the profile's instruct template; if the reply is odd — check the template in the profile itself.
 
 ### Slow, or the chat takes long to open
-- Turn on **"Lazy tab loading"**, **"Lighten old collapsed cards"** and **Performance Mode** (⚡ Performance).
+- Turn on **"Build a tab only when it is opened"**, **"Lighten old collapsed cards"** and **"Long chat mode"** (⚡ Performance).
 - Lower **"🪶 Build the latest cards right away"** and set a **"🧹 Card limit"**.
 - If the chat itself takes long to save and open — **🗜 Unload the chat**: full HUDs of old turns go to Tavern files, with summaries left in their place. **↩ Restore all** puts them back.
 - After offloading, the archive, the tree and everyday life still see old turns through the chat chronicle.

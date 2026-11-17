@@ -12,9 +12,9 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=23.89.55';
-import { hudБлоки, блокКакБыл } from './hud-block.js?v=23.89.55';
-import { имяБезПриставки } from './utils.js?v=23.89.55';
+import { normalizeJSONData } from './schema.js?v=23.89.56';
+import { hudБлоки, блокКакБыл } from './hud-block.js?v=23.89.56';
+import { имяБезПриставки } from './utils.js?v=23.89.56';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';

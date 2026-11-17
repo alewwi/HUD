@@ -26,7 +26,8 @@
 
 export const ФАЙЛ = 'tavernOS-hud-sync.json';
 // Служебное: не сливается по ключам.
-const СЛУЖЕБНЫЕ = new Set(['savedAt', 'keyTimes', 'localOnly']);
+// hudFirstRun — значения первого запуска ещё не сверены с другими устройствами.
+const СЛУЖЕБНЫЕ = new Set(['savedAt', 'keyTimes', 'localOnly', 'hudFirstRun']);
 // Сливаются по чатам, а не целиком.
 const ПО_ЧАТАМ = new Set(['chatLooks', 'chatLooksGone']);
 
@@ -84,7 +85,8 @@ export function слить(свои, чужие, { исключить = null } =
   const тС = { ...объект(свои.keyTimes) }, тЧ = объект(чужие.keyTimes);
   // Большие картинки устройство держит у себя: в его копии их нет.
   const безКартинок = new Set(Array.isArray(чужие.localOnly) ? чужие.localOnly : []);
-  const чужиеПозже = (Number(чужие.savedAt) || 0) > (Number(свои.savedAt) || 0);
+  // Первый запуск: заводские значения уступают любой уже сохранённой копии.
+  const чужиеПозже = свои.hudFirstRun === true || (Number(чужие.savedAt) || 0) > (Number(свои.savedAt) || 0);
   for (const k of new Set([...Object.keys(свои), ...Object.keys(чужие), ...Object.keys(тС), ...Object.keys(тЧ)])) {
     if (СЛУЖЕБНЫЕ.has(k) || ПО_ЧАТАМ.has(k) || безКартинок.has(k) || (исключить && исключить.has(k))) continue;
     const у = k in свои, ч = k in чужие;
@@ -150,6 +152,8 @@ export function синхронизировать() {
     }
     const s = связь.settings;
     const { пришло, ушло } = чужие ? слить(s, чужие, { исключить: связь.исключить() }) : { пришло: [], ушло: ['*'] };
+    // Первый запуск сверен: дальше эти значения — свои.
+    delete s.hudFirstRun;
     if (пришло.length) {
       if (чужие && Number(чужие.savedAt) > (Number(s.savedAt) || 0)) s.savedAt = Number(чужие.savedAt);
       try { связь.принять(пришло); } catch (e) { console.warn('[TavernOS HUD] синхронизация настроек: не принято', e); }

@@ -4,6 +4,50 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.56 — 2026-11-17
+
+### Changed
+- **Settings are clearer for people opening them for the first time.** The hundred-plus items no longer come all at once:
+  - **🚀 Quick start at the top:**
+    - the world (era, technology, magic);
+    - how much HUD — light, normal or full, with the token cost of each;
+    - 18+ scenes — yes or no;
+    - which model — strong cloud or weak/local;
+    - how the HUD appears — with the reply, separately after the reply or only by the button.
+
+    Each choice applies a ready set. If blocks were picked by hand, it says so: "your own".
+  - **"?" next to every item.** It opens the explanation right under the item, on phones too, where mouse tooltips do not show.
+  - **Search in the settings.** It searches names, explanations and list options.
+  - **"Essentials / All".** Essentials hides fine-tuning, and search finds it anyway.
+  - **Sections by task.** Quick start, What the HUD shows, Look and language, Saving tokens, How the HUD is made, Helpers (assistant and music), Performance, Maintenance.
+  - **Dependent items.** They are indented under their main item and fade while it is off. For example, "Threat dice" without "Pregnancy" or "Horoscope" without "World".
+  - **A price on each block.** Each block shows how many tokens it adds to the instruction.
+  - **Plain names:**
+
+    | Before | Now |
+    |---|---|
+    | "Network intercept" | "HUD together with the character's reply" |
+    | "nc" | "Do not rewrite what has not changed" |
+    | "Snapshot" | "Remind the model of the last HUD" |
+    | "Boosts" | "Remind about fields the model skips" |
+    | "Performance Mode" | "Long chat mode" |
+    | "KoboldCpp cache compatibility" | "Keep the KoboldCpp cache" |
+  - **First run.** A newcomer gets the normal HUD instead of every block at once, and Essentials mode. Nothing changes for people who already used the HUD: neither their blocks nor how the panel looks.
+- **Customization is clearer:**
+  - **Names.**
+
+    | Before | Now |
+    |---|---|
+    | "Background (Start)" | "Card background, top" |
+    | "Info block" | "Plates" |
+    | "Overlay" | "Scene tint" |
+    | "Badge" | "Notification badge" |
+
+    Sections: "Top bar and tabs", "Card colors and background", "Alarm and 18+", "Fonts and sizes".
+  - **Explanations.** Every row has an explanation behind "?", and the "Color system" colors have tooltips.
+  - **Search in the window.** It finds rows, colors and ready-made themes, including what is hidden behind "Details".
+  - **Labels on phones.** They wrap to a second line instead of being cut off with an ellipsis.
+
 ## 23.89.55 — 2026-11-17
 
 ### Fixed

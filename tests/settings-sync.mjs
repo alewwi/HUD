@@ -84,6 +84,14 @@ const м = { savedAt: 1, keyTimes: { a: 1 }, a: 1 }, н = { savedAt: 9, keyTimes
 С.слить(м, н);
 проверить('savedAt и localOnly не переносятся как настройки', м.savedAt === 1 && !('localOnly' in м) && м.keyTimes.a === 5);
 
+// Первый запуск на новом устройстве: заводские значения не перебивают уже
+// сохранённую копию, даже если её время старше.
+const новое = { savedAt: 9999, hudFirstRun: true, enablePhone: true, theme: 'default' };
+const старое = { savedAt: 10, enablePhone: false, theme: 'noir' };
+const рн = С.слить(новое, старое);
+проверить('первый запуск уступает сохранённой копии', новое.enablePhone === false && новое.theme === 'noir' && рн.пришло.includes('enablePhone') && !рн.ушло.includes('enablePhone'));
+проверить('отметка первого запуска не уходит как настройка', !С.слить({ hudFirstRun: true, a: 1 }, { a: 1 }).ушло.includes('hudFirstRun'));
+
 // Нет общего файла — своё надо записать.
 проверить('нет чужой копии — своё уходит', С.слить({ a: 1 }, null).ушло.length === 1);
 

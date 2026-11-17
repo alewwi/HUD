@@ -60,6 +60,9 @@ export const defaultSettings = {
   // Своё оформление у каждого чата (chat-looks.js): эпоха, тема, шрифты, виды
   // блоков. chatLooks — виды чатов по id, lookCommon — для чатов без своего.
   lookPerChat: true,
+  // Панель настроек: все пункты или только основные (settings-easy.js). Новичку
+  // при первом запуске ставится «simple», у прежних всё как было.
+  settingsView: 'all',
   chatLooks: {},
   lookCommon: null,
   era: 'modern',
