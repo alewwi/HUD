@@ -10,19 +10,19 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.54';
-import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.54';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.54';
+import { settings } from './settings.js?v=23.89.55';
+import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.55';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.55';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.54';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.54';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.54';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.54';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.54';
-import { возрастТочно } from './render/babies.js?v=23.89.54';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.54';
-import { сжатьСхему } from './compact-fields.js?v=23.89.54';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.54';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.55';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.55';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.55';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.55';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.55';
+import { возрастТочно } from './render/babies.js?v=23.89.55';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.55';
+import { сжатьСхему } from './compact-fields.js?v=23.89.55';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.55';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -250,7 +250,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "Pp": "[after childbirth, ONLY for a woman who has given birth in the story — otherwise omit. 'bf: breast, formula or mixed; lfd: time of the last breastfeed as HH:MM; brs: breasts — fullness, pain, leaking, nipples; sy: how she feels — healing, bleeding, tiredness, mood'. Keep it while she recovers and feeds]",` : ''}${цикл ? `
    "Mns": "[menstrual cycle, ONLY for someone with a uterus. 'cyd: cycle day, a number; cyl: cycle length, days; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period date; pms: PMS window, dates; dly: days late, 0 if none; rsn: reason for a delay — stress, illness, contraception, pregnancy; empty if none'. Moves with story days: the day grows, the phase follows, the period comes on time unless something delays it. From a known pregnancy (Prg) until the period returns after birth — only 'phs: paused', no day count or delay]",` : ''}
    "Ph": "[physiology: bodily sensations right now — hunger, thirst, cold, pain, drowsiness${интим ? ', arousal' : ''}. What the body feels, not what it does. Not the phone]",
-${состояниеТела ? `   "Bs": "[body state, 0-100 each followed by a word: 'eng: energy; awk: alertness; sat: satiety; str: stress; slp: last night's sleep — hours and bedtime; dut: the work or study duty ahead and when${мана ? `; mn: mana — the reserve their ${ф('magic', 'gift')} draws on, ONLY for someone ${ф('who wields magic', 'with a gift')}` : ''}'. Effort, hunger and sleepless hours lower them, food, rest and sleep restore; stress rises with danger and conflict${мана ? `; mana is spent by using ${ф('magic', 'the gift')} and returns about ${МАНА_В_ЧАС} per hour of rest, fully after a night's sleep` : ''}]",
+${состояниеТела ? `   "Bs": "[body state, 0-100 each followed by a word: 'eng: energy; awk: alertness; sat: satiety; str: stress; slp: last night's sleep — hours and bedtime, and after several bad nights in a row also how many and the total, e.g. '1.5 h, 03:30; 5 nights: 9 h'; dut: the work or study duty ahead and when${мана ? `; mn: mana — the reserve their ${ф('magic', 'gift')} draws on, ONLY for someone ${ф('who wields magic', 'with a gift')}` : ''}'. Effort, hunger and sleepless hours lower them, food, rest and sleep restore; stress rises with danger and conflict${мана ? `; mana is spent by using ${ф('magic', 'the gift')} and returns about ${МАНА_В_ЧАС} per hour of rest, fully after a night's sleep` : ''}]",
 ` : ''}${дары ? `   "Ab": "[${ф("magic, ONLY for someone who wields it: one group per school or signature spell, separated by |: 'nm: the school or spell — e.g. огненная магия, иллюзии, порталы, целительство, обереги, проклятия; mst: novice, trained, adept or master; cn: what they can really cast at this level, with a concrete scale — how big, how far, how long, how many at once, and what it needs (words, gestures, a focus, a circle); lim: what they can NOT do; cst: what casting costs the body'. The SAME schools every turn; the level grows slowly and only through the story", "abilities, ONLY for someone with an innate gift: one group per gift, separated by |: 'nm: the gift — element or force, e.g. огонь, вода, земля, воздух, духи; mst: novice, trained, adept or master; cn: what it can really do at this level, with a concrete scale — how much, how far, how long; lim: what it can NOT do; cst: what using it costs the body'. Innate and physical — never spells, portals or teleportation. The SAME gifts every turn; the level grows slowly and only through the story")}]",
 ` : ''}${эффекты ? `   "Ef": "[${ф("spells and enchantments acting on them right now, ONLY if any — a curse, a ward, a charm, a glamour, a geas, a tracking mark", "lasting effects acting on them right now, ONLY if any — a spirit's mark or blessing, chi blocked, a bending hold, frostbite or heat from a gift, a poison; never spells")}: one group per effect, separated by |: 'nm: what acts on them; src: who or what caused it; til: when it ends — HH:MM today or DD.MM HH:MM; sy: how it shows'. The HUD counts the time left by sc.T; remove it once til has passed, unless the story renews it]",
 ` : ''}   "L": "[location: the exact place right now — city, building, room, spot in the room]",
@@ -559,12 +559,12 @@ ${блокПисем(true)}`;
     const дм = (ms) => { const d = new Date(ms), z = (n) => String(n).padStart(2, '0'); return `${z(d.getUTCDate())}.${z(d.getUTCMonth() + 1)}.${d.getUTCFullYear()}`; };
     const точные = датаСнимка === null ? [] : [
       ...роды().map(р => { const д = деньРодов(р, датаСнимка); if (д === null || д > датаСнимка) return ''; const дн = Math.round((датаСнимка - д) / 864e5);
-        return `${р.число > 1 ? (р.число === 2 ? 'twins' : 'triplets') : 'a baby'} born ${дм(д)} — ${т(возрастТочно(дн))}`; }),
-      ...малышиБезРодов().map(м => м.дата <= датаСнимка ? `${м.имя} born ${дм(м.дата)} — ${т(возрастТочно(Math.round((датаСнимка - м.дата) / 864e5)))}` : ''),
+        return `${р.число > 1 ? (р.число === 2 ? 'twins' : 'triplets') : 'a baby'} born ${дм(д)} — ${т(возрастТочно(дн, датаСнимка))}`; }),
+      ...малышиБезРодов().map(м => м.дата <= датаСнимка ? `${м.имя} born ${дм(м.дата)} — ${т(возрастТочно(Math.round((датаСнимка - м.дата) / 864e5), датаСнимка))}` : ''),
     ].filter(Boolean);
     // Игрок сказал, что модель ошиблась в возрасте ребёнка: называем ей верный.
     const поправки = датаСнимка === null ? [] : спорыВозраста().filter(с => с.ошибся === 'model' && Number.isFinite(с.рождHUD) && с.рождHUD <= датаСнимка)
-      .map(с => `${с.имя} is ${т(возрастТочно(Math.round((датаСнимка - с.рождHUD) / 864e5)))} (born ${дм(с.рождHUD)}), not «${с.текст}» as written before`);
+      .map(с => `${с.имя} is ${т(возрастТочно(Math.round((датаСнимка - с.рождHUD) / 864e5), датаСнимка))} (born ${дм(с.рождHUD)}), not «${с.текст}» as written before`);
     var возрастМалышей = (поправки.length ? `CORRECTION: ${поправки.join('; ')} — write exactly this age. ` : '') + (точные.length ? `exact, the HUD counts it from the birth date: ${точные.join('; ')} (on the scene date of the last HUD; add the days that pass). Never invent another age or birthday` : "days, weeks or months since birth, e.g. '12 дней', '3 месяца'");
     p += `,
  "bb": [

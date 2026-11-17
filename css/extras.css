@@ -347,6 +347,8 @@
 .hud-bs-cell b { font-size: 1.02em; font-weight: 800; }
 .hud-bs-cell small { font-size: .6em; letter-spacing: .1em; text-transform: uppercase; opacity: .72; }
 .hud-bs-cell em { font-style: normal; font-size: .7em; line-height: 1.25; padding: 1px 7px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--c) 22%, transparent); color: color-mix(in srgb, var(--c) 55%, var(--hud-text, #eee)); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); }
+/* Сверка со сном: «бодрость 100 после 1,5 ч сна?» — HUD сомневается в числе модели. */
+.hud-bs-cell :is(em, i).hud-bs-odd, .hud-bs-chip :is(b, em).hud-bs-odd { --c: #f0a43a; margin-top: 2px; background: color-mix(in srgb, #f0a43a 18%, transparent); color: color-mix(in srgb, #f0a43a 70%, var(--hud-text, #eee)); border: 1px dashed color-mix(in srgb, #f0a43a 60%, transparent); font-weight: 600; }
 .hud-bs .shell { fill: rgba(255,255,255,.06); stroke: color-mix(in srgb, var(--hud-text, #eee) 45%, transparent); stroke-width: 1.4; }
 .hud-bs .cap { fill: color-mix(in srgb, var(--hud-text, #eee) 45%, transparent); }
 .hud-bs .seg { stroke: rgba(0,0,0,.35); stroke-width: 1; }

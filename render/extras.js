@@ -4,11 +4,11 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.89.54';
-import { settings } from '../settings.js?v=23.89.54';
-import { аватаркаПоИмени } from './views.js?v=23.89.54';
-import { магияВМире } from '../era.js?v=23.89.54';
-import { реальныйПортрет } from './pet-real.js?v=23.89.54';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.89.55';
+import { settings } from '../settings.js?v=23.89.55';
+import { аватаркаПоИмени } from './views.js?v=23.89.55';
+import { магияВМире } from '../era.js?v=23.89.55';
+import { реальныйПортрет } from './pet-real.js?v=23.89.55';
 
 // Умения спутника — не больше четырёх: модель копит их ходами, и в карточке
 // выстраивалась стена пилюль. Короткие (до шести слов) — вперёд, в порядке
@@ -108,6 +108,15 @@ const ШКАЛЫ = [
   // Мана (render/powers.js) — только когда в мире есть магия; иначе метка уходит в заметку.
   { к: 'mana', rx: /^мана|^mn$|^mana/i, имя: 'Мана', c: '#7fd6cf', фэнтези: true },
 ];
+// «1.5 часа поверхностного сна», «4 ч 10 мин», «не спал» — часы сна; null — не понять.
+export function часыСна(т) {
+  const s = String(т || '').toLowerCase();
+  if (!s) return null;
+  if (/(?<![\p{L}])(?:не спал\p{L}*|без сна|глаз не сомкну\p{L}*|didn'?t sleep|no sleep|sleepless)/iu.test(s)) return 0;
+  const m = s.match(/(\d+(?:[.,]\d+)?)\s*(?:ч(?![\p{L}])|час\p{L}*|h(?![\p{L}])|hours?|hrs?)(?:\s*(\d{1,2})\s*(?:мин|min))?/u);
+  if (!m) return null;
+  return Math.round((parseFloat(m[1].replace(',', '.')) + (m[2] ? +m[2] / 60 : 0)) * 10) / 10;
+}
 export function разобратьСостояниеТела(value) {
   const шкалы = [], текст = { сон: '', дела: '', прочее: [] };
   String(value || '').split(/;|\n/).map(s => s.trim()).filter(Boolean).forEach(часть => {
@@ -121,12 +130,18 @@ export function разобратьСостояниеТела(value) {
       return;
     }
     if (/^сон|^slp|sleep/i.test(метка)) текст.сон = тело;
+    // «slp: 1.5 h; 5 nights: 9 h» — хвост про несколько ночей идёт ко сну, а не в заметку.
+    else if (текст.сон && /^\d{1,2}\s*(?:ноч|сут|дн|night|day)/iu.test(метка)) текст.сон += '; ' + часть;
     else if (/^дел|^dut|работ|учёб|учеб|work|duties|school|study|classes/i.test(метка)) текст.дела = тело;
     else текст.прочее.push(часть);
   });
   ШКАЛЫ.forEach((ш, i) => { const н = шкалы.findIndex(x => x.к === ш.к); if (н > -1) шкалы[н].i = i; });
   шкалы.sort((a, b) => a.i - b.i);
-  return { шкалы, ...текст };
+  // Сон прошлой ночью против бодрости и энергии: «1,5 часа сна» и «бодрость 100»
+  // не сходятся — HUD это помечает (числа пишет модель, сверяет HUD).
+  const часы = часыСна(текст.сон);
+  if (часы !== null && часы <= 4) for (const ш of шкалы) if ((ш.к === 'awake' || ш.к === 'energy') && ш.v >= 75) ш.спор = `после ${String(часы).replace('.', ',')} ч сна?`;
+  return { шкалы, ...текст, часыСна: часы };
 }
 let счёт = 0;
 const нид = (п) => `hud-bs-${п}-${(++счёт).toString(36)}`;
@@ -138,8 +153,9 @@ function батарейка(s) {
     + `<rect x="5" y="${(51 - h).toFixed(1)}" width="20" height="${h.toFixed(1)}" rx="3" fill="url(#${id})"/>`
     + [15, 26, 37].map(y => `<line class="seg" x1="5" x2="25" y1="${y}" y2="${y}"/>`).join('')
     + (s.v <= 20 ? '<path d="M15 14l-4 12h5l-2 10 7-14h-5l2-8Z" fill="#fff" opacity=".85"/>' : '')
-    + `</svg><b>${s.v}</b><small>${s.имя}</small>${s.слово ? `<em>${escapeHtml(s.слово)}</em>` : ''}</div>`;
+    + `</svg><b>${s.v}</b><small>${s.имя}</small>${s.слово ? `<em>${escapeHtml(s.слово)}</em>` : ''}${спорШкалы(s)}</div>`;
 }
+const спорШкалы = (s) => s.спор ? `<em class="hud-bs-odd" title="Мало сна прошлой ночью, а шкала почти полная — не сходится">⚠ ${escapeHtml(s.спор)}</em>` : '';
 function колба(s) {
   const id = нид('f'), y = 60 - 40 * s.v / 100;
   const форма = 'M18 6h12v16c9 3 14 11 14 20 0 12-9 20-20 20S4 54 4 42c0-9 5-17 14-20Z';
@@ -148,7 +164,7 @@ function колба(s) {
     + `<g clip-path="url(#${id})"><rect x="0" y="${y.toFixed(1)}" width="48" height="70" fill="url(#${id}g)"/><ellipse cx="24" cy="${y.toFixed(1)}" rx="20" ry="2" fill="#fff" opacity=".35"/>`
     + (s.v > 25 ? `<circle class="bub" cx="16" cy="${(y + 10).toFixed(1)}" r="1.4"/><circle class="bub" cx="28" cy="${(y + 16).toFixed(1)}" r="1"/>` : '') + `</g>`
     + `<path class="glass" d="${форма}"/><rect class="cork" x="16" y="1" width="16" height="6" rx="2"/><path class="shine" d="M10 36c0-5 2-8 6-10"/></svg>`
-    + `<b>${s.v}</b><small>${s.имя}</small>${s.слово ? `<em>${escapeHtml(s.слово)}</em>` : ''}</div>`;
+    + `<b>${s.v}</b><small>${s.имя}</small>${s.слово ? `<em>${escapeHtml(s.слово)}</em>` : ''}${спорШкалы(s)}</div>`;
 }
 export function видСостоянияТела(value, вид) {
   const д = разобратьСостояниеТела(value);
@@ -156,7 +172,7 @@ export function видСостоянияТела(value, вид) {
   const бок = (д.сон || д.дела) ? `<div class="hud-bs-side">${д.сон ? `<div class="hud-bs-sleep">${ЛУНА_СНА}<div><b>${escapeHtml(д.сон)}</b><small>сон прошлой ночью</small></div></div>` : ''}${д.дела ? `<div class="hud-bs-work">${escapeHtml(д.дела)}</div>` : ''}</div>` : '';
   const прочее = д.прочее.length ? `<p class="hud-bs-note">${escapeHtml(д.прочее.join('; '))}</p>` : '';
   if (вид === 'chips') {
-    return `<div class="hud-bs hud-bs-chips">${д.шкалы.map(s => `<span class="hud-bs-chip" style="--c:${s.c}"><i>${s.v}</i>${s.имя}${s.слово ? `: <b>${escapeHtml(s.слово)}</b>` : ''}</span>`).join('')}`
+    return `<div class="hud-bs hud-bs-chips">${д.шкалы.map(s => `<span class="hud-bs-chip" style="--c:${s.c}"><i>${s.v}</i>${s.имя}${s.слово ? `: <b>${escapeHtml(s.слово)}</b>` : ''}${s.спор ? ` <b class="hud-bs-odd">⚠ ${escapeHtml(s.спор)}</b>` : ''}</span>`).join('')}`
       + (д.сон ? `<span class="hud-bs-chip" style="--c:color-mix(in srgb, var(--hud-accent) 55%, #8fa6ff)"><i>☾</i>сон <b>${escapeHtml(д.сон)}</b></span>` : '')
       + (д.дела ? `<span class="hud-bs-chip" style="--c:color-mix(in srgb, var(--hud-accent) 55%, #b8a0e8)"><i>✎</i><b>${escapeHtml(д.дела)}</b></span>` : '') + `</div>${прочее}`;
   }

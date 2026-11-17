@@ -7,13 +7,13 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { кнопкаПодсказки } from './erase-button.js?v=23.89.54';
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.89.54';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.54';
-import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.89.54';
-import { видБлока } from './views.js?v=23.89.54';
-import { settings } from '../settings.js?v=23.89.54';
-import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.54';
+import { кнопкаПодсказки } from './erase-button.js?v=23.89.55';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.89.55';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.55';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.89.55';
+import { видБлока } from './views.js?v=23.89.55';
+import { settings } from '../settings.js?v=23.89.55';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.55';
 
 // Заголовки разделов «Мира» по эпохе: в средневековье нет «новостей»,
 // «афиши» и «комментариев Сети» — есть глашатай, ярмарки и пересуды.
@@ -29,8 +29,8 @@ const СРЕДНЕВЕКОВЬЕ = {
   '💬 Комментарии Сети': '💬 Пересуды',
 };
 const З = (заголовок) => (старина() && СРЕДНЕВЕКОВЬЕ[заголовок]) || заголовок;
-import { знакЗодиака } from '../i18n.js?v=23.89.54';
-import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.89.54';
+import { знакЗодиака } from '../i18n.js?v=23.89.55';
+import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.89.55';
 
 // Вид блока «Мира» из «Кастомизации»: новый — если выбран и собрался,
 // иначе прежний (render/world-views.js).

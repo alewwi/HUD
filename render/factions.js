@@ -9,10 +9,10 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.54';
-import { settings } from '../settings.js?v=23.89.54';
-import { namesLikelySame } from '../names.js?v=23.89.54';
-import { раскрывашка } from './fold.js?v=23.89.54';
+import { escapeHtml } from '../utils.js?v=23.89.55';
+import { settings } from '../settings.js?v=23.89.55';
+import { namesLikelySame } from '../names.js?v=23.89.55';
+import { раскрывашка } from './fold.js?v=23.89.55';
 
 /** «Гильдия | Лилиан | 80 | уважают | за что» → { кто, к, число, как, почему }. */
 export function разобратьФракцию(строка) {
@@ -28,8 +28,12 @@ const ключ = (ф) => String(ф.кто).toLowerCase().replace(/ё/g, 'е').re
 
 // К кому строка: игрок, персонаж или (при одной цели) — та, что в настройке.
 function цельСтроки(ф, игрок, персонаж, режим) {
-  if (режим !== 'both') return режим === 'char' ? 'char' : 'user';
   const к = ф.к;
+  // Строка про третьего («Персонал башни | Клара Прескотт | -100») — не игроку и не
+  // персонажу: раньше в режиме «к игроку» она вставала под именем игрока.
+  const это = (имя) => !!(к && имя && (namesLikelySame(к, имя) || namesLikelySame(имя, к)));
+  if (к && (игрок || персонаж) && !/\{\{(?:user|char)\}\}|^(?:user|player|игрок|вы|you|char|персонаж)$/iu.test(к.trim()) && !это(игрок) && !это(персонаж)) return 'other';
+  if (режим !== 'both') return режим === 'char' ? 'char' : 'user';
   if (к && персонаж && (namesLikelySame(к, персонаж) || namesLikelySame(персонаж, к))) return 'char';
   if (к && игрок && (namesLikelySame(к, игрок) || namesLikelySame(игрок, к))) return 'user';
   if (/\{\{char\}\}/i.test(к)) return 'char';

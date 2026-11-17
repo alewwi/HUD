@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.54**:
+The latest version is **23.89.55**:
 
+- Daily life, Nursery, weight, sleep, clothes, marks and factions checked against a live chat: a time skip no longer means "7 days without a shower", a suit with a "bare hand" is no longer naked, babies' age follows the calendar, starvation moves weight as it should, alertness is checked against sleep.
 - Settings are no longer lost between phone, PC and tabs: the later change wins for each setting, and the shared copy is one light file.
 - The winter scene that fits the world: the future city, standing stones, factory and mage tower stand on the snow and no longer overlap the spruces; the witch on the broom is drawn anew.
 - Companion portraits to choose from: cute or realistic — fur in strands, volume, eyes with an iris; coat and eyes from the description. Cute portraits show eye colour again, and eye colour in a description no longer tints the fur.

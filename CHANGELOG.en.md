@@ -4,6 +4,22 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.55 — 2026-11-17
+
+### Fixed
+- **Daily life after a time skip.** "A week later" with no turns no longer turns into "7 days without a shower" and "no food for 170 h". Food, shower, cleaning and laundry from before the skip show "—" (unknown), freshness counts from the start of the new scene, and the model no longer gets a false "could use a shower".
+- **Someone else's meal or wash.** "The aunt and uncle took the kids to dinner" is no longer the main character's "ate 9 min ago": if the entry names others and not the main character, it is not their meal.
+- **Breakages.** "Broken" only when a household item stands right by the word: "stepped out of the lift… deciding her mind had broken" is not a broken lift. Smashed glasses, cups and plates are thrown away, not waiting for repair.
+- **Clothes.** "Three-piece suit, tie, left hand bare" is dressed, not naked: the word "bare" used to strip a man in a suit both in the wardrobe and on the body drawing. An item is recognised by the first name in the text ("three-piece suit (lace panties in the pocket)" is a suit, not panties), and a note in brackets about another item ("waistcoat and trousers (jacket taken off)") no longer takes off the waistcoat and trousers. A "bare torso" no longer sits in the wardrobe as an item called "Top".
+- **Daytime dreams.** A dream under sedation or during the day belongs to that day, not to the next night.
+- **"Wounds and fights".** When the fight was long ago and a fresh wound is not from a fight, the block is called "Wounds and fights", not "After the fight". In the day strip a group of events shows the time from the first to the last.
+- **Nursery.** Age by the calendar: 04.02 → 22.06 is "4 mo 18 d", as the model writes, not "17 d" from average 365 and 30.4 days; the age correction sent to the model is calendar-based too. After dinner a child over one gets "next meal — breakfast in the morning", not "feed in 3 h 51 min" at midnight. A potty-trained child has no diaper during the day; "dry" reads as "checked", not "changed".
+- **Weight when starving.** Starvation (eating under half the need) also drains water and glycogen: up to 1.2 kg at once and 0.35 kg a day. Four days without food is minus 3–4 kg, not 1.4. A weight already recorded is recalculated by itself.
+- **Sleep over several nights.** "slp: 1.5 h; 5 nights: 9 h" is understood and the sleep debt counts all those nights; the model is asked to write it so after several bad nights in a row. A week of insomnia inside a time skip no longer drops out of the debt.
+- **Body gauges against sleep.** Alertness or energy of 75+ after a night of 4 hours or less is marked "⚠ after 1.5 h of sleep?"; with the consistency check on, it is a reason to recheck the reply.
+- **Marks and scars.** "Healing teeth marks over a scar | 2d" heals instead of going to "Permanent" because of the word "scar". An old injury that became a scar is one scar under "Permanent", without a second illness card. An injury from "Illnesses" merges with this turn's mark, not with an old "from HUD memory" one under its former name. Injection, catheter and IV marks are their own kind 💉, without duplicates.
+- **Factions.** A row about a third person ("Staff | Clara | −100") no longer shows under the player's name.
+
 ## 23.89.54 — 2026-11-16
 
 ### Fixed

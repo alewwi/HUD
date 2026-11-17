@@ -11,10 +11,10 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.54';
-import { ико } from './view-icons.js?v=23.89.54';
-import { normalizeDiaryMood, ТЕМЫ_ДНЕВНИКА } from './diary.js?v=23.89.54';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.54';
+import { escapeHtml } from '../utils.js?v=23.89.55';
+import { ико } from './view-icons.js?v=23.89.55';
+import { normalizeDiaryMood, ТЕМЫ_ДНЕВНИКА } from './diary.js?v=23.89.55';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.55';
 
 const значок = (имя) => ико(имя, 'hud-arc-ico');
 const пусто = (текст) => `<div class="hud-arc-empty">${текст}</div>`;

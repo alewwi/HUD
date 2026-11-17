@@ -15,14 +15,14 @@
 // Оформление — детское: у девочек бантики и куколки, у мальчиков машинки и
 // динозавры (css/family.css).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.54';
-import { английский } from '../i18n.js?v=23.89.54';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.54';
-import { settings } from '../settings.js?v=23.89.54';
-import { роды, деньРодов, деньРожденияМалыша, поправитьДатуРодов, дм, спорВозраста, забытьСпорВозраста } from './conception.js?v=23.89.54';
-import { часовМежду } from './fertility.js?v=23.89.54';
-import { buildCharacterHTML } from './character.js?v=23.89.54';
-import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.89.54';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.55';
+import { английский } from '../i18n.js?v=23.89.55';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.55';
+import { settings } from '../settings.js?v=23.89.55';
+import { роды, деньРодов, деньРожденияМалыша, поправитьДатуРодов, дм, спорВозраста, забытьСпорВозраста } from './conception.js?v=23.89.55';
+import { часовМежду } from './fertility.js?v=23.89.55';
+import { buildCharacterHTML } from './character.js?v=23.89.55';
+import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.89.55';
 
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const текст = (о, к) => снятьЗаглушки(flattenFieldValue(о && о[к]));
@@ -70,10 +70,22 @@ function возрастEN(д, точно) {
   return [г && `${г} yr`, м && `${м} mo`, точно && дн && `${дн} d`].filter(Boolean).join(' ');
 }
 // Точный возраст: годы, месяцы и дни — «1 год 2 мес. 5 дн.».
-export function возрастТочно(д) {
+// С датой сцены — по календарю: 04.02 → 22.06 — это 4 мес. 18 дн., а не
+// «4 мес. 17 дн.» из средних 365 и 30,4 дня (модель пишет по календарю, и
+// HUD спорил с ней на день).
+export function возрастКалендарно(д, сейчасMs) {
+  if (!Number.isFinite(д) || !Number.isFinite(сейчасMs)) return null;
+  const до = new Date(Math.floor(сейчасMs / 864e5) * 864e5), от = new Date(до.getTime() - Math.round(д) * 864e5);
+  let г = до.getUTCFullYear() - от.getUTCFullYear(), м = до.getUTCMonth() - от.getUTCMonth(), дн = до.getUTCDate() - от.getUTCDate();
+  if (дн < 0) { м--; дн += new Date(Date.UTC(до.getUTCFullYear(), до.getUTCMonth(), 0)).getUTCDate(); }
+  if (м < 0) { г--; м += 12; }
+  return [г, м, дн];
+}
+export function возрастТочно(д, сейчасMs = null) {
   if (д === null || д === undefined) return 'возраст не назван';
   if (д < 1) return 'первый день';
-  const г = Math.floor(д / 365), м = Math.floor((д - г * 365) / 30.4), дн = Math.round(д - г * 365 - м * 30.4);
+  const к = возрастКалендарно(д, сейчасMs);
+  const г = к ? к[0] : Math.floor(д / 365), м = к ? к[1] : Math.floor((д - г * 365) / 30.4), дн = к ? к[2] : Math.round(д - г * 365 - м * 30.4);
   return [г && `${г} ${скл(г, 'год', 'года', 'лет')}`, м && `${м} мес.`, дн && `${дн} ${г || м ? 'дн.' : скл(дн, 'день', 'дня', 'дней')}`].filter(Boolean).join(' ');
 }
 // Дата рождения: из записи о родах как есть, иначе — отсчётом от даты сцены.
@@ -140,10 +152,17 @@ function нужды(о, д, время) {
   if (!н || д === null) return [];
   const out = [];
   const ел = часИзМетки(н, 'fed'), сп = часИзМетки(н, 'slp'), пг = часИзМетки(н, 'dpr');
+  const имяМалыша = String(о['Имя'] || '').trim();
   const прошло = часовМежду(ел, время);
+  // Час сцены: старше года ночью не кормят, днём на горшке подгузника нет.
+  const чм = String(время || '').match(/(\d{1,2})[:.](\d{2})/);
+  const час = чм ? (+чм[1] % 24) + (+чм[2]) / 60 : null;
+  const ночью = (ч) => ч !== null && (ч >= 21 || ч < 7);
   if (Number.isFinite(прошло)) {
     const осталось = интервалЕды(д) - прошло;
-    out.push(осталось > .25 ? ['ok', '🍼', `покормить через ${вМинутах(осталось)}`] : осталось > -.5 ? ['soon', '🍼', 'пора кормить'] : ['late', '🍼', `голоден уже ${вМинутах(-осталось)}`]);
+    // Ужин в 20:15 у двухлетки — «покормить через 3 ч 51 мин» выходило в полночь.
+    if (д >= 365 && час !== null && осталось > .25 && ночью((час + осталось) % 24)) out.push(['ok', '🍼', 'следующая еда — завтрак утром']);
+    else out.push(осталось > .25 ? ['ok', '🍼', `покормить через ${вМинутах(осталось)}`] : осталось > -.5 ? ['soon', '🍼', 'пора кормить'] : ['late', '🍼', `голоден уже ${вМинутах(-осталось)}`]);
   }
   if (сп) {
     const спит = /спит|сон|засыпа|дрем|уснул|asleep|sleep|dozing/i.test(сп) && !/не спит|проснул|awake/i.test(сп);
@@ -154,7 +173,11 @@ function нужды(о, д, время) {
     } else if (спит) out.push(['ok', '😴', Number.isFinite(с) ? `спит ${вМинутах(с)}` : 'спит']);
   }
   const пп = часовМежду(пг, время);
-  if (Number.isFinite(пп) && д < 1000) out.push(пп < 2.5 ? ['ok', '🧷', `подгузник сменили ${вМинутах(пп)} назад`] : ['soon', '🧷', 'проверить подгузник']);
+  // Уже просится на горшок — подгузник только на ночь; «сухой» — проверили, а не сменили.
+  const горшок = д >= срокВехи(имяМалыша, ВЕХИ.find(в => в[0] === 'potty'));
+  if (Number.isFinite(пп) && д < 1000 && горшок && !ночью(час) && !(час !== null && час >= 20)) { /* днём без подгузника */ }
+  else if (Number.isFinite(пп) && д < 1000 && /сух|чист|dry|clean/i.test(пг)) out.push(['ok', '🧷', `подгузник сухой — проверяли ${вМинутах(пп)} назад`]);
+  else if (Number.isFinite(пп) && д < 1000) out.push(пп < 2.5 ? ['ok', '🧷', `подгузник сменили ${вМинутах(пп)} назад`] : ['soon', '🧷', 'проверить подгузник']);
   return out;
 }
 
@@ -329,7 +352,7 @@ function спорПоВозрасту(о, д, сценаMs, запись) {
 function плашкаСпора(с, д) {
   return `<div class="hud-kid-age-ask" data-kid-name="${escapeHtml(с.имя)}" data-born="${Math.round(с.рождМодели)}" data-hud-born="${Math.round(с.рождHUD)}" data-text="${escapeHtml(с.слова.slice(0, 80))}"${с.запись ? ` data-rec="${escapeHtml(JSON.stringify(с.запись))}"` : ''}>`
     + `<b class="t">Возраст не сходится</b>`
-    + `<span class="row"><small>HUD считает</small><i>${escapeHtml(возрастТочно(д))}</i></span>`
+    + `<span class="row"><small>HUD считает</small><i>${escapeHtml(возрастТочно(д, с.рождHUD + д * 864e5))}</i></span>`
     + `<span class="row"><small>Модель пишет</small><i>«${escapeHtml(с.слова.slice(0, 80))}»</i></span>`
     + `<span class="q">Кто ошибся?</span><span class="btns">`
     + `<button type="button" data-hud-kid-age="model" title="HUD оставит свой возраст, подставит его в карточку и попросит модель писать именно его">Модель</button>`
@@ -397,7 +420,7 @@ export function buildBabiesHTML(babies, uid, active, сцена = {}) {
   const видТрек = видСемьи('kidTrackerView');
   const трекер = видТрек !== 'classic' ? видТрекера(видТрек, малыши.map((р, i) => ({
     i, имя: р.имя, вид: р.вид, д: р.д, рожд: р.рожд, вкл: i === 0, игрушки: ИГРУШКИ[р.вид] || ИГРУШКИ.baby,
-    возраст: возрастТочно(р.д), этап: р.д === null ? '' : этап(р.д),
+    возраст: возрастТочно(р.д, сценаMs), этап: р.д === null ? '' : этап(р.д),
     след: р.д === null ? '' : (ВЕХИ.map(в => ({ имя: в[1], день: срокВехи(р.имя, в) })).filter(в => в.день > р.д).sort((a, b) => a.день - b.день)[0] || {}).имя || '',
     тревоги: нужды(р.о, р.д, время).filter(н => н[0] !== 'ok'),
   }))) : `<div class="hud-kid-tracker">${малыши.map((р, i) => {
@@ -406,7 +429,7 @@ export function buildBabiesHTML(babies, uid, active, сцена = {}) {
     const игрушки = ИГРУШКИ[р.вид] || ИГРУШКИ.baby;
     return `<button type="button" class="hud-kid-chip is-${р.вид}${i === 0 ? ' is-on' : ''}" data-kid="${i}" style="--i:${i};--p:${р.д === null ? 0 : Math.min(100, р.д / порог * 100).toFixed(1)}" title="до «взрослой» карточки — ${возрастТочно(Math.max(1, порог - (р.д || 0)))}">`
       + `<span class="toy" aria-hidden="true">${иконка(игрушки[i % игрушки.length][1])}</span>`
-      + `<span class="who"><b>${escapeHtml(р.имя)}</b><small>${возрастТочно(р.д)}${р.д !== null ? ' · ' + этап(р.д) : ''}</small>`
+      + `<span class="who"><b>${escapeHtml(р.имя)}</b><small>${возрастТочно(р.д, сценаMs)}${р.д !== null ? ' · ' + этап(р.д) : ''}</small>`
       + (р.рожд ? `<small class="born">🎂 ${р.рожд.точно ? '' : '≈ '}${р.рожд.дата}</small>` : '')
       + (след ? `<em>скоро: ${escapeHtml(след.имя)}</em>` : '')
       + (нуж.length ? `<span class="alerts">${нуж.map(([тон, з, т]) => `<i class="is-${тон}" title="${escapeHtml(т)}">${з}</i>`).join('')}</span>` : '') + `</span></button>`;
@@ -418,7 +441,7 @@ export function buildBabiesHTML(babies, uid, active, сцена = {}) {
     for (const к of ПОЛЯ_МАЛЫША) if (р.о[к] !== undefined && !(к === 'Реплики' && !говорит(р.имя, р.д))) данные[к] = р.о[к];
     // Игрок сказал, что ошиблась модель, — в карточке возраст по HUD.
     const поправлен = спорВозраста(р.имя)?.ошибся === 'model';
-    if (р.д !== null && (р.рожд && р.рожд.точно || поправлен || !данные['Возраст'])) данные['Возраст'] = возрастТочно(р.д) + (р.рожд ? `, род. ${р.рожд.точно ? '' : '≈ '}${р.рожд.дата}` : '');
+    if (р.д !== null && (р.рожд && р.рожд.точно || поправлен || !данные['Возраст'])) данные['Возраст'] = возрастТочно(р.д, сценаMs) + (р.рожд ? `, род. ${р.рожд.точно ? '' : '≈ '}${р.рожд.дата}` : '');
     const карта = buildCharacterHTML(данные, `${uid}-kid${i}`, true, false)
       .replace(/^<div class="hud-tab-content[^"]*"[^>]*>/, `<div class="hud-kid-pane">`)
       // У малыша в «Состоянии тела» не стресс, а капризы.

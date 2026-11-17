@@ -20,15 +20,15 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.54';
-import { статусОбещания } from './hud-expand.js?v=23.89.54';
-import { полеВкл } from './deep-fields.js?v=23.89.54';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.54';
-import { namesLikelySame } from './names.js?v=23.89.54';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.54';
-import { праздникиГода } from './render/holidays.js?v=23.89.54';
-import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи } from './render/holiday-lore.js?v=23.89.54';
-import { заметкаСил } from './render/powers.js?v=23.89.54';
+import { settings } from './settings.js?v=23.89.55';
+import { статусОбещания } from './hud-expand.js?v=23.89.55';
+import { полеВкл } from './deep-fields.js?v=23.89.55';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.55';
+import { namesLikelySame } from './names.js?v=23.89.55';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.55';
+import { праздникиГода } from './render/holidays.js?v=23.89.55';
+import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи } from './render/holiday-lore.js?v=23.89.55';
+import { заметкаСил } from './render/powers.js?v=23.89.55';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -382,17 +382,22 @@ export function вернутьВБыт(имя) {
   return true;
 }
 // Сколько тело может измениться: 0,25 кг воды и еды плюс 0,15 кг в сутки
-// (около килограмма в неделю, столько даёт и жёсткий голод). За день — не
-// больше 0,4 кг, за три дня — 0,7, за месяц — почти 5. Шире — только роды,
+// (около килограмма в неделю). За день — не больше 0,4 кг, за три дня — 0,7,
+// за месяц — почти 5. Голод (ест меньше половины нормы) уводит ещё воду и
+// гликоген — до 1,2 кг сразу и 0,35 кг в сутки: четыре дня без еды — это
+// минус 3–4 кг, а не 1,4, как выходило у Софи. Шире — только роды,
 // ампутация, большая операция: модель помечает их словом sudden.
 const ВЕС_ВОДА = 0.25, ВЕС_В_СУТКИ = 0.15, ВЕС_РЕЗКО = 15;
+const ВЕС_ВОДА_ГОЛОД = 1.2, ВЕС_В_СУТКИ_ГОЛОД = 0.35;
 // Модель сказала только «up»/«down», без числа: шаг небольшой, дальше HUD сам ограничит.
 const ВЕС_ШАГ = 0.3;
 const ВЕС_НАПРАВЛЕНИЕ = /^\s*(?:(same|unchanged|as before|прежн\p{L}*|без изменений|не изменил\p{L}*|так же|такой же)|(up|увеличил\p{L}*|вырос\p{L}*|больше)|(down|уменьшил\p{L}*|снизил\p{L}*|похудел\p{L}*|меньше))(?![\p{L}])/iu;
 const РЕЗКАЯ_ПЕРЕМЕНА = /(?:^|;)\s*sudden\s*(?:;|$)/i;
-export function весВПределе(новый, прежний, дней, резко = false) {
-  const предел = резко ? ВЕС_РЕЗКО : ВЕС_ВОДА + ВЕС_В_СУТКИ * Math.max(0, дней);
-  return Math.round(Math.min(прежний + предел, Math.max(прежний - предел, новый)) * 10) / 10;
+export function весВПределе(новый, прежний, дней, резко = false, голод = false) {
+  const предел = резко ? ВЕС_РЕЗКО : голод ? ВЕС_ВОДА_ГОЛОД + ВЕС_В_СУТКИ_ГОЛОД * Math.max(0, дней) : ВЕС_ВОДА + ВЕС_В_СУТКИ * Math.max(0, дней);
+  // Голод только уводит вес вниз: вверх предел обычный.
+  const вверх = резко ? ВЕС_РЕЗКО : ВЕС_ВОДА + ВЕС_В_СУТКИ * Math.max(0, дней);
+  return Math.round(Math.min(прежний + вверх, Math.max(прежний - предел, новый)) * 10) / 10;
 }
 function записатьВес(х, имя, строка, сцена, индекс) {
   if (снятИзБыта(х, имя)) return false;
@@ -428,6 +433,18 @@ function записатьВес(х, имя, строка, сцена, индек
     if (рост) з.рост = рост;
     if (ккал) з.ккал = ккал;
     if (а0) з.активность = а0[1].toLowerCase();
+    // Предел поменялся (голод разрешает больше) — тот же ответ пересчитываем
+    // на его же день сюжета, а не на сегодняшний.
+    const день = з.дата;
+    const база = Number.isFinite(день) ? [...з.история].reverse().find(е => Number.isFinite(е.дата) && е.дата !== день && Number.isFinite(е.вес)) : null;
+    const норма = база && з.рост ? нормаКалорий({ вес: база.вес, рост: з.рост, возраст: з.возраст || 30, женщина: з.женщина !== false, активность: з.активность || 'normal' }) : null;
+    const заново = база ? весВПределе(сырой, база.вес, (день - база.дата) / ДЕНЬ, РЕЗКАЯ_ПЕРЕМЕНА.test(s), !!(з.ккал && норма && з.ккал < норма * 0.5)) : null;
+    if (заново !== null && заново !== з.вес) {
+      з.вес = заново;
+      const посл = з.история.at(-1);
+      if (посл && посл.индекс === индекс) посл.вес = заново;
+      return true;
+    }
     return JSON.stringify([з.рост, з.ккал, з.активность]) !== было;
   }
   з.индекс = индекс;
@@ -439,7 +456,9 @@ function записатьВес(х, имя, строка, сцена, индек
   // Число модели — куда движется тело; сколько оно успело пройти, решает HUD.
   // База — последний другой день: свайпы и второе число за день не копятся.
   const база = Number.isFinite(сцена) ? [...з.история].reverse().find(е => Number.isFinite(е.дата) && е.дата !== сцена && Number.isFinite(е.вес)) : null;
-  const вес = база ? весВПределе(сырой, база.вес, (сцена - база.дата) / ДЕНЬ, РЕЗКАЯ_ПЕРЕМЕНА.test(s)) : сырой;
+  const норма = база && з.рост ? нормаКалорий({ вес: база.вес, рост: з.рост, возраст: з.возраст || 30, женщина: з.женщина !== false, активность: з.активность || 'normal' }) : null;
+  const голод = !!(ккал && норма && ккал < норма * 0.5);
+  const вес = база ? весВПределе(сырой, база.вес, (сцена - база.дата) / ДЕНЬ, РЕЗКАЯ_ПЕРЕМЕНА.test(s), голод) : сырой;
   з.сырой = сырой;
   з.опора = опора;
   з.ответ = s;
@@ -632,7 +651,7 @@ function заметкаВеса(х, снимок, цель, сцена, имяИ
       const хвост = [нота('wg.kc') ? '~<average daily intake> kcal' : '', нота('wg.act') ? '<activity: low, normal or high>' : ''].filter(Boolean).map(x => '; ' + x).join('');
       const просьбаНовых = новые ? ` For ${новые}: "${нота('wg.h') ? '<height> cm; ' : ''}<weight, one decimal, like 48.6> kg${хвост}".` : '';
       const просьбаОбновить = обновить ? ` Update ${обновить}: did the weight go up, go down or stay as before? Staying as before is normal and fine: then write "same${хвост}". If it changed: "up; <new weight, one decimal> kg${хвост}" or "down; <new weight, one decimal> kg${хвост}".` : '';
-      текст = `ONLY THIS TURN: add to the root of your HUD JSON "wg": {"<name>": "<value>"}.${просьбаНовых}${просьбаОбновить} Base it on the body they have and what they ate and did lately. A body changes slowly: about 0.1 kg a day, 0.15 at most even when starving, and water moves it only by 0.2-0.3. Only after childbirth, amputation or major surgery may it jump: then end that line with "; sudden". Never write wg on other turns.`;
+      текст = `ONLY THIS TURN: add to the root of your HUD JSON "wg": {"<name>": "<value>"}.${просьбаНовых}${просьбаОбновить} Base it on the body they have and what they ate and did lately. A body changes slowly: about 0.1 kg a day, 0.15 at most; real starvation (eating under half the need) also drains water and glycogen — up to about 1 kg at once and 0.35 kg a day; otherwise water moves it only by 0.2-0.3. Only after childbirth, amputation or major surgery may it jump: then end that line with "; sudden". Never write wg on other turns.`;
     }
   }
   х.разовые.вес = { цель, текст };

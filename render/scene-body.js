@@ -11,8 +11,8 @@
 // Отметки на силуэте + x-ray в разрезе (ниже по файлу).
 // Чистые функции без DOM; встраивает buildHeatMap (render/intimacy.js).
 
-import { безВещи } from './body-layers.js?v=23.89.54';
-import { settings } from '../settings.js?v=23.89.54';
+import { безВещи } from './body-layers.js?v=23.89.55';
+import { settings } from '../settings.js?v=23.89.55';
 
 const текст = (v) => String(v ?? '').trim();
 const слово = (s) => new RegExp('(?<![\\p{L}])(?:' + s + ')', 'iu');
@@ -123,16 +123,27 @@ export function одеждаПодробно(t, пол = '') {
   const весь = текст(t);
   const out = [];
   if (!весь || /^(empty|none|nothing|нет|пусто)$/i.test(весь)) return out;
-  const голый = ГОЛЫЙ.test(весь) && !/(?:трусик|бель[её]|чулк|рубашк|брюк|штан|юбк|плать|шорт|panties|underwear|lingerie|thong|stocking|shirt|pants|trousers|jeans|skirt|dress|shorts|bra(?![\p{L}]))/iu.test(весь.replace(/(?:без|without|no) [^,;]+/gi, ''));
+  // «Костюм-тройка, галстук, левая кисть обнажена» — одет: любая названная вещь (не «без …») отменяет
+  // «голый». Раньше годились только бельё, рубашка, брюки, юбка — и мужчина в костюме выходил голым.
+  const безБез = весь.replace(/(?:без|without|no) [^,;]+/gi, '');
+  const голый = ГОЛЫЙ.test(весь) && !ВИДЫ_ВЕЩЕЙ.some(([, , rx]) => rx.test(безБез)) && !/(?:panties|underwear|lingerie|thong|stocking|shirt|pants|trousers|jeans|skirt|dress|shorts|bra(?![\p{L}])|suit|jacket|blazer|coat|vest|waistcoat|tie(?![\p{L}])|sweater|hoodie|blouse|robe|cardigan|shoes|boots)/iu.test(безБез);
   if (голый) { out.голый = true; return out; }
   // Запятые в скобках — пояснение к той же вещи: «бельё (бюстгальтер и трусики, сдвинутые в сторону)».
-  const безСкобок = весь.replace(/\(([^)]*)\)/g, (m, x) => ' ' + x.replace(/[,;]/g, ' ') + ' ');
-  for (const кусок of безСкобок.split(/[,;\n]|\s+—\s+|\s+и\s+(?=[\p{L}-]+\s+(?:рубашк|брюк|штан|юбк|бель|трус|шорт|чул|туфл|топ|футболк|майк))|\s+and\s+(?=[\p{L}-]+\s+(?:shirt|blouse|pants|trousers|jeans|skirt|panties|underwear|thong|shorts|stockings|shoes|heels|top|t-shirt|tank|bra)(?![\p{L}]))/iu).map(x => x.trim()).filter(Boolean)) {
+  // Скобки помечены ⟨…⟩: пояснение про другую вещь («жилет и брюки (пиджак снят)») не снимает
+  // жилет и брюки. «и» внутри скобок не режет кусок (невидимый разделитель вместо пробелов).
+  const безСкобок = весь.replace(/\(([^)]*)\)/g, (m, x) => ' ⟨' + x.replace(/[,;]/g, ' ').replace(/\s(и|and)\s/gi, '\u2063$1\u2063') + '⟩ ');
+  for (const сырой of безСкобок.split(/[,;\n]|\s+—\s+|\s+и\s+(?=[\p{L}-]+\s+(?:рубашк|брюк|штан|юбк|бель|трус|шорт|чул|туфл|топ|футболк|майк))|\s+and\s+(?=[\p{L}-]+\s+(?:shirt|blouse|pants|trousers|jeans|skirt|panties|underwear|thong|shorts|stockings|shoes|heels|top|t-shirt|tank|bra)(?![\p{L}]))/iu).map(x => x.trim()).filter(Boolean)) {
+    const кусок = сырой.replace(/[⟨⟩\u2063]/g, ' ').replace(/\s+/g, ' ').trim();
+    const основа = сырой.replace(/⟨[^⟩]*⟩?/g, ' ').replace(/\u2063/g, ' ').trim();
+    const пояснения = [...сырой.matchAll(/⟨([^⟩]*)⟩?/g)].map(m => m[1].replace(/\u2063/g, ' '));
+    if (!кусок) continue;
     if (БОСОЙ.test(кусок)) { if (!out.some(в => в.id === 'shoes')) out.push({ id: 'shoes', имя: 'Обувь', текст: кусок, состояние: 'off' }); continue; }
     if (ГОЛЫЙ_ТОРС.test(кусок)) { if (!out.some(в => в.id === 'shirt')) out.push({ id: 'shirt', имя: 'Верх', текст: кусок, состояние: 'off' }); continue; }
     // «без пиджака», «без галстука» — вещи нет.
     const без = кусок.match(/^(?:без|without|no)\s+(\p{L}+)/iu);
-    const вещи = ВИДЫ_ВЕЩЕЙ.filter(([, , rx]) => rx.test(кусок));
+    // По порядку в тексте, а не в списке видов: «костюм-тройка (в кармане — трусики Софи)» — костюм, а не трусики.
+    const где = (rx) => { rx.lastIndex = 0; const m = rx.exec(кусок); return m ? m.index : -1; };
+    const вещи = ВИДЫ_ВЕЩЕЙ.filter(([, , rx]) => где(rx) >= 0).sort((a, b) => где(a[2]) - где(b[2]));
     if (!вещи.length) continue;
     // «шорты и бельё стянуты до колен» — обе вещи с одним состоянием.
     const берём = /\s(?:и|and)\s/.test(кусок) && вещи.length > 1 ? вещи.slice(0, 2) : вещи.slice(0, 1);
@@ -142,8 +153,12 @@ export function одеждаПодробно(t, пол = '') {
       // Мужчина: «сорочка …до колен» без «ночная/кружевная» — длинная рубашка, не платье.
       if (id === 'dress' && пол === 'm' && /сорочк/i.test(кусок) && !/плать|сарафан|ночнушк|ночн\p{L}*|кружевн|атласн|бретел|комбинаци/iu.test(кусок)) [id, имя] = ['shirt', 'Рубашка'];
       if (out.some(в => в.id === id)) continue;
-      const с = состояниеВещи(кусок);
-      const снято = (!!без || безВещи(кусок, rx) || СНЯТО.test(кусок)) && !НА_ТЕЛЕ.test(кусок);
+      // Состояние — по самой вещи и по скобкам про неё; скобки только про другие вещи не в счёт.
+      const свои = id === 'suit' ? ['suit', 'outer', 'pants', 'vest'] : id === 'outer' || id === 'pants' ? [id, 'suit'] : [id];
+      const проСебя = (п) => ВИДЫ_ВЕЩЕЙ.some(([и, , r]) => свои.includes(и) && r.test(п)) || !ВИДЫ_ВЕЩЕЙ.some(([, , r]) => r.test(п));
+      const своё = [основа, ...пояснения.filter(проСебя)].join(' ');
+      const с = состояниеВещи(своё);
+      const снято = (!!без || безВещи(своё, rx) || СНЯТО.test(своё)) && !НА_ТЕЛЕ.test(своё);
       const частично = с.открыто || с.задрано || с.спущено || с.сдвинуто || с.порвано || с.сплечо;
       out.push({ id, имя, текст: кусок, состояние: снято ? 'off' : частично ? 'half' : 'on', цвет: цветВещи(кусок, id), ткань: (ТКАНЬ.find(([, rx]) => rx.test(кусок)) || [''])[0], ...с });
     }
@@ -601,7 +616,7 @@ export function блокТемпа(т, тело = {}) {
    кости, органы, каналы, инструмент и ход в такт темпу. Здесь только
    делегирование — сюда приходят из intimacy.js (карта тела) и отсюда же
    берёт картинку блок темпа. */
-import { xrayПенетрации, длинаУзора } from './xray.js?v=23.89.54';
+import { xrayПенетрации, длинаУзора } from './xray.js?v=23.89.55';
 export { xrayПенетрации };
 
 /* =========================================================================
