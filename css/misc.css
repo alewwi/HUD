@@ -5679,6 +5679,114 @@ html.hud-custom-open body { overflow: hidden; }
 .hud-edit-acts .hud-edit-save { background: var(--hud-accent, #c31f38); border-color: transparent; color: var(--hud-accent-ink, #fff); }
 .hud-edit-acts button:disabled { opacity: .5; cursor: default; }
 .hud-edit-box small { font-size: 11px; opacity: .7; line-height: 1.35; }
+/* Режим правки: вся карточка — поле выбора; блок, который правят сейчас, подсвечен. */
+.hud-os-card.hud-edit-mode > .hud-os-wrapper { cursor: text; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--hud-accent, #c31f38) 45%, transparent); }
+.hud-os-card.hud-edit-mode .hud-edit-picked { outline: 2px solid var(--hud-accent, #c31f38) !important; outline-offset: 2px; }
+/* Окно правки блока (block-edit-ui.js): вне карточки, на переменных темы Таверны. */
+.hud-be-overlay {
+  /* Размер — от экрана, а не inset: 0: на телефоне у html Таверны есть transform,
+     и фиксированное окно иначе сжимается до высоты html (0). */
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; z-index: 31000; display: flex; align-items: center; justify-content: center; padding: 16px; box-sizing: border-box;
+  background: rgba(0, 0, 0, .6); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); font-family: var(--mainFontFamily, inherit); font-size: 14px;
+}
+/* Цвет окна у тем полупрозрачный: под ним — своя плотная подложка, чат не просвечивает. */
+.hud-be-box { isolation: isolate; }
+.hud-be-box::before { content: ''; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: #15131a; }
+:root.hud-scheme-light .hud-be-box::before { background: #f4f1ee; }
+.hud-be-box {
+  position: relative; display: flex; flex-direction: column; width: min(580px, 100%); max-height: min(88vh, 100%); min-width: 0; box-sizing: border-box; overflow: hidden;
+  color: var(--SmartThemeBodyColor, #e8e3ea); background: var(--SmartThemeBlurTintColor, #1d1a22);
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, .14)); border-radius: 14px; box-shadow: 0 18px 48px rgba(0, 0, 0, .55);
+}
+.hud-be-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; padding: 12px 14px 10px; border-bottom: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, .12)); }
+.hud-be-plate {
+  flex: 1 1 auto; min-width: 0; padding: 5px 12px; border-radius: 999px; font-weight: 700; font-size: 14px; letter-spacing: .01em; overflow-wrap: anywhere;
+  color: var(--SmartThemeQuoteColor, #e0a050); background: color-mix(in srgb, var(--SmartThemeQuoteColor, #e0a050) 14%, transparent);
+}
+.hud-be-switch { flex: 0 1 auto; max-width: 100%; min-width: 0; font: inherit; font-size: 12.5px; padding: 4px 6px; border-radius: 8px; color: inherit;
+  background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 8%, transparent); border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, .16)); }
+.hud-be-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; }
+.hud-be-note { margin: 0; font-size: 12.5px; line-height: 1.4; opacity: .75; }
+.hud-be-group { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.hud-be-field { display: flex; flex-direction: column; gap: 4px; margin: 0; min-width: 0; }
+.hud-be-label { font-size: 11.5px; font-weight: 700; letter-spacing: .02em; opacity: .75; }
+.hud-be-sub { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.hud-be-sub > .hud-be-label { font-size: 12.5px; opacity: .9; color: var(--SmartThemeQuoteColor, #e0a050); }
+.hud-be-input {
+  width: 100%; min-width: 0; box-sizing: border-box; padding: 7px 9px; font: inherit; font-size: 13.5px; line-height: 1.4; resize: vertical;
+  color: inherit; background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 7%, rgba(0, 0, 0, .2));
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, .16)); border-radius: 8px;
+}
+.hud-be-input:focus { outline: 2px solid color-mix(in srgb, var(--SmartThemeQuoteColor, #e0a050) 70%, transparent); outline-offset: 0; }
+.hud-be-list { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.hud-be-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px; align-items: start; }
+.hud-be-trust, .hud-be-poll { display: grid; grid-template-columns: minmax(0, 1fr) 72px auto; gap: 6px; align-items: end; padding: 8px; border-radius: 10px;
+  background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 5%, transparent); }
+.hud-be-trust > .is-wide { grid-column: 1 / 3; }
+.hud-be-poll { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto; }
+.hud-be-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 84px; gap: 6px; }
+.hud-be-record { margin: 0; padding: 8px 10px 10px; min-width: 0; border-radius: 10px; border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, .14)); display: flex; flex-direction: column; gap: 8px; }
+.hud-be-record > legend { padding: 0 6px; font-size: 11.5px; opacity: .7; }
+.hud-be-msgrow { border-radius: 10px; border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, .14)); padding: 6px 10px; }
+.hud-be-msgrow > summary { cursor: pointer; font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-be-msgrow[open] > summary { margin-bottom: 8px; }
+.hud-be-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-be-pill { all: unset; cursor: pointer; padding: 5px 11px; border-radius: 999px; font-size: 12.5px; line-height: 1.2;
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, .18)); background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 6%, transparent); }
+.hud-be-pill[aria-checked="true"] { color: #1b1410; font-weight: 700; border-color: transparent; background: var(--SmartThemeQuoteColor, #e0a050); }
+.hud-be-pill:focus-visible, .hud-be-btn:focus-visible, .hud-be-add:focus-visible, .hud-be-del:focus-visible, .hud-be-pickbtn:focus-visible { outline: 2px solid var(--SmartThemeQuoteColor, #e0a050); outline-offset: 2px; }
+/* Эмоции дневника: у каждой — цвет её листа (--dm из base.css). */
+.hud-be-moods { gap: 5px; }
+.hud-be-moods .hud-be-pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; font-size: 12px; border-color: color-mix(in srgb, var(--dm, #a8a5ad) 55%, transparent); }
+.hud-be-moods .hud-be-pill::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--dm, #a8a5ad); flex: none; }
+.hud-be-moods .hud-be-pill[aria-checked="true"] { background: var(--dm, #a8a5ad); color: #17131a; }
+.hud-be-moods .hud-be-pill[aria-checked="true"]::before { background: #17131a; }
+.hud-be-kind { display: flex; flex-direction: column; gap: 8px; padding: 8px 10px; border-radius: 10px; background: color-mix(in srgb, var(--SmartThemeQuoteColor, #e0a050) 7%, transparent); }
+.hud-be-kind[hidden] { display: none; }
+.hud-be-extra > summary { cursor: pointer; font-size: 12.5px; opacity: .8; }
+.hud-be-extra[open] { display: flex; flex-direction: column; gap: 8px; }
+.hud-be-check { display: flex; align-items: center; gap: 6px; font-size: 13px; }
+.hud-be-add, .hud-be-del, .hud-be-pickbtn { all: unset; cursor: pointer; box-sizing: border-box; font-size: 12.5px; border-radius: 8px; }
+.hud-be-add { align-self: flex-start; padding: 5px 12px; border: 1px dashed var(--SmartThemeBorderColor, rgba(255, 255, 255, .25)); }
+.hud-be-del { width: 30px; height: 30px; text-align: center; line-height: 30px; font-size: 16px; background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 8%, transparent); }
+.hud-be-del.is-wide { width: auto; height: auto; line-height: 1.3; padding: 5px 10px; font-size: 12px; align-self: flex-start; opacity: .8; }
+.hud-be-pick { display: flex; flex-wrap: wrap; gap: 8px; }
+.hud-be-pickbtn { padding: 8px 12px; border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, .18)); background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 6%, transparent); }
+.hud-be-error { margin: 0 14px; padding: 7px 10px; border-radius: 8px; font-size: 12.5px; color: #ffd6d6; background: rgba(200, 40, 50, .3); }
+.hud-be-error[hidden] { display: none; }
+.hud-be-foot { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 8px; padding: 10px 14px 12px; border-top: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, .12)); }
+.hud-be-btn { all: unset; cursor: pointer; padding: 8px 14px; border-radius: 9px; font-size: 13px; font-weight: 600; text-align: center;
+  border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, .18)); background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 7%, transparent); }
+.hud-be-btn.is-main { color: #1b1410; border-color: transparent; background: var(--SmartThemeQuoteColor, #e0a050); }
+.hud-be-btn:disabled { opacity: .4; cursor: default; }
+.hud-be-overlay.is-pick .hud-be-foot .hud-be-btn:not(:first-child) { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-be-btn:not(:disabled):hover, .hud-be-pill:hover, .hud-be-add:hover, .hud-be-del:hover, .hud-be-pickbtn:hover { filter: brightness(1.15); }
+}
+@media (max-width: 600px) {
+  .hud-be-overlay { padding: 10px; align-items: flex-end; }
+  .hud-be-box { max-height: 92vh; border-radius: 14px 14px 10px 10px; }
+  .hud-be-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .hud-be-row > .is-time { grid-column: 1 / -1; }
+  .hud-be-trust { grid-template-columns: minmax(0, 1fr) 64px auto; }
+  .hud-be-poll { grid-template-columns: minmax(0, 1fr) auto; }
+  .hud-be-poll > .hud-be-field:nth-child(2) { grid-column: 1; }
+  .hud-be-foot { justify-content: stretch; }
+  .hud-be-foot .hud-be-btn { flex: 1 1 0; padding: 9px 8px; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-be-overlay { padding: 10px; align-items: flex-end; }
+  .hud-be-box { max-height: 92vh; border-radius: 14px 14px 10px 10px; }
+  .hud-be-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .hud-be-row > .is-time { grid-column: 1 / -1; }
+  .hud-be-trust { grid-template-columns: minmax(0, 1fr) 64px auto; }
+  .hud-be-poll { grid-template-columns: minmax(0, 1fr) auto; }
+  .hud-be-poll > .hud-be-field:nth-child(2) { grid-column: 1; }
+  .hud-be-foot { justify-content: stretch; }
+  .hud-be-foot .hud-be-btn { flex: 1 1 0; padding: 9px 8px; }
+} }
+/* cq ↑ */
 .hud-versions-pop {
   position: fixed; z-index: 10040; min-width: 220px; max-width: min(320px, calc(100vw - 16px)); max-height: 60vh; overflow-y: auto;
   display: flex; flex-direction: column; gap: 4px; padding: 8px;
@@ -6758,6 +6866,20 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-hint-chip::before { content: '✦'; font-size: 11px; color: var(--SmartThemeQuoteColor, #e0a050); }
 .hud-hint-chip > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw; }
 .hud-hint-chip > button { all: unset; cursor: pointer; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 50%; background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 12%, transparent); }
+/* Разовая подсказка в карточке своего хода: что ушло (уйдёт) модели и «Отменить». */
+.hud-nudge-strip { display: grid; gap: 6px; margin: 8px 10px 4px; }
+.hud-nudge-item { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 2px 8px; padding: 6px 6px 6px 10px; border-radius: 10px; font-size: 12px; line-height: 1.35;
+  border: 1px dashed color-mix(in srgb, var(--SmartThemeQuoteColor, #e0a050) 55%, transparent);
+  background: color-mix(in srgb, var(--SmartThemeQuoteColor, #e0a050) 10%, transparent); }
+.hud-nudge-item.is-sent { border-style: solid; }
+.hud-nudge-item > b { font-size: 11px; letter-spacing: .04em; text-transform: uppercase; color: var(--SmartThemeQuoteColor, #e0a050); }
+.hud-nudge-item > b::before { content: '✦ '; }
+.hud-nudge-item > small { font-size: 11px; opacity: .7; min-width: 0; }
+.hud-nudge-item > span { grid-column: 1 / 3; grid-row: 2; min-width: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow-wrap: anywhere; }
+.hud-nudge-item > button { all: unset; grid-column: 3; grid-row: 1 / 3; cursor: pointer; padding: 5px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; white-space: nowrap;
+  background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 12%, transparent); }
+.hud-nudge-item > button:focus-visible { outline: 2px solid var(--SmartThemeQuoteColor, #e0a050); }
+@media (hover: hover) and (pointer: fine) { .hud-nudge-item > button:hover { background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 22%, transparent); } }
 /* Причины и шрамы под шкалой доверия: шрам — зашитая полоска со стежками. */
 .hud-trust-why, .hud-trust-scars { display: flex; flex-wrap: wrap; gap: 5px 7px; margin-top: 7px; font-size: 11.5px; }
 .hud-trust-why > span { display: inline-block; min-width: 0; max-width: 100%; padding: 2px 9px; border-radius: 8px; background: color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 9%, transparent); }
@@ -7607,3 +7729,31 @@ html.hud-scheme-light .hud-mw-know.is-guess { --kn: #8f6a14; }
 /* Подпись ряда в окне — целиком, в две строки при нужде: на телефоне
    многоточие делало «Портрет: в…» дважды подряд неразличимым. */
 .hud-custom-settings .hud-theme-row > label { white-space: normal; overflow: visible; text-overflow: clip; min-width: 0; line-height: 1.25; }
+/* Вопросы о противоречиях (disputes-ui.js): значок в шапке и карточки в окне. */
+.hud-dispute-btn {
+  display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 8px; border-radius: 999px; cursor: pointer; font-size: 12px; font-weight: 700; white-space: nowrap;
+  color: #2a1d05; background: #f0c060; box-shadow: 0 0 0 2px color-mix(in srgb, #f0c060 35%, transparent);
+}
+.hud-dispute-btn:focus-visible { outline: 2px solid #f0c060; outline-offset: 2px; }
+.hud-dsp { display: flex; flex-direction: column; gap: 12px; }
+.hud-dsp-card { display: flex; flex-direction: column; gap: 9px; padding: 11px 12px; border-radius: 12px; border: 1px solid color-mix(in srgb, #f0c060 45%, transparent); background: color-mix(in srgb, #f0c060 7%, transparent); }
+.hud-dsp-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
+.hud-dsp-head > b { font-size: 14px; }
+.hud-dsp-head > span { font-size: 12.5px; opacity: .75; }
+.hud-dsp-cmp { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 8px; }
+.hud-dsp-side { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 8px 10px; border-radius: 9px; background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 6%, transparent); overflow-wrap: anywhere; }
+.hud-dsp-side > small { font-size: 11px; font-weight: 700; letter-spacing: .03em; opacity: .7; }
+.hud-dsp-side.is-hud { box-shadow: inset 3px 0 0 #f0c060; }
+.hud-dsp-side.is-model { box-shadow: inset 3px 0 0 color-mix(in srgb, var(--SmartThemeQuoteColor, #8fb4e8) 80%, transparent); }
+.hud-dsp-why { margin: 0; font-size: 12.5px; line-height: 1.45; opacity: .9; }
+.hud-dsp-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+.hud-dsp-own { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: end; }
+.hud-dsp-err { grid-column: 1 / -1; color: #ffb4b4; font-size: 12px; }
+.hud-dsp-err[hidden] { display: none; }
+.hud-dsp-done > summary { cursor: pointer; font-size: 12.5px; opacity: .8; }
+.hud-dsp-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 0; font-size: 12.5px; border-top: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, .1)); }
+.hud-dsp-row > span { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 600px) { .hud-dsp-cmp { grid-template-columns: minmax(0, 1fr); } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-dsp-cmp { grid-template-columns: minmax(0, 1fr); } } }
+/* cq ↑ */

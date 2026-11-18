@@ -9,41 +9,41 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.89.57';
-import { иконка } from './hud-icons.js?v=23.89.57';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.89.57';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.57';
-import { разобратьСилуСтраха, страхиБезГолойСилы, стадияБолезни } from '../codes.js?v=23.89.57';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.89.58';
+import { иконка } from './hud-icons.js?v=23.89.58';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.89.58';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.58';
+import { разобратьСилуСтраха, страхиБезГолойСилы, стадияБолезни } from '../codes.js?v=23.89.58';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  блокТемпаСцены, активныеСледы, карточкаСледа, группаНавсегда, разобратьСледы, видСледа, тотЖеВред, повязкаНаРане, тоЖеМесто, видПодШрамом, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия, почемуРиск } from './intimacy.js?v=23.89.57';
-import { часыСцены } from './scene-clock.js?v=23.89.57';
-import { полПерсонажа } from './scene-body.js?v=23.89.57';
-import { buildUnderwear } from './underwear.js?v=23.89.57';
-import { buildDuel } from './duel.js?v=23.89.57';
-import { ЗНАЧОК_КОРЗИНЫ, кнопкаПодсказки } from './erase-button.js?v=23.89.57';
-import { buildPregnancy } from './pregnancy.js?v=23.89.57';
-import { мешаетБлизости, больноПриБлизости } from './rest-hint.js?v=23.89.57';
-import { buildPostpartum } from './postpartum.js?v=23.89.57';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, попыткиЗачатия, зарегистрироватьРоды, зарегистрироватьПотерю, закрывшаяПотеря, послеПотери, видПотери, словаПотери, частьПотери, датаИзТекста, дм as деньМесяц, датаЗачатия, чертыРодителей } from './conception.js?v=23.89.57';
-import { блокПотери, кнопкаПотери } from './pregnancy-loss.js?v=23.89.57';
-import { доверияБезПричин, чистаяПричина, шрамыЧеловека, запущенноеУ, весЧеловека, сдвигВеса, срокСдвигаВеса, историяВеса } from '../turn-notes.js?v=23.89.57';
-import { видШрамов, видНеЗнает, видВеса } from './views-plus.js?v=23.89.57';
-import { видОтношений } from './views-story.js?v=23.89.57';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.89.57';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.57';
-import { settings, настройка } from '../settings.js?v=23.89.57';
-import { полеВкл } from '../deep-fields.js?v=23.89.57';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.57';
-import { видСостоянияТела } from './extras.js?v=23.89.57';
-import { видСпособностей, видЧар, ступеньОтдачи, лесенкаОтдачи, СТУПЕНИ_ОТДАЧИ, силыНаЭкране, имяЧар } from './powers.js?v=23.89.57';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом, знакПоДатеРождения } from './views-fields.js?v=23.89.57';
-import { parseRelationList } from './relations-graph.js?v=23.89.57';
-import { раскладкаСтатов, пометитьСтроку } from '../custom-stats.js?v=23.89.57';
-import { плашкаПоследствий } from './consequences.js?v=23.89.57';
-import { карточкиПари } from './bets.js?v=23.89.57';
-import { отложитьРисунок } from './lazy-svg.js?v=23.89.57';
-import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.89.57';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.89.57';
+  блокТемпаСцены, активныеСледы, карточкаСледа, группаНавсегда, разобратьСледы, видСледа, тотЖеВред, повязкаНаРане, тоЖеМесто, видПодШрамом, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия, почемуРиск } from './intimacy.js?v=23.89.58';
+import { часыСцены } from './scene-clock.js?v=23.89.58';
+import { полПерсонажа } from './scene-body.js?v=23.89.58';
+import { buildUnderwear } from './underwear.js?v=23.89.58';
+import { buildDuel } from './duel.js?v=23.89.58';
+import { ЗНАЧОК_КОРЗИНЫ, кнопкаПодсказки } from './erase-button.js?v=23.89.58';
+import { buildPregnancy } from './pregnancy.js?v=23.89.58';
+import { мешаетБлизости, больноПриБлизости } from './rest-hint.js?v=23.89.58';
+import { buildPostpartum } from './postpartum.js?v=23.89.58';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, попыткиЗачатия, зарегистрироватьРоды, зарегистрироватьПотерю, закрывшаяПотеря, послеПотери, видПотери, словаПотери, частьПотери, датаИзТекста, дм as деньМесяц, датаЗачатия, чертыРодителей } from './conception.js?v=23.89.58';
+import { блокПотери, кнопкаПотери } from './pregnancy-loss.js?v=23.89.58';
+import { доверияБезПричин, чистаяПричина, шрамыЧеловека, запущенноеУ, весЧеловека, сдвигВеса, срокСдвигаВеса, историяВеса } from '../turn-notes.js?v=23.89.58';
+import { видШрамов, видНеЗнает, видВеса } from './views-plus.js?v=23.89.58';
+import { видОтношений } from './views-story.js?v=23.89.58';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.89.58';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.58';
+import { settings, настройка } from '../settings.js?v=23.89.58';
+import { полеВкл } from '../deep-fields.js?v=23.89.58';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.58';
+import { видСостоянияТела } from './extras.js?v=23.89.58';
+import { видСпособностей, видЧар, ступеньОтдачи, лесенкаОтдачи, СТУПЕНИ_ОТДАЧИ, силыНаЭкране, имяЧар } from './powers.js?v=23.89.58';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом, знакПоДатеРождения } from './views-fields.js?v=23.89.58';
+import { parseRelationList } from './relations-graph.js?v=23.89.58';
+import { раскладкаСтатов, пометитьСтроку } from '../custom-stats.js?v=23.89.58';
+import { плашкаПоследствий } from './consequences.js?v=23.89.58';
+import { карточкиПари } from './bets.js?v=23.89.58';
+import { отложитьРисунок } from './lazy-svg.js?v=23.89.58';
+import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.89.58';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.89.58';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела', 'способности', 'чары'];
@@ -461,7 +461,7 @@ function циклНаПаузе(данные, value, кто = '') {
 export function вопросыБеременности(о, кто) {
   const value = снятьЗаглушки(flattenFieldValue(полеОбъекта(о, 'Беременность', 'Prg')));
   if (!value) return 0;
-  return вопросыВРазметке(buildPregnancy(value, { сцена: о.__датаСцены, ...контекстБеременности(о, кто, value) }));
+  return вопросыВРазметке(buildPregnancy(value, { сцена: о.__датаСцены, ход: о && о.__ход, ...контекстБеременности(о, кто, value) }));
 }
 export const вопросыВРазметке = (html) => (настройка('enableAttnBadges') === false || !полеВкл(settings, 'ui.attn.preg') ? 0 : (String(html).match(/data-hud-(?:threat="roll"|exam="open")/g) || []).length);
 
@@ -1451,7 +1451,7 @@ export function buildUserHTML(userData, uid, isChecked, characters, свои = [
     } else if (label.toLowerCase() === 'послеродовое') {
       rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}После родов:</span> ${buildPostpartum(value, { кто: 'user', сцена: userData.__датаСцены, время: userData.__времяСцены })}</div>`;
     } else if (label.toLowerCase() === 'беременность') {
-      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${buildPregnancy(value, { сцена: userData && userData.__датаСцены, ...контекстБеременности(userData, 'user', value, (userData && userData.__соседи) || (Array.isArray(characters) ? characters.map(c => ({ имя: c && c['Имя'], данные: c })) : [])) })}</div>`;
+      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${buildPregnancy(value, { сцена: userData && userData.__датаСцены, ход: userData && userData.__ход, ...контекстБеременности(userData, 'user', value, (userData && userData.__соседи) || (Array.isArray(characters) ? characters.map(c => ({ имя: c && c['Имя'], данные: c })) : [])) })}</div>`;
     } else {
       rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${значениеПоля(label.toLowerCase(), value, 'hud-value')}</div>`;
     }
@@ -1689,7 +1689,7 @@ export function строкиКарточки(charData, charName, uid, свои =
     } else if (lowerKey === 'послеродовое') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}После родов:</span> ${buildPostpartum(value, { кто: 'char:' + String(charData['Имя'] || '').trim(), сцена: charData.__датаСцены, время: charData.__времяСцены })}</div>`;
     } else if (lowerKey === 'беременность') {
-      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildPregnancy(value, { сцена: charData.__датаСцены, ...контекстБеременности(charData, 'char:' + String(charData['Имя'] || '').trim(), value) })}</div>`;
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildPregnancy(value, { сцена: charData.__датаСцены, ход: charData.__ход, ...контекстБеременности(charData, 'char:' + String(charData['Имя'] || '').trim(), value) })}</div>`;
     } else if (lowerKey === 'ключ') {
       const items = String(value).split(';').filter(i => i.trim().length > 0).map(i => `<div class="hud-key-item">${formatKeyValue(i.trim())}</div>`).join('');
       html += `<div class="hud-key-block full-width kind-mind${простойВид() ? '' : ' f-key'}"><span class="hud-key-label">${escapeHtml(key)}:</span> <div class="hud-vertical-container hud-key-list">${items}</div></div>`;

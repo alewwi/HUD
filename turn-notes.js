@@ -20,15 +20,16 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.57';
-import { статусОбещания } from './hud-expand.js?v=23.89.57';
-import { полеВкл } from './deep-fields.js?v=23.89.57';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.57';
-import { namesLikelySame } from './names.js?v=23.89.57';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.57';
-import { праздникиГода } from './render/holidays.js?v=23.89.57';
-import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи } from './render/holiday-lore.js?v=23.89.57';
-import { заметкаСил } from './render/powers.js?v=23.89.57';
+import { settings } from './settings.js?v=23.89.58';
+import { статусОбещания } from './hud-expand.js?v=23.89.58';
+import { полеВкл } from './deep-fields.js?v=23.89.58';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.58';
+import { namesLikelySame } from './names.js?v=23.89.58';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.58';
+import { праздникиГода } from './render/holidays.js?v=23.89.58';
+import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи } from './render/holiday-lore.js?v=23.89.58';
+import { заметкаСил } from './render/powers.js?v=23.89.58';
+import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.58';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -90,8 +91,15 @@ const ПОДСКАЗКИ = {
   guns: (т) => `Bring this open thread forward now: «${т}».`,
   important: (т) => `Let this matter in the scene: «${т}».`,
   secrets: (т) => `Let someone begin to suspect this, without revealing it outright: «${т}».`,
-  rumor: (т) => `This rumor reaches someone in the scene: «${т}».`,
+  // Слух остаётся слухом: выбор игрока не делает его правдой мира.
+  rumor: (т) => `Let the characters run into this rumor — overheard, retold, read somewhere: «${т}». It stays a rumor: it may be true, false or half-true, and the player picking it does NOT make it true. Do not confirm or refute it unless the story itself gets there.`,
   news: (т) => `This news reaches the people in the scene: «${т}».`,
+  // Записи «Мира»: каждая входит в сюжет по-своему.
+  events: (т) => `An event on in the world: «${т}». Offer a natural chance to go — someone mentions it, invites, a poster catches the eye. Never decide for the player whether they go.`,
+  city: (т) => `This is happening in the city: «${т}». Take it into account where it touches the characters — a route that passes there, plans, the news in the background; do not drag them to it.`,
+  economy: (т) => `Market and price news: «${т}». Tie it to someone's money, work or a passing remark where that fits; skip it if nothing in the scene touches it.`,
+  comment: (т) => `An online comment, author before the colon: «${т}». Use it as that one person's opinion, credited to them — someone may read it, quote it or react to it; it is not a fact.`,
+  ads: (т) => `An ad or notice in the world: «${т}». It can catch someone's eye or come up in passing.`,
   memory: (т) => `Someone remembers this now: «${т}».`,
   // Последствие накопленного (render/consequences.js): событие, к которому всё шло.
   consequence: (т) => `What has been building up now has its consequence — let it land in this reply, the way the scene allows: «${т}».`,
@@ -232,6 +240,16 @@ export function живыеШрамы(уровень = () => null, до = Infinit
 }
 export function шрамыЧеловека(кто, значениеДоверия) {
   return живыеШрамы((а, б) => namesLikelySame(а, кто) ? доверие(значениеДоверия, б) : null).filter(з => namesLikelySame(з.кто, кто));
+}
+/** Пояснение шрама доверия поправил игрок: у всей пары «кто — кому». */
+export function правитьШрам(id, почему) {
+  const х = хранилище();
+  const з = х && х.сдвиги.find(е => е.id === id);
+  if (!з) return false;
+  const текст = String(почему ?? '').replace(/\s+/g, ' ').trim().slice(0, 200);
+  for (const е of х.сдвиги) if (е.шрам && е.кто === з.кто && е.кому === з.кому) е.почему = текст;
+  сохранить();
+  return true;
 }
 export function убратьШрам(id) {
   const х = хранилище();
@@ -399,6 +417,22 @@ export function весВПределе(новый, прежний, дней, р�
   const вверх = резко ? ВЕС_РЕЗКО : ВЕС_ВОДА + ВЕС_В_СУТКИ * Math.max(0, дней);
   return Math.round(Math.min(прежний + вверх, Math.max(прежний - предел, новый)) * 10) / 10;
 }
+// Вопрос о весе (disputes.js, настройка askContradictions): модель написала
+// вес, которого тело так быстро не наберёт и не сбросит. Пока не ответили —
+// вес модели; «верно у HUD» — предел; «своё» — вес, который назвал игрок.
+function весСоСпором(имя, сырой, вес, индекс, дней) {
+  if (!спрашивать() || !Number.isFinite(сырой) || Math.abs(сырой - вес) < 0.3) return вес;
+  const р = спор({ ход: индекс, ключ: 'wg|' + имя, подпись: сырой, допуск: 0.2, что: 'Вес', кто: имя,
+    модель: `${String(сырой).replace('.', ',')} кг`, hud: `${String(вес).replace('.', ',')} кг`,
+    почему: `За ${Math.max(0, Math.round(дней))} дн. вес так сильно не меняется — HUD поставил бы ${String(вес).replace('.', ',')} кг.`,
+    основа: { вид: 'число', подпись: 'Вес, кг', мин: 2, макс: 400 }, база: {},
+    сказатьHUD: `${имя} weighs ${вес} kg — a body can't change that fast; write it in wg.`,
+    сказатьСвоё: `${имя} weighs {v} kg — write it in wg.` });
+  if (р.решение === 'hud') return вес;
+  const своё = parseFloat(String(р.своё ?? '').replace(',', '.'));
+  if (р.решение === 'own' && Number.isFinite(своё)) return Math.round(своё * 10) / 10;
+  return сырой;
+}
 function записатьВес(х, имя, строка, сцена, индекс) {
   if (снятИзБыта(х, имя)) return false;
   const s = String(строка ?? '');
@@ -438,7 +472,7 @@ function записатьВес(х, имя, строка, сцена, индек
     const день = з.дата;
     const база = Number.isFinite(день) ? [...з.история].reverse().find(е => Number.isFinite(е.дата) && е.дата !== день && Number.isFinite(е.вес)) : null;
     const норма = база && з.рост ? нормаКалорий({ вес: база.вес, рост: з.рост, возраст: з.возраст || 30, женщина: з.женщина !== false, активность: з.активность || 'normal' }) : null;
-    const заново = база ? весВПределе(сырой, база.вес, (день - база.дата) / ДЕНЬ, РЕЗКАЯ_ПЕРЕМЕНА.test(s), !!(з.ккал && норма && з.ккал < норма * 0.5)) : null;
+    const заново = база ? весСоСпором(ключ, сырой, весВПределе(сырой, база.вес, (день - база.дата) / ДЕНЬ, РЕЗКАЯ_ПЕРЕМЕНА.test(s), !!(з.ккал && норма && з.ккал < норма * 0.5)), индекс, (день - база.дата) / ДЕНЬ) : null;
     if (заново !== null && заново !== з.вес) {
       з.вес = заново;
       const посл = з.история.at(-1);
@@ -458,7 +492,7 @@ function записатьВес(х, имя, строка, сцена, индек
   const база = Number.isFinite(сцена) ? [...з.история].reverse().find(е => Number.isFinite(е.дата) && е.дата !== сцена && Number.isFinite(е.вес)) : null;
   const норма = база && з.рост ? нормаКалорий({ вес: база.вес, рост: з.рост, возраст: з.возраст || 30, женщина: з.женщина !== false, активность: з.активность || 'normal' }) : null;
   const голод = !!(ккал && норма && ккал < норма * 0.5);
-  const вес = база ? весВПределе(сырой, база.вес, (сцена - база.дата) / ДЕНЬ, РЕЗКАЯ_ПЕРЕМЕНА.test(s), голод) : сырой;
+  const вес = база ? весСоСпором(ключ, сырой, весВПределе(сырой, база.вес, (сцена - база.дата) / ДЕНЬ, РЕЗКАЯ_ПЕРЕМЕНА.test(s), голод), индекс, (сцена - база.дата) / ДЕНЬ) : сырой;
   з.сырой = сырой;
   з.опора = опора;
   з.ответ = s;
@@ -880,6 +914,8 @@ export function заметкиХода({ чат, снимок = null, тип = '
     запись.неделя = метка(з.Prg, 'wk') ?? 0;
   }
   const части = [подсказкиХода(х, цель)];
+  // Ответы игрока на вопросы о противоречиях (disputes.js): «верно у HUD» и «своё» — поправка модели.
+  { const п = заметкаСпоров(цель); if (п.length) части.push(`## ⚖️ CORRECTIONS FROM THE PLAYER — the player checked these, take them as true\n- ${п.join('\n- ')}`); }
   if (снимок) {
     const строки = [];
     if (вкл('enableScars')) строки.push(...заметкаОтношений(х, снимок, чат, цель, игрок));

@@ -9,11 +9,11 @@
 // честно бывает 'empty', комментариев может не быть вовсе. Ложная тревога
 // здесь стоит лишнего запроса к модели, поэтому лучше промолчать.
 
-import { settings } from './settings.js?v=23.89.57';
-import { extractHudBlock } from './hud-block.js?v=23.89.57';
-import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.89.57';
-import { противоречияБыта } from './render/life.js?v=23.89.57';
-import { сжатыеПоля, лимитПоля } from './compact-fields.js?v=23.89.57';
+import { settings } from './settings.js?v=23.89.58';
+import { extractHudBlock } from './hud-block.js?v=23.89.58';
+import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.89.58';
+import { противоречияБыта } from './render/life.js?v=23.89.58';
+import { сжатыеПоля, лимитПоля } from './compact-fields.js?v=23.89.58';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const МЕТКА = /<\s*new this turn\b[^>]*>/i;
@@ -27,23 +27,32 @@ function заполнено(v) {
 
 /**
  * Чего не хватает в HUD сообщения. Пустой список — HUD полный.
- * Названия — для всплывающего сообщения игроку.
+ * Названия — для всплывающего сообщения игроку; с { дляМодели: true } —
+ * английские, с кодами полей: эта строка уходит в инструкцию модели
+ * (index.js, дописатьПропущенное), а в промте кириллицы быть не должно.
  */
-export function чегоНеХватает(текстСообщения) {
+export function чегоНеХватает(текстСообщения, { дляМодели = false } = {}) {
+  const м = (ru, en, имя) => { const s = дляМодели ? en : ru; return имя === undefined ? s : `${s} (${имя})`; };
   const блок = extractHudBlock(String(текстСообщения || ''));
-  if (!блок) return ['весь HUD'];
+  if (!блок) return [м('весь HUD', 'the whole HUD')];
   const к = HUDвКодах(блок);
-  if (!к) return ['весь HUD (не разобрался)'];
+  if (!к) return [м('весь HUD (не разобрался)', 'the whole HUD (unparsable)')];
 
   const нет = [];
+  // Блока персонажей нет вовсе — модель выдала обрывок: сцену и память, а
+  // персонажей, игрока, телефон и остальное выкинула. Схема просит "cs"
+  // каждый ход; честное «никого нет» — пустой список [], а не пропуск ключа.
+  // Без этой проверки обрывок считался полным: мысли и дневник сверяются
+  // только у тех, кто в cs.
+  if (!Array.isArray(к.cs)) нет.push(м('персонажи (весь блок cs)', 'the whole "cs" block (characters) and the other blocks of the schema'));
   (Array.isArray(к.cs) ? к.cs : []).filter(объект).forEach(c => {
-    const имя = непусто(c.N) ? String(c.N) : 'персонаж';
-    if (!заполнено(c.Th)) нет.push(`мысли (${имя})`);
-    if (!заполнено(c.Ex)) нет.push(`ожидание и реальность (${имя})`);
+    const имя = непусто(c.N) ? String(c.N) : м('персонаж', 'character');
+    if (!заполнено(c.Th)) нет.push(м('мысли', 'Th (thoughts)', имя));
+    if (!заполнено(c.Ex)) нет.push(м('ожидание и реальность', 'Ex (expectation vs reality)', имя));
   });
   // Дневник пишут присутствующие. Никого в cs нет — {{char}} вне сцены, и
   // писать от его имени промт запрещает: пустой дневник тогда честный.
-  if (settings.enableDiary && (Array.isArray(к.cs) ? к.cs : []).some(объект) && !заполнено(к.dy)) нет.push('дневник');
+  if (settings.enableDiary && (Array.isArray(к.cs) ? к.cs : []).some(объект) && !заполнено(к.dy)) нет.push(м('дневник', 'dy (diary)'));
   // Дневник — настоящая запись, а не мысль или заметка: короче ~220 знаков
   // и меньше трёх предложений — это заметка. Порог мягкий, чтобы не гонять
   // модель из-за записи чуть короче просимой.
@@ -53,12 +62,12 @@ export function чегоНеХватает(текстСообщения) {
   const знаков = сжатДневник ? Math.min(220, сжатДневник * 3) : 220;
   const предложений = сжатДневник ? Math.min(3, Math.max(2, Math.floor(сжатДневник / 20))) : 3;
   const короткая = (т) => { const s = String(т || '').replace(/~~.*?~~/g, '').trim(); return s.length < знаков && (s.match(/[.!?…]+(?=\s|$)/g) || []).length < предложений; };
-  if (settings.enableDiary && Array.isArray(к.dy) && к.dy.some(з => объект(з) && заполнено(з.tx) && короткая(з.tx))) нет.push('дневник (слишком короткий)');
-  if (settings.enableWorld && settings.enableHoroscope !== false && !заполнено(к.wd && к.wd.zd)) нет.push('гороскоп');
+  if (settings.enableDiary && Array.isArray(к.dy) && к.dy.some(з => объект(з) && заполнено(з.tx) && короткая(з.tx))) нет.push(м('дневник (слишком короткий)', 'dy (diary entry too short: write a real entry of several sentences)'));
+  if (settings.enableWorld && settings.enableHoroscope !== false && !заполнено(к.wd && к.wd.zd)) нет.push(м('гороскоп', 'wd.zd (horoscope)'));
   // Бой: раз блок есть, этап и участники обязательны, остальное — нет.
   if (settings.enableCombat !== false && объект(к.cb) && заполнено(к.cb)) {
-    if (!заполнено(к.cb.st)) нет.push('этап боя');
-    if (!заполнено(к.cb.pt)) нет.push('участники боя');
+    if (!заполнено(к.cb.st)) нет.push(м('этап боя', 'cb.st (combat stage)'));
+    if (!заполнено(к.cb.pt)) нет.push(м('участники боя', 'cb.pt (combat participants)'));
   }
   return нет;
 }
@@ -71,7 +80,8 @@ export function чегоНеХватает(текстСообщения) {
  */
 export function проблемыОтвета(сообщения, id, текстСообщения) {
   const нет = чегоНеХватает(текстСообщения);
-  if (settings.hudConsistencyCheck === true && settings.enableLife !== false) {
+  // С вопросами о противоречиях (disputes.js) они решаются вопросом игроку, а не перегенерацией.
+  if (settings.hudConsistencyCheck === true && settings.enableLife !== false && settings.askContradictions !== true) {
     try { нет.push(...противоречияБыта(сообщения, id)); } catch (_) { /* журнал не собрался — молчим */ }
   }
   return нет;

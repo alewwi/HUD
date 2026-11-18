@@ -18,19 +18,20 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.57';
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.57';
-import { settings } from '../settings.js?v=23.89.57';
-import { градусы } from '../units.js?v=23.89.57';
-import { разобратьХод } from './carryover.js?v=23.89.57';
-import { моментСцены } from './intimacy.js?v=23.89.57';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.57';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.57';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.57';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.57';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.57';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.57';
-import { английский } from '../i18n.js?v=23.89.57';
+import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.58';
+import { спор, спрашивать, основыИгрока, подписьСна } from '../disputes.js?v=23.89.58';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.58';
+import { settings } from '../settings.js?v=23.89.58';
+import { градусы } from '../units.js?v=23.89.58';
+import { разобратьХод } from './carryover.js?v=23.89.58';
+import { моментСцены } from './intimacy.js?v=23.89.58';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.58';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.58';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.58';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.58';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.58';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.58';
+import { английский } from '../i18n.js?v=23.89.58';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -722,6 +723,27 @@ export function журналБыта(chat, конец = chat ? chat.length : 0, 
     // Погода и одежда сейчас — для «не по погоде»: только снаружи.
     последнийХод = { имя: главный ? имяКоротко(главный['Имя']) : '', место: главный ? местоКоротко(поле(главный, 'Место')) : '', жара, погода: поле(d.scene, 'Погода'), наУлице: УЛИЦА.test(поле(главный, 'Место') + ' ' + поле(d.scene, 'Место')), кто };
   }
+  // Основа, заданная игроком в вопросе (disputes.js): «ели в 14:00», «спал 6 ч».
+  for (const р of основыИгрока()) {
+    if (р.решение !== 'own' || !р.база || !Number.isFinite(р.база.сцена)) continue;
+    const кто = р.кто || '';
+    if (р.ключ.startsWith('eat|') || р.ключ.startsWith('wash|')) {
+      const м = String(р.своё || '').match(/(\d{1,2})[:.](\d{2})/);
+      if (!м) continue;
+      let т = Math.floor(р.база.сцена / СУТКИ) * СУТКИ + (+м[1]) * Ч + (+м[2]) * 60e3;
+      if (т > р.база.сцена) т -= СУТКИ;
+      const еда = р.ключ.startsWith('eat|');
+      добавить({ вид: еда ? 'eat' : 'wash', что: еда ? 'ели — по словам игрока' : 'мылись — по словам игрока', t: т, кто, источник: 'player' });
+    } else if (р.ключ.startsWith('bsl|')) {
+      const часов = parseFloat(String(р.своё || '').replace(',', '.'));
+      if (!Number.isFinite(часов)) continue;
+      const сутки = Math.floor(р.база.сцена / СУТКИ) * СУТКИ;
+      const имя = тотЖеКлюч(ночи, кто);
+      if (!ночи.has(имя)) ночи.set(имя, new Map());
+      const была = ночи.get(имя).get(сутки) || {};
+      ночи.get(имя).set(сутки, { ...была, часов, текст: `${String(часов).replace('.', ',')} ч — по словам игрока`, сутки, игрок: true });
+    }
+  }
   события.sort((a, b) => a.t - b.t);
   // «Поели (что — неизвестно)» по скачку сытости уходит, если рядом есть
   // настоящая запись о еде — например, модель дописала её по просьбе (пробелыБыта).
@@ -1136,20 +1158,50 @@ export function противоречияБыта(chat, индекс) {
   const пам = d.memory || {};
   const елиСейчас = событияHk(пам.household).some(с => с.вид === 'eat') || событияТаймлайна(пам.timeline).some(с => с.вид === 'eat');
   const еда = ж.последнее('eat');
-  if (t && еда && (t - еда.t) / Ч >= 7 && sat !== null && sat >= 70 && !елиСейчас) нет.push(`сытость ${sat} без еды (ели ${Math.round((t - еда.t) / Ч)} ч назад)`);
+  // С настройкой askContradictions противоречие — вопрос игроку (disputes.js):
+  // решённое не возвращается, «верно у модели» снимает его совсем.
+  const спросить = (д, строка) => {
+    if (!спрашивать()) { нет.push(строка); return; }
+    const р = спор(д);
+    if (р.решение === 'hud') нет.push(строка);
+  };
+  if (t && еда && (t - еда.t) / Ч >= 7 && sat !== null && sat >= 70 && !елиСейчас) {
+    const кто = главный ? имяКоротко(главный['Имя']) : ж.главный;
+    const часов = Math.round((t - еда.t) / Ч);
+    спросить({ ход: индекс, ключ: 'eat|' + кто, подпись: Math.round(еда.t / 60e3), что: 'Сытость', кто,
+      модель: `сытость ${sat}`, hud: `ели ${часов} ч назад (${чм(еда.t)})`,
+      почему: 'Модель пишет высокую сытость, а по прошлым ходам ели давно. Если ели за кадром — укажите когда, и HUD будет считать от этого.',
+      основа: { вид: 'время', подпись: 'Когда ели в последний раз (ЧЧ:ММ)' }, база: { сцена: t },
+      сказатьHUD: `${кто} last ate about ${часов} hours ago — satiety (Bs sat) can't be high; lower it or let them eat in the scene.`,
+      сказатьСвоё: `${кто} last ate at {v} — count satiety (Bs sat) from that.` }, `сытость ${sat} без еды (ели ${часов} ч назад)`);
+  }
   const кош = (d.phone && d.phone.wallet) || (d.satchel && d.satchel.wallet) || null;
   const сейчасБаланс = кош ? числоДенег(текст(кош.balance)) : NaN;
   const былБаланс = числоДенег(ж.деньги.баланс);
   if (Number.isFinite(сейчасБаланс) && Number.isFinite(былБаланс) && Math.abs(сейчасБаланс - былБаланс) > Math.max(1, былБаланс * .01)) {
     const трх = Array.isArray(кош.transactions) ? кош.transactions.map(x => суммаТрх(x && x.amount)).filter(x => x !== null) : [];
     const новых = трх.filter(с => !ж.события.some(е => (е.вид === 'buy' || е.вид === 'income') && Math.abs(е.сумма - Math.abs(с)) < .01));
-    if (!новых.length) нет.push(`баланс ${былБаланс} → ${сейчасБаланс} без транзакций`);
+    if (!новых.length) спросить({ ход: индекс, ключ: 'bal|' + ж.главный, подпись: `${былБаланс}>${сейчасБаланс}`, что: 'Баланс', кто: ж.главный,
+      модель: String(сейчасБаланс), hud: String(былБаланс),
+      почему: 'Баланс в кошельке изменился, а операции, которая бы это объяснила, нет.',
+      основа: { вид: 'число', подпись: 'Сколько на счету на самом деле' }, база: { сцена: t },
+      сказатьHUD: `The wallet balance was ${былБаланс} and changed with no transaction — keep ${былБаланс} or add the transaction that explains the change.`,
+      сказатьСвоё: 'The wallet balance is {v} — write it in the wallet.' }, `баланс ${былБаланс} → ${сейчасБаланс} без транзакций`);
   }
   for (const c of люди) {
     const bs = поле(c, 'Состояние тела');
     const ч = сонИз(bs);
     const awk = числоBs(bs, 'awk');
-    if (ч && ч.часов <= 4 && awk !== null && awk >= 75) нет.push(`${имяКоротко(c['Имя']).split(/\s+/)[0]}: бодрость ${awk} после ${String(ч.часов).replace('.', ',')} ч сна`);
+    if (ч && ч.часов <= 4 && awk !== null && awk >= 75) {
+      const кто = имяКоротко(c['Имя']);
+      const часы = String(ч.часов).replace('.', ',');
+      спросить({ ход: индекс, ключ: 'bsl|' + кто, подпись: подписьСна(awk, ч.текст), что: 'Бодрость после сна', кто,
+        модель: `бодрость ${awk}`, hud: `спал(а) ${часы} ч`,
+        почему: 'После такого короткого сна бодрость почти полной не бывает. Если спал(а) больше — укажите сколько.',
+        основа: { вид: 'число', подпись: 'Сколько часов спал(а) прошлой ночью', мин: 0, макс: 24 }, база: { сцена: t },
+        сказатьHUD: `${кто} slept only ${ч.часов} h last night — alertness (Bs awk) and energy can't be near full; lower them.`,
+        сказатьСвоё: `${кто} slept {v} h last night — write slp and alertness to match.` }, `${кто.split(/\s+/)[0]}: бодрость ${awk} после ${часы} ч сна`);
+    }
   }
   return нет.map(х => 'противоречие: ' + х);
 }

@@ -17,10 +17,10 @@
 // Конечный вид рисуется сразу, без анимации появления: HUD держит анимации
 // на паузе, пока на вид не навели мышь или не нажали (css/views.css).
 
-import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.89.57';
-import { лицоЧеловека as лицо } from './views.js?v=23.89.57';
-import { ико } from './view-icons.js?v=23.89.57';
-import { градусы } from '../units.js?v=23.89.57';
+import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.89.58';
+import { лицоЧеловека as лицо } from './views.js?v=23.89.58';
+import { ико } from './view-icons.js?v=23.89.58';
+import { градусы } from '../units.js?v=23.89.58';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));

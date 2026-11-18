@@ -4,6 +4,48 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.58 — 2026-11-18
+
+### Added
+- **Edit any block without code.** ✎ in the card header turns on edit mode (a notice says so). Then tap the block: diary, trust, body, world, memory, phone, nursery. A window opens with the block's name on top and fields inside — no JSON and no strings like "eng: 52 — …; awk: 100 — …":
+  - **Fields have word labels.** For example, "Body state" is "Energy", "Alertness", "Satiety", "Sleep", "To do"; "Last sex" is "Date", "Partner", "What happened", "How it ended".
+  - **Trust row by row:** name, number and the note, if there is one.
+  - **Lists item by item:** add or delete an item.
+  - **A diary mood** is picked from the page themes, each in its own colour.
+  - **Three buttons:**
+
+    | Button | What it does |
+    |---|---|
+    | "Cancel" | closes the window |
+    | "Undo" | with unsaved changes in the window, puts the fields back as they were when it opened; if the window was not touched but an edit was saved earlier, restores what the model wrote |
+    | "Save" | writes the edit |
+
+  - **Nothing breaks.** HUD replaces the ";", "|" and "]" separators inside what you type itself. Before writing, the HUD is rebuilt and checked: if it doesn't match, nothing is written. The old HUD stays in "↶".
+- **Phone.** Tapping a message opens its editor:
+  - sender, recipient and time;
+  - status as pills: read, unread, deleted, draft;
+  - type as pills: text, voice, photo, video, call, poll. Voice gets a length, poll a question and options with voters, call a direction, outcome and duration. Type fields start empty; switch the type and back and what you typed is still there;
+  - reply, forward and "typed by someone else" as checkboxes, their fields appear with the checkbox.
+
+  A group chat's name is edited by tapping the title of the open chat; contact names are left alone.
+- **You edit what you see.** If the model left a field "no change" (nc) or skipped it, the window shows the text from an earlier turn, and the edit goes into this turn. A memory item, chat or message carried over from earlier turns is edited in the reply where the model wrote it. The window says so.
+- **The base of Daily life.** In edit mode, Daily life lets you set when they last ate, when they last washed and how long they slept last night. HUD counts on from that, and the model learns it in the next reply too. A wrong "not eaten for 9 h" is fixed at its base, not as a number on screen that the next turn would overwrite.
+- **Trust scars** can be edited: the note on why trust dropped.
+- **Questions about mismatches** (the "⚖️ Ask about mismatches" setting, off by default). Where HUD works things out itself and the model wrote something else, HUD doesn't fix it silently:
+  - **Where it asks:** pregnancy week from conception, weight with a speed limit, alertness after short sleep, satiety long after a meal, a balance change with no transaction.
+  - **The ⚖ badge** in the header of the last reply opens the question: what the model writes, what HUD counts and why HUD asks.
+  - **Answers:** "The model is right", "HUD is right" (the model gets a correction) or your own value — week, weight, hours of sleep, meal time. HUD counts on from it.
+  - **Until you answer,** the model's value stays.
+  - **A settled question doesn't come back** without new data; changed your mind — "Undo decision".
+- **"Work it into the story" from World.** The star is now on news, rumors, comments, events, economy, city services and ads:
+  - the entry goes to the model in the next reply and its swipes, but not in a swipe of the reply it was picked on;
+  - the instruction fits the entry: a rumor stays a rumor — picking it doesn't make it true; an event is a chance to go; traffic counts if it's on the way; quotes go to money and talk; a comment is someone's opinion, with its author;
+  - the card of that turn shows what goes or went to the model, with a "Cancel" button.
+
+### Fixed
+- **A fragment instead of a HUD.** The model sometimes sends only the scene and memory and drops characters, the player and the phone. The completeness check used to count such a HUD as full, and the next turn lost clothes, wounds and relations. Now it is a gap: the snapshot for the model comes from the last full HUD, with the scene and fresh memory on top. A scene written without its "sc" wrapper is put back in place.
+- **The request to fill in skipped fields** goes to the model in English, with field codes: no Cyrillic in the instruction.
+
 ## 23.89.57 — 2026-11-17
 
 ### Fixed

@@ -6,14 +6,14 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.89.57';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.57';
-import { G_ICONS } from './icons.js?v=23.89.57';
-import { собратьЛенту } from './msg-feed.js?v=23.89.57';
-import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.89.57';
-import { безШапокСообщения, заКадромHTML, начинаетсяСТега } from './msg-parts.js?v=23.89.57';
-import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.89.57';
-import { namesLikelySame } from '../names.js?v=23.89.57';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.89.58';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.58';
+import { G_ICONS } from './icons.js?v=23.89.58';
+import { собратьЛенту } from './msg-feed.js?v=23.89.58';
+import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.89.58';
+import { безШапокСообщения, заКадромHTML, начинаетсяСТега } from './msg-parts.js?v=23.89.58';
+import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.89.58';
+import { namesLikelySame } from '../names.js?v=23.89.58';
 
 export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, контакты = null) {
   обновитьФоныЧатов();
@@ -131,7 +131,7 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
     const строкаВСети = !isGroupChat && лента.вСети && !лента.блокировка ? `<span class="hud-phone-online">в сети: ${escapeHtml(лента.вСети)}</span>` : '';
     const ключФона = ключФонаЧата(displayChatName);
 
-    chatBodies += `<div class="hud-phone-subbody" id="subchat-${uid}-${idx}">
+    chatBodies += `<div class="hud-phone-subbody" id="subchat-${uid}-${idx}" data-chat-key="${escapeHtml(rawChatName)}"${isGroup ? ' data-chat-group="1"' : ''}>
       <div class="hud-phone-header"><span class="hud-phone-back">⟨</span><div class="hud-phone-title-group" ${chatObj.participants ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(displayChatName))} ${chatObj.participants ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${строкаВСети}${личность ? ложноеИмяHTML(личность) : ''}${chatObj.participants ? `<div class="hud-phone-participants-list">${G_ICONS.people} Участники: ${escapeHtml(chatObj.participants)}</div>` : ''}</div><span class="hud-phone-options" data-chat-bg="${ключФона}" role="button" tabindex="0" aria-label="Фон этого чата" title="Фон этого чата">⋮</span></div>
       <div class="hud-phone-chat-area" data-bgk="${ключФона}">`;
 		

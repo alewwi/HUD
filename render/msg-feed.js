@@ -12,10 +12,10 @@
 // оказываются рядом вчерашнее «22:30» и сегодняшнее «08:30», и без подписи
 // «Вчера» это читается как один разговор подряд.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.57';
-import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.89.57';
-import { avaFace } from './phone-common.js?v=23.89.57';
-import { namesLikelySame } from '../names.js?v=23.89.57';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.58';
+import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.89.58';
+import { avaFace } from './phone-common.js?v=23.89.58';
+import { namesLikelySame } from '../names.js?v=23.89.58';
 
 // Один человек в переписке под разными подписями: «Грей» и «Профессор Грей»,
 // «Butler» и «Private Butler», «Damian» и «THE LANTERNS Damian Hartley».
@@ -282,7 +282,7 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
     }
 
     if (удалено) {
-      html += `<div class="hud-msg-wrapper ${исходящее ? 'outgoing' : 'incoming'}">
+      html += `<div class="hud-msg-wrapper ${исходящее ? 'outgoing' : 'incoming'}" data-msg-key="${msgKey(текст)}">
         ${!исходящее ? кружок(подпись) : ''}
         <div class="hud-msg-content" style="max-width: 100%;">
           <span class="hud-msg-sender">${escapeHtml(подпись)}</span>
@@ -303,7 +303,7 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
 
     // Звонок — событие во всю ширину, а не реплика.
     const звонок = buildCallRow(текст, { sender: подпись, time: время, outgoing: исходящее });
-    if (звонок) { html += звонок; return; }
+    if (звонок) { html += звонок.replace(/^(\s*<\w+)/,`$1 data-msg-key="${msgKey(текст)}"`); return; }
 
     const внутри = buildBubbleInner(текст, { владелец: owner });
     const мета = (время || отметка(статус, исходящее))

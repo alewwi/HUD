@@ -7,9 +7,9 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.57';
-import { namesLikelySame } from '../names.js?v=23.89.57';
-import { раскрывашка } from './fold.js?v=23.89.57';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.58';
+import { namesLikelySame } from '../names.js?v=23.89.58';
+import { раскрывашка } from './fold.js?v=23.89.58';
 
 // Метка отражённой ставки: её написали в карточке соперника.
 const ЗЕРКАЛО = '⇄ ';

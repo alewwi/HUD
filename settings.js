@@ -448,6 +448,8 @@ export const defaultSettings = {
   hudCompleteCheck: 'regen',
   // Противоречия хода с журналом быта (hud-check.js, проблемыОтвета) — туда же.
   hudConsistencyCheck: false,
+  // Вопросы о противоречиях (disputes.js): HUD спрашивает, прежде чем поставить своё вместо написанного моделью.
+  askContradictions: false,
   // Сейф (index.js, дописатьПропущенное): чего не было в прошлом HUD и еду
   // без подробностей — попросить дописать в новом ответе, строкой в инструкции.
   hudFillGaps: true,

@@ -7,13 +7,13 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { кнопкаПодсказки } from './erase-button.js?v=23.89.57';
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.89.57';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.57';
-import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.89.57';
-import { видБлока } from './views.js?v=23.89.57';
-import { settings } from '../settings.js?v=23.89.57';
-import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.57';
+import { кнопкаПодсказки } from './erase-button.js?v=23.89.58';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.89.58';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.58';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.89.58';
+import { видБлока } from './views.js?v=23.89.58';
+import { settings } from '../settings.js?v=23.89.58';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.58';
 
 // Заголовки разделов «Мира» по эпохе: в средневековье нет «новостей»,
 // «афиши» и «комментариев Сети» — есть глашатай, ярмарки и пересуды.
@@ -29,8 +29,8 @@ const СРЕДНЕВЕКОВЬЕ = {
   '💬 Комментарии Сети': '💬 Пересуды',
 };
 const З = (заголовок) => (старина() && СРЕДНЕВЕКОВЬЕ[заголовок]) || заголовок;
-import { знакЗодиака } from '../i18n.js?v=23.89.57';
-import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.89.57';
+import { знакЗодиака } from '../i18n.js?v=23.89.58';
+import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.89.58';
 
 // Вид блока «Мира» из «Кастомизации»: новый — если выбран и собрался,
 // иначе прежний (render/world-views.js).
@@ -221,9 +221,11 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments, подГ
   // Прогноз погоды — после новостей и слухов, перед объявлениями.
   // Экономика и городские службы — сразу за слухами: это та же лента города.
   if (Array.isArray(worldData.economy) && worldData.economy.length) {
+    html += `<div class="hud-hint-box">${кнопкаПодсказки('economy', разборЭкономики(worldData.economy).map(п => п.заметка !== undefined ? п.заметка : { k: п.имя, t: `${п.имя}: ${п.значение}${п.изменение ? ` (${п.изменение})` : ''}` }))}</div>`;
     html += вМире('economyView', вид => видЭкономики(разборЭкономики(worldData.economy), вид, З('💹 Экономика')), () => buildEconomyHTML(worldData.economy));
   }
   if (Array.isArray(worldData.city) && worldData.city.length) {
+    html += `<div class="hud-hint-box">${кнопкаПодсказки('city', разборГорода(worldData.city).map(п => ({ k: п.текст, t: `${п.подпись}: ${п.текст}` })))}</div>`;
     html += вМире('cityView', вид => видГорода(разборГорода(worldData.city), вид, З('🏛 Городские службы')), () => buildCityHTML(worldData.city));
   }
 
@@ -287,10 +289,12 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments, подГ
   }
 
   if (Array.isArray(worldData.events) && worldData.events.length) {
+    html += `<div class="hud-hint-box">${кнопкаПодсказки('events', разборАфиши(worldData.events).map(п => ({ k: п.название, t: `${п.подпись}: ${п.название}${п.где ? ' — ' + п.где : ''}` })))}</div>`;
     html += вМире('eventsView', вид => видАфиши(разборАфиши(worldData.events), вид, З('🎭 Афиша')), () => buildEventsHTML(worldData.events));
   }
 
   if (worldData.ads && worldData.ads.length > 0) {
+    html += `<div class="hud-hint-box">${кнопкаПодсказки('ads', worldData.ads)}</div>`;
     html += вМире('adsView', вид => видОбъявлений(worldData.ads, вид, З('📌 Доска объявлений')),
       () => `<div class="hud-world-section hud-world-section-ads"><div class="hud-world-title">${З('📌 Доска объявлений')}</div><div class="hud-ads-grid">${worldData.ads.map((ad, i) => `<div class="hud-ad-card hud-ad-neon n${(i % 4) + 1}">${escapeHtml(ad)}</div>`).join('')}</div></div>`);
   }
@@ -299,6 +303,7 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments, подГ
       const parsed = parseWorldComment(c);
       return { ...parsed, color: HUD_AVATAR_COLORS[hudHashSeed(parsed.name) % HUD_AVATAR_COLORS.length], initials: commentInitials(parsed.name) };
     });
+    html += `<div class="hud-hint-box">${кнопкаПодсказки('comment', комментарии.map(к => ({ k: к.text, t: `${к.name}: ${к.text}` })))}</div>`;
     html += вМире('commentsView', вид => видКомментариев(комментарии, вид, З('💬 Комментарии Сети')),
       () => `<div class="hud-world-section"><div class="hud-world-title">${З('💬 Комментарии Сети')}</div><div class="hud-comments-list">${комментарии.map(к => `<div class="hud-comment"><span class="hud-comment-avatar" style="background:${к.color}" aria-hidden="true">${escapeHtml(к.initials)}</span><div class="hud-comment-body"><span class="hud-comment-name">${escapeHtml(к.name)}</span><span class="hud-comment-text">${escapeHtml(к.text)}</span></div></div>`).join('')}</div></div>`);
   }
