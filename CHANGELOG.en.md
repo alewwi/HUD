@@ -4,6 +4,17 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.59 — 2026-11-18
+
+### Fixed
+- **After an edit the block stays in place.** After saving, the card was rebuilt and the chat scrolled away: you fixed "Body", and it was already off the screen. Now HUD scrolls the chat back so the edited block stands where it was:
+  - the same tab, edit mode and open phone chat;
+  - if the edit went to an earlier turn and the whole chat is redrawn, the place is held until the chat settles;
+  - if you scroll yourself meanwhile, HUD stays out of the way.
+- **Custom stats in the edit window.**
+  - The title shows the stat's name ("Hunger · Theo"), not "Cst".
+  - A "List of tags" stat is edited item by item instead of as one line with ";".
+
 ## 23.89.58 — 2026-11-18
 
 ### Added

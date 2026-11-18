@@ -19,12 +19,12 @@
 // цветом силуэта: это другая величина. Отходняк после адреналина считает HUD
 // по времени сюжета, а не модель.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.58';
-import { namesLikelySame } from '../names.js?v=23.89.58';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.58';
-import { медаль } from './view-icons.js?v=23.89.58';
-import { видБлока } from './views.js?v=23.89.58';
-import { видБоя } from './views-story.js?v=23.89.58';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.59';
+import { namesLikelySame } from '../names.js?v=23.89.59';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.59';
+import { медаль } from './view-icons.js?v=23.89.59';
+import { видБлока } from './views.js?v=23.89.59';
+import { видБоя } from './views-story.js?v=23.89.59';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const пусто = (s) => !s || /^(empty|none|нет|—|-|null)$/i.test(String(s).trim());
