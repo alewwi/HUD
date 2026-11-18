@@ -12,8 +12,8 @@
 // значение, сообщение и путь; как найти блок по тексту на экране. Окно —
 // block-edit-ui.js, запись в чат — index.js.
 
-import { КАТАЛОГ } from './deep-fields.js?v=23.89.60';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.89.60';
+import { КАТАЛОГ } from './deep-fields.js?v=23.89.61';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.89.61';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const ПУСТО = /^(?:|empty|none|null|n\/a|нет|-|—)$/i;
@@ -454,7 +454,8 @@ export function блокЛиста(путь) {
  */
 export function путьПоТексту(hud, корни, текст) {
   const нажато = слова(текст);
-  if (!нажато.size) return null;
+  // Одно голое число («100», «6420») встречается где угодно — по нему блок не узнаём.
+  if (!нажато.size || [...нажато].every(w => /^\d+$/.test(w)) && нажато.size < 2) return null;
   const все = [];
   // Корень — код раздела ('wd') или путь к записи (['cs', 2]).
   for (const к of корни) { const п = Array.isArray(к) ? к : [к]; const у = взять(hud, п); if (у !== undefined) листья(у, п, все); }

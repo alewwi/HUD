@@ -9,10 +9,10 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.60';
-import { settings } from '../settings.js?v=23.89.60';
-import { namesLikelySame } from '../names.js?v=23.89.60';
-import { раскрывашка } from './fold.js?v=23.89.60';
+import { escapeHtml } from '../utils.js?v=23.89.61';
+import { settings } from '../settings.js?v=23.89.61';
+import { namesLikelySame } from '../names.js?v=23.89.61';
+import { раскрывашка } from './fold.js?v=23.89.61';
 
 /** «Гильдия | Лилиан | 80 | уважают | за что» → { кто, к, число, как, почему }. */
 export function разобратьФракцию(строка) {

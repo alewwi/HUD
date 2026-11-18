@@ -4,6 +4,15 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.61 — 2026-11-18
+
+### Fixed
+- **The casket in edit mode.**
+  - **Sections switch.** Taps on "Purse", "Map", "Charters" and the other sections used to be caught by editing, and "Couldn't tell which block that was" popped up at once.
+  - **A tap inside a section** opens that section for editing, including its title or a label on the map: Purse — the purse, Map — maps and roads, Almanac — the calendar.
+  - **Phone:** the same for the apps — notes, wallet, maps, contacts, health.
+- **A bare number** ("100", "6,420") is no longer taken for the text of another block.
+
 ## 23.89.60 — 2026-11-18
 
 ### Fixed

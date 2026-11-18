@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.60**:
+The latest version is **23.89.61**:
 
+- Casket sections switch again in edit mode, and a tap inside a section (or a phone app) opens that very section for editing.
 - Editing blocks in medieval and fantasy worlds: letters, overheard and the casket are recognised on the first tap, the casket and combat use word labels, and mana can be added in a world with magic.
 - After a ✎ edit the edited block stays in place on screen, with the same tab and open chat. Custom stats in the edit window show the stat's name, and tag lists go item by item.
 - Edit any block without code: ✎ and a tap on the block open a window with labelled fields, a phone message editor with type and status, Undo, and the base of Daily life (when they ate, washed and slept). Optional questions about mismatches with the model. "Work it into the story" for news, rumors, events, economy, city and comments, with Cancel in the turn's card. A HUD fragment without characters no longer counts as complete.
