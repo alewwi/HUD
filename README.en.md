@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.59**:
+The latest version is **23.89.60**:
 
+- Editing blocks in medieval and fantasy worlds: letters, overheard and the casket are recognised on the first tap, the casket and combat use word labels, and mana can be added in a world with magic.
 - After a ✎ edit the edited block stays in place on screen, with the same tab and open chat. Custom stats in the edit window show the stat's name, and tag lists go item by item.
 - Edit any block without code: ✎ and a tap on the block open a window with labelled fields, a phone message editor with type and status, Undo, and the base of Daily life (when they ate, washed and slept). Optional questions about mismatches with the model. "Work it into the story" for news, rumors, events, economy, city and comments, with Cancel in the turn's card. A HUD fragment without characters no longer counts as complete.
 - The relations graph is a circle again with a large cast: one ring up to 20 people, no mess on phones; lighter graph markup.

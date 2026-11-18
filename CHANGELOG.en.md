@@ -4,6 +4,14 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.60 — 2026-11-18
+
+### Fixed
+- **Editing blocks in medieval and fantasy worlds.**
+  - **Letters, overheard and the casket.** HUD writes the first word of these blocks with an invisible mark after the first letter, so lorebooks don't fire on card text. Because of it, some items weren't recognised and the "What to fix?" picker opened instead. Now they open directly.
+  - **The casket and combat use word labels:** "Charters and papers", "Keepsakes", "Spending and income", "Seal", "Initiative", "Cover", "Nerve" instead of codes.
+  - **Mana.** In a world with magic it can be added to "Body state" even if the model didn't write it. Without magic an empty mana field is not shown.
+
 ## 23.89.59 — 2026-11-18
 
 ### Fixed
