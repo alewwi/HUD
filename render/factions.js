@@ -9,10 +9,12 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.61';
-import { settings } from '../settings.js?v=23.89.61';
-import { namesLikelySame } from '../names.js?v=23.89.61';
-import { раскрывашка } from './fold.js?v=23.89.61';
+import { escapeHtml } from '../utils.js?v=23.89.62';
+import { settings } from '../settings.js?v=23.89.62';
+import { namesLikelySame } from '../names.js?v=23.89.62';
+import { раскрывашка } from './fold.js?v=23.89.62';
+import { видМираСтарины } from './medieval-views.js?v=23.89.62';
+import { видБлока } from './views.js?v=23.89.62';
 
 /** «Гильдия | Лилиан | 80 | уважают | за что» → { кто, к, число, как, почему }. */
 export function разобратьФракцию(строка) {
@@ -194,6 +196,13 @@ export function блокФракций(строки, { игрок = '', перс
   if (!фракции.length) return '';
   const сдвиги = сдвигиФракций(история, игрок, персонаж, режим);
   const вид = ВИДЫ_ФРАКЦИЙ.includes(settings.factionsView) ? settings.factionsView : 'classic';
+  // Гербовник и Круг созвездий (render/medieval-views.js) — в старине; отношение к
+  // игроку и к персонажу — одним списком, сильные стороны сверху.
+  const видСтарины = видБлока('factionsView');
+  if (видСтарины === 'medieval' || видСтарины === 'enchanted') {
+    const лист = видМираСтарины('factions', видСтарины, [...фракции].sort((а, б) => (б.число ?? -999) - (а.число ?? -999)), 'Фракции и репутация');
+    if (лист) return лист;
+  }
   const группа = (цель) => видГруппы(фракции.filter(ф => цельСтроки(ф, игрок, персонаж, режим) === цель)
     .sort((а, б) => (б.число ?? -999) - (а.число ?? -999))
     .map(ф => ({ ф, сдвиги: сдвиги.get(цель + '|' + ключ(ф)) })), вид, uid, цель, цель === 'char' ? (персонаж || 'персонаж') : (игрок || 'игрок'));

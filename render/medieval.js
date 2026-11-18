@@ -12,13 +12,15 @@
 // Переключение разделов шкатулки — на радиокнопках и CSS, без скриптов:
 // карточка HUD перерисовывается целиком, и состояние не нужно восстанавливать.
 
-import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.89.61';
-import { английский } from '../i18n.js?v=23.89.61';
-import { settings } from '../settings.js?v=23.89.61';
-import { явнаяМагия, приземлённое } from '../era.js?v=23.89.61';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.61';
-import { namesLikelySame } from '../names.js?v=23.89.61';
-import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.89.61';
+import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.89.62';
+import { английский } from '../i18n.js?v=23.89.62';
+import { settings } from '../settings.js?v=23.89.62';
+import { явнаяМагия, приземлённое } from '../era.js?v=23.89.62';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.62';
+import { namesLikelySame } from '../names.js?v=23.89.62';
+import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.89.62';
+import { видРазделаШкатулки } from './medieval-views.js?v=23.89.62';
+import { видБлока } from './views.js?v=23.89.62';
 
 const т = (v) => defeatWI(escapeHtml(String(v ?? '')));
 
@@ -280,6 +282,20 @@ function buildKeeps(keeps) {
   }).join('') + `</div>`;
 }
 
+// --- Виды разделов (render/medieval-views.js) ---------------------------------------
+const КЛЮЧ_ВИДА_РАЗДЕЛА = { almanac: 'casketAlmanacView', notes: 'casketNotesView', letters: 'casketLettersView', docs: 'casketDocsView', keeps: 'casketKeepsView' };
+function лунаСцены(sceneDate) {
+  const дм = parseDayMonth(sceneDate);
+  if (!дм) return null;
+  const ф = фазаЛуны(дм.d, дм.mo, дм.y || new Date().getFullYear());
+  return { имя: ф.имя, свет: ((1 - Math.cos(ф.доля * 2 * Math.PI)) / 2).toFixed(2), сторона: ф.доля < .5 ? 1 : -1 };
+}
+function видГрамоты(d) {
+  const вид = (ВИД_ГРАМОТЫ.find(([re]) => re.test(d.kind || '')) || [, d.kind || 'Бумага'])[1];
+  const ст = СТАТУС_ГРАМОТЫ.find(([re]) => re.test(d.status || ''));
+  return { вид, статус: ст ? ст[2] : (d.status || ''), ключ: ст ? ст[1] : '' };
+}
+
 // --- Шкатулка целиком -----------------------------------------------------------
 
 export function hudHasCasket(satchel, letters) {
@@ -315,6 +331,18 @@ export function buildCasketHTML(satchel, letters, uid, isChecked, fallbackOwner,
   const имя = `cask-${uid}`;
   const радио = разделы.map((р, i) => `<input type="radio" class="hud-cask-radio" name="${имя}" id="${имя}-${р.id}"${i === 0 ? ' checked' : ''}>`).join('');
   const вкладки = разделы.map(р => `<label class="hud-cask-tab" for="${имя}-${р.id}"><span>${р.icon}</span>${escapeHtml(р.label)}${р.badge ? `<i class="hud-cask-badge">${р.badge}</i>` : ''}</label>`).join('');
+  // Раздел в виде старины (Кастомизация → Блоки: Шкатулка), если выбран.
+  if (!толькоПисьма) for (const р of разделы) {
+    const вид = видБлока(КЛЮЧ_ВИДА_РАЗДЕЛА[р.id]);
+    if (!вид || вид === 'classic') continue;
+    const свой = видРазделаШкатулки(р.id, вид, {
+      заголовок: р.label, notes: s.notes, letters, documents: s.documents, keepsakes: s.keepsakes,
+      календарь: р.id === 'almanac' ? buildCalendarApp(s.calendar, characters, sceneDate, owner || null) : '',
+      луна: р.id === 'almanac' ? лунаСцены(sceneDate) : null,
+      письмо: статусПисьма, грамота: видГрамоты,
+    });
+    if (свой) р.body = свой;
+  }
   const виды = разделы.map(р => `<section class="hud-cask-view" data-cask-view="${р.id}">${р.body}</section>`).join('');
   return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">
     <div class="hud-cask${чары ? ' is-arcane' : ''}${земля ? ' is-grounded' : ''}${толькоПисьма ? ' is-letters' : ''}">

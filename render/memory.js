@@ -6,26 +6,27 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.61';
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.89.61';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.89.61';
-import { buildRelGraphHTML, hudHasRelations, данныеОтношений } from './relations-graph.js?v=23.89.61';
-import { видТаймлайна, видЭмоций, видГрафа, видДрева } from './views-story.js?v=23.89.61';
-import { отложитьРисунок } from './lazy-svg.js?v=23.89.61';
-import { длинныйСписок } from './long-list.js?v=23.89.61';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.89.61';
-import { общиеМеста } from './route-places.js?v=23.89.61';
-import { статусРужья } from '../codes.js?v=23.89.61';
-import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.89.61';
-import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.89.61';
-import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.89.61';
-import { дм } from './conception.js?v=23.89.61';
-import { settings } from '../settings.js?v=23.89.61';
-import { статусОбещания } from '../hud-expand.js?v=23.89.61';
-import { getAvatarUrl } from '../avatars.js?v=23.89.61';
-import { видПриглашений, видОбещаний, видТемВременем } from './views-plus.js?v=23.89.61';
-import { namesLikelySame } from '../names.js?v=23.89.61';
-import { полеВкл } from '../deep-fields.js?v=23.89.61';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.62';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.89.62';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.89.62';
+import { buildRelGraphHTML, hudHasRelations, данныеОтношений } from './relations-graph.js?v=23.89.62';
+import { видТаймлайна, видЭмоций, видГрафа, видДрева } from './views-story.js?v=23.89.62';
+import { отложитьРисунок } from './lazy-svg.js?v=23.89.62';
+import { длинныйСписок } from './long-list.js?v=23.89.62';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.89.62';
+import { общиеМеста } from './route-places.js?v=23.89.62';
+import { статусРужья } from '../codes.js?v=23.89.62';
+import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.89.62';
+import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.89.62';
+import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.89.62';
+import { дм } from './conception.js?v=23.89.62';
+import { settings } from '../settings.js?v=23.89.62';
+import { статусОбещания } from '../hud-expand.js?v=23.89.62';
+import { getAvatarUrl } from '../avatars.js?v=23.89.62';
+import { видПриглашений, видОбещаний, видТемВременем } from './views-plus.js?v=23.89.62';
+import { видМираСтарины } from './medieval-views.js?v=23.89.62';
+import { namesLikelySame } from '../names.js?v=23.89.62';
+import { полеВкл } from '../deep-fields.js?v=23.89.62';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
@@ -156,7 +157,15 @@ export function блокТемВременем(hudData, вМире = false) {
       const место = время ? прочее.join(' · ') : String(т.где || '');
       return (время ? `<span><i aria-hidden="true">🕒</i>${escapeHtml(время)}</span>` : '') + (место ? `<span><i aria-hidden="true">📍</i>${escapeHtml(место)}</span>` : '');
     };
-    const свой = видТемВременем(тем, видБлока('meanwhileView'));
+    // Средневековый и чародейский виды — блок целиком, со своей шапкой-долиной:
+    // время суток — по времени сцены, как у плашки погоды.
+    const видТем = видБлока('meanwhileView');
+    if (видТем === 'medieval' || видТем === 'enchanted') {
+      const сц = (hudData && hudData.scene) || {};
+      const лист = видМираСтарины('meanwhile', видТем, тем, 'Тем временем', { время: сц['Время'] || '', дата: сц['Дата'] || '' });
+      if (лист) return лист.replace('hud-world-section hud-mv-section', `hud-world-section hud-mv-section${вМире ? ' hud-world-section-mw' : ''}`);
+    }
+    const свой = видТемВременем(тем, видТем);
     const карточки = свой ? '' : тем.map(т => `<div class="hud-v-card hud-mw-card">`
       + `<div class="hud-mw-head">${лицо(т.имя)}<div class="hud-mw-who"><b>${escapeHtml(т.имя)}</b><small class="hud-mw-where">${где(т)}</small></div></div>`
       + `<p class="hud-mw-text">${applyTooltips(т.текст)}</p>`

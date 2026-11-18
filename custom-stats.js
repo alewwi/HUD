@@ -16,8 +16,8 @@
 // можно сменить (ст.color): цвет группы полей (kind-*, его подбирает палитра
 // темы) или свой #rrggbb. Без выбора блок перекрашивается вместе с темой.
 
-import { escapeHtml } from './utils.js?v=23.89.61';
-import { ико, медаль } from './render/view-icons.js?v=23.89.61';
+import { escapeHtml } from './utils.js?v=23.89.62';
+import { ико, медаль } from './render/view-icons.js?v=23.89.62';
 
 // макс — верх шкалы для уровня (низкий, средний, высокий); у числа его нет.
 export const ВИДЫ_СТАТОВ = [

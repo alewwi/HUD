@@ -5,21 +5,21 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.61';
-import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.61';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.61';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.61';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.61';
-import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху } from './era.js?v=23.89.61';
-import { порядокГрупп } from './tabs-order.js?v=23.89.61';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.61';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.61';
-import { hudБлоки } from './hud-block.js?v=23.89.61';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.61';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.61';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.61';
-import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.61';
-import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.61';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.62';
+import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.62';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.62';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.62';
+import { ВИДЫ_БЛОКОВ, видБлока, доступныеВиды, блокДоступен } from './render/views.js?v=23.89.62';
+import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху } from './era.js?v=23.89.62';
+import { порядокГрупп } from './tabs-order.js?v=23.89.62';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.62';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.62';
+import { hudБлоки } from './hud-block.js?v=23.89.62';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.62';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.62';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.62';
+import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.62';
+import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.62';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 // Язык из таблицы переводчика: английский пример с переведёнными кусками
 // (render/sample-translate.js), пересобирается при смене языка или файла.
@@ -32,14 +32,14 @@ const пример = () => {
   return примерТаблицы;
 };
 const текстПримера = (s) => (ключЯзыкаТаблицы() ? отобразитьСтроку(s, (к) => строкаТаблицы(к) || к) : s);
-import { задатьПримерСемьи } from './render/conception.js?v=23.89.61';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.61';
-import { привязатьИсторию } from './render/intimacy.js?v=23.89.61';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.61';
-import { собратьРисунок } from './render/lazy-svg.js?v=23.89.61';
-import { attachHelpMarks } from './help.js?v=23.89.61';
-import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.61';
-import { подключитьЛёгкостьОкна } from './customize-easy.js?v=23.89.61';
+import { задатьПримерСемьи } from './render/conception.js?v=23.89.62';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.62';
+import { привязатьИсторию } from './render/intimacy.js?v=23.89.62';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.62';
+import { собратьРисунок } from './render/lazy-svg.js?v=23.89.62';
+import { attachHelpMarks } from './help.js?v=23.89.62';
+import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.62';
+import { подключитьЛёгкостьОкна } from './customize-easy.js?v=23.89.62';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -247,8 +247,8 @@ export function разметкаПанелиТемы() {
           </div></details>
           ${группыПоВкладкам().map(группа => `<details class="hud-custom-sub hud-smooth hud-custom-views-group"><summary>Блоки: ${группа}</summary><div class="hud-theme-grid">`
           // Цикл в карточке идёт сразу после тела — в «Теле и здоровье».
-          + ВИДЫ_БЛОКОВ.filter(б => б.группа === группа).map((б, i, все) => `<div class="hud-theme-row"><label>${б.поле}:</label>`
-            + `<select class="hud-theme-select-input hud-custom-rerender" data-key="${б.ключ}">${Object.entries(б.виды).map(([k, имя], i) => `<option value="${k}"${видБлока(б.ключ) === k ? ' selected' : ''}>${имя}${i || б.новый ? '' : ' (как было)'}</option>`).join('')}</select></div>`
+          + ВИДЫ_БЛОКОВ.filter(б => б.группа === группа && блокДоступен(б)).map((б, i, все) => `<div class="hud-theme-row"><label>${б.поле}:</label>`
+            + `<select class="hud-theme-select-input hud-custom-rerender" data-key="${б.ключ}">${Object.entries(доступныеВиды(б)).map(([k, имя], i) => `<option value="${k}"${видБлока(б.ключ) === k ? ' selected' : ''}>${имя}${i || б.новый ? '' : ' (как было)'}</option>`).join('')}</select></div>`
             + обличьеВида(б)
             + (б.ключ === 'clothesView' ? основа.выбор('underwearView', 'Бельё', 'Комплект с силуэтами или слоем между кожей и одеждой (если бельё включено в настройках)', [['set', 'Комплект'], ['layer', 'Слоем']]) : '')
             // Цикл в карточке идёт после беременности и «После родов» — последним в «Теле и здоровье».
@@ -381,7 +381,7 @@ export function разметкаПанелиТемы() {
 // там, к чему относятся: окно и анимации — в «Интерфейсе», силуэт и почерк
 // тела — у карты тела («Блоки: Близость»), углы — у секций, свет — у сцены.
 // Группы «Блоки: …» — строки персонажа, затем вкладки в порядке игрока (tabs-order.js).
-const группыПоВкладкам = () => порядокГрупп([...new Set(ВИДЫ_БЛОКОВ.map(б => б.группа))], settings);
+const группыПоВкладкам = () => порядокГрупп([...new Set(ВИДЫ_БЛОКОВ.filter(блокДоступен).map(б => б.группа))], settings);
 const пунктыИнтерфейса = () => [
   основа.выбор('autoAccentText', 'Акцент как текст', 'Если акцент темы плохо читается на фоне карточки (контраст ниже 4,5:1), надписи акцентом чуть темнеют или светлеют. Выбранный цвет не меняется — значок у цвета показывает контраст', [['on', 'Подправлять'], ['off', 'Как выбрано']]),
   основа.выбор('iconStyle', 'Рисунок значков', 'Как нарисованы значки-рисунки (эмодзи или рисунки — в настройках, «Вид и язык» → «Значки»); «по теме» — пиксель в киберпанке, тушь в нуаре и Японии, округлые в каваи', [['auto', 'По теме'], ['line', 'Линия'], ['duotone', 'Два тона'], ['pixel', 'Пиксель'], ['ink', 'Тушь'], ['rounded', 'Округлые']]),

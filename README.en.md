@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.61**:
+The latest version is **23.89.62**:
 
+- Casket and World views of their own for medieval and fantasy worlds: three medieval views per casket section and two enchanted ones in the sorcerer's casket, a medieval and an enchanted view for news, factions, Meanwhile, the watch, gossip and festivities. See-through sheets in the theme colour, status pills, a glass calendar; Meanwhile follows the scene time.
 - Casket sections switch again in edit mode, and a tap inside a section (or a phone app) opens that very section for editing.
 - Editing blocks in medieval and fantasy worlds: letters, overheard and the casket are recognised on the first tap, the casket and combat use word labels, and mana can be added in a world with magic.
 - After a ✎ edit the edited block stays in place on screen, with the same tab and open chat. Custom stats in the edit window show the stat's name, and tag lists go item by item.

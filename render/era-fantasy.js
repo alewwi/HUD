@@ -19,14 +19,14 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { эпоха, явнаяМагия, приземлённое, эпохаОблика, магияОблика, блокПодМагию } from '../era.js?v=23.89.61';
+import { эпоха, явнаяМагия, приземлённое, эпохаОблика, магияОблика, блокПодМагию } from '../era.js?v=23.89.62';
 
   let счёт = 0;
   const id = (п) => `fx-${п}-${(++счёт).toString(36)}`;
   const текст = (e) => (e?.textContent || '').replace(/​/g, '').replace(/\s+/g, ' ').trim();
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const блок = (класс, html) => Object.assign(document.createElement('div'), { className: класс, innerHTML: html });
-  const найти = (корень, с) => [...(корень.matches?.(с) ? [корень] : []), ...корень.querySelectorAll(с)];
+  const найти = (корень, с) => [...(корень.matches?.(с) ? [корень] : []), ...корень.querySelectorAll(с)].filter(e => !e.closest('.hud-mv'));
   const хеш = (s) => { let h = 2166136261; for (const ch of String(s)) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619); } return h >>> 0; };
   const огр = (v, a, b) => Math.max(a, Math.min(b, v));
   const р = (n) => (+n).toFixed(1).replace(/\.0$/, '');

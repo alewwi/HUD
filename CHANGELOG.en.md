@@ -4,6 +4,20 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.62 — 2026-11-18
+
+### Added
+- **Casket and World views of their own for medieval and medieval fantasy worlds.** Pick them in "Customization → Block views", in the new "Blocks: Casket" group and on the World blocks. The group and the views show up only when a bygone era is chosen: in a modern world they are not in the list.
+  - **Casket:** Almanac, Notes, Letters, Charters and Keepsakes get three medieval views each: menologion, parish calendar, lunar wheel, psalter margins, stitched notebook, note by candlelight, bundle of letters, courier's book, mail chest, hanging charter, town register, scroll on rods, herbarium, tags on a string, locket.
+  - **The sorcerer's casket** (fantasy with open magic) gets two more enchanted views per section: orbits and tide, roots and spectral pages, feather and mirror, basalt and ribbon, amber and chain.
+  - **World:** news, factions, Meanwhile, the watch and town hall, gossip and festivities get a medieval view ("Herald's scroll", "Armorial", "Chronicle marks", "Board of decrees", "Gossip by the hearth", "Fair banners") and an enchanted one ("Aether beacon", "Circle of constellations", "Seer's window", "Seals of the watch", "Well of echoes", "Firefly ball").
+  - **Meanwhile** draws its valley by the scene's time, with the same bounds as the weather plate: dawn, morning, day, sunset, night. The sky, the sun or moon, stars, lit windows, smoke, birds and mist change with it.
+  - **Colours** follow the theme accent. The sheets are see-through: darker on dark themes, lighter on light ones, while the letters stay solid.
+  - **Text:** Cormorant headings, small-caps captions. Statuses are pills by meaning: "In force" and "Own" green, "Seal unbroken" and "Displeased" sealing-wax red, "In transit" gold, faded ones grey. "Knows / Doesn't know / Suspects" in Meanwhile are pills too.
+  - **The calendar in the Almanac and the Moon book** is dark glass, not one more sheet of paper.
+  - **Everything still works:** the "Work it into the story" star, holidays in the calendar ("How it's celebrated", "World holidays", "Tell the model"), letters open, and fire, banners and the courier come alive on mouse hover or a tap on the card.
+  - **A view is chosen but the chat is modern** — the block uses its old view.
+
 ## 23.89.61 — 2026-11-18
 
 ### Fixed

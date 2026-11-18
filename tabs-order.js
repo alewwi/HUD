@@ -32,7 +32,7 @@ export const ВКЛАДКИ = [
 // Группы «Кастомизации» → Вид блоков и их вкладки. Группы без вкладки
 // здесь — строки карточки персонажа (вкладка character).
 export const ВКЛАДКА_ГРУППЫ = { 'Бой': 'combat', 'Детская': 'babies', 'Телефон': 'phone', 'Память': 'memory', 'Быт': 'life', 'Перехваты': 'intercepts',
-  'Дневник': 'diary', 'Дневник тела': 'bodydiary', 'Сны': 'dreams', 'Спутники': 'pets', 'Мир': 'world' };
+  'Дневник': 'diary', 'Дневник тела': 'bodydiary', 'Сны': 'dreams', 'Спутники': 'pets', 'Мир': 'world', 'Шкатулка': 'casket' };
 
 const массив = (v) => Array.isArray(v) ? v.filter(x => typeof x === 'string') : [];
 

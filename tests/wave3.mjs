@@ -800,7 +800,8 @@ settings.tempoView = 'xray';
   // «Тем временем» и фракции стоят в Мире, но рисуются не видами газет (world-views.js).
   const мирБлоки = V.ВИДЫ_БЛОКОВ.filter(б => б.группа === 'Мир' && !['meanwhileView', 'factionsView'].includes(б.ключ));
   const безКнопок = [], сЭмодзи = [];
-  for (const б of мирБлоки) for (const вид of Object.keys(б.виды).slice(1)) {
+  // Виды старины (б.эпохи) рисуются только в своей эпохе — их проверяет unit.mjs.
+  for (const б of мирБлоки) for (const вид of Object.keys(б.виды).slice(1).filter(в => !(б.эпохи && б.эпохи[в]))) {
     St0(б.ключ, вид);
     const ПОЛЯ = { newsView: ['headlines'], rumorsView: ['rumors'], economyView: ['economy'], cityView: ['city'], forecastView: ['forecast'], horoscopeView: ['horoscope', 'prediction'], eventsView: ['events'], adsView: ['ads'], commentsView: ['comments'] };
     const h = W.buildWorldHTML(Object.fromEntries(ПОЛЯ[б.ключ].map(п => [п, мир[п]])), 'w', true, true);

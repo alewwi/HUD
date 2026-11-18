@@ -1050,7 +1050,7 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('воспоминания и важное сохраняют кнопку «Запомнить»', ['polaroid', 'film', 'beads'].every(в => V.видВоспоминаний(пп, в).includes('hud-remember')) && ['scroll', 'notebook', 'bookmarks'].every(в => V.видВажного(пп, в).includes('hud-remember')));
   const сек = V.видСекретов([{ fact: 'А', level: 'low', status: 'unknown' }, { fact: 'Б', level: 'low', status: 'part' }], 'envelopes');
   проверить('конверты: целая печать без трещин, расколотая — две половинки', (сек.match(/class="crack"/g) || []).length === 0 && сек.includes('is-broken'));
-  проверить('в кастомизации виды идут группами, как в карточке', V.ВИДЫ_БЛОКОВ.map(б => б.группа).filter((г, i, все) => все.indexOf(г) === i).join() === 'Плашки сверху,Облик,Тело и здоровье,Место,Мысли и чувства,Вещи и планы,Связи,Драма,Близость,Бой,Детская,Телефон,Память,Быт,Перехваты,Дневник,Дневник тела,Сны,Спутники,Мир', V.ВИДЫ_БЛОКОВ.map(б => б.группа).filter((г, i, все) => все.indexOf(г) === i).join());
+  проверить('в кастомизации виды идут группами, как в карточке', V.ВИДЫ_БЛОКОВ.map(б => б.группа).filter((г, i, все) => все.indexOf(г) === i).join() === 'Плашки сверху,Облик,Тело и здоровье,Место,Мысли и чувства,Вещи и планы,Связи,Драма,Близость,Бой,Детская,Телефон,Шкатулка,Память,Быт,Перехваты,Дневник,Дневник тела,Сны,Спутники,Мир', V.ВИДЫ_БЛОКОВ.map(б => б.группа).filter((г, i, все) => все.indexOf(г) === i).join());
   // Строки карточки сверху вниз: «Реплики», «Не знает», «Страхи» и «Флаги» — в «Связях», как в карточке.
   проверить('порядок строк персонажа — как в карточке', (() => { const п = V.ВИДЫ_БЛОКОВ.map(б => б.ключ); const идут = ['lossView', 'weightView', 'ageView', 'roleView', 'bodyStateView', 'physView', 'marksView', 'placeView', 'thoughtsView', 'subtextView', 'inventoryView', 'scheduleView', 'relationsView', 'trustView', 'knowsNotView', 'fearsView', 'linesView', 'memoriesView', 'flagsView', 'statusView', 'exposureView', 'conflictView', 'jealousyView', 'sceneClockView', 'kinkView']; return идут.every((к, i) => i === 0 || п.indexOf(к) > п.indexOf(идут[i - 1])); })());
   проверить('у каждой группы блоки подряд', V.ВИДЫ_БЛОКОВ.every((б, i, все) => i === 0 || б.группа === все[i - 1].группа || !все.slice(0, i).some(x => x.группа === б.группа)));
@@ -4251,6 +4251,50 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
 }
 
 // ---------------------------------------------------------------------------
+группа('Виды старины: Шкатулка и Мир');
+{
+  const Ст = await модуль('settings.js'), V = await модуль('render/views.js'), MV = await модуль('render/medieval-views.js');
+  const М = await модуль('render/medieval.js'), WV = await модуль('render/world-views.js');
+  const было = { era: Ст.settings.era, fantasyMagic: Ст.settings.fantasyMagic, casketLettersView: Ст.settings.casketLettersView, newsView: Ст.settings.newsView, casketKeepsView: Ст.settings.casketKeepsView };
+  const б = (к) => V.ВИДЫ_БЛОКОВ.find(x => x.ключ === к);
+  try {
+    Ст.settings.era = 'modern';
+    проверить('старина: в современности Шкатулки нет и виды старины не выбираются', !V.блокДоступен(б('casketNotesView')) && !('medieval' in V.доступныеВиды(б('newsView'))) && 'front' in V.доступныеВиды(б('newsView')));
+    Ст.settings.newsView = 'medieval';
+    проверить('старина: выбранный «Свиток глашатая» в современности — прежний вид', V.видБлока('newsView') === 'classic');
+    проверить('старина: «chain» у слухов не путается с цепью талисманов', 'chain' in V.доступныеВиды(б('rumorsView')));
+    Ст.settings.era = 'medieval';
+    проверить('средневековье: Шкатулка видна, средневековые виды есть, чародейских нет', V.блокДоступен(б('casketNotesView')) && 'herbarium' in V.доступныеВиды(б('casketKeepsView')) && !('amber' in V.доступныеВиды(б('casketKeepsView'))) && 'medieval' in V.доступныеВиды(б('newsView')) && !('enchanted' in V.доступныеВиды(б('newsView'))));
+    проверить('средневековье: «Свиток глашатая» выбран', V.видБлока('newsView') === 'medieval');
+    const новости = (WV.видНовостей([{ title: 'Мост открыли', body: 'После разлива <b>дозор</b> расчистил настил.' }], 'medieval', '📜 Вести глашатая') || '').replace(/​/g, '');
+    проверить('новости: свиток глашатая, заголовок без значка, текст экранирован', новости.includes('hud-mv') && новости.includes('m-news') && новости.includes('<h3>Вести глашатая</h3>') && новости.includes('&lt;b&gt;') && новости.includes('data-mv-block="news"'));
+    Ст.settings.casketLettersView = 'courier-book';
+    const письма = [{ from: 'Лилиан', to: 'Артём', text: 'Скажу ему.', status: 'sealed', time: 'вчера' }];
+    const шк = (М.buildCasketHTML({ owner: 'Лилиан', notes: [{ title: 'На полях', text: 'Скажу ему' }] }, письма, 'u', true, 'Лилиан', '17.10.2024', []) || '').replace(/​/g, '');
+    проверить('шкатулка: письма — книгой гонца, запечатанное помечено', шк.includes('c-courier-book') && шк.includes('c-letter is-sealed') && шк.includes('Лилиан</b>'));
+    проверить('шкатулка: остальные разделы — прежние', шк.includes('hud-quill-note'));
+    Ст.settings.casketKeepsView = 'amber';
+    const пам = М.buildCasketHTML({ keepsakes: [{ title: 'Роза', desc: 'засушена' }] }, [], 'u', true, '', '', []);
+    проверить('шкатулка: чародейский вид вне явной магии — прежний', !пам.includes('arc-amber') && пам.includes('hud-keep'));
+    Ст.settings.era = 'fantasy-medieval'; Ст.settings.fantasyMagic = 'high';
+    const пам2 = М.buildCasketHTML({ keepsakes: [{ title: 'Роза', desc: 'засушена', from: 'Артём' }] }, [], 'u', true, '', '', []);
+    проверить('ларец чародея: янтарные реликвии', пам2.includes('arc-amber') && пам2.includes('Обереги'));
+    const тем = MV.видМираСтарины('meanwhile', 'enchanted', [{ имя: 'Элеонора', где: 'Аббатство', текст: 'Ждёт', знает: 'всё' }], 'Тем временем', { время: '06:10', дата: '17.10.2024' });
+    const вести = MV.видМираСтарины('news', 'medieval', [{ title: 'Мост открыли', body: 'Дозорные расчистили настил' }], 'Вести');
+    проверить('Мир старины без невидимого знака: звёздочка «Ввести в сюжет» находит запись по тексту', !/​/.test(вести + тем) && вести.includes('>Мост открыли<'));
+    const шк2 = М.buildCasketHTML({}, [{ from: 'Лилиан', to: 'Артём', status: 'sealed', time: 'Вчера', text: 'Жду' }], 'u', true, '', '', []);
+    проверить('пилюли статусов: письмо под печатью — сургучная, время рядом', шк2.replace(/​/g, '').includes('<small class="m-pill is-wax">Печать не сломана</small><small class="m-when">'), шк2.slice(0, 300));
+    проверить('окно прорицателя: долина по времени сцены', тем.includes('arc-portal') && тем.includes('data-phase="dawn"'));
+    проверить('время суток как у погоды: рассвет, утро, день, закат, ночь', ['06:30', '09:00', '13:00', '16:30', '23:00'].map(ч => MV.частьДня(ч, '17.10.2024')).join() === 'dawn,morning,day,sunset,night', ['06:30', '09:00', '13:00', '16:30', '23:00'].map(ч => MV.частьДня(ч, '17.10.2024')).join());
+    проверить('время суток: летом в 19:40 ещё закат, словом — «вечер» ночь', MV.частьДня('19:40', '15.06.2024') === 'sunset' && MV.частьДня('поздний вечер') === 'night' && MV.частьДня('утро') === 'morning');
+    проверить('id градиентов у каждой долины свои', MV.долина('day').match(/id="([^"]+)"/)[1] !== MV.долина('day').match(/id="([^"]+)"/)[1]);
+    const css = fs.readFileSync(path.join(КОРЕНЬ, 'css/medieval-views.css'), 'utf8');
+    проверить('стили старины: всё под .hud-mv, анимации со своей приставкой, без стенда', !/\.stand-|manuscript/.test(css.replace(/\/\*[\s\S]*?\*\//g, '')) && [...css.matchAll(/@keyframes\s+([\w-]+)/g)].every(м => м[1].startsWith('hud-mv-'))
+      && css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/@keyframes[^{]+\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, '').split('\n').filter(l => /\{/.test(l) && !/^\s*@/.test(l)).every(l => /^\s*(?:@media[^{]*\{\s*)?(?:\.hud-mv|:root:is|\.hud-os-card\.fx-live \.hud-mv)/.test(l)));
+    проверить('стили старины подключены только в средневековье', fs.readFileSync(path.join(КОРЕНЬ, 'css/all.css'), 'utf8').includes('medieval-views.css') && /\['medieval-views', \(s\) => s\.era === 'medieval' \|\| s\.era === 'fantasy-medieval'\]/.test(fs.readFileSync(path.join(КОРЕНЬ, 'css-loader.js'), 'utf8')));
+  } finally { Object.assign(Ст.settings, было); for (const [к, v] of Object.entries(было)) if (v === undefined) delete Ст.settings[к]; }
+}
+
 группа('Гайд и пояснения');
 {
   // help.js на загрузке слушает document (центровка значков) — заглушке нужен метод.

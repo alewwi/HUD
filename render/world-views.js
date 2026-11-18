@@ -14,9 +14,13 @@
 // пустить эфир, оторвать листок, поставить галочку, лайкнуть. Отметки живут
 // в памяти страницы (как голоса в новостях) и переживают перерисовку карточки.
 
-import { escapeHtml, hudHashSeed } from '../utils.js?v=23.89.61';
-import { ико, ИКОНКИ } from './view-icons.js?v=23.89.61';
-import { знакЗодиака } from '../i18n.js?v=23.89.61';
+import { escapeHtml, hudHashSeed } from '../utils.js?v=23.89.62';
+import { ико, ИКОНКИ } from './view-icons.js?v=23.89.62';
+import { знакЗодиака } from '../i18n.js?v=23.89.62';
+import { видМираСтарины } from './medieval-views.js?v=23.89.62';
+// Заголовок без значка и разметки — для видов старины.
+const безЗначка = (з) => String(з || '').replace(/<[^>]*>/g, '').replace(/^[^\p{L}]+/u, '').trim();
+const старинный = (вид) => вид === 'medieval' || вид === 'enchanted';
 
 const т = (s) => escapeHtml(String(s ?? ''));
 const хэш = (s) => hudHashSeed(String(s ?? ''));
@@ -42,6 +46,7 @@ const флажок = (действие, текст, доп = '') => { const к =
    статьи: [{ title, body, votes: { up, comments } }] */
 export function видНовостей(статьи, вид, заголовок) {
   if (!Array.isArray(статьи) || !статьи.length) return '';
+  if (старинный(вид)) return видМираСтарины('news', вид, статьи, безЗначка(заголовок));
   const [первая, ...прочие] = статьи;
   if (вид === 'front') {
     // Первая полоса: шапка газеты, главная статья с буквицей, остальные — колонками;
@@ -178,6 +183,7 @@ const ФОРМА_ЗНАКА = { emergency: 'stop', weather: 'warn', roads: 'warn
 const СТЕПЕНЬ = { emergency: 'hi', traffic: 'mid', weather: 'mid', roads: 'mid', repairs: 'mid', protest: 'mid', police: 'mid' };
 const баллыШкалой = (баллы) => баллы ? `<span class="pips" title="${т(баллы)} из 10 баллов" aria-hidden="true">${Array.from({ length: 10 }, (_, i) => `<i class="${i < Number(баллы) ? 'on' : ''}${i >= 7 ? ' hi' : i >= 4 ? ' mid' : ''}"></i>`).join('')}</span>` : '';
 export function видГорода(строки, вид, заголовок) {
+  if (старинный(вид)) return видМираСтарины('city', вид, строки, безЗначка(заголовок));
   const все = Array.isArray(строки) ? строки : [];
   if (!все.length) return '';
   if (вид === 'dispatch') {
@@ -356,6 +362,7 @@ export function видГороскопа(знаки, предсказания, �
    события: [{ ключ, подпись, название, где }] */
 const ЗНАЧОК_АФИШИ = { cinema: 'film', theatre: 'mask', concert: 'music', exhibition: 'frame', festival: 'tent', sport: 'ball', club: 'sparkle', street: 'trumpet', lecture: 'mic', other: 'calendar' };
 export function видАфиши(события, вид, заголовок) {
+  if (старинный(вид)) return видМираСтарины('events', вид, события, безЗначка(заголовок));
   const все = Array.isArray(события) ? события : [];
   if (!все.length) return '';
   if (вид === 'column') {
@@ -432,6 +439,7 @@ const ЗВАНИЯ = ['Новичок', 'Завсегдатай', 'Знаток'
 // Счётчик с отметкой: база от хэша, своя отметка прибавляет единицу.
 const счётчик = (действие, текст, база, значок) => { const ф = флажок(действие, текст); return `<button type="button" class="act a-${действие}${ф.cls}"${ф.attr.replace(' role="button" tabindex="0"', '')} data-base="${база}">${ико(значок)}<span class="n">${тыс(база + (ф.on ? 1 : 0))}</span></button>`; };
 export function видКомментариев(комментарии, вид, заголовок) {
+  if (старинный(вид)) return видМираСтарины('comments', вид, комментарии, безЗначка(заголовок));
   const все = Array.isArray(комментарии) ? комментарии : [];
   if (!все.length) return '';
   if (вид === 'stream') {

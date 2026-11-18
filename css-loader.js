@@ -18,8 +18,8 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.89.61';
-import { естьПодМагию } from './era.js?v=23.89.61';
+import { settings } from './settings.js?v=23.89.62';
+import { естьПодМагию } from './era.js?v=23.89.62';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';
@@ -57,6 +57,8 @@ export const ЧАСТИ = [
   // Скрытая магия: фэнтези-виды нужны, только если какой-то блок переодет под магию.
   ['era-fantasy', (s) => s.era === 'fantasy-modern' || s.era === 'fantasy-medieval' || естьПодМагию(s)],
   // Силы приземлённого фэнтези (render/powers.js): способности, чары, отдача.
+  // Виды Шкатулки и Мира для старины (render/medieval-views.js).
+  ['medieval-views', (s) => s.era === 'medieval' || s.era === 'fantasy-medieval'],
   ['powers', (s) => s.era === 'fantasy-modern' || s.era === 'fantasy-medieval' || s.magicPresence === 'hidden'],
   ['compact'],
   // Английские подписи, которые живут в CSS (content: '…').

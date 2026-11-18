@@ -9,9 +9,9 @@
 // телефона в примере работают как обычно. Что каждая настройка есть в карте,
 // проверяет tests/unit.mjs.
 
-import { settings } from './settings.js?v=23.89.61';
-import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.61';
-import { т } from './i18n.js?v=23.89.61';
+import { settings } from './settings.js?v=23.89.62';
+import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.62';
+import { т } from './i18n.js?v=23.89.62';
 
 const ВИДЫ_ПОД_КЛАСС = {
   age: 'ageView', clothes: 'clothesView', looks: 'looksView', role: 'roleView', body: 'bodyStateView', phys: 'physView', powers: 'abilitiesView', health: 'healthView',
@@ -44,6 +44,15 @@ export const КАРТА = [
   ['.hud-vp-sprig, .hud-vp-herb, .hud-vp-path, .hud-vp-moon, .hud-state-plaque.is-loss', ['lossView']],
   ['.hud-vp-quipu, .hud-vp-pairs, .hud-vp-chain, .hud-promises', ['promisesView']],
   ['.hud-mw', ['meanwhileView']],
+  // Шкатулка в старине: каждый раздел ведёт к своему виду (render/medieval-views.js).
+  ['.hud-cask-view[data-cask-view="almanac"]', ['casketAlmanacView']],
+  ['.hud-cask-view[data-cask-view="notes"]', ['casketNotesView']],
+  ['.hud-cask-view[data-cask-view="letters"]', ['casketLettersView']],
+  ['.hud-cask-view[data-cask-view="docs"]', ['casketDocsView']],
+  ['.hud-cask-view[data-cask-view="keeps"]', ['casketKeepsView']],
+  // Виды Мира для старины — по блоку.
+  ['[data-mv-block="news"]', ['newsView']], ['[data-mv-block="factions"]', ['factionsView']], ['[data-mv-block="meanwhile"]', ['meanwhileView']],
+  ['[data-mv-block="city"]', ['cityView']], ['[data-mv-block="comments"]', ['commentsView']], ['[data-mv-block="events"]', ['eventsView']],
   // Виды из render/views-story.js и прежние блоки тех же полей.
   ['.hud-tl, .hud-timeline-container', ['timelineView']],
   ['.hud-em, .hud-mood-group', ['moodView']],
