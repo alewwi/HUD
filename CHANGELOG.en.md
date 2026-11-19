@@ -4,6 +4,12 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.63 — 2026-11-19
+
+### Fixed
+- **A HUD with an unclosed character list is read again.** The model sometimes forgets the "]" after the characters and goes straight on to the next section. One missing bracket used to make the whole HUD unreadable; now the parser closes such a list itself.
+- **The arrow of a trust reason follows the sign in the reason.** The model sometimes carries the trust line over from an earlier turn together with an old reason like "+7 — …" while the number has meanwhile gone down, and a ▼ stood under "+7". Now "+N" in the reason gives ▲ and "−N" gives ▼; without a sign it works as before: a wound "!" or a real drop this turn.
+
 ## 23.89.62 — 2026-11-18
 
 ### Added

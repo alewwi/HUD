@@ -7,12 +7,12 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.62';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.62';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.62';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.62';
-import { settings } from '../settings.js?v=23.89.62';
-import { ответыПроДядей } from './family-asks.js?v=23.89.62';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.63';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.63';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.63';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.63';
+import { settings } from '../settings.js?v=23.89.63';
+import { ответыПроДядей } from './family-asks.js?v=23.89.63';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';

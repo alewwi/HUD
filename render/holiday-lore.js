@@ -13,11 +13,11 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.62';
-import { settings } from '../settings.js?v=23.89.62';
-import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.62';
-import { праздникиГода } from './holidays.js?v=23.89.62';
-import { раскрывашка } from './fold.js?v=23.89.62';
+import { escapeHtml } from '../utils.js?v=23.89.63';
+import { settings } from '../settings.js?v=23.89.63';
+import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.63';
+import { праздникиГода } from './holidays.js?v=23.89.63';
+import { раскрывашка } from './fold.js?v=23.89.63';
 
 const КЛЮЧ = 'tavernosHudHolidays';
 const ДЕНЬ = 864e5;

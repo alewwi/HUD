@@ -12,9 +12,9 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=23.89.62';
-import { hudБлоки, блокКакБыл } from './hud-block.js?v=23.89.62';
-import { имяБезПриставки } from './utils.js?v=23.89.62';
+import { normalizeJSONData } from './schema.js?v=23.89.63';
+import { hudБлоки, блокКакБыл } from './hud-block.js?v=23.89.63';
+import { имяБезПриставки } from './utils.js?v=23.89.63';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -493,6 +493,9 @@ function tryParseHudJsonCandidate(candidate) {
     { text: controlSafe, mode: 'control-chars' },
     { text: repairHudJsonInnerQuotes(controlSafe), mode: 'inner-quotes' },
     { text: repairHudJsonSyntax(repairHudJsonInnerQuotes(controlSafe)), mode: 'inner-quotes+syntax' },
+    // Незакрытый список перед следующим разделом: «"cs":[{…},"us":{…}».
+    { text: закрытьСписокПередКлючом(controlSafe), mode: 'unclosed-array' },
+    { text: repairHudJsonSyntax(закрытьСписокПередКлючом(repairHudJsonSyntax(controlSafe))), mode: 'unclosed-array+syntax' },
 
     // New state-aware path: close only an actually open JSON string first,
     // then let the existing truncation repair close arrays/objects.
@@ -569,6 +572,37 @@ function запятыеМеждуЗначениями(s) {
     else послеЗначения = ч === '}' || ч === ']' || /[\w.+-]/.test(ч);
   }
   return out;
+}
+
+// Список, который модель забыла закрыть: «"cs":[{…},"us":{…}» — после
+// персонажей сразу следующий раздел, а «]» пропущен. Весь HUD тогда не
+// читается. Внутри списка после запятой ключа с двоеточием быть не может,
+// значит список кончился раньше: закрываем его перед запятой. Только если
+// снаружи списка объект — иначе ключу всё равно негде стоять.
+function закрытьСписокПередКлючом(s) {
+  s = String(s || '');
+  const стек = [];
+  let out = '', вСтроке = false, экран = false, изменено = false;
+  for (let i = 0; i < s.length; i++) {
+    const ч = s[i];
+    if (вСтроке) {
+      out += ч;
+      if (экран) экран = false;
+      else if (ч === '\\') экран = true;
+      else if (ч === '"') вСтроке = false;
+      continue;
+    }
+    if (ч === ',' && стек[стек.length - 1] === '[' && /^\s*"(?:[^"\\\n]|\\.){0,200}"\s*:/.test(s.slice(i + 1, i + 260))) {
+      while (стек[стек.length - 1] === '[') { out += ']'; стек.pop(); }
+      if (стек[стек.length - 1] !== '{') return s;
+      изменено = true;
+    }
+    if (ч === '"') вСтроке = true;
+    else if (ч === '{' || ч === '[') стек.push(ч);
+    else if ((ч === '}' || ч === ']') && стек.length) стек.pop();
+    out += ч;
+  }
+  return изменено ? out : s;
 }
 
 function repairTruncatedHudJson(jsonStr) {
