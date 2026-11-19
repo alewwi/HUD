@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.63**:
+The latest version is **23.89.64**:
 
+- You can see how many tokens the model actually writes: the budget panel shows the HUD reply before and after the "nc" expansion. The last HUD snapshot is lighter: key thoughts of characters and babies go into it as a "new this turn" mark. A new "Short instruction" setting: the same HUD rules in fewer words, about 740 tokens less in every request; off by default.
 - A HUD with an unclosed character list is read again; the arrow of a trust reason follows the "+N" or "−N" in the reason itself.
 - Casket and World views of their own for medieval and fantasy worlds: three medieval views per casket section and two enchanted ones in the sorcerer's casket, a medieval and an enchanted view for news, factions, Meanwhile, the watch, gossip and festivities. See-through sheets in the theme colour, status pills, a glass calendar; Meanwhile follows the scene time.
 - Casket sections switch again in edit mode, and a tap inside a section (or a phone app) opens that very section for editing.

@@ -26,11 +26,11 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { settings } from '../settings.js?v=23.89.63';
-import { магияВМире, заклинанияВМире } from '../era.js?v=23.89.63';
-import { escapeHtml, перевестиМетку } from '../utils.js?v=23.89.63';
-import { видБлока } from './views.js?v=23.89.63';
-import { рисунокАтласа } from './power-atlas.js?v=23.89.63';
+import { settings } from '../settings.js?v=23.89.64';
+import { магияВМире, заклинанияВМире } from '../era.js?v=23.89.64';
+import { escapeHtml, перевестиМетку } from '../utils.js?v=23.89.64';
+import { видБлока } from './views.js?v=23.89.64';
+import { рисунокАтласа } from './power-atlas.js?v=23.89.64';
 
 /* --- Включено ли ----------------------------------------------------------- */
 

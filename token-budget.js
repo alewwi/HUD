@@ -11,9 +11,9 @@
 // (index.js → загрузитьПромпт), и статический импорт здесь тянул бы его при
 // старте. Сборщик приходит параметром.
 
-import { settings } from './settings.js?v=23.89.63';
-import { английский, англ } from './i18n.js?v=23.89.63';
-import { extractHudBlock } from './hud-block.js?v=23.89.63';
+import { settings } from './settings.js?v=23.89.64';
+import { английский, англ } from './i18n.js?v=23.89.64';
+import { extractHudBlock } from './hud-block.js?v=23.89.64';
 
 // Раздел = подпись + флаг, выключение которого убирает его из инструкции.
 // «Близость» и «Бой» — не флаги, а состояние сцены (hud-snapshot.js решает
@@ -120,7 +120,7 @@ export function бюджетИнструкции(собрать, { nsfw = false,
 // пересчёт не нужен (двадцать с лишним сборок — миллисекунды, но на каждый
 // рендер карточки их делать незачем).
 export function подписьБюджета(доп = {}) {
-  const ключи = РАЗДЕЛЫ.map(р => р.ключ).filter(Boolean).concat(['era', 'nsfwPrompt', 'enableCombat', 'hudFillGaps', 'hudAdaptPrompt', 'phoneAppMessages', 'phoneAppContacts', 'phoneAppGallery', 'phoneAppNotes', 'phoneAppMaps', 'phoneAppSearch', 'phoneAppWallet', 'phoneAppCalendar', 'phoneAppHealth', 'hudOneLine', 'hudCompact', 'compactOff', 'compactLimits']);
+  const ключи = РАЗДЕЛЫ.map(р => р.ключ).filter(Boolean).concat(['era', 'nsfwPrompt', 'enableCombat', 'hudFillGaps', 'hudAdaptPrompt', 'phoneAppMessages', 'phoneAppContacts', 'phoneAppGallery', 'phoneAppNotes', 'phoneAppMaps', 'phoneAppSearch', 'phoneAppWallet', 'phoneAppCalendar', 'phoneAppHealth', 'hudOneLine', 'hudPromptShort', 'hudCompact', 'compactOff', 'compactLimits']);
   return JSON.stringify([ключи.map(к => settings[к]), доп]);
 }
 
@@ -136,10 +136,51 @@ export function медианаОтвета(чат, сколько = 8, токе�
     const блок = extractHudBlock(String(т || ''));
     if (блок) длины.push(токены(блок));
   }
+  return медиана(длины);
+}
+const медиана = (длины) => {
   if (!длины.length) return null;
   длины.sort((a, b) => a - b);
   const с = длины.length >> 1;
   return длины.length % 2 ? длины[с] : Math.round((длины[с - 1] + длины[с]) / 2);
+};
+
+// Сколько модель написала на самом деле. Сразу после ответа HUD разворачивает
+// короткое («nc», мир раз в день, память обновлениями) в полный блок и кладёт
+// его в сообщение (index.js, развернутьКраткоеВБлоке) — по сохранённому чату
+// сырой ответ уже не измерить. Поэтому до разворота запоминаем оба размера в
+// extra сообщения (и его свайпа): r — как написала модель, f — что легло в
+// сообщение. f заодно сверка: правка, перегенерация или другой свайп меняют
+// блок, его размер расходится с f — и запись не считается.
+export function запомнитьСырой(сообщение, сырой, полный, токены = оценкаТокенов) {
+  if (!сообщение || typeof сообщение !== 'object') return;
+  const запись = { r: токены(String(сырой || '')), f: токены(String(полный || '')) };
+  if (!запись.r || !запись.f) return;
+  сообщение.extra = сообщение.extra && typeof сообщение.extra === 'object' ? сообщение.extra : {};
+  сообщение.extra.hud_raw = запись;
+  const свайп = Array.isArray(сообщение.swipe_info) && Number.isInteger(сообщение.swipe_id) ? сообщение.swipe_info[сообщение.swipe_id] : null;
+  if (свайп && typeof свайп === 'object') {
+    свайп.extra = свайп.extra && typeof свайп.extra === 'object' ? свайп.extra : {};
+    свайп.extra.hud_raw = { ...запись };
+  }
+}
+
+// Медианы по последним ответам, у которых сырой размер записан и сходится с
+// блоком в сообщении: { сырой, полный, ходов } или null, пока таких нет.
+export function медианаСырого(чат, сколько = 8, токены = оценкаТокенов) {
+  const сырые = [], полные = [];
+  for (let j = (Array.isArray(чат) ? чат.length : 0) - 1; j >= 0 && сырые.length < сколько; j--) {
+    const m = чат[j];
+    if (!m || m.is_user || m.is_system) continue;
+    const з = m.extra && m.extra.hud_raw;
+    if (!з || !Number.isFinite(з.r) || !Number.isFinite(з.f)) continue;
+    const т = m.swipes && m.swipes[m.swipe_id] !== undefined ? m.swipes[m.swipe_id] : m.mes;
+    const блок = extractHudBlock(String(т || ''));
+    if (!блок || токены(блок) !== з.f) continue;
+    сырые.push(з.r); полные.push(з.f);
+  }
+  if (!сырые.length) return null;
+  return { сырой: медиана(сырые), полный: медиана(полные), ходов: сырые.length };
 }
 
 // «4 100» → «≈4,1k» для чипа; в панели — полным числом.
@@ -171,7 +212,10 @@ export function разметкаБюджета(итог) {
   const целиком = ц ? `<div class="hud-budget-total"><span>${L('Ответ целиком', 'Full reply')}</span><b>≈${числом(ц.всего)}</b><small>HUD ≈${числом(итог.запрос)}${ц.таверна !== null ? ` · ${L('Таверна', 'Tavern')} ≈${числом(ц.таверна)}: ${L('пресет, история,', 'preset, history,')}` : ' ·'}${L('карточка и персона', 'card and persona')} ≈${числом(ц.карточка)}${ц.лорбук !== null ? ` · ${L('лорбук', 'lorebook')} ≈${числом(ц.лорбук)}` : ''}${ц.точно ? '' : L(' (истории и пресета пока нет — запроса не было)', ' (no history or preset yet — there was no request)')}</small></div>` : '';
   const реген = р ? `<div class="hud-budget-total"><span>${L('Перегенерация HUD', 'HUD regeneration')}</span><b>≈${числом(р.всего)}</b><small>${L('история', 'history')} (${р.сообщений} ${L('сообщ.', 'msgs')}) ≈${числом(р.история)} · ${L('инструкция', 'instruction')} ≈${числом(р.инструкция)} · ${L('снимок', 'snapshot')} ≈${числом(р.снимок)} · ${L('карточка и персона', 'card and persona')} ≈${числом(р.карточка)}${р.лорбук ? ` · ${L('лорбуки HUD', 'HUD lorebooks')} ≈${числом(р.лорбук)}` : ''}</small></div>` : '';
   const сверху = целиком + реген + `<p class="hud-budget-sum"><b>≈${числом(итог.запрос)}</b> — ${L('HUD в ответе: инструкция', 'HUD in the reply: instruction')} ≈${числом(и.всего)} · ${L('снимок', 'snapshot')} ≈${числом(итог.снимок)}${итог.сейф ? ` · ${L('дописать', 'fill-in')} ≈${числом(итог.сейф)}` : ''}${итог.усиление ? ` · ${L('усиления', 'boosts')} ≈${числом(итог.усиление)}` : ''}</p>`
-    + `<p class="hud-budget-note">${L('Ответ HUD', 'HUD reply')} ≈${итог.ответ === null ? '—' : числом(итог.ответ)} ${L('(медиана последних) — тяжёлый HUD дорог дважды: в запросе снимком и в ответе.', '(median of recent ones) — a heavy HUD costs twice: as a snapshot in the request and in the reply.')}</p>`;
+    + (итог.сырой
+      // Сырой размер известен: модель пишет коротко, а HUD разворачивает.
+      ? `<p class="hud-budget-note">${L('Ответ HUD', 'HUD reply')} ≈${числом(итог.сырой.сырой)} ${L('— столько модель пишет на самом деле', '— what the model actually writes')}; ${L('после разворота', 'after expansion')} ≈${числом(итог.сырой.полный)} (${L('медиана последних', 'median of the last')} ${итог.сырой.ходов}). ${L('Тяжёлый HUD дорог дважды: в запросе снимком и в ответе.', 'A heavy HUD costs twice: as a snapshot in the request and in the reply.')}</p>`
+      : `<p class="hud-budget-note">${L('Ответ HUD', 'HUD reply')} ≈${итог.ответ === null ? '—' : числом(итог.ответ)} ${L('(медиана последних, уже развёрнутых) — тяжёлый HUD дорог дважды: в запросе снимком и в ответе.', '(median of recent ones, already expanded) — a heavy HUD costs twice: as a snapshot in the request and in the reply.')}</p>`);
   const строки = и.разделы.map(р => строка(р.имя, р.цена, р.когда, кнопка(р.выкл[0], р.выкл[1])))
     .concat(итог.усиление ? [строка('Усиления', итог.усиление, (итог.слабые || []).map(с => с.имя).join(', ') + ' — модель их часто пропускает', кнопка('hudAdaptPrompt', false))] : [])
     .concat(итог.сейф ? [строка('Дописать пропущенное', итог.сейф, 'сейф по прошлому HUD', кнопка('hudFillGaps', false))] : [])

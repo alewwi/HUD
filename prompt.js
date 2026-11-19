@@ -10,19 +10,20 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.63';
-import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.63';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.63';
+import { settings } from './settings.js?v=23.89.64';
+import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.64';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.64';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.63';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.63';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.63';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.63';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.63';
-import { возрастТочно } from './render/babies.js?v=23.89.63';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.63';
-import { сжатьСхему } from './compact-fields.js?v=23.89.63';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.63';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.64';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.64';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.64';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.64';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.64';
+import { возрастТочно } from './render/babies.js?v=23.89.64';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.64';
+import { сжатьСхему } from './compact-fields.js?v=23.89.64';
+import { короткийПромпт } from './prompt-short.js?v=23.89.64';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.64';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -594,6 +595,9 @@ ${блокПисем(true)}`;
   }
 
   p += `\n}\n\`\`\`\n[/HUD]`;
+  // Короткая инструкция (prompt-short.js): те же правила меньшими словами —
+  // до глубокой настройки и сжатия, они правят уже короткие строки.
+  if (settings.hudPromptShort === true) p = короткийПромпт(p);
   // Глубокая настройка (deep-fields.js): выключенные поля и метки — вон из
   // схемы, и отдельным правилом «не писать».
   const выключено = выключеноВОтвете(settings);
@@ -616,7 +620,7 @@ ${блокПисем(true)}`;
   const канон = режим === 'regen' ? '' : `
 It is also canon for the prose of your reply: do not contradict it — what people wear, their injuries and health, who is where, relationships, who knows which secret (people in hd do NOT know it and must not act on it), open threads in gun.`;
   p += `\n\n{{if hudLast}}## 📸 LAST HUD — the state before ${чего}
-To save space, empty fields are left out, and the texts written fresh every turn (Th, Ex, D, diary, dreams, horoscope, comments) are cut down to "<new this turn>". That mark means the opposite of optional: the field is REQUIRED in your HUD, written anew and in full in the schema's format. The schema above, not this copy, decides which fields you write. Memory items here start with [id · age]: the age is how long ago it first came up in story time, so never call older things "yesterday"; never copy the [ … ] part into your HUD.
+To save space, empty fields are left out, and the texts written fresh every turn (Th, K, Ex, D, diary, dreams, horoscope, comments) are cut down to "<new this turn>". That mark means the opposite of optional: the field is REQUIRED in your HUD, written anew and in full in the schema's format. The schema above, not this copy, decides which fields you write. Memory items here start with [id · age]: the age is how long ago it first came up in story time, so never call older things "yesterday"; never copy the [ … ] part into your HUD.
 Codes: {{hudLastKeys}}
 \`\`\`json
 {{hudLast}}

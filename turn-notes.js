@@ -20,16 +20,16 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.63';
-import { статусОбещания } from './hud-expand.js?v=23.89.63';
-import { полеВкл } from './deep-fields.js?v=23.89.63';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.63';
-import { namesLikelySame } from './names.js?v=23.89.63';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.63';
-import { праздникиГода } from './render/holidays.js?v=23.89.63';
-import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи } from './render/holiday-lore.js?v=23.89.63';
-import { заметкаСил } from './render/powers.js?v=23.89.63';
-import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.63';
+import { settings } from './settings.js?v=23.89.64';
+import { статусОбещания } from './hud-expand.js?v=23.89.64';
+import { полеВкл } from './deep-fields.js?v=23.89.64';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.64';
+import { namesLikelySame } from './names.js?v=23.89.64';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.64';
+import { праздникиГода } from './render/holidays.js?v=23.89.64';
+import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи } from './render/holiday-lore.js?v=23.89.64';
+import { заметкаСил } from './render/powers.js?v=23.89.64';
+import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.64';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;

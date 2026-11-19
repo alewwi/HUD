@@ -424,6 +424,8 @@ export const defaultSettings = {
   compactLimits: {},
   // Chat Completion: постоянная схема HUD — в начало запроса, чтобы провайдер её кэшировал.
   hudPromptCache: false,
+  // Те же правила инструкции меньшими словами (prompt-short.js). По умолчанию — прежний текст.
+  hudPromptShort: false,
   // Снимок последнего HUD в конце инструкции: модель обновляет его, а не
   // собирает мир заново. Считается одним из развёрнутых HUD (hudsToKeep).
   hudSnapshot: true,

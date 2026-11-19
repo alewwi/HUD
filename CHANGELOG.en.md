@@ -4,6 +4,15 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.64 — 2026-11-19
+
+### Added
+- **You can see how much the model actually writes.** To keep replies short, the model may write "nc" for anything unchanged, the world once a day and memory as updates only, and the HUD expands all that into a full block right away. So the chat could not tell how much the model really wrote. Now the HUD remembers the reply's size before expansion, and the token budget panel shows both numbers: "what the model actually writes" and "after expansion". Only replies received after the update count; an edit or another swipe resets that turn's measurement.
+- **A "Short instruction" setting** (Settings → "Saving tokens", off by default). The same HUD rules in fewer words: intercepts refer to the chat rules and tags instead of repeating them word for word; the phone tags (voice, photo, video, call, reply, forward, poll, someone else at the phone) are one list with the same examples; the player's appearance, illnesses, pregnancy, childbirth, cycle and marks are written "as for characters"; the "who goes where" and "absent main characters" rules no longer repeat each other; the companion description drops extra examples; the general rules (codes, "nc", how many items, the full schema, quotes and separators, the block format) keep the same requirements in fewer words. About 740 tokens less in a normal turn (≈11.2k → ≈10.5k) and about 790 in an intimate scene (≈13.7k → ≈12.9k). Off, the instruction is the same as before, to the character.
+
+### Changed
+- **The snapshot of the last HUD is lighter.** The model writes a character's key thoughts anew every turn, yet they went into the next turn's snapshot in full. Now a "new this turn" mark stands in their place, as it already did for thoughts, expectations and subtext. Babies get the same for their thought and impressions. On live chats the snapshot got about 3% lighter, and in a scene with eight characters about 1,000 tokens per turn.
+
 ## 23.89.63 — 2026-11-19
 
 ### Fixed
