@@ -157,6 +157,14 @@ export const defaultSettings = {
   holidayGen: true,
   holidayReminder: 'day',
   holidayPrepDays: 7,
+  // Средневековье: ярмарки, которые HUD сам расставляет в календаре (render/holiday-lore.js),
+  // правила и власть места во вкладке «Мир» и строка о них модели (render/place-lore.js).
+  enableFairs: true,
+  // Подготовка к празднику или ярмарке для модели: list — модель видит открытые
+  // шаги каждый ход и отмечает сделанные (sc.Pq); once — одна подсказка.
+  prepTracking: 'list',
+  placeLore: true,
+  placeLoreReminder: true,
   holidayProfileId: '',
   holidayCount: 0,
   // Пожелание к генерации праздников мира: «праздники, связанные с семьёй» (render/holiday-gen.js).

@@ -6,18 +6,19 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.64';
-import { английский } from '../i18n.js?v=23.89.64';
-import { settings } from '../settings.js?v=23.89.64';
-import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.64';
-import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.64';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.64';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.64';
-import { ссылкиТрека } from './music.js?v=23.89.64';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.64';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.64';
-import { ико } from './view-icons.js?v=23.89.64';
-import { namesLikelySame } from '../names.js?v=23.89.64';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.65';
+import { английский } from '../i18n.js?v=23.89.65';
+import { settings } from '../settings.js?v=23.89.65';
+import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.65';
+import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.65';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.65';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.65';
+import { ссылкиТрека } from './music.js?v=23.89.65';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.65';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.65';
+import { ико } from './view-icons.js?v=23.89.65';
+import { namesLikelySame } from '../names.js?v=23.89.65';
+import { старина } from '../era.js?v=23.89.65';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).
@@ -322,7 +323,7 @@ export function вкладкаБеременностей(отчёт, поиск)
       + `<dt>Кто знает</dt><dd>${escapeHtml(безПриставок((з && з.знают) || э.knows) || 'не записано')}</dd>`
       + (э.state ? `<dt>${вид === 'going' ? 'Как проходит' : 'Как проходила'}</dt><dd>${escapeHtml(э.state)}</dd>` : '')
       + (э.symptoms ? `<dt>Симптомы</dt><dd>${escapeHtml(э.symptoms)}</dd>` : '')
-      + (э.visit && вид === 'going' ? `<dt>Визит к врачу</dt><dd>${escapeHtml(э.visit)}</dd>` : '')
+      + (э.visit && вид === 'going' ? `<dt>${старина() ? 'Визит повитухи' : 'Визит к врачу'}</dt><dd>${escapeHtml(э.visit)}</dd>` : '')
       + осложненияHTML(з ? з.кто : (э.player ? 'user' : э.name), з)
       + (чтоСлучилось(з, э) ? `<dt>Что случилось</dt><dd>${escapeHtml(чтоСлучилось(з, э))}</dd>` : '')
       + `</dl>${Array.isArray(э.course) && э.course.length > 1 ? историяHTML(вид === 'going' ? 'Как проходит' : 'Как проходила', э.course.length, э.course.map((c, i) => ({ at: c.at, вид: i ? 'status' : 'start', html: `<b>${escapeHtml(c.text)}</b>` }))) : ''}<div class="hud-arc-foot">ходы ${ссылка(э.from)} — ${ссылка(э.to)}${з && Number.isInteger(з.сообщение) && з.сообщение !== э.to ? ` · исход ${ссылка(з.сообщение)}` : ''}</div></article>`, вид, ключЭп, э.from);

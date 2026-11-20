@@ -13,11 +13,11 @@
 //
 // Текст модели в новую разметку идёт только через escapeHtml.
 
-import { escapeHtml } from '../utils.js?v=23.89.64';
-import { settings } from '../settings.js?v=23.89.64';
-import { старина, фэнтези, современныйВид, естьПодМагию, магияОблика, блокПодМагию } from '../era.js?v=23.89.64';
-import { преобразитьФэнтези, СЕЛЕКТОРЫ_ФЭНТЕЗИ, кошель } from './era-fantasy.js?v=23.89.64';
-import { английский } from '../i18n.js?v=23.89.64';
+import { escapeHtml } from '../utils.js?v=23.89.65';
+import { settings } from '../settings.js?v=23.89.65';
+import { старина, фэнтези, современныйВид, естьПодМагию, магияОблика, блокПодМагию } from '../era.js?v=23.89.65';
+import { преобразитьФэнтези, СЕЛЕКТОРЫ_ФЭНТЕЗИ, кошель } from './era-fantasy.js?v=23.89.65';
+import { английский } from '../i18n.js?v=23.89.65';
 
 // Средневековые виды — в старине; фэнтези-слой (era-fantasy.js) — в обоих фэнтези.
 const включено = () => старина() || фэнтези() || естьПодМагию();
@@ -272,19 +272,31 @@ const ПОДПИСИ_ЭПОХИ = {
   'Таймлайн:': 'Летопись:', 'Мини-карта маршрутов:': 'Путевые заметки:', 'Ружья Чехова:': 'Завязки:',
   'висит': 'ждёт', 'назревает': 'зреет', 'выстрелило': 'свершилось', 'Душ': 'Омовение', 'Деньги': 'Кошель', 'На счету': 'В кошеле',
   'Траты за 7 дней': 'Траты за седмицу', 'Подгузники': 'Пелёнки', 'Пробки': 'Заторы', 'Коммунальные службы': 'Ратушные службы', 'Транспорт': 'Извоз',
-  'сон прошлой ночью': 'сон минувшей ночью', 'Удостоверение личности': 'Запись о рождении',
+  'сон прошлой ночью': 'сон минувшей ночью', 'Удостоверение личности': 'Запись о рождении', '🤝 Обещания:': '🤝 Клятвы:',
+};
+// То же в английском интерфейсе. Проход может прийти и до перевода (тогда
+// русская подпись эпохи переведётся словарём i18n-en.js), и после — тогда
+// подпись уже английская и меняется по этой таблице.
+const ПОДПИСИ_ЭПОХИ_EN = {
+  'Timeline:': 'Chronicle:', 'Route mini-map:': 'Travel notes:', "Chekhov's guns:": 'Loose threads:',
+  'hanging': 'waiting', 'building up': 'ripening', 'fired': 'came to pass', 'Shower': 'Bath', 'Money': 'Purse', 'In the account': 'In the purse',
+  'Diapers': 'Swaddling', 'Traffic': 'Crowded roads', 'Utilities': 'Town services', 'Transport': 'Carriage',
+  'sleep last night': 'sleep the night before', 'Identity card': 'Record of birth', '🤝 Promises:': '🤝 Oaths:',
 };
 const ЗАМЕНЫ = [[/подгузник(?:и|ов)?/g, 'пелёнки'], [/(\d)\s*°[CF]/g, '$1°']];
+const ЗАМЕНЫ_EN = [[/\bdiapers?\b/gi, 'swaddling']];
 const НЕ_ПОДПИСИ = '.hud-letter-sheet, .hud-ov-script, .hud-ov-sheet, .article-text, .hud-v-note, script, style, textarea, input, [contenteditable="true"]';
 function подписи(корень) {
-  if (английский()) return;
+  const ен = английский();
   const обход = document.createTreeWalker(корень, NodeFilter.SHOW_TEXT);
   for (let н; (н = обход.nextNode());) {
     const эл = н.parentElement;
     if (!эл || !эл.closest('.hud-os-card') || эл.closest(НЕ_ПОДПИСИ)) continue;
     const чистый = н.nodeValue.replace(/​/g, '').trim();
-    if (ПОДПИСИ_ЭПОХИ[чистый]) { н.nodeValue = н.nodeValue.replace(/\S[\s\S]*\S|\S/, ПОДПИСИ_ЭПОХИ[чистый]); continue; }
+    const подпись = ПОДПИСИ_ЭПОХИ[чистый] || (ен && ПОДПИСИ_ЭПОХИ_EN[чистый]);
+    if (подпись) { н.nodeValue = н.nodeValue.replace(/\S[\s\S]*\S|\S/, подпись); continue; }
     let т = н.nodeValue; for (const [re, на] of ЗАМЕНЫ) т = т.replace(re, на);
+    if (ен) for (const [re, на] of ЗАМЕНЫ_EN) т = т.replace(re, на);
     if (т !== н.nodeValue) н.nodeValue = т;
   }
 }

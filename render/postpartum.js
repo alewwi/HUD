@@ -7,12 +7,13 @@
 // сколько нужно в сутки, наполненность груди по времени с кормления.
 // Оформление — css/family.css.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок } from '../utils.js?v=23.89.64';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.64';
-import { родыЧьи, словоПолов, деньРодов, дм } from './conception.js?v=23.89.64';
-import { подождатьДо, ДНЕЙ_ПОСЛЕ_РОДОВ } from './rest-hint.js?v=23.89.64';
-import { послеродовое, видКормления, часовМежду } from './fertility.js?v=23.89.64';
-import { видСемьи, видПослеродового } from './family-views.js?v=23.89.64';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок } from '../utils.js?v=23.89.65';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.65';
+import { родыЧьи, словоПолов, деньРодов, дм } from './conception.js?v=23.89.65';
+import { подождатьДо, ДНЕЙ_ПОСЛЕ_РОДОВ } from './rest-hint.js?v=23.89.65';
+import { послеродовое, видКормления, часовМежду } from './fertility.js?v=23.89.65';
+import { видСемьи, видПослеродового } from './family-views.js?v=23.89.65';
+import { старина } from '../era.js?v=23.89.65';
 
 function метки(value) {
   const о = {};
@@ -59,7 +60,8 @@ export function buildPostpartum(value, { кто = '', сцена = '', врем�
       + `<ellipse class="gloss" cx="17" cy="29" rx="5.4" ry="3" transform="rotate(-58 17 29)"/></svg>`;
   };
   const молоко = с && с.молоко;
-  const вид = { breast: 'грудью', formula: 'смесью', mixed: 'грудь и смесь' }[кормление];
+  // В средневековье смеси нет: кормит кормилица (в промте formula так и названа).
+  const вид = (старина() ? { breast: 'грудью', formula: 'кормилица', mixed: 'грудь и кормилица' } : { breast: 'грудью', formula: 'смесью', mixed: 'грудь и смесь' })[кормление];
   // Другие виды (Кастомизация → Блоки: Семья) — render/family-views.js.
   const видБлока = видСемьи('postpartumView');
   if (видБлока !== 'classic') {

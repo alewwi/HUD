@@ -1,0 +1,102 @@
+/* Правила и власть места (средневековье) — render/place-lore.js, окно —
+   render/place-gen.js (классы окна праздников .hud-holgen*). Цвета — от
+   акцента темы; на тёмных темах без светлых подложек, светлая бумага только
+   под :root.hud-scheme-light. Анимаций, от которых зависит вид, нет. */
+
+.hud-plc { --plc-acc: color-mix(in srgb, var(--hud-accent, #c58a3c) 55%, #d9a04e); }
+.hud-plc .hud-plc-card { --v-acc: var(--plc-acc); display: grid; gap: 10px; padding: 10px 12px; border-radius: 14px;
+  background: var(--v-surf); border: 1px solid var(--v-line);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 18px -12px rgba(0,0,0,.7); }
+
+/* Имена мест: от общего к частному, как вывески. */
+.hud-plc-names { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-plc-name { display: inline-flex; align-items: center; gap: 4px; min-width: 0; max-width: 100%; padding: 3px 4px 3px 10px; border-radius: 10px;
+  font-weight: 700; font-size: .92em; overflow-wrap: anywhere;
+  color: color-mix(in srgb, var(--plc-acc) 40%, var(--ink-hi, #fff));
+  background: color-mix(in srgb, var(--plc-acc) 16%, rgba(0,0,0,.25));
+  border: 1px solid color-mix(in srgb, var(--plc-acc) 40%, transparent); }
+.hud-plc-name + .hud-plc-name::before { content: '›'; margin: 0 6px 0 -4px; opacity: .55; }
+.hud-plc-del { flex: none; border: 0; background: none; padding: 0 5px; min-height: 20px; border-radius: 8px; cursor: pointer;
+  font-size: .8em; color: inherit; opacity: .55; }
+.hud-plc-del.is-armed { opacity: 1; background: color-mix(in srgb, #d65a4a 35%, transparent); font-weight: 700; }
+
+/* Правила: строка с печатью слева; по времени — песочные часы. */
+.hud-plc-rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.hud-plc-rule { position: relative; min-width: 0; padding: 7px 10px 7px 30px; border-radius: 10px;
+  background: color-mix(in srgb, var(--plc-acc) 7%, rgba(0,0,0,.22));
+  border: 1px solid color-mix(in srgb, var(--plc-acc) 22%, transparent); }
+.hud-plc-rule::before { content: ''; position: absolute; left: 9px; top: 9px; width: 12px; height: 12px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--plc-acc) 60%, #fff), color-mix(in srgb, var(--plc-acc) 80%, #000));
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--plc-acc) 25%, transparent); }
+.hud-plc-rule.is-timed::before { border-radius: 2px; width: 10px; height: 13px; left: 10px;
+  clip-path: polygon(0 0, 100% 0, 58% 50%, 100% 100%, 0 100%, 42% 50%); }
+.hud-plc-rule b { display: block; font-weight: 650; line-height: 1.3; overflow-wrap: anywhere; }
+.hud-plc-meta { display: flex; flex-wrap: wrap; gap: 4px 8px; margin-top: 3px; opacity: .8; font-size: .82em; }
+.hud-plc-meta > span { overflow-wrap: anywhere; min-width: 0; }
+.hud-plc-when { font-weight: 700; color: color-mix(in srgb, var(--plc-acc) 55%, var(--ink-hi, #fff)); }
+.hud-plc-of { font-style: italic; }
+.hud-plc-else { display: block; margin-top: 3px; font-size: .82em; opacity: .72; }
+.hud-plc-else::before { content: '⟶ '; opacity: .6; }
+.hud-plc-rules.is-other .hud-plc-rule { opacity: .72; }
+.hud-plc-more > summary { cursor: pointer; font-size: .85em; opacity: .8; padding: 2px 0; }
+.hud-plc-more[open] > summary { margin-bottom: 6px; }
+.hud-plc-hint { margin: 0; font-size: .88em; opacity: .8; }
+
+/* Власть: держатель — строка с цветной меткой, его сферы — плашки. Сфера, которую делят, — пунктиром. */
+.hud-plc-power { display: grid; gap: 6px; padding-top: 8px; border-top: 1px dashed color-mix(in srgb, var(--plc-acc) 30%, transparent); }
+.hud-plc-sub { font-size: .78em; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; opacity: .75; }
+.hud-plc-holder { --h: 30; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; padding: 6px 8px 6px 14px; position: relative; border-radius: 10px;
+  background: color-mix(in srgb, hsl(var(--h) 55% 50%) 9%, rgba(0,0,0,.2)); }
+.hud-plc-holder::before { content: ''; position: absolute; left: 0; top: 6px; bottom: 6px; width: 4px; border-radius: 4px; background: hsl(var(--h) 60% 58%); }
+.hud-plc-holder[data-n="1"] { --h: 205; } .hud-plc-holder[data-n="2"] { --h: 130; } .hud-plc-holder[data-n="3"] { --h: 280; }
+.hud-plc-holder[data-n="4"] { --h: 0; } .hud-plc-holder[data-n="5"] { --h: 175; }
+.hud-plc-who { font-weight: 700; overflow-wrap: anywhere; }
+.hud-plc-areas { display: flex; flex-wrap: wrap; gap: 4px; }
+.hud-plc-area { display: inline-flex; align-items: center; gap: 4px; max-width: 100%; padding: 2px 8px; border-radius: 10px; font-size: .82em; overflow-wrap: anywhere;
+  background: color-mix(in srgb, hsl(var(--h) 55% 50%) 18%, rgba(0,0,0,.25)); border: 1px solid color-mix(in srgb, hsl(var(--h) 60% 60%) 35%, transparent); }
+.hud-plc-area > i { font-style: normal; }
+.hud-plc-area.is-shared { border-style: dashed; border-color: color-mix(in srgb, hsl(var(--h) 70% 65%) 80%, transparent); }
+.hud-plc-note { font-size: .8em; opacity: .72; }
+
+.hud-plc-foot { display: flex; justify-content: flex-end; }
+.hud-plc-gen { border: 1px solid color-mix(in srgb, var(--plc-acc) 45%, transparent); background: color-mix(in srgb, var(--plc-acc) 18%, rgba(0,0,0,.2));
+  color: inherit; border-radius: 10px; padding: 5px 12px; min-height: 30px; cursor: pointer; font: inherit; font-size: .88em; font-weight: 650; }
+.hud-plc.is-empty .hud-plc-card { justify-items: start; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-plc-gen:hover { background: color-mix(in srgb, var(--plc-acc) 30%, rgba(0,0,0,.2)); }
+  .hud-plc-del:hover { opacity: 1; }
+}
+
+/* Окно: адрес по частям — те же переключатели, поле имени во всю ширину. */
+.hud-plcgen-name { width: 100%; box-sizing: border-box; margin-top: 6px; }
+
+/* Светлые темы: бумага и тёмные чернила. */
+:root.hud-scheme-light .hud-plc-rule { background: color-mix(in srgb, var(--plc-acc) 8%, rgba(255,255,255,.55)); }
+:root.hud-scheme-light .hud-plc-name { background: color-mix(in srgb, var(--plc-acc) 14%, rgba(255,255,255,.6)); color: color-mix(in srgb, var(--plc-acc) 45%, #2a1d10); }
+:root.hud-scheme-light .hud-plc-holder { background: color-mix(in srgb, hsl(var(--h) 55% 50%) 8%, rgba(255,255,255,.5)); }
+:root.hud-scheme-light .hud-plc-area { background: color-mix(in srgb, hsl(var(--h) 55% 50%) 12%, rgba(255,255,255,.6)); }
+:root.hud-scheme-light .hud-plc-when { color: color-mix(in srgb, var(--plc-acc) 60%, #2a1d10); }
+:root.hud-scheme-light .hud-plc-gen { background: color-mix(in srgb, var(--plc-acc) 14%, rgba(255,255,255,.6)); }
+
+/* Телефон (карточка ~215px): меньше вложенных отступов. */
+@container (max-width: 300px) {
+  .hud-plc .hud-plc-card { padding: 8px; gap: 8px; }
+  .hud-plc-rule { padding: 6px 8px 6px 24px; }
+  .hud-plc-rule::before { left: 7px; }
+  .hud-plc-rule.is-timed::before { left: 8px; }
+  .hud-plc-holder { padding: 5px 6px 5px 11px; }
+}
+@media (max-width: 600px) {
+  .hud-plc .hud-plc-card { padding: 8px; gap: 8px; }
+  .hud-plc-rule { padding: 6px 8px 6px 24px; }
+  .hud-plc-rule::before { left: 7px; }
+  .hud-plc-rule.is-timed::before { left: 8px; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-plc .hud-plc-card { padding: 8px; gap: 8px; }
+  .hud-plc-rule { padding: 6px 8px 6px 24px; }
+  .hud-plc-rule::before { left: 7px; }
+  .hud-plc-rule.is-timed::before { left: 8px; }
+} }
+/* cq ↑ */

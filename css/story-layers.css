@@ -324,8 +324,64 @@
   padding: 4px 11px; border-radius: 999px; font: inherit; font-size: 11.5px; white-space: nowrap; cursor: pointer; color: var(--hud-text, inherit);
   background: rgba(127, 127, 127, .12); border: 1px solid color-mix(in srgb, var(--hp) 40%, transparent);
 }
-.hud-holprep-ask button[data-hud-holprep="yes"] { color: #1a0f2a; font-weight: 650; border-color: transparent; background: linear-gradient(135deg, #e3cdff, var(--hp)); }
+.hud-holprep-ask button[data-hud-holprep="gen"] { color: #1a0f2a; font-weight: 650; border-color: transparent; background: linear-gradient(135deg, #e3cdff, var(--hp)); }
 .hud-holprep-ask .done { color: #7fd49a; }
+/* На узкой карточке кнопки встают друг под другом и переносят текст: овал не нужен. */
+@media (max-width: 600px) {
+  .hud-holprep-ask { flex-direction: column; align-items: stretch; }
+  .hud-holprep-ask > span { margin-right: 0; }
+  .hud-holprep-ask button { white-space: normal; border-radius: 10px; text-align: center; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-holprep-ask { flex-direction: column; align-items: stretch; }
+  .hud-holprep-ask > span { margin-right: 0; }
+  .hud-holprep-ask button { white-space: normal; border-radius: 10px; text-align: center; }
+} }
+/* cq ↑ */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-holprep-ask { flex-direction: column; align-items: stretch; }
+  .hud-holprep-ask > span { margin-right: 0; }
+  .hud-holprep-ask button { white-space: normal; border-radius: 10px; text-align: center; }
+} }
+/* Сохранённая подготовка: «1. … 2. …» до самого дня. */
+.hud-holprep.is-saved { box-shadow: inset 3px 0 0 color-mix(in srgb, var(--hp) 70%, #7fd49a); }
+.hud-holprep-steps { margin: 8px 0 0; padding-left: 22px; font-size: 12px; line-height: 1.45; }
+.hud-holprep-steps li { margin: 2px 0; overflow-wrap: anywhere; }
+.hud-holprep-steps li::marker { color: var(--hp); font-weight: 700; }
+/* Шаг — кнопка: нажатие зачёркивает сделанное и возвращает обратно. */
+.hud-holprep-steps button { all: unset; box-sizing: border-box; display: block; width: 100%; padding: 2px 4px; margin-left: -4px; border-radius: 6px;
+  cursor: pointer; overflow-wrap: anywhere; color: inherit; }
+.hud-holprep-steps button:focus-visible { outline: 2px solid color-mix(in srgb, var(--hp) 60%, transparent); }
+.hud-holprep-steps li.is-done button { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--hp) 80%, currentColor); opacity: .55; }
+.hud-holprep-steps li.is-done::marker { content: '✓  '; }
+@media (hover: hover) and (pointer: fine) { .hud-holprep-steps button:hover { background: color-mix(in srgb, var(--hp) 14%, transparent); } }
+.hud-holprep-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 6px 10px; margin-top: 8px; font-size: 11px; }
+.hud-holprep-foot small { opacity: .65; min-width: 0; }
+.hud-holprep-drop { padding: 3px 10px; border-radius: 10px; font: inherit; font-size: 11px; cursor: pointer; color: var(--hud-text, inherit);
+  background: rgba(127, 127, 127, .1); border: 1px solid color-mix(in srgb, var(--hp) 30%, transparent); }
+.hud-holprep-drop.is-armed { background: color-mix(in srgb, #d65a4a 30%, transparent); font-weight: 650; }
+.hud-holprep.is-done { box-shadow: inset 3px 0 0 #7fd49a; }
+
+/* Маленькие окна: подготовка и правила места (render/holiday-prep.js, place-gen.js). */
+.hud-modal.hud-holgen.hud-prepgen, .hud-modal.hud-holgen.hud-plcgen { width: min(420px, 100%); }
+.hud-prepgen .hud-modal-body, .hud-plcgen .hud-modal-body { gap: 10px; }
+.hud-prepgen-books > summary { cursor: pointer; margin-top: 6px; }
+.hud-prepgen-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.hud-prepgen-again, .hud-prepgen-buttons button {
+  padding: 5px 12px; min-height: 30px; border-radius: 10px; font: inherit; font-size: 12px; cursor: pointer; color: var(--hud-text, inherit);
+  background: rgba(127, 127, 127, .12); border: 1px solid color-mix(in srgb, var(--hg) 40%, transparent);
+}
+.hud-prepgen-steps { margin: 6px 0 10px; padding-left: 24px; display: grid; gap: 4px; }
+.hud-prepgen-steps li::marker { color: var(--hg); font-weight: 700; }
+.hud-prepgen-steps label { display: flex; align-items: flex-start; gap: 7px; cursor: pointer; overflow-wrap: anywhere; }
+.hud-prepgen-steps input { margin-top: 3px; flex: none; }
+.hud-prepgen-what { display: grid; gap: 4px; font-size: 12.5px; }
+.hud-prepgen-opt { display: flex; align-items: flex-start; gap: 7px; cursor: pointer; }
+.hud-prepgen-opt input { margin-top: 2px; flex: none; }
+.hud-prepgen-buttons { display: flex; justify-content: flex-end; gap: 8px; }
+.hud-prepgen-buttons .hud-prepgen-ok { font-weight: 650; color: #1a0f2a; border-color: transparent; background: linear-gradient(135deg, #e3cdff, var(--hg)); }
+.hud-prepgen-ok[hidden], .hud-prepgen-result[hidden], .hud-prepgen-books[hidden] { display: none; }
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-holprep { --hp: #7a4ab8; }
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-cal .hud-cal-gen { color: #7a4ab8; }
 

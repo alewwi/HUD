@@ -15,14 +15,14 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.64';
-import { settings } from '../settings.js?v=23.89.64';
-import { т } from '../i18n.js?v=23.89.64';
-import { текстБезHUD } from '../hud-block.js?v=23.89.64';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.64';
-import { связьПраздников, деталиПраздника, сохранитьДеталиПраздника, деталиСтрокой, забытьДеталиПраздника, ключПраздника } from './holiday-lore.js?v=23.89.64';
-import { отправить, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили } from './holiday-gen.js?v=23.89.64';
-import { добавитьПодсказку, подсказки } from '../turn-notes.js?v=23.89.64';
+import { escapeHtml } from '../utils.js?v=23.89.65';
+import { settings } from '../settings.js?v=23.89.65';
+import { т } from '../i18n.js?v=23.89.65';
+import { текстБезHUD } from '../hud-block.js?v=23.89.65';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.65';
+import { связьПраздников, деталиПраздника, сохранитьДеталиПраздника, деталиСтрокой, забытьДеталиПраздника, ключПраздника } from './holiday-lore.js?v=23.89.65';
+import { отправить, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили } from './holiday-gen.js?v=23.89.65';
+import { добавитьПодсказку, подсказки } from '../turn-notes.js?v=23.89.65';
 
 const СООБЩЕНИЙ_ПО_УМОЛЧАНИЮ = 6;
 const СИМВОЛОВ_СООБЩЕНИЯ = 1500;
@@ -54,7 +54,7 @@ export function промптКакПразднуют({ имя = '', дата = '
   if (лор) блоки.push(`<lorebook>\n${лор}\n</lorebook>`);
   if (история) блоки.push(`<recent_story>\n${история}\n</recent_story>`);
   const прошлое = было && (было.обычай || было.место || было.событие) ? `\n- Earlier you suggested: ${деталиСтрокой(было)}. Now give different details.` : '';
-  const user = `${блоки.length ? блоки.join('\n\n') + '\n\n' : ''}Holiday: «${имя}»${дата ? ` on ${дата}` : ''}.${о ? ` What is known: ${о}` : ''}${эпоха ? `\nEra: ${эпоха}.` : ''}${сцена ? `\nThe story's date now: ${сцена}.` : ''}
+  const user = `${блоки.length ? блоки.join('\n\n') + '\n\n' : ''}Holiday: «${имя}»${дата ? ` on ${дата}` : ''}.${о ? ` What is known: ${о}` : ''}${эпоха ? `\n${эпоха}` : ''}${сцена ? `\nThe story's date now: ${сцена}.` : ''}
 
 Describe how this holiday is actually marked in this world, so the player can take part in it.
 - essence: one or two sentences — what the day means to people here and its mood.

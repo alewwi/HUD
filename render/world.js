@@ -7,13 +7,13 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { кнопкаПодсказки } from './erase-button.js?v=23.89.64';
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.89.64';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.64';
-import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.89.64';
-import { видБлока } from './views.js?v=23.89.64';
-import { settings } from '../settings.js?v=23.89.64';
-import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.64';
+import { кнопкаПодсказки } from './erase-button.js?v=23.89.65';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.89.65';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.65';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.89.65';
+import { видБлока } from './views.js?v=23.89.65';
+import { settings } from '../settings.js?v=23.89.65';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.65';
 
 // Заголовки разделов «Мира» по эпохе: в средневековье нет «новостей»,
 // «афиши» и «комментариев Сети» — есть глашатай, ярмарки и пересуды.
@@ -29,8 +29,8 @@ const СРЕДНЕВЕКОВЬЕ = {
   '💬 Комментарии Сети': '💬 Пересуды',
 };
 const З = (заголовок) => (старина() && СРЕДНЕВЕКОВЬЕ[заголовок]) || заголовок;
-import { знакЗодиака } from '../i18n.js?v=23.89.64';
-import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.89.64';
+import { знакЗодиака } from '../i18n.js?v=23.89.65';
+import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.89.65';
 
 // Вид блока «Мира» из «Кастомизации»: новый — если выбран и собрался,
 // иначе прежний (render/world-views.js).
@@ -178,10 +178,15 @@ function parseWorldComment(raw) {
 export function buildWorldHTML(worldData, uid, isChecked, showComments, подГазетами = '', доп = {}) {
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-world-container"><div class="hud-world-scroll">`;
   if (!worldData || !Object.values(worldData).some(arr => Array.isArray(arr) && arr.length > 0)) {
-    return html + (подГазетами || `<div class="hud-world-empty">🌍 В этом снимке мира пока нет записей.</div>`) + `</div></div>`;
+    // Правила места (render/place-lore.js) живут в чате, а не в снимке хода: видны и без записей мира.
+    let место = '';
+    if (доп.место) { try { место = доп.место() || ''; } catch (e) { console.warn('[TavernOS HUD] Правила места:', e); } }
+    return html + место + (подГазетами || (место ? '' : `<div class="hud-world-empty">🌍 В этом снимке мира пока нет записей.</div>`)) + `</div></div>`;
   }
   // Фракции и репутация (render/factions.js) — первыми, над газетами: кто и как к вам относится.
   if (доп.фракции) { try { html += доп.фракции() || ''; } catch (e) { console.warn('[TavernOS HUD] Фракции:', e); } }
+  // Правила и власть места (средневековье, render/place-lore.js) — сразу под фракциями.
+  if (доп.место) { try { html += доп.место() || ''; } catch (e) { console.warn('[TavernOS HUD] Правила места:', e); } }
   const headlineTitles = [];
   if (worldData.headlines && worldData.headlines.length > 0) {
     const статьи = worldData.headlines.map((hl, idx) => {

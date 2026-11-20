@@ -13,9 +13,10 @@
 // уязвимом положении, поэтому по умолчанию оно под покрывалом
 // (underwearVeil): открывается нажатием.
 
-import { escapeHtml, applyTooltips, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.64';
-import { settings } from '../settings.js?v=23.89.64';
-import { ико } from './view-icons.js?v=23.89.64';
+import { escapeHtml, applyTooltips, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.65';
+import { settings } from '../settings.js?v=23.89.65';
+import { старина } from '../era.js?v=23.89.65';
+import { ико } from './view-icons.js?v=23.89.65';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const пусто = (s) => !s || /^(empty|none|нет|—|-)$/i.test(s.trim());
@@ -61,7 +62,7 @@ export function разобратьБельё(value) {
 const ВЕЩИ = [
   ['body', /боди|корсет|комбинац|пеньюар|негляж|bodysuit|teddy|corset|basque|bustier|slip dress|negligee/i],
   ['bra', /бюстгальт|лифчик|(?<![а-яё])лиф(?![а-яё])|бралет|(?<![а-яё])бра(?![а-яё])|(?<![a-z])bra(?![a-z])|bralette|push-?up/i],
-  ['boxers', /боксер|боксёр|трусы-шорты|семейник|(?<![a-z])boxers?(?![a-z])|trunks/i],
+  ['boxers', /боксер|боксёр|трусы-шорты|семейник|(?<![а-яё])брэ|braies|(?<![a-z])boxers?(?![a-z])|trunks/i],
   ['thong', /стринг|танга|тонг|thong|g-string/i],
   ['briefs', /брифы|плавк|джок|(?<![а-яё])трусы(?![а-яё])|briefs|jockstrap/i],
   ['panties', /трусик|трусики|слипы|кюлот|шортик|panties|knickers|cheeky|bikini|hipster/i],
@@ -103,7 +104,10 @@ let счётчикId = 0;
 function силуэты(б, пол) {
   const fill = б.цвет || 'var(--hud-accent, #d96a8a)';
   const гаснет = б.состояние === 'off' || б.состояние === 'lost' ? .3 : б.состояние === 'moved' ? .65 : 1;
-  const вещи = б.сорочка ? ['chemise'] : вещиБелья(б.комплект, пол);
+  // Средневековье без названных вещей («льняное», «простое»): у женщины
+  // сорочка, у мужчины брэ (силуэт свободных трусов), а не бюстгальтер с трусиками.
+  const названо = ВЕЩИ.some(([, rx]) => rx.test(String(б.комплект || '').replace(/ё/gi, 'е').toLowerCase()));
+  const вещи = б.сорочка ? ['chemise'] : старина() && !названо ? [пол === 'm' ? 'boxers' : 'chemise'] : вещиБелья(б.комплект, пол);
   const id = 'hud-un-g' + (++счётчикId);
   const клетки = вещи.map((к, i) => {
     const ф = ФОРМЫ[к];

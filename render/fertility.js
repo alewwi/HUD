@@ -157,7 +157,7 @@ export function видКормления(текст) {
   const s = String(текст || '').toLowerCase();
   if (/смесь|бутылоч|formula|bottle|искусствен/.test(s) && /груд|breast/.test(s)) return 'mixed';
   if (/смешан|mixed/.test(s)) return 'mixed';
-  if (/смесь|бутылоч|formula|bottle|искусствен|не кормит/.test(s)) return 'formula';
+  if (/смесь|бутылоч|formula|bottle|искусствен|кормилиц|wet.?nurse|не кормит/.test(s)) return 'formula';
   return 'breast';
 }
 

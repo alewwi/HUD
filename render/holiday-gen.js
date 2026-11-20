@@ -12,13 +12,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.64';
-import { settings } from '../settings.js?v=23.89.64';
-import { старина, заклинанияВМире, дарыВМире, магияСкрыта } from '../era.js?v=23.89.64';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.64';
-import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.64';
-import { праздникиГода } from './holidays.js?v=23.89.64';
-import { т, английский, языкЗначенийМодели } from '../i18n.js?v=23.89.64';
+import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.65';
+import { settings } from '../settings.js?v=23.89.65';
+import { старина, заклинанияВМире, дарыВМире, магияСкрыта, магияВМире, технологии } from '../era.js?v=23.89.65';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.65';
+import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.65';
+import { праздникиГода } from './holidays.js?v=23.89.65';
+import { т, английский, языкЗначенийМодели } from '../i18n.js?v=23.89.65';
 
 export const ЖДЁМ_МС = 180000;
 export const ЛОР_СИМВОЛОВ = 40000;
@@ -40,12 +40,18 @@ export function своиЛорбуки(ctx) {
 }
 
 /** Промпт: что и в каком виде вернуть. */
-// Эпоха для модели: средневековье и какое фэнтези (era.js). Обычная современность — пусто.
+// Мир для модели одной короткой строкой — во всех отдельных запросах (праздники,
+// ярмарки, «Как празднуют», подготовка, правила места): «Era: …. Technology: ….
+// Magic: ….» — из настроек эпохи (era.js). Магия — в мире, а не облик: скрытая
+// магия тоже меняет праздники и порядки.
+const ТЕХ_КРАТКО = {
+  auto: 'as the character card and lorebook say', primitive: 'primitive — stone, bronze, fire', preindustrial: 'pre-industrial — crafts, iron, horses, sail; no engines',
+  industrial: 'industrial — steam, railways, telegraph', modern: 'modern — cars, phones, internet', future: 'beyond today — advanced AI, space travel',
+};
 export function эпохаПраздников() {
-  // Магия в мире (era.js), а не облик: скрытая магия тоже даёт свои праздники.
-  const магия = (заклинанияВМире() ? 'fantasy with spells and enchanted things' : дарыВМире() ? 'grounded fantasy: innate elemental gifts and spirits, no spells or magic tools' : '') + (магияСкрыта() ? ', magic hidden from ordinary society' : '');
-  if (!старина() && !магия) return '';
-  return [старина() ? 'medieval' : 'modern', магия].filter(Boolean).join(', ');
+  const магия = !магияВМире() ? 'none'
+    : (заклинанияВМире() ? 'spells and enchanted things' : дарыВМире() ? 'innate elemental gifts and spirits, no spells or magic tools' : 'present') + (магияСкрыта() ? ', hidden from ordinary society' : ', known to all');
+  return `Era: ${старина() ? 'medieval' : 'modern'}. Technology: ${ТЕХ_КРАТКО[технологии()] || ТЕХ_КРАТКО.auto}. Magic: ${магия}.`;
 }
 /** Язык ответа модели — как у значений HUD в настройках расширения: русский, английский или язык таблицы перевода. */
 export const языкПраздников = () => языкЗначенийМодели() || (английский() ? 'English' : 'Russian');
@@ -63,8 +69,8 @@ export function промптПраздников({ карточка = '', пер
 
 Make a list of holidays, festivals and notable dates that the people of this story's world mark.
 - If these materials come from a known fandom or setting, use its canon holidays first. Where canon gives none or too few, invent new ones that would fit the canon, with nods to its lore — places, history, beliefs, famous people and events — so they feel like they could be canon.
-- If the world is original, rely only on these materials and invent holidays that grow out of them.
-- Mix big public holidays with smaller local or personal ones when the world suggests them.${желание ? '\n- The player asked for this list: see <player_wish>. Choose and invent holidays that match the wish first, as far as the world allows; the wish never overrides the canon or the world\'s facts.' : ''}${дата ? `\n- The story's date now: ${дата}.` : ''}${эпоха ? `\n- Era: ${эпоха}.` : ''}
+- If the world is original, rely only on these materials and invent holidays that grow out of them.${!карточка && !персона && !лор ? '\n- There are no materials about the world: invent holidays that fit its era, technology and magic below.' : ''}
+- Mix big public holidays with smaller local or personal ones when the world suggests them.${желание ? '\n- The player asked for this list: see <player_wish>. Choose and invent holidays that match the wish first, as far as the world allows; the wish never overrides the canon or the world\'s facts.' : ''}${дата ? `\n- The story's date now: ${дата}.` : ''}${эпоха ? `\n- ${эпоха}` : ''}
 - Give each date on the story's calendar as day and month, "DD.MM". If the world has its own months, map each holiday to a fitting day and month. A one-time event (not repeated every year) gets "DD.MM.YYYY" and "yearly": false.
 - Write names and descriptions in ${язык}, whatever language the materials are in. A canon holiday keeps the name it is known by in ${язык}.
 - ${сколько > 0 ? `Exactly ${сколько} ${сколько === 1 ? 'holiday' : 'holidays'}.` : 'As many as the materials support — usually 5 to 12.'}
@@ -72,6 +78,27 @@ Make a list of holidays, festivals and notable dates that the people of this sto
 Answer with JSON only, no other text:
 [{"date": "DD.MM", "name": "holiday name", "about": "one short sentence: what is celebrated and how", "yearly": true}]`;
   const system = 'You are a careful lore researcher for an ongoing roleplay story. You read the given materials and return structured data only.';
+  return { system, user };
+}
+
+/** Промпт ярмарок (средневековье): тот же ответ, что у праздников, — список с датами. */
+export function промптЯрмарок({ карточка = '', персона = '', лор = '', дата = '', сколько = 0, эпоха = '', язык = 'Russian', пожелание = '' } = {}) {
+  const блоки = [];
+  const желание = String(пожелание || '').trim().slice(0, 300);
+  if (желание) блоки.push(`<player_wish>\n${желание}\n</player_wish>`);
+  if (карточка) блоки.push(`<character_card>\n${карточка}\n</character_card>`);
+  if (персона) блоки.push(`<player_persona>\n${персона}\n</player_persona>`);
+  if (лор) блоки.push(`<lorebook>\n${лор}\n</lorebook>`);
+  const user = `${блоки.length ? блоки.join('\n\n') + '\n\n' : ''}Make a list of fairs and market gatherings held in this story's world — big seasonal fairs, horse and cattle fairs, feast-day fairs, river or crossroads markets.
+- ${блоки.length ? 'Use the materials: places, trades, roads and customs of this world. A canon fair from a known setting comes first.' : 'There are no materials about the world: invent fairs that fit its era, technology and magic below.'}
+- A fair is a window of opportunity: for each, say who comes (rare craftsmen, buyers, storytellers, carters, hirers) and what one can do there that is hard on other days.${желание ? '\n- The player asked for something: see <player_wish>. Follow it as far as the world allows.' : ''}${дата ? `\n- The story's date now: ${дата}.` : ''}${эпоха ? `\n- ${эпоха}` : ''}
+- Give each date as day and month, "DD.MM" — the first day of the fair. A one-time fair gets "DD.MM.YYYY" and "yearly": false.
+- Write names and descriptions in ${язык}.
+- ${сколько > 0 ? `Exactly ${сколько} ${сколько === 1 ? 'fair' : 'fairs'}.` : 'Usually 3 to 8.'}
+
+Answer with JSON only, no other text:
+[{"date": "DD.MM", "name": "fair name", "about": "one short sentence: who comes and what one can do there", "yearly": true}]`;
+  const system = 'You are a worldbuilder for an ongoing roleplay story. You invent concrete, playable details that fit the world, and return structured data only.';
   return { system, user };
 }
 
@@ -153,7 +180,8 @@ export async function открытьГенераторПраздников({ д�
     <div class="hud-modal hud-holgen" role="dialog" aria-modal="true" aria-label="Праздники мира">
       <div class="hud-modal-head"><span class="hud-holgen-orb" aria-hidden="true"></span><span class="hud-holgen-title">Праздники мира<small>модель найдёт канон или придумает своё — вы выберете, что взять</small></span><button type="button" class="hud-modal-x" aria-label="Закрыть">✕</button></div>
       <div class="hud-modal-body">
-        <div class="hud-holgen-sec"><span class="hud-holgen-lbl">Откуда брать контекст</span>
+        ${старина() && settings.enableFairs !== false ? `<div class="hud-holgen-sec"><span class="hud-holgen-lbl">${подпись('Что искать')}</span><div class="hud-holgen-src hud-holgen-mode" role="group"><button type="button" class="hud-holgen-toggle" data-mode="holidays" aria-pressed="true">🎉 ${подпись('Праздники')}</button><button type="button" class="hud-holgen-toggle" data-mode="fairs" aria-pressed="false">🎪 ${подпись('Ярмарки')}</button></div></div>` : ''}
+        <div class="hud-holgen-sec"><span class="hud-holgen-lbl">Откуда брать контекст <small>${подпись('необязательно')}</small></span>
           <div class="hud-holgen-src" role="group" aria-label="Откуда брать контекст">
             <button type="button" class="hud-holgen-toggle" data-src="holidayUseLore" aria-pressed="${источник('holidayUseLore')}">📚 Лорбук</button>
             <button type="button" class="hud-holgen-toggle" data-src="holidayUsePersona" aria-pressed="${источник('holidayUsePersona')}">👤 Персона</button>
@@ -196,12 +224,12 @@ export async function открытьГенераторПраздников({ д�
   const есть = окно.querySelector('.hud-holgen-have');
   const встроенные = окно.querySelector('.hud-holgen-era');
   const кнопка = окно.querySelector('.hud-holgen-run');
-  let отмена = null, найдено = [];
+  let отмена = null, найдено = [], режим = 'holidays';
 
   const даты = (п) => `<span class="hud-holgen-date"><b>${escapeHtml(п.дата.slice(0, 5))}</b><small>${п.ежегодно ? 'каждый год' : escapeHtml(п.дата.slice(6) || 'один раз')}</small></span>`;
   const показатьЕсть = () => {
     const список = праздникиМира();
-    есть.innerHTML = список.length ? `<div class="hud-holgen-lbl">Уже в календаре · ${список.length}</div><ul class="hud-holgen-list is-have">${список.map(п => `<li data-id="${escapeHtml(п.id)}">${даты(п)}<span class="hud-holgen-name"><b>${escapeHtml(п.имя)}</b>${п.о ? `<small>${escapeHtml(п.о)}</small>` : ''}</span><button type="button" class="hud-holgen-del" aria-label="Убрать из календаря" title="Убрать из календаря">✕</button></li>`).join('')}</ul>` : '';
+    есть.innerHTML = список.length ? `<div class="hud-holgen-lbl">Уже в календаре · ${список.length}</div><ul class="hud-holgen-list is-have">${список.map(п => `<li data-id="${escapeHtml(п.id)}">${даты(п)}<span class="hud-holgen-name"><b>${п.ярмарка ? '🎪 ' : ''}${escapeHtml(п.имя)}</b>${п.о ? `<small>${escapeHtml(п.о)}</small>` : ''}</span><button type="button" class="hud-holgen-del" aria-label="Убрать из календаря" title="Убрать из календаря">✕</button></li>`).join('')}</ul>` : '';
   };
   const показатьВстроенные = () => {
     if (!встроенные) return;
@@ -249,7 +277,16 @@ export async function открытьГенераторПраздников({ д�
   окно.addEventListener('click', (e) => {
     const t = e.target.closest('button');
     if (!t) return;
-    if (t.matches('.hud-holgen-toggle')) {
+    if (t.dataset.mode) {
+      режим = t.dataset.mode;
+      окно.querySelectorAll('[data-mode]').forEach(б => б.setAttribute('aria-pressed', String(б === t)));
+      найдено = []; показатьНайдено(); статус.textContent = '';
+      const ярм = режим === 'fairs';
+      const подписьСколько = окно.querySelector('.hud-holgen-count')?.closest('label')?.querySelector('.hud-holgen-lbl');
+      if (подписьСколько) подписьСколько.textContent = т(ярм ? 'Сколько ярмарок' : 'Сколько праздников');
+      const желание = окно.querySelector('.hud-holgen-wish');
+      if (желание) желание.placeholder = т(ярм ? 'Например: конская ярмарка у переправы, ярмарка после жатвы' : 'Например: праздники, связанные с семьёй, или памятные даты');
+    } else if (t.matches('.hud-holgen-toggle')) {
       const вкл = t.getAttribute('aria-pressed') !== 'true';
       t.setAttribute('aria-pressed', String(вкл));
       settings[t.dataset.src] = вкл; сохранитьНастройки();
@@ -282,8 +319,8 @@ export async function открытьГенераторПраздников({ д�
     if (отмена) { отмена.abort(); return; }
     const ctx2 = контекст();
     if (!ctx2) { статус.textContent = 'Таверна ещё не готова'; return; }
+    // Источники необязательны: без них модель придумывает по эпохе и пожеланию.
     const лорВкл = источник('holidayUseLore'), персонаВкл = источник('holidayUsePersona'), картаВкл = источник('holidayUseCard');
-    if (!лорВкл && !персонаВкл && !картаВкл) { статус.textContent = 'Выберите хотя бы один источник'; return; }
     отмена = new AbortController();
     const { signal } = отмена;
     найдено = [];
@@ -302,8 +339,7 @@ export async function открытьГенераторПраздников({ д�
         signal.throwIfAborted();
         лор = записи.map(к => `## ${к.name}\n${к.entries.join('\n\n')}`).join('\n\n').slice(0, ЛОР_СИМВОЛОВ);
       }
-      if (!карта && !персона && !лор) throw new Error('в выбранных источниках пусто — нечего читать');
-      const { system, user } = промптПраздников({
+      const { system, user } = (режим === 'fairs' ? промптЯрмарок : промптПраздников)({
         карточка: карта ? `${карта.name}\n${карта.text}` : '', персона, лор, дата,
         сколько: parseInt(settings.holidayCount, 10) || 0, эпоха: эпохаПраздников(), язык: языкПраздников(),
         // Пожелание берём прямо из поля: «Сгенерировать» могли нажать, не уйдя из него.
@@ -319,8 +355,8 @@ export async function открытьГенераторПраздников({ д�
         new Promise((_, reject) => signal.addEventListener('abort', () => reject(signal.reason), { once: true })),
       ]).finally(() => clearTimeout(таймерОжидания));
       signal.throwIfAborted();
-      найдено = разобратьПраздники(текстОтвета(raw));
-      if (!найдено.length) throw new Error('в ответе модели не нашлось праздников в нужном виде — попробуйте ещё раз или другой профиль');
+      найдено = разобратьПраздники(текстОтвета(raw)).map(п => (режим === 'fairs' ? { ...п, ярмарка: true } : п));
+      if (!найдено.length) throw new Error(режим === 'fairs' ? 'в ответе модели не нашлось ярмарок в нужном виде — попробуйте ещё раз или другой профиль' : 'в ответе модели не нашлось праздников в нужном виде — попробуйте ещё раз или другой профиль');
       статус.textContent = '';
       показатьНайдено();
     } catch (e) {
