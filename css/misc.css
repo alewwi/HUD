@@ -516,6 +516,8 @@
   background: color-mix(in srgb, var(--hud-card-solid, #14141c) 97%, transparent); -webkit-backdrop-filter: blur(18px) saturate(1.1); backdrop-filter: blur(18px) saturate(1.1);
   box-shadow: 0 10px 30px rgba(0,0,0,.45), inset 0 0 0 1px color-mix(in srgb, var(--hud-accent, #8c5ad2) 40%, transparent);
 }
+/* Тень букв Таверны (body text-shadow) на светлом меню расплывалась в тёмное пятно. */
+.hud-link-menu, .hud-link-menu * { text-shadow: none !important; }
 .hud-link-menu-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 4px; }
 .hud-link-menu-head button { padding: 2px 8px; border-radius: 7px; border: 1px solid color-mix(in srgb, currentColor 24%, transparent); background: transparent; color: inherit; font: inherit; font-size: 11px; cursor: pointer; }
 .hud-link-menu-sec { display: flex; flex-direction: column; padding: 3px 0; border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent); }
@@ -7757,3 +7759,33 @@ html.hud-scheme-light .hud-mw-know.is-guess { --kn: #8f6a14; }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) { .hud-dsp-cmp { grid-template-columns: minmax(0, 1fr); } } }
 /* cq ↑ */
+
+/* Граф отношений тёмный при любой теме. Светлые темы давали ему свои тёмные буквы
+   (кнопки «Связи», «Всё дерево», масштаб) и белую тень под буквами — на тёмном
+   фоне подписи узлов («сестра · Марк») расплывались, как зачёркнутые. Здесь —
+   светлые буквы, без тени, подписи плотнее. */
+.hud-rel-graph.hud-rel-graph { color: #ece6f6; }
+.hud-rel-graph, .hud-rel-graph * { text-shadow: none !important; }
+.hud-rel-graph.hud-rel-graph :is(.hud-rel-mode:not(.is-active), .hud-fam-zoom-btn) { color: #ece6f6; }
+.hud-rel-graph .hud-rel-mode:not(.is-active) { opacity: .82; }
+.hud-rel-graph .hud-rel-heading small { color: rgba(226,232,240,.76); opacity: 1; }
+.hud-rel-graph .hud-rel-inspector-sub { color: rgba(226,232,240,.74); }
+.hud-rel-graph .hud-fam-role { fill: rgba(226,232,240,.8); }
+.hud-rel-graph .hud-rel-role { fill: rgba(226,232,240,.72); }
+.hud-rel-graph .hud-fam-branch { color: color-mix(in srgb, var(--hud-accent, #d8b4fe) 55%, #fff); }
+
+/* Память и Быт: бледные подписи. Таверна гасит голый <small> до .7, а приглушённый
+   цвет (--v-ink-soft, 62% от текста) и так полупрозрачный — вместе выходило .4 от цвета текста, и подписи
+   («гриф», «в силе», имена в шапке секретов, «ели», «душ») почти пропадали. */
+:is(.hud-memory-body, .hud-life) { --hud-text-muted: color-mix(in srgb, var(--hud-text) 80%, transparent); }
+.hud-memory-body .hud-v, .hud-life.hud-v, .hud-life .hud-v { --v-ink-soft: color-mix(in srgb, currentColor 80%, transparent); }
+:is(.hud-memory-body, .hud-life) small { opacity: 1; }
+.hud-memory-body .hud-v-person:not(.is-k) { opacity: .78; }
+.hud-memory-body .hud-v-people-lbl { opacity: .82; }
+.hud-memory-body .hud-vp-pair-pill.is-broken { opacity: .82; }
+/* Билеты маршрута: светлые буквы на основании цвета акцента — без лишней прозрачности. */
+.hud-memory-body .hud-v-ticket :is(.stub small, .main small, .way span, .no) { opacity: .95; }
+/* Обещания на светлых темах: «сдержано» и «срок прошёл» светло-зелёным и розовым на
+   светлой плашке не читались — тона глубже. */
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-vp-pair-pill.is-kept small { color: #237a46; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-vp-pair-pill.is-overdue small { color: #b3322b; }

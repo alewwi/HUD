@@ -9,12 +9,12 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.70';
-import { settings } from '../settings.js?v=23.89.70';
-import { namesLikelySame } from '../names.js?v=23.89.70';
-import { раскрывашка } from './fold.js?v=23.89.70';
-import { видМираСтарины } from './medieval-views.js?v=23.89.70';
-import { видБлока } from './views.js?v=23.89.70';
+import { escapeHtml } from '../utils.js?v=23.89.71';
+import { settings } from '../settings.js?v=23.89.71';
+import { namesLikelySame } from '../names.js?v=23.89.71';
+import { раскрывашка } from './fold.js?v=23.89.71';
+import { видМираСтарины } from './medieval-views.js?v=23.89.71';
+import { видБлока } from './views.js?v=23.89.71';
 
 /** «Гильдия | Лилиан | 80 | уважают | за что» → { кто, к, число, как, почему }. */
 export function разобратьФракцию(строка) {

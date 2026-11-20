@@ -50,7 +50,7 @@
 .hud-life-timer-text b { font-size: var(--hud-fs-lg); font-weight: 700; overflow-wrap: break-word; }
 .hud-life-timer .hud-v-segments { grid-area: seg; }
 .hud-life-timer .hud-v-segments > i { height: 5px; }
-.hud-life-timer.is-none { opacity: .55; filter: saturate(.4); }
+.hud-life-timer.is-none { opacity: .78; filter: saturate(.4); }
 .hud-life-nudge { position: absolute; animation: hud-life-nudge 2.6s ease-in-out infinite; }
 @keyframes hud-life-nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
 @media (prefers-reduced-motion: reduce) { .hud-life-nudge { animation: none; } }
@@ -334,6 +334,9 @@
 /* «Надо бы» — над краем плитки, не на подписи таймера. */
 .hud-life-nudge { top: -11px; right: 6px; font-size: .6em; padding: 0 7px; }
 .hud-life-timer:has(.hud-life-nudge) { margin-top: 4px; }
+/* В ленте, что листается вбок (compact.css, is-capped-x), всё выше края обрезается:
+   «нельзя» и «надо бы» уплывали вверх и срезались. Место под них — сверху. */
+.hud-os-card .hud-life-timers.is-capped-x:has(.hud-life-nudge) { padding-top: 13px !important; }
 /* Счётчик в плашке суток — белым на тёмном акценте: розовое на белом не читалось. */
 .hud-life-day-ev b { color: #fff; background: color-mix(in srgb, var(--v-acc) 70%, #000); box-shadow: 0 0 0 1px rgba(255,255,255,.35); font-size: var(--hud-fs-xs); }
 .hud-life-dial .ev circle.n { fill: color-mix(in srgb, var(--v-acc) 70%, #000); stroke: rgba(255,255,255,.5); stroke-width: .4; }
@@ -367,7 +370,8 @@
 .hud-life-fights li > .hud-v-ico { flex: none; width: 14px; height: 14px; margin-top: 1px; color: var(--life-wound, #e06a5a); }
 .hud-life-fights li > span { min-width: 0; overflow-wrap: break-word; }
 .hud-life-fights time { font-weight: 700; margin-right: 4px; }
-.hud-life-nudge.is-wound { background: color-mix(in srgb, var(--life-wound, #e06a5a) 55%, #000); color: #fff; }
+/* Тема (themes/light.css) красит .hud-v-tag светлым — «нельзя» выходило золотым на белом. */
+.hud-life-timer .hud-life-nudge.is-wound { background: color-mix(in srgb, var(--life-wound, #e06a5a) 55%, #000) !important; color: #fff !important; border-color: transparent; }
 .hud-cb-heal { color: #6fcf8f; font-weight: 650; }
 
 /* Гардероб → погода: подсказка, а «нечего» — находка для сюжета. */

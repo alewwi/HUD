@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.70**:
+The latest version is **23.89.71**:
 
+- Medieval views are as transparent and blurred as the other blocks, with entries on a sheet a little denser; holidays, fairs and preparation use the theme colour; "Not allowed" in Daily life is no longer cut off; the "World holidays" window, the "Settings for this spot" menu, the relationship graph on light themes and pale captions in Memory and Daily life are readable.
 - Medieval life, each part behind its own toggle: honour, delayed news right in the World news, charters with their rights, mounts and pack animals, supplies, faith and the Church (or the old gods), marriage and children's legitimacy (with a mark in the family tree), humours, wounds without antiseptics in Illnesses and injuries, household and courts. Any medieval part can be switched off and goes back to the modern behaviour; the Customization sample is filled in and ✎ editing knows the new blocks. A horse gets a horse portrait.
 - "nc" expands again for babies: a turn with full keys ("Имя", "Одежда"…) is read and saved in codes, and older turns are fixed when shown.
 - A letter's seal depends only on the letter itself: a letter from the previous turn's snapshot keeps its seal. The Almanac calendar: the "today" ring around the number, readable event times, an edgeless month plate, and a readable "Today" line and enchanted calendar on any theme. Original letters, the Casket buttons and lid are readable; checked live on desktop and phone.

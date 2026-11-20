@@ -224,11 +224,11 @@
    Кнопка в календаре, окно генератора и плашка «начать подготовку?». */
 .hud-cal .hud-cal-gen {
   display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 3px 9px 3px 7px; border-radius: var(--hud-r-chip, 999px);
-  font-size: 10.5px; font-weight: 600; line-height: 1.3; color: #c59bff; opacity: .78;
-  border: 1px dashed color-mix(in srgb, #c59bff 45%, transparent); transition: opacity .15s ease, background-color .15s ease;
+  font-size: 10.5px; font-weight: 600; line-height: 1.3; color: color-mix(in srgb, var(--hud-accent, #c59bff) 55%, #fff); opacity: .9;
+  border: 1px dashed color-mix(in srgb, var(--hud-accent, #c59bff) 55%, transparent); transition: opacity .15s ease, background-color .15s ease;
 }
 .hud-cal .hud-cal-gen svg { width: 13px; height: 13px; fill: currentColor; }
-@media (hover: hover) and (pointer: fine) { .hud-cal .hud-cal-gen:hover { opacity: 1; background: color-mix(in srgb, #c59bff 14%, transparent); } }
+@media (hover: hover) and (pointer: fine) { .hud-cal .hud-cal-gen:hover { opacity: 1; background: color-mix(in srgb, var(--hud-accent, #c59bff) 16%, transparent); } }
 
 /* Цвет окна — акцент темы: сиреневый был чужим почти во всех темах. */
 .hud-holgen { --hg: var(--hud-accent, #c59bff); width: min(560px, 100%); min-width: 0; max-width: 100%; box-sizing: border-box; }
@@ -308,7 +308,7 @@
 
 /* Плашка над вкладками: праздник мира скоро, начать подготовку? */
 .hud-holprep {
-  --hp: #c59bff;
+  --hp: var(--hud-accent, #c59bff);
   margin: 0 0 8px; padding: 9px 12px 10px 14px; border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--hp) 40%, transparent);
   background: radial-gradient(130% 160% at 0 0, color-mix(in srgb, var(--hp) 18%, transparent), transparent 62%), var(--hud-card-inner-bg, rgba(0, 0, 0, .26));
@@ -320,7 +320,9 @@
 .hud-holprep-ico svg .star { fill: currentColor; stroke: none; }
 .hud-holprep-what { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; text-align: left; }
 .hud-holprep-what b { font-size: 13px; line-height: 1.3; overflow-wrap: break-word; }
-.hud-holprep-what small { font-size: 11px; opacity: .7; }
+.hud-holprep-what small { font-size: 11px; opacity: .78; }
+/* Голый <small> Таверна красит своим цветом с прозрачностью — на плашке он бледнел. */
+.hud-holprep small, .hud-holday small { color: inherit; }
 .hud-holprep-fold .hud-fold-chev { color: var(--hp); }
 .hud-holprep-about { margin: 8px 0 0; padding-left: 9px; border-left: 2px solid color-mix(in srgb, var(--hp) 45%, transparent); font-size: 12px; line-height: 1.4; opacity: .85; }
 .hud-holprep-ask { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 9px; font-size: 12px; }
@@ -329,7 +331,7 @@
   padding: 4px 11px; border-radius: 999px; font: inherit; font-size: 11.5px; white-space: nowrap; cursor: pointer; color: var(--hud-text, inherit);
   background: rgba(127, 127, 127, .12); border: 1px solid color-mix(in srgb, var(--hp) 40%, transparent);
 }
-.hud-holprep-ask button[data-hud-holprep="gen"] { color: #1a0f2a; font-weight: 650; border-color: transparent; background: linear-gradient(135deg, #e3cdff, var(--hp)); }
+.hud-holprep-ask button[data-hud-holprep="gen"] { color: #1a0f2a; font-weight: 650; border-color: transparent; background: linear-gradient(135deg, color-mix(in srgb, var(--hp) 30%, #fff), color-mix(in srgb, var(--hp) 58%, #fff)); }
 .hud-holprep-ask .done { color: #7fd49a; }
 /* На узкой карточке кнопки встают друг под другом и переносят текст: овал не нужен. */
 @media (max-width: 600px) {
@@ -385,10 +387,10 @@
 .hud-prepgen-opt { display: flex; align-items: flex-start; gap: 7px; cursor: pointer; }
 .hud-prepgen-opt input { margin-top: 2px; flex: none; }
 .hud-prepgen-buttons { display: flex; justify-content: flex-end; gap: 8px; }
-.hud-prepgen-buttons .hud-prepgen-ok { font-weight: 650; color: #1a0f2a; border-color: transparent; background: linear-gradient(135deg, #e3cdff, var(--hg)); }
+.hud-prepgen-buttons .hud-prepgen-ok { font-weight: 650; color: #1a0f2a; border-color: transparent; background: linear-gradient(135deg, color-mix(in srgb, var(--hg) 30%, #fff), color-mix(in srgb, var(--hg) 58%, #fff)); }
 .hud-prepgen-ok[hidden], .hud-prepgen-result[hidden], .hud-prepgen-books[hidden] { display: none; }
-:root:is(.hud-scheme-light, .hud-kinds-light) .hud-holprep { --hp: #7a4ab8; }
-:root:is(.hud-scheme-light, .hud-kinds-light) .hud-cal .hud-cal-gen { color: #7a4ab8; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-holprep { --hp: color-mix(in srgb, var(--hud-accent, #7a4ab8) 72%, #1c1214); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-cal .hud-cal-gen { color: color-mix(in srgb, var(--hud-accent, #7a4ab8) 62%, #1c1214); }
 
 /* =========================================================================
    Фракции: виды (render/factions.js, factionsView). Цвет отношения — --rep

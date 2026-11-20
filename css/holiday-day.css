@@ -16,7 +16,7 @@
 .hud-holday-cards:empty { display: none; }
 .hud-holday-card { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 9px; align-items: start; padding: 10px 11px; border-radius: 12px; min-width: 0;
   background: color-mix(in srgb, var(--hc, var(--hg, #c59bff)) 12%, rgba(0, 0, 0, .18)); border: 1px solid color-mix(in srgb, var(--hc, var(--hg, #c59bff)) 34%, transparent); }
-.hud-holday-card.is-essence { grid-column: 1 / -1; --hc: #c59bff; }
+.hud-holday-card.is-essence { grid-column: 1 / -1; --hc: var(--hud-accent, #c59bff); }
 /* Событие — тоже во всю ширину: обычай и место парой посередине, без пустой клетки. */
 .hud-holday-card.is-event, .hud-holday-card.is-wide { grid-column: 1 / -1; }
 .hud-holday-card.is-custom { --hc: #ffc56b; }

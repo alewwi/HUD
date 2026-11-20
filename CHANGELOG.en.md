@@ -4,6 +4,20 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.71 — 2026-11-20
+
+### Changed
+- **Medieval views get the same background as the other blocks.** Casket and World sheets and the Tavern board keep their own colour but are exactly as transparent as the blocks in the theme settings, and blur what lies under them. The World section no longer lays its own backing under a sheet: two layers made it almost solid. Entries on a sheet (news, rumours, letters, charters, notes) are a little denser than the sheet so they stand out. Sheets that are dark by design stay at least 80% opaque on light themes so their light letters stay readable.
+- **Holidays, fairs and preparation use the theme colour.** The "World holidays" window, the calendar button, the preparation cards and the "Yes, generate a preparation" button are no longer lilac; the buttons stay light with any accent.
+
+### Fixed
+- **"Not allowed" in Daily life** no longer drifts up and gets cut off in the timer strip; the badge is dark red with white letters instead of gold on white.
+- **"World holidays" window:** the "every year" date, the holiday description and captions are readable: Tavern made bare small text pale.
+- **The "Settings for this spot" menu** in Customization has no dark shadow under its letters.
+- **Relationship graph** on light themes: the "Links", "Whole tree" and zoom buttons are light, node captions ("sister · Mark") lose the white shadow and are denser, family names are brighter.
+- **Memory and Daily life:** pale captions are denser (the secrecy grade, names in the secrets header, "in force", "ate", "shower", empty timers); on light themes "kept", "overdue" and the secrets grid states are deeper, route tickets drop the extra transparency.
+- On light themes, pills on dark sheets (factions, rumours), the parish calendar footer and "Brought by:" are readable.
+
 ## 23.89.70 — 2026-11-20
 
 ### Added

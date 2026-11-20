@@ -862,7 +862,15 @@
 
 /* Тон фона: на тёмных темах листы темнее и прозрачнее, на светлых — светлее.
    --mv-tone — к чему подмешивать, --mv-alpha — сколько остаётся от фона. */
-.hud-mv { --mv-tone: #0b0910; --mv-tone-amt: 12%; --mv-alpha: 74%; }
+.hud-mv { --mv-tone: #0b0910; --mv-tone-amt: 12%; --mv-alpha: var(--hud-card-inner-alpha, 62%);
+  /* Тёмный по замыслу лист на светлой теме: прозрачность та же, но не ниже 80% —
+     иначе светлые буквы на нём тонут. */
+  --mv-dark-alpha: max(var(--hud-card-inner-alpha, 62%), 80%); }
+/* Фон листа — как у остальных плашек: та же прозрачность (--hud-card-inner-alpha)
+   и размытие того, что под ним (--hud-blur-intensity). Подложку секции Мира
+   под листом не кладём: иначе два полупрозрачных слоя давали почти сплошной. */
+.hud-mv .m-sheet { -webkit-backdrop-filter: blur(var(--hud-blur-intensity, 8px)); backdrop-filter: blur(var(--hud-blur-intensity, 8px)); }
+.hud-mv-section.hud-world-section.hud-world-section { background: none !important; border: 0 !important; box-shadow: none !important; }
 /* Тёмные темы — тёмный лист: ночной пергамент в цвет акцента, тоже полупрозрачный,
    и светлые плотные чернила. Светлый пергамент поверх тёмной карточки выходил
    мутно-серым, и буквы на нём блекли. Рубрика остаётся глубокой для фона и рамок,
@@ -891,11 +899,11 @@
 /* Основание пилюли тёмное: сквозь полупрозрачное письмо просвечивала рамка. У чар — своё свечение. */
 .hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .m-sheet:not(.arc-sheet) :is(small, b, dt, span).m-pill {
   background: linear-gradient(180deg, color-mix(in srgb, var(--pill) 24%, #120b0fd9), color-mix(in srgb, var(--pill) 12%, #120b0fd9)); }
-:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv { --mv-tone: #fffaf2; --mv-tone-amt: 12%; --mv-alpha: 74%; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv { --mv-tone: #fffaf2; --mv-tone-amt: 12%; --mv-alpha: var(--hud-card-inner-alpha, 62%); }
 /* Тёмные по замыслу листы (ларец, свеча, лунное колесо, гербовник, пересуды, чары…)
    на светлых темах остаются тёмными и плотнее: светлый тон делал их сиреневато-
    бежевыми, и светлые буквы на них пропадали. */
-:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv :is(.c-lunar-wheel, .c-candle-note, .c-folded-letters, .c-mail-chest, .c-sealed-charter, .c-town-register, .c-tied-tags, .c-memory-locket, .m-factions, .m-comments, .m-city, .m-meanwhile, .arc-sheet) { --mv-tone: #0b0910; --mv-alpha: 90%; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv :is(.c-lunar-wheel, .c-candle-note, .c-folded-letters, .c-mail-chest, .c-sealed-charter, .c-town-register, .c-tied-tags, .c-memory-locket, .m-factions, .m-comments, .m-city, .m-meanwhile, .arc-sheet, .tavern-board) { --mv-tone: #0b0910; --mv-alpha: var(--mv-dark-alpha); }
 /* Лист дня в календаре — тёмное стекло, как сам календарь: бумага эпохи
    (era-medieval.css) на светлых темах светлая, а буквы календаря светлые. */
 .hud-mv .hud-cal .hud-cal-sheet { background: linear-gradient(160deg, color-mix(in srgb, var(--hud-accent) 10%, #ffffff12), #00000026) !important; }
@@ -1186,8 +1194,8 @@
   background:
     radial-gradient(ellipse at 50% 0, #c98a4c70, transparent 67%),
     repeating-linear-gradient(2deg, transparent 0 5px, #1f0e1460 6px, transparent 8px 12px),
-    repeating-linear-gradient(0deg, transparent 0 63px, #140a10 64px 66px),
-    var(--leather);
+    repeating-linear-gradient(0deg, transparent 0 63px, color-mix(in srgb, #140a10 var(--mv-alpha), transparent) 64px 66px),
+    color-mix(in srgb, var(--leather) var(--mv-alpha), transparent);
   box-shadow: inset 0 0 0 3px #140a11, inset 0 0 24px #150c10, 0 10px 28px #120b0e80;
 }
 .hud-mv .tavern-board-head {
@@ -1563,3 +1571,18 @@
 .hud-mv .arc-sheet .hud-cal { background: linear-gradient(155deg, color-mix(in srgb, color-mix(in srgb, var(--hud-accent) 18%, #161428) 80%, transparent), color-mix(in srgb, #100e1c 74%, transparent) 60%, color-mix(in srgb, color-mix(in srgb, var(--hud-accent) 14%, #161428) 78%, transparent)); }
 .hud-mv .arc-sheet .hud-cal .hud-cal-day.is-past b { color: color-mix(in srgb, currentColor 72%, #8a7f8a); }
 .hud-mv .arc-sheet .hud-cal :is(.hud-cal-chip, .hud-cal-gen) { color: color-mix(in srgb, var(--pill) 34%, #fff); }
+
+/* Блоки с текстом внутри листа чуть плотнее самого листа: лист прозрачен, как
+   остальные плашки, а записи на нём (вести, слухи, письма, грамоты, заметки)
+   выделяются. Подложка ложится под рисунок бумаги (background-color). */
+.hud-mv { --mv-lift: color-mix(in srgb, var(--paper) 55%, transparent); }
+.hud-mv .m-sheet :is(.m-proclamation, .m-scene, .m-decree, .c-notebook-page, .c-loose-note, .silk-packet, .c-hanging, .tube-insert, .c-rolled-doc, .c-tied-tag, figure.c-herbarium, .arc-feather details) { background-color: var(--mv-lift); }
+.hud-mv .m-sheet .m-voice { background-color: color-mix(in srgb, #100b11 calc(25% + var(--mv-alpha) * .3), transparent); }
+.hud-mv .m-sheet.c-mail-chest .c-letter { background-color: #130d18b8; }
+/* Подпись «Весть принёс:» и подвал приходского календаря на светлом листе — плотнее. */
+.hud-mv .m-sheet .hud-news-by, .hud-mv .m-sheet .hud-news-by > i { opacity: 1; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv .c-parish-calendar footer { color: color-mix(in srgb, var(--rubric-ink) 80%, #000); }
+/* Тёмный по замыслу лист на светлой теме: пилюли как на тёмных темах — светлые буквы
+   на тёмном основании (сквозь полупрозрачный лист просвечивала светлая карточка). */
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv :is(.c-lunar-wheel, .c-candle-note, .c-folded-letters, .c-mail-chest, .c-sealed-charter, .c-town-register, .c-tied-tags, .c-memory-locket, .m-factions, .m-comments, .m-city, .m-meanwhile, .tavern-board) :is(small, b, dt, span).m-pill {
+  color: color-mix(in srgb, var(--pill) 30%, #fff); background: linear-gradient(180deg, color-mix(in srgb, var(--pill) 24%, #120b0fe6), color-mix(in srgb, var(--pill) 12%, #120b0fe6)); }
