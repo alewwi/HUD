@@ -1382,11 +1382,12 @@
   border: 3px double #d5ae69;
   text-shadow: 0 1px #422026;
 }
+/* Плашка месяца без краёв: тёплое пятно тает в стекло календаря, а не стоит прямоугольником. */
 .hud-mv .hud-cal-head {
-  padding: .22em .65em;
+  padding: .5em 1.6em;
   color: #ffedbd;
-  border-block: 1px solid var(--bronze);
-  background: radial-gradient(ellipse at bottom, #614436, #332736);
+  border-block: 0 !important;
+  background: radial-gradient(ellipse 50% 50% at 50% 55%, color-mix(in srgb, #6a4a39 92%, transparent) 0%, color-mix(in srgb, #4a3240 70%, transparent) 42%, color-mix(in srgb, #3a2833 30%, transparent) 70%, transparent 100%);
   font-variant: small-caps;
 }
 .hud-mv .hud-cal-day.is-selected {
@@ -1507,7 +1508,7 @@
   border-color: #8a6440; box-shadow: 2px 4px 7px #0a0406c0, inset 0 0 8px #00000040;
 }
 .hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .tavern-notice summary small,
-.hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .tavern-notice-body footer { color: var(--rubric-ink); }
+.hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .tavern-notice-body footer { color: color-mix(in srgb, var(--rubric-ink) 72%, #fff); }
 .hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .tavern-notice summary::after { border-color: currentColor; }
 .hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .tavern-notice-body { border-top-color: #c9a06a55; }
 @media (hover: hover) and (pointer: fine) {
@@ -1547,3 +1548,18 @@
 }
 /* Тёмные по замыслу листы: золото для букв светлее, на любой теме. */
 .hud-mv :is(.c-lunar-wheel, .c-candle-note, .c-folded-letters, .c-mail-chest, .c-sealed-charter, .c-town-register, .c-tied-tags, .c-memory-locket, .m-factions, .m-comments, .m-city) { --gold: color-mix(in srgb, var(--hud-accent) 32%, #fbe6b6); }
+/* Строка «Сегодня» святцев (css/medieval-extra.css) внутри стекла календаря — тёмная
+   на любой теме: буквы календаря здесь светлые, а светлая подложка светлых тем их съедала. */
+.hud-mv :is(.m-sheet, .arc-sheet) .hud-cal .hud-cal-almanac { background: color-mix(in srgb, var(--hud-accent) 16%, rgba(0, 0, 0, .34)); border-color: color-mix(in srgb, var(--hud-accent) 30%, rgba(255, 255, 255, .14)); color: inherit; }
+.hud-mv :is(.m-sheet, .arc-sheet) .hud-cal .hud-cal-almanac > b { opacity: 1; color: color-mix(in srgb, currentColor 78%, #a89a8c); }
+/* Стекло календаря: «сегодня» и время дела — светлые и плотные (у кожи эпохи они рубрикой,
+   тёмно-красной для пергамента, на тёмном стекле их было не прочесть). */
+.hud-mv :is(.m-sheet, .arc-sheet) .hud-cal .hud-cal-day.is-today b { color: color-mix(in srgb, var(--hud-accent) 30%, #ffe4bd) !important; font-weight: 700 !important; }
+.hud-mv :is(.m-sheet, .arc-sheet) .hud-cal .hud-cal-ev-time { color: color-mix(in srgb, var(--hud-accent) 26%, #ffdcab) !important; font-weight: 700; font-size: 13px; font-variant-numeric: lining-nums tabular-nums; }
+/* Ярлыки на шнурке: подложка темнее — у серого и бледного акцента воск выходил средним, и заголовок на телефоне тонул. */
+.hud-mv .c-tied-tags { background: repeating-linear-gradient(103deg, #fff5ca14 0 1px, transparent 2px 6px), linear-gradient(155deg, color-mix(in srgb, color-mix(in srgb, var(--wax) 58%, #1a1014) var(--mv-alpha), transparent), color-mix(in srgb, #241618 var(--mv-alpha), transparent)); }
+/* Чародейский календарь: стекло на тёмной основе, как у средневекового, — на светлом
+   стекле прошедшие дни и «Праздники» терялись. Прошедшие дни — чуть светлее. */
+.hud-mv .arc-sheet .hud-cal { background: linear-gradient(155deg, color-mix(in srgb, color-mix(in srgb, var(--hud-accent) 18%, #161428) 80%, transparent), color-mix(in srgb, #100e1c 74%, transparent) 60%, color-mix(in srgb, color-mix(in srgb, var(--hud-accent) 14%, #161428) 78%, transparent)); }
+.hud-mv .arc-sheet .hud-cal .hud-cal-day.is-past b { color: color-mix(in srgb, currentColor 72%, #8a7f8a); }
+.hud-mv .arc-sheet .hud-cal :is(.hud-cal-chip, .hud-cal-gen) { color: color-mix(in srgb, var(--pill) 34%, #fff); }

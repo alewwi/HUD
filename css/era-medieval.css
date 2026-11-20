@@ -246,6 +246,8 @@
 .hud-cask.era-skin .hud-cask-lid { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 0 12px !important; margin: 0 0 12px !important; border: 0 !important; background: none !important;
   background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--e-gold) 70%, transparent) 20%, color-mix(in oklab, var(--e-gold) 70%, transparent) 80%, transparent) 0 100% / 100% 1px no-repeat !important; color: var(--hud-text); }
 .hud-cask.era-skin .hud-cask-lid b { font-family: var(--fh); font-size: 17px; letter-spacing: .16em; text-transform: uppercase; color: var(--hud-text) !important; text-shadow: 0 1px 0 color-mix(in oklab, var(--e-cwood) 60%, transparent); }
+/* На тёмных темах заголовок крышки светлее: цвет текста темы бывает средним (голубоватым, серым). */
+:root:not(.hud-scheme-light) .hud-cask.era-skin .hud-cask-lid b { color: color-mix(in oklab, var(--hud-text, #e8dcc8) 55%, #fff) !important; }
 .hud-cask.era-skin .hud-cask-lid small { font-family: var(--fd); font-style: italic; color: color-mix(in oklab, var(--hud-text) 70%, transparent) !important; }
 .hud-cask.era-skin .hud-cask-lock { width: 18px !important; height: 24px !important; border-radius: 9px 9px 4px 4px !important; border: 0 !important;
   background: radial-gradient(3px 3px at 50% 40%, #1b1208 90%, transparent), linear-gradient(#1b1208, #1b1208) 50% 58% / 2px 7px no-repeat, var(--e-brass) !important;
@@ -257,6 +259,8 @@
     var(--e-tex-noise), radial-gradient(130% 90% at 30% 15%, var(--e-leather-hi), var(--e-leather) 62%, color-mix(in oklab, var(--e-leather) 62%, #000)) !important;
   box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-leather) 55%, #000), inset 0 1px 0 color-mix(in oklab, #fff 18%, transparent), 0 2px 4px rgba(0,0,0,.35) !important;
   outline: 1px dashed color-mix(in oklab, #f8e8c8 38%, transparent); outline-offset: -4px; transform: none !important; transition: transform .2s, box-shadow .2s; }
+/* Блик кожи тусклее: светлые буквы на светлом блике читались через силу. */
+.hud-cask.era-skin .hud-cask-tab { --e-leather: color-mix(in oklab, var(--hud-accent) 34%, #24100a); --e-leather-hi: color-mix(in oklab, var(--e-leather) 88%, #f0d2a4); text-shadow: 0 1px 2px rgba(0,0,0,.75); }
 .hud-cask.era-skin .hud-cask-tab > span { display: inline-flex; color: var(--e-gold-hi); }
 .hud-cask.era-skin .hud-cask-tab svg { width: 14px; height: 14px; }
 @media (hover: hover) and (pointer: fine) { .hud-cask.era-skin .hud-cask-tab:hover { transform: translateY(-1px) !important; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-leather) 55%, #000), 0 4px 7px rgba(0,0,0,.4) !important; } }
@@ -282,7 +286,11 @@
 .era-skin .hud-letter-head { display: flex !important; align-items: center; gap: 12px; padding: 10px 12px !important; background: none !important; border: 0 !important; }
 .era-skin .hud-letter-head::before, .era-skin .hud-letter-head::after { display: none !important; }
 .era-skin .hud-letter-who b { font-family: var(--fh); font-size: 15px; font-weight: 400 !important; color: var(--ink) !important; }
-.era-skin .hud-letter-who small, .era-skin .hud-letter-side small { font-family: var(--hud-font-main, Georgia, serif); font-style: italic; color: var(--ink-soft) !important; }
+.era-skin .hud-letter-who small, .era-skin .hud-letter-side small { font-family: var(--hud-font-main, Georgia, serif); font-style: italic; color: color-mix(in oklab, var(--hud-text, #2a1d12) 82%, transparent) !important; }
+/* Письмо с восковой печатью (render/medieval-workshop.js): под шапкой место для
+   печати на шнурке; вскрытое — без подсказки «нажмите, чтобы вскрыть». */
+.era-skin .hud-letter.wax-letter > .hud-letter-head { padding-bottom: 61px !important; }
+.era-skin .hud-letter.wax-broken .hud-letter-side::after { content: none !important; }
 .era-skin :is(i, em).hud-letter-st { font-family: var(--fh); font-style: normal; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--e-rubric) !important; }
 .era-skin .hud-letter-sheet { position: relative; margin: 0 10px 10px !important; padding: 10px 14px 10px 30px !important; border: 0 !important; border-radius: 2px !important; transform: rotate(-.4deg);
   background: linear-gradient(90deg, transparent 20px, color-mix(in oklab, var(--e-rubric) 45%, transparent) 20px 21px, transparent 21px), repeating-linear-gradient(180deg, transparent 0 23px, color-mix(in oklab, var(--ink) 12%, transparent) 23px 24px), var(--e-tex-noise), linear-gradient(color-mix(in oklab, color-mix(in oklab, var(--parch) 80%, #fff) 62%, transparent), color-mix(in oklab, var(--parch) 58%, transparent)) !important;
@@ -402,10 +410,11 @@
 .era-skin .hud-cal-day.is-past::after { content: ''; position: absolute; inset: 9px 8px; background: linear-gradient(to top right, transparent calc(50% - .6px), color-mix(in oklab, var(--ink) 28%, transparent) calc(50% - .6px) calc(50% + .6px), transparent calc(50% + .6px)); pointer-events: none; }
 .era-skin .hud-cal-day.is-empty { background: repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in oklab, var(--ink) 7%, transparent) 4px 5px) !important; }
 .era-skin .hud-cal-day.is-today { background: none !important; }
-.era-skin .hud-cal-day.is-today b { color: var(--e-rubric) !important; opacity: 1; background: none !important; box-shadow: none !important; width: auto !important; height: auto !important; }
+.era-skin .hud-cal-day.is-today b { position: relative; color: var(--e-rubric) !important; opacity: 1; background: none !important; box-shadow: none !important; width: auto !important; height: auto !important; }
 /* под святцами — не пергамент, а стена шкатулки: лист висит на дереве */
 .hud-cask.era-skin .hud-cask-radio:nth-of-type(2):checked ~ .hud-cask-views { background: none !important; box-shadow: none !important; padding: 4px 0 0 !important; }
-.era-skin .hud-cal-day.is-today::before { content: ''; position: absolute; left: 50%; top: 50%; width: 34px; height: 28px; margin: -15px 0 0 -17px; border: 1.6px solid var(--e-rubric); border-radius: 52% 46% 55% 43% / 50% 58% 42% 50%; transform: rotate(-8deg); opacity: .85; pointer-events: none; }
+/* Кольцо пером — вокруг самого числа, а не посреди клетки: число стоит в углу. */
+.era-skin .hud-cal-day.is-today b::before { content: ''; position: absolute; inset: -5px -8px; border: 1.6px solid currentColor; border-radius: 52% 46% 55% 43% / 50% 58% 42% 50%; transform: rotate(-8deg); opacity: .85; pointer-events: none; }
 .era-skin .hud-cal-day.is-selected:not(.is-today) { background: color-mix(in oklab, var(--e-gold) 16%, transparent) !important; }
 .era-skin .hud-cal-day > *:not(b):not(.hud-cal-dots) { display: none; }
 .era-skin .hud-cal-dots { position: absolute; right: 4px; bottom: 4px; gap: 2px; }

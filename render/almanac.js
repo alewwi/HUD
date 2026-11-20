@@ -16,9 +16,9 @@
 // По желанию — одна строка модели в дни многодневного поста
 // (medievalFastNote).
 
-import { settings } from '../settings.js?v=23.89.68';
-import { старина, явнаяМагия, приземлённое } from '../era.js?v=23.89.68';
-import { пасхаЗападная, пасхаПравославная, православныйМир } from './holidays.js?v=23.89.68';
+import { settings } from '../settings.js?v=23.89.69';
+import { старина, явнаяМагия, приземлённое } from '../era.js?v=23.89.69';
+import { пасхаЗападная, пасхаПравославная, православныйМир } from './holidays.js?v=23.89.69';
 
 const ДЕНЬ = 864e5;
 export const святцыВкл = () => старина() && !явнаяМагия() && !приземлённое() && settings.medievalAlmanac !== false;

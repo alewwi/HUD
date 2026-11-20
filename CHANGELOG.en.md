@@ -4,6 +4,14 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.69 — 2026-11-20
+
+### Fixed
+- **A letter's seal depends only on the letter itself**, the way a comment's reaction count depends on its text. A letter that comes back from the previous turn's snapshot keeps the same seal even when a new letter appears above it or the order changes. Before, the device shifted when it matched the letter above. A broken seal stays broken when the letter's "Today" becomes "Yesterday".
+- **The calendar in the Almanac and the Moon book.** The "today" ring circles the number itself, not the middle of the cell (in the original era calendar too). Event times on the day sheet are light and solid. The month plate has no edges: a warm patch melts into the calendar glass. The "Today" line with the fast and the season's work is no longer light on light on light themes. The enchanted calendar sits on dark glass, so past days and "Holidays" are readable.
+- **The original letter view in old eras:** the wax seal no longer covers the captions, an opened letter loses the "tap to open" hint, and the captions (seal, time) are solid.
+- **Casket:** the leather section buttons are readable (a dimmer leather highlight), the "Sorcerer's casket" title on the lid is lighter on dark themes, and the tied tags sit on a darker ground. Tavern board captions are lighter. Checked live in a chat on desktop and phone, in medieval and sorcerer's-casket modes.
+
 ## 23.89.68 — 2026-11-20
 
 ### Changed

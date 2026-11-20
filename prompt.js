@@ -10,21 +10,21 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.68';
-import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.68';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.68';
+import { settings } from './settings.js?v=23.89.69';
+import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.69';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.69';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.68';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.68';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.68';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.68';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.68';
-import { возрастТочно } from './render/babies.js?v=23.89.68';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.68';
-import { сжатьСхему } from './compact-fields.js?v=23.89.68';
-import { короткийПромпт } from './prompt-short.js?v=23.89.68';
-import { подготовкаИдёт } from './render/holiday-lore.js?v=23.89.68';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.68';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.69';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.69';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.69';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.69';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.69';
+import { возрастТочно } from './render/babies.js?v=23.89.69';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.69';
+import { сжатьСхему } from './compact-fields.js?v=23.89.69';
+import { короткийПромпт } from './prompt-short.js?v=23.89.69';
+import { подготовкаИдёт } from './render/holiday-lore.js?v=23.89.69';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.69';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.

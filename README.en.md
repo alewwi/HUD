@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.68**:
+The latest version is **23.89.69**:
 
+- A letter's seal depends only on the letter itself: a letter from the previous turn's snapshot keeps its seal. The Almanac calendar: the "today" ring around the number, readable event times, an edgeless month plate, and a readable "Today" line and enchanted calendar on any theme. Original letters, the Casket buttons and lid are readable; checked live on desktop and phone.
 - The old-era views get a new finish: gilded corners, enamel section miniatures, a stone fireplace, wax seals on letters with a device of their own for each letter that break when the letter is opened. A new "Tavern board" view for notices. Old-era view animations run only under the mouse or on tap; words no longer break letter by letter on a narrow phone card.
 - Medieval era: fasts, saints and the farming season in the almanac, a family sign by the name (coat of arms, craft sign or house mark), illuminated initials in letters, news and notes. A "model only" preparation can be removed with a cross; fixed two preparations at once, a holiday and a fair on the same day and Orthodox dates after 1583.
 - The medieval and enchanted Casket and World views are readable on dark and light themes: on dark themes the sheet is dark parchment in the theme colour with light, solid ink, and captions and status pills no longer disappear. Changing a view in Customization no longer resets the Casket section or the scroll position.
