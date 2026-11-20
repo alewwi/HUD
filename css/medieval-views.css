@@ -8,6 +8,7 @@
 .hud-mv { --paper: color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, #f9ebd1 91%, var(--hud-accent)), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent);
   --paper-edge: color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, #d8bd8f 80%, var(--hud-accent)), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent);
   --ink: color-mix(in srgb, #241923 88%, var(--hud-accent));
+  --ink-shade: color-mix(in srgb, #241923 88%, var(--hud-accent));
   --rubric: color-mix(in srgb, var(--hud-accent) 62%, #302023);
   --wax: color-mix(in srgb, var(--hud-accent) 69%, #461a2c);
   --gold: color-mix(in srgb, var(--hud-accent) 45%, #f6dda2);
@@ -19,6 +20,11 @@
   color: var(--ink); background: var(--vellum); overflow-wrap: anywhere; font: 16px/1.51 var(--serif);
   border: 1px solid var(--paper-edge); box-shadow: 0 8px 20px #1c130d32; }
 .hud-mv .m-sheet::before, .hud-mv .m-sheet::after { content: ''; position: absolute; pointer-events: none; z-index: -1; }
+/* Таверна красит голый <small> цветом своей темы с прозрачностью .7, а <em>/<i>
+   в сообщении — цветом курсива. На пергаменте это светлое на светлом: подписи
+   («От кого», время, вид грамоты) пропадали. Внутри вида — цвет листа. */
+.hud-mv small { color: inherit; opacity: 1; }
+.hud-mv :is(em, i) { color: inherit; }
 .hud-mv .m-sheet h3, .hud-mv .m-sheet h4, .hud-mv .m-sheet p, .hud-mv .m-sheet dl, .hud-mv .m-sheet dd { margin: 0; }
 .hud-mv .m-sheet h3 { font-size: clamp(20px, 7cqi, 35px); font-weight: 400; line-height: 1.1; }
 .hud-mv .m-sheet h4 { font-size: clamp(16px, 4.5cqi, 24px); line-height: 1.15; }
@@ -62,7 +68,7 @@
   background: repeating-linear-gradient(135deg, color-mix(in srgb, color-mix(in srgb, var(--gold), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 0 2px, color-mix(in srgb, color-mix(in srgb, var(--rubric), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 2px 5px) left / 6px 100% no-repeat, var(--vellum);
   border: 4px double var(--rubric); }
 .hud-mv .c-month-mast { display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 5px; align-items: center;
-  text-align: center; padding-bottom: 8px; color: var(--rubric); border-bottom: 3px double var(--rubric); }
+  text-align: center; padding-bottom: 8px; color: var(--rubric-ink, var(--rubric)); border-bottom: 3px double var(--rubric); }
 .hud-mv .c-month-layout { display: grid; grid-template-columns: minmax(72px, .8fr) minmax(0,1.45fr); align-items: center; gap: 12px; margin: 12px 0; }
 .hud-mv .c-lunette { min-width: 0; display: grid; justify-items: center; align-content: center; gap: 5px; min-height: 119px; padding: 12px 5px 7px;
   border-radius: 50% 50% 0 0 / 38% 38% 0 0; border: 3px double var(--gold); text-align: center; color: #fff2d8;
@@ -70,15 +76,15 @@
     radial-gradient(circle at 74% 30%, var(--gold) 0 1px, transparent 1.6px),
     radial-gradient(circle at 82% 55%, #fff5d5 0 1px, transparent 1.6px), linear-gradient(150deg, var(--wax), #1c1520); }
 .hud-mv .c-menologion .m-date-list li, .hud-mv .c-lunar-wheel .m-date-list li { grid-template-columns: auto minmax(0, 1fr) auto; }
-.hud-mv .c-date-mark { color: var(--rubric); }
+.hud-mv .c-date-mark { color: var(--rubric-ink, var(--rubric)); }
 .hud-mv .c-parish-calendar { border: 1px solid var(--rubric); border-top: 6px solid var(--rubric);
   background: repeating-linear-gradient(0deg, #79533318 0 1px, transparent 1px 25px), var(--vellum); }
-.hud-mv .c-parish-mast { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 3px double var(--rubric); color: var(--rubric); }
+.hud-mv .c-parish-mast { display: flex; align-items: center; gap: 10px; padding-bottom: 10px; border-bottom: 3px double var(--rubric); color: var(--rubric-ink, var(--rubric)); }
 .hud-mv .c-bell { position: relative; flex: 0 0 39px; height: 48px; border-radius: 50% 50% 2px 2px; border: 3px double var(--gold);
   background: linear-gradient(160deg, var(--wax), #231925); }
 .hud-mv .c-bell i { position: absolute; top: 9px; left: 7px; width: 19px; height: 22px; border-radius: 50% 50% 10% 10%; background: linear-gradient(100deg, #7d5535, var(--gold), #7d5535); }
 .hud-mv .c-bell i::after { content: ''; position: absolute; inset: auto 6px -4px; height: 5px; border-radius: 50%; background: var(--gold); }
-.hud-mv .c-parish-calendar footer { border-top: 1px solid var(--rubric); padding-top: 8px; color: var(--rubric); font-style: italic; }
+.hud-mv .c-parish-calendar footer { border-top: 1px solid var(--rubric); padding-top: 8px; color: var(--rubric-ink, var(--rubric)); font-style: italic; }
 .hud-mv .c-lunar-wheel { --rubric: var(--gold); border: 4px double var(--gold); color: #fff1dc; text-align: center;
   background: radial-gradient(ellipse at 50% 22%, color-mix(in srgb,color-mix(in srgb, color-mix(in srgb, var(--wax), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 65%, color-mix(in srgb, color-mix(in srgb, #292435, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent)), transparent 66%), color-mix(in srgb, color-mix(in srgb, #171621, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent); }
 .hud-mv .c-lunar-wheel .m-date-list { text-align: start; border-top: 1px solid color-mix(in srgb,var(--gold) 55%, transparent); }
@@ -88,7 +94,7 @@
 .hud-mv .c-orbit::before { left: 3px; }
 .hud-mv .c-orbit::after { right: 3px; }
 .hud-mv .c-psalter-margins { border: 4px double var(--rubric); }
-.hud-mv .c-psalter-margins > h3 { color: var(--rubric); margin-bottom: 10px; }
+.hud-mv .c-psalter-margins > h3 { color: var(--rubric-ink, var(--rubric)); margin-bottom: 10px; }
 .hud-mv .c-marginalia { display: grid; grid-template-columns: auto minmax(0,1fr); gap: 11px; }
 .hud-mv .c-marginalia aside { position: relative; width: clamp(20px, 9cqi, 44px); display: grid; place-items: end center; overflow: hidden;
   background: repeating-linear-gradient(45deg, transparent 0 5px, #ffffff18 5px 6px), var(--rubric);
@@ -97,14 +103,14 @@
   transform: rotate(30deg); }
 .hud-mv .c-marginalia aside i:nth-child(2) { top: 38%; transform: scaleX(-1) rotate(30deg); }
 .hud-mv .c-marginalia aside i:nth-child(3) { top: 63%; }
-.hud-mv .c-marginalia h4, .hud-mv .c-marginalia .m-drop::first-letter { color: var(--rubric); }
+.hud-mv .c-marginalia h4, .hud-mv .c-marginalia .m-drop::first-letter { color: var(--rubric-ink, var(--rubric)); }
 .hud-mv .c-marginalia .m-drop::first-letter { padding-inline: 3px; border: 3px double var(--rubric); }
 .hud-mv .c-marginalia footer, .hud-mv .c-notebook-page footer, .hud-mv .c-loose-note footer { margin-top: 8px; font-size: .84em; font-style: italic; }
 .hud-mv .c-stitched-notebook { padding-inline-start: clamp(25px, 8cqi, 48px); border-radius: 3px 8px 8px 3px;
   background: linear-gradient(90deg, color-mix(in srgb, color-mix(in srgb, var(--wax), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 0 8px, #86472990 9px 11px, transparent 16px), var(--vellum);
   box-shadow: 2px 3px 0 -1px var(--paper-edge), 4px 5px 0 -2px var(--rubric), 0 8px 20px #1c130d32; }
 .hud-mv .c-stitched-notebook::before { z-index: 0; inset: 10px auto 10px 4px; width: 15px; background: repeating-linear-gradient(-8deg, transparent 0 13px, var(--gold) 14px 16px, transparent 17px 27px); }
-.hud-mv .c-stitched-notebook header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; color: var(--rubric); }
+.hud-mv .c-stitched-notebook header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; color: var(--rubric-ink, var(--rubric)); }
 .hud-mv .c-notebook-page { margin-top: 10px; padding: 5px 0 3px 8px; border-left: 1px solid var(--rubric); background: repeating-linear-gradient(0deg, #6540261b 0 1px, transparent 1px 24px); }
 .hud-mv .c-candle-note { color: #ffeed7; border: 1px solid var(--wax); padding-top: 14px;
   background: radial-gradient(ellipse at 16% 0, color-mix(in srgb,color-mix(in srgb, color-mix(in srgb, var(--wax), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 56%, color-mix(in srgb, color-mix(in srgb, #865731, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent)), transparent 72%),
@@ -130,13 +136,13 @@
     linear-gradient(213deg, transparent 58%, #89553833 59%, transparent 60%) top left / 55% 52px no-repeat, var(--vellum);
   border: 1px solid var(--paper-edge); }
 .hud-mv .c-folded-letters summary { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding-right: 13px; }
-.hud-mv .c-unsealed { color: var(--rubric); font-size: 23px; }
+.hud-mv .c-unsealed { color: var(--rubric-ink, var(--rubric)); font-size: 23px; }
 .hud-mv .c-courier-book { border-inline: 5px double var(--rubric); }
-.hud-mv .c-courier-book header { display: flex; gap: 8px; align-items: center; color: var(--rubric); }
+.hud-mv .c-courier-book header { display: flex; gap: 8px; align-items: center; color: var(--rubric-ink, var(--rubric)); }
 .hud-mv .c-courier-book .c-letter { border-bottom: 1px dashed var(--rubric); padding: 4px 0 8px; }
 .hud-mv .c-courier-book summary { padding-right: 12px; }
 .hud-mv .c-route { display: flex; align-items: baseline; flex-wrap: wrap; gap: 1px 7px; }
-.hud-mv .c-route > span { color: var(--rubric); }
+.hud-mv .c-route > span { color: var(--rubric-ink, var(--rubric)); }
 .hud-mv .c-mail-chest { border: 5px ridge var(--gold); border-radius: 18px 18px 2px 2px; color: #fff0db;
   background: linear-gradient(125deg, color-mix(in srgb,color-mix(in srgb, color-mix(in srgb, var(--wax), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 68%, color-mix(in srgb, color-mix(in srgb, #271924, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent)), color-mix(in srgb, color-mix(in srgb, #201620, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent)); }
 .hud-mv .c-mail-chest header { display: flex; align-items: center; gap: 9px; color: var(--gold); }
@@ -148,17 +154,17 @@
 .hud-mv .c-sealed-charter > h3 { text-align: center; }
 .hud-mv .c-hanging { position: relative; padding: 12px; margin: 10px 0 28px; color: var(--ink); background: var(--vellum);
   outline: 3px double var(--rubric); outline-offset: -5px; box-shadow: 2px 3px 8px #0006; }
-.hud-mv .c-hanging header { text-align: center; margin-bottom: 8px; color: var(--rubric); }
+.hud-mv .c-hanging header { text-align: center; margin-bottom: 8px; color: var(--rubric-ink, var(--rubric)); }
 .hud-mv .c-hanging footer { text-align: end; font-size: .8em; border-top: 1px solid var(--paper-edge); margin-top: 10px; }
 .hud-mv .c-hanging > .m-seal { position: absolute; z-index: 1; bottom: -26px; left: 18px; }
 .hud-mv .c-hanging > .m-seal::before { content: ''; position: absolute; top: -14px; width: 5px; height: 16px;
   background: repeating-linear-gradient(-31deg,var(--wax) 0 2px,var(--gold) 2px 4px); border-radius: 2px; }
 .hud-mv .c-town-register { border-top: 7px solid var(--rubric); background: repeating-linear-gradient(0deg, #6c4b2715 0 1px, transparent 1px 25px), var(--vellum); }
-.hud-mv .c-ledger-stamp { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--rubric); border-bottom: 3px double var(--rubric); padding-bottom: 8px; }
+.hud-mv .c-ledger-stamp { display: flex; align-items: center; justify-content: space-between; gap: 8px; color: var(--rubric-ink, var(--rubric)); border-bottom: 3px double var(--rubric); padding-bottom: 8px; }
 .hud-mv .c-ledger-stamp span { display: grid; place-items: center; width: 28px; height: 28px; border: 2px double var(--rubric); transform: rotate(-6deg); }
 .hud-mv .c-ledger-row { display: grid; grid-template-columns: minmax(0,1fr) minmax(58px,27%); gap: 9px; padding-block: 8px; border-bottom: 1px solid var(--rubric); }
 .hud-mv .c-ledger-row footer { align-self: end; border-left: 1px solid var(--paper-edge); padding-left: 6px; font-size: .86em; }
-.hud-mv .c-ledger-row footer b { color: var(--rubric); }
+.hud-mv .c-ledger-row footer b { color: var(--rubric-ink, var(--rubric)); }
 .hud-mv .c-roller-scroll { border: 0; background: transparent; box-shadow: none; color: var(--shell-ink); }
 .hud-mv .c-rolled-doc { position: relative; padding: 15px 12px 13px; margin-top: 15px; color: var(--ink); background: var(--vellum); box-shadow: 1px 5px 9px #0005; }
 .hud-mv .c-rolled-doc::before, .hud-mv .c-rolled-doc::after { content: ''; position: absolute; inset-inline: -6px; height: 9px; border-radius: 9px;
@@ -168,7 +174,7 @@
 .hud-mv .c-rolled-doc footer { display: flex; align-items: center; gap: 7px; margin-top: 9px; font-size: .82em; }
 .hud-mv .c-herbarium { border: 4px double var(--rubric); background: linear-gradient(90deg,color-mix(in srgb, color-mix(in srgb, var(--rubric), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 0 5px,color-mix(in srgb, color-mix(in srgb, var(--gold), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 6px 7px,transparent 8px),var(--vellum); }
 .hud-mv .c-herbarium { display: grid; grid-template-columns: minmax(52px, 25%) minmax(0,1fr); gap: 10px; align-items: center; margin: 9px 0 0; }
-.hud-mv .c-herbarium > div { position: relative; padding: 8px 4px; border: 1px solid var(--paper-edge); color: var(--rubric); }
+.hud-mv .c-herbarium > div { position: relative; padding: 8px 4px; border: 1px solid var(--paper-edge); color: var(--rubric-ink, var(--rubric)); }
 .hud-mv .c-herbarium > div::before, .hud-mv .c-herbarium > div::after { content:''; position: absolute; z-index: 1; width: 13px; height: 6px; background: #be995882; transform: rotate(-34deg); }
 .hud-mv .c-herbarium > div::before { left:-4px; top:2px; }
 .hud-mv .c-herbarium > div::after { right:-4px; bottom:2px; }
@@ -195,8 +201,8 @@
 .hud-mv .m-news::before { top: -6px; }
 .hud-mv .m-news::after { bottom: -6px; }
 .hud-mv .m-proclamation + .m-proclamation { border-top: 1px solid var(--paper-edge); padding-top: 10px; }
-.hud-mv .m-proclamation h4 { color: var(--rubric); }
-.hud-mv .m-proclamation .m-drop::first-letter { color: var(--rubric); }
+.hud-mv .m-proclamation h4 { color: var(--rubric-ink, var(--rubric)); }
+.hud-mv .m-proclamation .m-drop::first-letter { color: var(--rubric-ink, var(--rubric)); }
 .hud-mv .m-factions { background: repeating-linear-gradient(90deg, #ffddb40e 0 1px, transparent 1px 4px),
     linear-gradient(145deg, color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, var(--wax), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 62%, color-mix(in srgb, color-mix(in srgb, #28212b, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent)), color-mix(in srgb, color-mix(in srgb, #1c1925, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent));
   color: #fff1d9; border-color: var(--gold); }
@@ -211,7 +217,7 @@
 .hud-mv .m-meanwhile { border: 3px double var(--rubric); }
 .hud-mv .m-scene { display: grid; grid-template-columns: minmax(42px, 22%) minmax(0, 1fr); gap: 10px; align-items: start; }
 .hud-mv .m-scene + .m-scene { border-top: 1px solid var(--paper-edge); padding-top: 10px; }
-.hud-mv .m-scene small { color: var(--rubric); }
+.hud-mv .m-scene small { color: var(--rubric-ink, var(--rubric)); }
 .hud-mv .m-city { border: 3px double var(--gold);
   background: repeating-linear-gradient(178deg, #e9cba816 0 1px, transparent 2px 5px, #09040533 6px, transparent 8px),
     repeating-linear-gradient(0deg, color-mix(in srgb, color-mix(in srgb, #432b2d, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 0 39px, color-mix(in srgb, color-mix(in srgb, #23191b, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 40px 43px, color-mix(in srgb, color-mix(in srgb, #593935, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 44px 83px); }
@@ -234,7 +240,7 @@
 .hud-mv .m-pennant small { margin-top: 5px; }
 .hud-mv .w-merlon, .hud-mv .w-herald, .hud-mv .w-triptych, .hud-mv .w-plaque, .hud-mv .w-hearth, .hud-mv .w-fair { margin-bottom: 12px; }
 .hud-mv .w-merlon { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; gap: 10px;
-  padding-block: 4px 10px; color: var(--rubric); border-bottom: 3px double var(--rubric); }
+  padding-block: 4px 10px; color: var(--rubric-ink, var(--rubric)); border-bottom: 3px double var(--rubric); }
 .hud-mv .w-merlon span { width: 30px; height: 33px;
   background: repeating-linear-gradient(0deg,#f7e8c534 0 1px,transparent 1px 5px), var(--rubric);
   clip-path: polygon(0 0,23% 0,23% 22%,39% 22%,39% 0,61% 0,61% 22%,77% 22%,77% 0,100% 0,100% 38%,84% 46%,84% 100%,16% 100%,16% 46%,0 38%); }
@@ -244,7 +250,7 @@
   clip-path: polygon(0 0,100% 0,100% 71%,50% 100%,0 71%); }
 .hud-mv .m-banner:nth-child(2) .m-shield { background: repeating-linear-gradient(135deg,var(--gold) 0 5px,var(--paper-edge) 5px 9px); }
 .hud-mv .m-banner:nth-child(3) .m-shield { color: var(--gold); background: linear-gradient(90deg,var(--wax) 49%,#493023 50%); }
-.hud-mv .w-triptych { display: grid; justify-items: center; gap: 5px; text-align: center; color: var(--rubric);
+.hud-mv .w-triptych { display: grid; justify-items: center; gap: 5px; text-align: center; color: var(--rubric-ink, var(--rubric));
   padding-bottom: 7px; border-bottom: 1px solid var(--paper-edge); }
 .hud-mv .w-triptych span { width: 44px; height: 15px; border-top: 3px double var(--rubric); border-bottom: 1px solid var(--rubric); border-radius: 50%; }
 .hud-mv .w-plaque { margin-inline: auto; width: fit-content; max-width: 100%; color: var(--gold); text-align: center; padding: 6px 12px;
@@ -253,7 +259,7 @@
 .hud-mv .w-pin { width: 10px; height: 10px; margin-top: 3px; border-radius: 50%; border: 1px solid #68472e;
   background: radial-gradient(circle at 33% 27%,#fff0bc,var(--gold) 30%,#392c24 95%); box-shadow: 1px 2px 2px #0005; }
 .hud-mv .w-hearth { display: grid; justify-items: center; gap: 6px; color: var(--gold); }
-.hud-mv .w-fair { padding-bottom: 8px; border-bottom: 3px double var(--rubric); text-align: center; color: var(--rubric); }
+.hud-mv .w-fair { padding-bottom: 8px; border-bottom: 3px double var(--rubric); text-align: center; color: var(--rubric-ink, var(--rubric)); }
 .hud-mv .m-banner { grid-template-columns: minmax(32px, 14%) minmax(0, 1fr); gap: 11px; }
 .hud-mv .w-armorial { position: relative; isolation: isolate; display: grid; justify-items: center; align-items: start;
   min-height: 67px; padding: 9px 3px 0; perspective: 145px; }
@@ -407,7 +413,7 @@
 .hud-mv .m-meanwhile { padding: clamp(10px, 4cqi, 24px);
   border: 5px double var(--gold);
   background: repeating-linear-gradient(110deg, transparent 0 3px, #0001 4px 5px), color-mix(in srgb, color-mix(in srgb, var(--wax), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent);
-  box-shadow: inset 0 0 0 2px var(--ink), inset 0 0 22px #160d19aa; }
+  box-shadow: inset 0 0 0 2px var(--ink-shade), inset 0 0 22px #160d19aa; }
 .hud-mv .m-meanwhile .w-triptych { display: grid; grid-template-columns: 1fr; justify-items: center; gap: 6px;
   padding: 8px 3px 13px; color: var(--gold); text-align: center;
   background: radial-gradient(ellipse at bottom, #ffffff12, transparent 70%);
@@ -419,7 +425,7 @@
 .hud-mv .m-meanwhile .m-content { display: grid; gap: 18px; }
 .hud-mv .m-meanwhile .m-scene { display: block; position: relative; padding: 7px; border: 1px solid var(--gold);
   color: var(--ink); background: var(--vellum);
-  box-shadow: 1px 2px 0 var(--paper-edge), 2px 4px 0 var(--ink), 0 5px 10px #0005; }
+  box-shadow: 1px 2px 0 var(--paper-edge), 2px 4px 0 var(--ink-shade), 0 5px 10px #0005; }
 .hud-mv .m-meanwhile .m-scene + .m-scene::before { content: '❖'; position: absolute; inset: -18px 0 auto; text-align: center;
   color: var(--gold); line-height: 17px; }
 .hud-mv .m-meanwhile .w-tableau { box-sizing: border-box; aspect-ratio: 3.8; min-height: 78px; max-height: 160px; border-radius: 48% 48% 0 0 / 24% 24% 0 0; }
@@ -430,14 +436,14 @@
   background: radial-gradient(circle at 16% 28%,#fff2b9 1px,transparent 2px),radial-gradient(circle at 48% 15%,#fff2b9 1px,transparent 2px);
   background-size: 31% 90%, 47% 100%; }
 .hud-mv .m-meanwhile .m-scene > div:last-child { padding: 10px clamp(4px, 3cqi, 18px) 4px; }
-.hud-mv .m-meanwhile .m-scene h4 { color: var(--rubric); font-variant: small-caps; }
+.hud-mv .m-meanwhile .m-scene h4 { color: var(--rubric-ink, var(--rubric)); font-variant: small-caps; }
 .hud-mv .m-meanwhile .m-scene small { font-style: italic; }
 .hud-mv .m-meanwhile .m-scene p { line-height: 1.55; }
 .hud-mv .m-meanwhile .m-scene p::first-letter { float: left; margin: .1em .12em 0 0; padding: .04em .12em;
   font: 1.9em/.92 Georgia,serif; color: var(--gold); background: var(--wax); border: 3px double var(--gold); }
 .hud-mv .m-meanwhile .m-scene dl { clear: both; padding-top: 8px; border-top: 3px double var(--paper-edge); }
 .hud-mv .m-meanwhile .m-scene dl > div { border: 0; padding: 1px 4px; background: transparent; }
-.hud-mv .m-meanwhile .m-scene dt { color: var(--rubric); font-variant: small-caps; }
+.hud-mv .m-meanwhile .m-scene dt { color: var(--rubric-ink, var(--rubric)); font-variant: small-caps; }
 .hud-mv .m-meanwhile .m-scene dt::before { content: '❧ '; }
 .hud-mv .c-menologion .m-date-list { border-inline-start: 4px double var(--rubric); }
 .hud-mv .c-parish-calendar .m-month { outline: 1px dashed var(--rubric); outline-offset: 2px; }
@@ -450,7 +456,7 @@
 .hud-mv .c-mail-chest .c-letter { border-block: 3px ridge var(--gold); }
 .hud-mv .c-sealed-charter .c-hanging { outline: 1px solid var(--paper-edge); outline-offset: -4px; }
 .hud-mv .c-town-register .c-ledger-stamp { border-block-end: 4px double var(--rubric); }
-.hud-mv .c-roller-scroll .c-rolled-doc { box-shadow: inset 0 6px 9px -7px var(--ink),inset 0 -6px 9px -7px var(--ink); }
+.hud-mv .c-roller-scroll .c-rolled-doc { box-shadow: inset 0 6px 9px -7px var(--ink-shade),inset 0 -6px 9px -7px var(--ink-shade); }
 .hud-mv .c-herbarium .c-herbarium { border-bottom: 1px dotted var(--rubric); }
 .hud-mv .c-tied-tags .c-tied-tag { filter: drop-shadow(1px 2px 1px #321d2038); }
 .hud-mv .c-memory-locket .c-locket-lid { outline: 2px dotted var(--gold); outline-offset: -5px; }
@@ -472,7 +478,7 @@
 .hud-mv .folio-horse { transform-origin: 20% 82%; }
 .hud-mv .folio-tail { transform-origin: right top; }
 .hud-mv .folio-flag { transform-origin: left center; }
-.hud-mv .m-meanwhile .m-scene h4 { color: var(--folio-blue); }
+.hud-mv .m-meanwhile .m-scene h4 { color: var(--folio-blue-ink, var(--folio-blue)); }
 .hud-mv .m-meanwhile .m-scene p::first-letter { background: var(--folio-red); }
 .hud-mv .m-meanwhile .m-scene dl > div { padding-left: 7px; border-left: 2px solid var(--folio-green); }
 .hud-mv .m-meanwhile .m-scene dl > div:nth-child(2) { border-color: var(--folio-red); }
@@ -483,15 +489,15 @@
 .hud-mv .c-lunar-wheel .c-orrery { background-color:#192e4a; box-shadow: inset 0 0 28px #070c28; color:#fff0c8; }
 .hud-mv .c-psalter-margins .c-marginalia { border-left: 5px solid var(--folio-blue); padding-left: 8px; }
 .hud-mv .c-psalter-margins .c-marginalia:nth-child(even) { border-color:var(--folio-red); }
-.hud-mv .c-stitched-notebook header { color:var(--folio-green); }
+.hud-mv .c-stitched-notebook header { color: var(--folio-green-ink, var(--folio-green)); }
 .hud-mv .c-candle-note header { background: radial-gradient(ellipse at 15% 75%,#eba74766,transparent 64%); }
 .hud-mv .c-folded-letters { background: repeating-linear-gradient(45deg,transparent 0 4px,#ffdf9c0a 4px 5px),linear-gradient(120deg,color-mix(in srgb, color-mix(in srgb, var(--folio-red), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent),color-mix(in srgb, color-mix(in srgb, #512c42, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent)); }
-.hud-mv .c-courier-book .c-route { color:var(--folio-blue); }
+.hud-mv .c-courier-book .c-route { color: var(--folio-blue-ink, var(--folio-blue)); }
 .hud-mv .c-mail-chest .c-mail-lock, .hud-mv .c-memory-locket .c-locket-lid { background-image: var(--brass); background-size: 180% 100%; }
-.hud-mv .c-town-register .c-ledger-stamp { color:var(--folio-green); }
+.hud-mv .c-town-register .c-ledger-stamp { color: var(--folio-green-ink, var(--folio-green)); }
 .hud-mv .c-roller-scroll .c-rolled-doc { border-inline-color:var(--folio-red); }
 .hud-mv .c-herbarium.m-sheet { display:block; }
-.hud-mv .c-herbarium figure .m-botanical { color:var(--folio-green); }
+.hud-mv .c-herbarium figure .m-botanical { color: var(--folio-green-ink, var(--folio-green)); }
 .hud-mv .c-tied-tags .c-tied-tag:nth-child(even) { border-color: var(--folio-green); }
 .hud-mv .m-factions .m-banner:nth-child(3n+1) .w-armorial { --rubric:var(--folio-blue); --wax:#29455f; }
 .hud-mv .m-factions .m-banner:nth-child(3n+2) .w-armorial { --rubric:var(--folio-red); --wax:#63374c; }
@@ -563,7 +569,7 @@
 .hud-mv .silk-packet .c-letter-body { padding:10px; margin:0; border-top:1px dashed var(--rubric); }
 .hud-mv .c-town-register { background:repeating-linear-gradient(3deg,color-mix(in srgb, color-mix(in srgb, #34272b, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 0 4px,color-mix(in srgb, color-mix(in srgb, #473036, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 5px 6px,color-mix(in srgb, color-mix(in srgb, #392b31, var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent) 7px 13px); border:4px double var(--gold); color:var(--gold); }
 .hud-mv .archive-tube { margin:12px 0; }
-.hud-mv .archive-tube header { position:relative; padding:10px 17px; border-radius:10px; color:#fff1c9; background:linear-gradient(90deg,transparent 0 4px,var(--gold) 5px 7px,transparent 8px calc(100% - 8px),var(--gold) calc(100% - 7px) calc(100% - 5px),transparent calc(100% - 4px)),linear-gradient(var(--ink),var(--folio-green) 30%,#538078 42%,var(--folio-green) 62%,var(--ink)); box-shadow:0 3px 5px #211; }
+.hud-mv .archive-tube header { position:relative; padding:10px 17px; border-radius:10px; color:#fff1c9; background:linear-gradient(90deg,transparent 0 4px,var(--gold) 5px 7px,transparent 8px calc(100% - 8px),var(--gold) calc(100% - 7px) calc(100% - 5px),transparent calc(100% - 4px)),linear-gradient(var(--ink-shade),var(--folio-green) 30%,#538078 42%,var(--folio-green) 62%,var(--ink-shade)); box-shadow:0 3px 5px #211; }
 .hud-mv .tube-insert { margin:0 9px; padding:10px; color:var(--ink); background:var(--vellum); box-shadow:inset 0 5px 7px -5px #382127; }
 .hud-mv .tube-insert footer { margin-top:8px; border-top:1px dotted var(--rubric); padding-top:4px; }
 @media (prefers-reduced-motion:no-preference) {
@@ -617,10 +623,10 @@
 .hud-mv .spectral { float:right;width:36px;height:36px }
 .hud-mv .spectral i { border-radius:50% }
 .hud-mv .arc-feather details { background:var(--vellum);color:var(--ink);border-left:6px solid var(--rubric) }
-.hud-mv .arc-feather small { color:var(--rubric) }
+.hud-mv .arc-feather small { color: var(--rubric-ink, var(--rubric)) }
 .hud-mv .feather, .hud-mv .mirror { flex:none;width:46px;height:55px }
-.hud-mv .feather b { color:var(--rubric);transform:rotate(-30deg) }
-.hud-mv .feather i { border-radius:100% 0;width:19px;height:43px;color:var(--rubric) }
+.hud-mv .feather b { color: var(--rubric-ink, var(--rubric));transform:rotate(-30deg) }
+.hud-mv .feather i { border-radius:100% 0;width:19px;height:43px;color: var(--rubric-ink, var(--rubric)) }
 .hud-mv .arc-mirror details { border:3px double var(--silver);border-radius:42px 42px 7px 7px;background:linear-gradient(115deg,#33465c,#55537455,var(--deep)) }
 .hud-mv .mirror i { border-radius:50%;width:32px;height:47px }
 .hud-mv .arc-basalt article { display:flow-root;background:linear-gradient(130deg,#495160,#262734 44%,#333d48);border:3px ridge #717782;clip-path:polygon(8px 0,100% 0,100% calc(100% - 9px),calc(100% - 9px) 100%,0 100%,0 9px) }
@@ -855,11 +861,41 @@
 /* Тон фона: на тёмных темах листы темнее и прозрачнее, на светлых — светлее.
    --mv-tone — к чему подмешивать, --mv-alpha — сколько остаётся от фона. */
 .hud-mv { --mv-tone: #0b0910; --mv-tone-amt: 12%; --mv-alpha: 74%; }
-/* Лист прозрачнее — чернила на тёмных темах глубже, чтобы буквы читались как прежде. */
-.hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) { --ink: color-mix(in srgb, #140b12 90%, var(--hud-accent)); --rubric: color-mix(in srgb, var(--hud-accent) 58%, #1c0f15); }
+/* Тёмные темы — тёмный лист: ночной пергамент в цвет акцента, тоже полупрозрачный,
+   и светлые плотные чернила. Светлый пергамент поверх тёмной карточки выходил
+   мутно-серым, и буквы на нём блекли. Рубрика остаётся глубокой для фона и рамок,
+   а буквы рубрики и красок — светлые (--rubric-ink, --folio-*-ink). */
+.hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) {
+  --paper: color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, #2f2522 86%, var(--hud-accent)), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent);
+  --paper-edge: color-mix(in srgb, color-mix(in srgb, color-mix(in srgb, #4d3b31 80%, var(--hud-accent)), var(--mv-tone) var(--mv-tone-amt)) var(--mv-alpha), transparent);
+  --vellum: radial-gradient(ellipse at 35% 20%, color-mix(in srgb, var(--hud-accent) 18%, #ffe6bc1c), transparent 73%),
+    repeating-linear-gradient(105deg, transparent 0 3px, #ffe3b207 4px, transparent 6px),
+    linear-gradient(140deg, var(--paper), var(--paper-edge) 205%);
+  --ink: color-mix(in srgb, #f6ead8 92%, var(--hud-accent));
+  --rubric: color-mix(in srgb, var(--hud-accent) 58%, #1c0f15);
+  --rubric-ink: color-mix(in srgb, var(--hud-accent) 28%, #fbe1d2);
+  --folio-blue-ink: color-mix(in srgb, #a9d2e6 86%, var(--hud-accent));
+  --folio-green-ink: color-mix(in srgb, #a8dcc4 86%, var(--hud-accent)); }
+.hud-mv .c-lunar-wheel { --rubric-ink: var(--gold); }
+/* Светлые темы: буквы рубрики и красок на пергаменте — глубже, чем рубрика для фона
+   (у светлого акцента она выходила бледной). На тёмном листе реестра — светлые. */
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv { --rubric-ink: color-mix(in srgb, var(--hud-accent) 45%, #1e1013);
+  --folio-blue-ink: color-mix(in srgb, #173f52 86%, var(--hud-accent)); --folio-green-ink: color-mix(in srgb, #174a3b 86%, var(--hud-accent)); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv .c-town-register { --folio-green-ink: color-mix(in srgb, #a8dcc4 86%, var(--hud-accent)); }
+/* Стекло календаря на светлом листе плотнее: сквозь него просвечивал пергамент. */
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv .m-sheet:not(.arc-sheet) .hud-cal { background: linear-gradient(155deg, color-mix(in srgb, color-mix(in srgb, var(--hud-accent) 20%, #1d1526) 94%, transparent), color-mix(in srgb, #140e1a 92%, transparent) 60%, color-mix(in srgb, color-mix(in srgb, var(--hud-accent) 16%, #1d1526) 93%, transparent)); }
+/* Пилюли на тёмном листе: тон смешан с белым, а не с полупрозрачным фоном. */
+.hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .m-sheet :is(small, b, dt, span).m-pill { color: color-mix(in srgb, var(--pill) 38%, #fff); }
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv { --mv-tone: #fffaf2; --mv-tone-amt: 12%; --mv-alpha: 74%; }
+/* Тёмные по замыслу листы (ларец, свеча, лунное колесо, гербовник, пересуды, чары…)
+   на светлых темах остаются тёмными и плотнее: светлый тон делал их сиреневато-
+   бежевыми, и светлые буквы на них пропадали. */
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv :is(.c-lunar-wheel, .c-candle-note, .c-folded-letters, .c-mail-chest, .c-sealed-charter, .c-town-register, .c-tied-tags, .c-memory-locket, .m-factions, .m-comments, .m-city, .m-meanwhile, .arc-sheet) { --mv-tone: #0b0910; --mv-alpha: 90%; }
+/* Лист дня в календаре — тёмное стекло, как сам календарь: бумага эпохи
+   (era-medieval.css) на светлых темах светлая, а буквы календаря светлые. */
+.hud-mv .hud-cal .hud-cal-sheet { background: linear-gradient(160deg, color-mix(in srgb, var(--hud-accent) 10%, #ffffff12), #00000026) !important; }
 .hud-mv .c-roller-scroll > h3 { color: var(--gold); text-shadow: 0 1px 2px #0008; }
-:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv .c-roller-scroll > h3 { color: var(--rubric); text-shadow: none; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv .c-roller-scroll > h3 { color: var(--rubric-ink, var(--rubric)); text-shadow: none; }
 
 /* ── Буквы и пилюли: общая типографика старины и чар ──────────────────────────
    Заголовки — Cormorant Garamond, подписи — капитель Cormorant SC, статусы —
@@ -915,7 +951,7 @@
   display: inline-flex; align-items: center; gap: .48em; width: fit-content; max-width: 100%; min-width: 0;
   margin: 4px 0 2px; padding: .16em .78em .2em .62em; vertical-align: middle;
   font: 700 13.5px/1.2 var(--mv-f-caps); letter-spacing: .06em; font-style: normal; font-variant: normal; text-transform: none;
-  color: color-mix(in srgb, var(--pill) 58%, currentColor);
+  color: color-mix(in srgb, var(--pill) 24%, currentColor);
   background: linear-gradient(180deg, color-mix(in srgb, var(--pill) 22%, transparent), color-mix(in srgb, var(--pill) 9%, transparent));
   border: 1px solid color-mix(in srgb, var(--pill) 58%, transparent); border-radius: 999px;
   box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--pill) 7%, transparent), inset 0 1px 0 #ffffff1f;
@@ -974,7 +1010,7 @@
 }
 
 /* Светлый текст на тёмном листе: пилюля ярче, на пергаменте — глубже. */
-.hud-mv .arc-sheet :is(small, b, dt, span).m-pill, .hud-mv :is(.m-factions, .m-comments, .c-mail-chest) :is(small, b, dt, span).m-pill { color: color-mix(in srgb, var(--pill) 62%, #fff); }
+.hud-mv .arc-sheet :is(small, b, dt, span).m-pill, .hud-mv :is(.m-factions, .m-comments, .c-mail-chest) :is(small, b, dt, span).m-pill { color: color-mix(in srgb, var(--pill) 46%, #fff); }
 .hud-mv .m-sheet .m-where { font-style: normal; }
 /* Подпись печати и пилюля статуса — рядом, не внахлёст. */
 .hud-mv .c-hanging footer { display: flex; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 4px 10px; }
@@ -1006,7 +1042,11 @@
   border-color: #ffffff2e; box-shadow: inset 0 1px 0 #ffffff33, inset 0 0 18px #00000033, 0 6px 16px #0000002e; }
 /* На тёмном стекле — светлые пилюли и «Сегодня». */
 .hud-mv .m-sheet .hud-cal :is(.hud-cal-chip, .hud-cal-gen) { color: color-mix(in srgb, var(--pill) 55%, #fff); }
-.hud-mv .m-sheet .hud-cal .hud-cal-count, .hud-mv .m-sheet .hud-cal .hud-cal-count b { color: color-mix(in srgb, var(--hud-accent) 50%, #fff); }
+.hud-mv .m-sheet .hud-cal .hud-cal-count, .hud-mv .m-sheet .hud-cal .hud-cal-count b { color: color-mix(in srgb, var(--hud-accent) 32%, #fff); }
+/* Имена и «ещё N» в «Скоро» — тише цветом, но не прозрачностью до нечитаемого. */
+.hud-mv .hud-cal :is(em, .hud-cal-soon-more) { opacity: .82; }
+/* Золотой заголовок на свече и на ленте писем — светлее: фон там тёплый и средний. */
+.hud-mv :is(.c-candle-note, .c-folded-letters) h3 { color: color-mix(in srgb, var(--gold) 68%, #fff); }
 /* Буквы в календаре — непрозрачные: прошедшие дни и подписи тише цветом, а не прозрачностью. */
 .hud-mv .m-sheet .hud-cal :is(.hud-cal-week span, .hud-cal-day b, .hud-cal-head small, .hud-cal-none, .hud-cal-soon-head, .hud-cal-soon-when small) { opacity: 1; }
 .hud-mv .m-sheet .hud-cal :is(.hud-cal-week span, .hud-cal-head small, .hud-cal-soon-head, .hud-cal-soon-when small, .hud-cal-none) { color: color-mix(in srgb, currentColor 72%, #9a8f9a); }

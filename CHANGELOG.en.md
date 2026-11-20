@@ -4,6 +4,13 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.66 — 2026-11-20
+
+### Fixed
+- **The medieval and enchanted Casket and World views are readable again on dark themes.** Their sheets are see-through, and light parchment over a dark card came out a murky grey: the letters looked faded, and status pills ("Valid", "Draft") blended into the sheet. Captions (time, "From", the kind of document) almost disappeared, because SillyTavern paints every `<small>` in its own theme colour at 0.7 opacity. Now on dark themes the sheet is dark parchment in the accent colour, still see-through, with light, solid ink. Rubric and pigment letters are lighter than the frames, pills are brighter, and names and "N more" in the calendar no longer fade away. Text contrast was checked pixel by pixel in every view on ten themes.
+- **Light themes too.** Sheets that are dark by design (the mail chest, the candle, the lunar wheel, the armorial, the hearth gossip, the enchanted views) stay dark instead of turning a lilac beige under light letters. The day sheet in the calendar is no longer light paper under light text. Pills, rubric and captions on parchment are deeper.
+- **Changing a view in "Customization → Block views" no longer resets the Casket.** The open section (Notes, Documents, Keepsakes…) and the scroll position stay. Before, every view change sent the Casket back to Letters and moved the scroll.
+
 ## 23.89.65 — 2026-11-20
 
 ### Added

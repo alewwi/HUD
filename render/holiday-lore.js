@@ -13,12 +13,12 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.65';
-import { settings } from '../settings.js?v=23.89.65';
-import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.65';
-import { праздникиГода } from './holidays.js?v=23.89.65';
-import { раскрывашка } from './fold.js?v=23.89.65';
-import { старина } from '../era.js?v=23.89.65';
+import { escapeHtml } from '../utils.js?v=23.89.66';
+import { settings } from '../settings.js?v=23.89.66';
+import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.66';
+import { праздникиГода } from './holidays.js?v=23.89.66';
+import { раскрывашка } from './fold.js?v=23.89.66';
+import { старина } from '../era.js?v=23.89.66';
 
 const КЛЮЧ = 'tavernosHudHolidays';
 const ДЕНЬ = 864e5;
@@ -560,7 +560,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
       let данные = null;
       try { данные = JSON.parse(плашка.dataset.holPrep || 'null'); } catch (_) { данные = null; }
       if (!данные) return;
-      import('./holiday-prep.js?v=23.89.65').then(м => м.открытьПодготовку(данные))
+      import('./holiday-prep.js?v=23.89.66').then(м => м.открытьПодготовку(данные))
         .catch(err => console.error('[TavernOS HUD] окно подготовки не загрузилось:', err));
       return;
     }

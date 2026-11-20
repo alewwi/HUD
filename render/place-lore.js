@@ -19,10 +19,10 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.65';
-import { settings } from '../settings.js?v=23.89.65';
-import { старина } from '../era.js?v=23.89.65';
-import { связьПраздников } from './holiday-lore.js?v=23.89.65';
+import { escapeHtml } from '../utils.js?v=23.89.66';
+import { settings } from '../settings.js?v=23.89.66';
+import { старина } from '../era.js?v=23.89.66';
+import { связьПраздников } from './holiday-lore.js?v=23.89.66';
 
 const КЛЮЧ = 'tavernosHudPlaces';
 export const местоВкл = () => старина() && settings.placeLore !== false;
@@ -278,7 +278,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
     if (кнопка.closest('.hud-custom-preview-body')) return;
     const д = кнопка.dataset;
     if (д.hudPlace === 'gen') {
-      import('./place-gen.js?v=23.89.65').then(м => м.открытьПравилаМеста({ адрес: д.addr || '', время: д.time || '', дата: д.date || '' }))
+      import('./place-gen.js?v=23.89.66').then(м => м.открытьПравилаМеста({ адрес: д.addr || '', время: д.time || '', дата: д.date || '' }))
         .catch(err => console.error('[TavernOS HUD] окно правил места не загрузилось:', err));
     } else if (д.hudPlace === 'del') {
       // Два нажатия: первое спрашивает, второе забывает.
