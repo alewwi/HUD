@@ -11,10 +11,10 @@
 // Вид рисуется целиком в обёртке .hud-mv: стили не выходят за неё.
 // Время суток в «Тем временем» — то же, что у плашки погоды (частьДня).
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.69';
-import { старина, явнаяМагия } from '../era.js?v=23.89.69';
-import { английский } from '../i18n.js?v=23.89.69';
-import { миниатюра, каминМастерской, гербПисьма, печатьМастерской } from './medieval-workshop.js?v=23.89.69';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.70';
+import { старина, явнаяМагия } from '../era.js?v=23.89.70';
+import { английский } from '../i18n.js?v=23.89.70';
+import { миниатюра, каминМастерской, гербПисьма, печатьМастерской } from './medieval-workshop.js?v=23.89.70';
 
 // Шкатулка, как и прежние её виды, — с невидимым знаком против лорбука (defeatWI).
 // Мир — без него, как прежние виды Мира: звёздочка «Ввести в сюжет» и правка
@@ -32,7 +32,7 @@ const знак = (символ, класс = '') => `<span class="${класс}"
 const пилюля = (текст, тон = '', имя = 'small') => есть(текст) ? `<${имя} class="m-pill${тон ? ' is-' + тон : ''}">${escapeHtml(String(текст))}</${имя}>` : '';
 const ярлыки = (...части) => части.join('').trim() ? `<span class="m-tags">${части.join('')}</span>` : '';
 const ТОН_ПИСЬМА = { sealed: 'wax', draft: 'ash', transit: 'gold', sent: 'gold', burned: 'ash', hidden: 'ash', read: 'leaf' };
-const ТОН_ГРАМОТЫ = { valid: 'leaf', expired: 'ash', revoked: 'wax', forged: 'wax' };
+const ТОН_ГРАМОТЫ = { valid: 'leaf', expired: 'ash', revoked: 'wax', forged: 'wax', void: 'wax' };
 const тонРепутации = (ч) => typeof ч !== 'number' ? '' : ч >= 40 ? 'leaf' : ч > 0 ? 'gold' : ч < 0 ? 'wax' : 'ash';
 let счёт = 0;
 const новыйId = (п) => `hud-mv-${п}-${(++счёт).toString(36)}`;
@@ -378,7 +378,8 @@ function доскаТрактира(з, список) {
 
 function телоСтарины(блок, список) {
   switch (блок) {
-    case 'news': return список.map((с, i) => `<article class="m-proclamation">${тег('h4', с.title)}${есть(с.body) ? `<p class="${i === 0 && /^\p{L}/u.test(с.body.trim()) ? 'm-drop' : ''}">${т(с.body)}</p>` : ''}</article>`).join('');
+    // Вести с задержкой (render/medieval-life.js): с.весть — откуда и какой давности, с.bare — текст без приписки.
+    case 'news': return список.map((с, i) => { const тело = с.весть ? с.bare : с.body; return `<article class="m-proclamation">${тег('h4', с.title)}${с.весть || ''}${есть(тело) ? `<p class="${i === 0 && /^\p{L}/u.test(тело.trim()) ? 'm-drop' : ''}">${т(тело)}</p>` : ''}</article>`; }).join('');
     case 'factions': return `<div class="m-banners">${список.map((ф, i) => `<article class="m-banner">
       <div class="w-armorial" aria-hidden="true"><i></i>${знак(['⚜︎', '✿', '◆'][i % 3], 'm-mark m-shield')}</div>
       <div class="w-faction-copy">${тег('h4', ф.кто)}${пилюля(ф.как, тонРепутации(ф.число))}${тег('p', ф.почему)}
@@ -397,7 +398,7 @@ function телоСтарины(блок, список) {
 
 function телоЧар(блок, список) {
   switch (блок) {
-    case 'news': return список.map(с => `<article>${тег('h4', с.title)}${тег('p', с.body)}</article>`).join('');
+    case 'news': return список.map(с => `<article>${тег('h4', с.title)}${с.весть || ''}${тег('p', с.весть ? с.bare : с.body)}</article>`).join('');
     case 'factions': return список.map(ф => `<article>${ф.число === null || ф.число === undefined ? '' : `<strong class="${ф.число < 0 ? 'is-negative' : ''}">${ф.число}</strong>`}${тег('h4', ф.кто)}${пилюля(ф.как, тонРепутации(ф.число))}${тег('p', ф.почему)}</article>`).join('');
     case 'meanwhile': return список.map(е => `<article>${тег('h4', е.имя)}${тег('small', е.где, 'm-where')}${тег('p', е.текст)}${[['Знает', е.знает], ['Не знает', е.неЗнает], ['Догадывается', е.догадки]].filter(([, v]) => есть(v)).map(([к, v]) => `<p class="m-know">${пилюля(к, ТОН_ЗНАНИЯ[к], 'b')} ${т(v)}</p>`).join('')}</article>`).join('');
     case 'city': return список.map(е => `<article>${тег('h4', е.подпись)}${тег('p', е.текст)}</article>`).join('');

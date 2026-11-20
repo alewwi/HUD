@@ -8,9 +8,9 @@
 // Модуль не знает про граф отношений: получает готовые узлы и рёбра и отдаёт
 // SVG. Так нет круговой зависимости с relations-graph.js.
 
-import { escapeHtml, hudHashSeed, commentInitials, имяБезПриставки } from '../utils.js?v=23.89.69';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.69';
-import { найтиПоИмени } from '../names.js?v=23.89.69';
+import { escapeHtml, hudHashSeed, commentInitials, имяБезПриставки } from '../utils.js?v=23.89.70';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.70';
+import { найтиПоИмени } from '../names.js?v=23.89.70';
 
 // Кем «кому» приходится тому, у кого записано отношение. Ищем только в
 // первых словах: дальше идёт чувство, где «любит как сына» или «брат по
@@ -161,6 +161,14 @@ const фамилия = (имя) => { const с = имяКарточки(имя).r
 // опции.дяди — ответы игрока про «дядю» без родства в HUD: [{ имя, родня }]
 // (брат или сестра названного) или [{ имя, нет: true }] (не родня).
 // Возвращает null, если родства нет, иначе { svg, people, positions, вопросы }.
+// Помарка законности: короткое слово модели, тон — по смыслу (бастард, признан, законный).
+function помаркаЗаконности(статус, x, y) {
+  const s = статус.toLowerCase().replace(/ё/g, 'е');
+  const тон = /бастард|незакон|внебрач|bastard|illegit/.test(s) ? (/призна|acknowl/.test(s) ? 'is-mid' : 'is-bad') : /призна|acknowl/.test(s) ? 'is-mid' : 'is-good';
+  const текст = статус.length > 26 ? статус.slice(0, 25) + '…' : статус;
+  return `<text class="hud-fam-legit ${тон}" x="${x.toFixed(1)}" y="${y.toFixed(1)}"><title>${escapeHtml(статус)}</title>${escapeHtml(текст)}</text>`;
+}
+
 export function buildFamilyTree(nodes, edges, idBase, опции = {}) {
   const люди = new Map((nodes || []).map(n => [n.id, { ...n }]));
   const родители = new Map();     // ребёнок → Set(родителей)
@@ -661,6 +669,12 @@ export function buildFamilyTree(nodes, edges, idBase, опции = {}) {
 
   // --- Люди ---
   let карточки = '';
+  // Законность детей (render/medieval-life.js, ep.leg): помарка под карточкой ребёнка.
+  const помарки = new Map();
+  for (const [имя, статус] of Array.isArray(опции.законность) ? опции.законность : []) {
+    const id = имя && статус ? узелПоИмени(люди, имя) : null;
+    if (id && !помарки.has(id)) помарки.set(id, String(статус).trim());
+  }
   let номер = 0;
   const основа = String(idBase || 'fam').replace(/[^a-zA-Z0-9_-]/g, '');
   видимые.forEach(id => {
@@ -681,7 +695,7 @@ export function buildFamilyTree(nodes, edges, idBase, опции = {}) {
     const подпись = подписьПолная.length > КОНЕЦ_ПОДПИСИ ? подписьПолная.slice(0, КОНЕЦ_ПОДПИСИ - 1) + '…' : подписьПолная;
     const tx = ax + r + 9;
     данные.люди.push({ id, имя: ч.virtual ? '' : ч.name, роль: подписьПолная, неизвестно: !!ч.virtual, вы: !!ч.isUser, герой: !!ч.isPrimary,
-      x: p.x, y: p.y, адрес, цвет, инициалы: ч.virtual ? '?' : commentInitials(ч.name) });
+      x: p.x, y: p.y, адрес, цвет, инициалы: ч.virtual ? '?' : commentInitials(ч.name), законность: помарки.get(id) || '' });
     карточки += `<g class="hud-fam-node${ч.isUser ? ' is-user' : ''}${ч.isPrimary ? ' is-primary' : ''}${ч.virtual ? ' is-unknown' : ''}" data-node-name="${escapeHtml(ч.name)}">`
       + `<title>${escapeHtml(ч.virtual ? 'Звено родства не названо' : ч.name)}</title>`
       + `<rect class="hud-fam-card" x="${f(p.x)}" y="${f(p.y)}" width="${W_УЗЛА}" height="${H_УЗЛА}" rx="14"/>`
@@ -691,6 +705,7 @@ export function buildFamilyTree(nodes, edges, idBase, опции = {}) {
         + `<image href="${escapeHtml(адрес).replace(/"/g, '&quot;')}" x="${f(ax - r + 1)}" y="${f(ay - r + 1)}" width="${(r - 1) * 2}" height="${(r - 1) * 2}" clip-path="url(#${клип})" preserveAspectRatio="xMidYMid slice"/>` : '')
       + `<text class="hud-fam-name" x="${f(tx)}" y="${f(p.y + (подпись ? 25 : 33))}">${escapeHtml(имя)}</text>`
       + (подпись ? `<text class="hud-fam-role" x="${f(tx)}" y="${f(p.y + 41)}">${escapeHtml(подпись)}</text>` : '')
+      + (помарки.has(id) ? помаркаЗаконности(помарки.get(id), p.x + 12, p.y + H_УЗЛА + 11) : '')
       + `</g>`;
   });
 

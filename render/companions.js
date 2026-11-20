@@ -4,20 +4,20 @@
 // каждого своё настроение, состояние, рацион и привязанность к хозяину.
 // Вкладка появляется, только когда в HUD есть хоть один спутник.
 
-import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.89.69';
-import { видБлока, видПривязанности } from './views.js?v=23.89.69';
-import { карточкаСпутника, тамагочи, лучшиеУмения } from './extras.js?v=23.89.69';
-import { внешностьСпутника } from './pet-looks.js?v=23.89.69';
+import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.89.70';
+import { видБлока, видПривязанности } from './views.js?v=23.89.70';
+import { карточкаСпутника, тамагочи, лучшиеУмения } from './extras.js?v=23.89.70';
+import { внешностьСпутника } from './pet-looks.js?v=23.89.70';
 
 // Значок по виду. Частное раньше общего: «ворон-фамильяр» — птица, а не дух.
 const ВИДЫ = [
   [/дракон|виверн|dragon|wyvern/i, '🐉'],
   [/дрон|робот|андроид|drone|robot|android|mech/i, '🤖'],
-  [/ворон|сова|филин|птиц|попуга|сокол|ястреб|raven|crow|owl|bird|parrot|falcon|hawk/i, '🐦'],
+  [/ворон(?!о(?:й|го|му|е)|ая|ую|ые|ых|ыми?|ой)|сова|филин|птиц|попуга|сокол|ястреб|raven|crow|owl|bird|parrot|falcon|hawk/i, '🐦'],
   [/рыс|тигр|лев(?![а-яё])|львиц|пантер|барс|леопард|ягуар|гепард|lynx|tiger|lion|panther|leopard|jaguar|cheetah/i, '🐆'],
   [/кот|кош|cat|kitten/i, '🐈'],
   [/пёс|пес|собак|щен|волк|dog|puppy|hound|wolf/i, '🐕'],
-  [/конь|лошад|пони|кобыл|жереб|horse|pony|mare|stallion/i, '🐎'],
+  [/конь|лошад|пони|кобыл|жереб|мерин(?!ос)|скакун|рысак|иноходц|иноходец|кляч|тяжеловоз|лошак|(?:^|[^\p{L}])мул(?:[аыуе]|ом)?(?!\p{L})|horse|pony|mare|stallion|gelding|steed|charger|destrier|palfrey|courser|colt|filly|\bmule/iu, '🐎'],
   [/зме|гадюк|удав|snake|serpent|viper/i, '🐍'],
   [/крыс|мыш|хомяк|rat|mouse|hamster/i, '🐀'],
   [/паук|spider/i, '🕷'],

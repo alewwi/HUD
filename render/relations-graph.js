@@ -7,12 +7,13 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.69';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.69';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.69';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.69';
-import { settings } from '../settings.js?v=23.89.69';
-import { ответыПроДядей } from './family-asks.js?v=23.89.69';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.70';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.70';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.70';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.70';
+import { settings } from '../settings.js?v=23.89.70';
+import { ответыПроДядей } from './family-asks.js?v=23.89.70';
+import { законностьДляДрева } from './medieval-life.js?v=23.89.70';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -526,7 +527,7 @@ export function buildRelGraphHTML(hudData, uid, дайХоды = null, опци�
   // когда в «Отношениях» нашлось родство.
   let семья = null;
   if (settings.enableFamilyTree !== false) {
-    try { семья = buildFamilyTree(родня.nodes, родня.edges, markerBase, { дяди: ответыПроДядей() }); }
+    try { семья = buildFamilyTree(родня.nodes, родня.edges, markerBase, { дяди: ответыПроДядей(), законность: законностьДляДрева(hudData, getSafeUserName()) }); }
     catch (err) { console.warn('[TavernOS HUD] Family tree render failed:', err); семья = null; }
   }
 

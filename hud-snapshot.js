@@ -12,24 +12,25 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.89.69';
+import { settings } from './settings.js?v=23.89.70';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { тМодели as т } from './i18n.js?v=23.89.69';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.69';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.89.69';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.69';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.89.69';
-import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.89.69';
-import { упомянутВТексте } from './names.js?v=23.89.69';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.69';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.69';
-import { доверияБезПричин } from './turn-notes.js?v=23.89.69';
+import { тМодели as т } from './i18n.js?v=23.89.70';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.70';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.89.70';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.70';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.89.70';
+import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.89.70';
+import { упомянутВТексте } from './names.js?v=23.89.70';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.70';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.70';
+import { доверияБезПричин } from './turn-notes.js?v=23.89.70';
+import { почиститьСнимок } from './render/medieval-life.js?v=23.89.70';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 // Коды полей в том виде, в каком их просит промт.
 const ПОЛЯ_СЦЕНЫ = ['T', 'Wt', 'Dt', 'At', 'Md', 'Tw'];
-const ПОЛЯ_ПЕРСОНАЖА = ['N', 'A', 'C', 'Ap', 'R', 'B', 'H', 'Ill', 'Prg', 'Mns', 'Ph', 'Bs', 'L', 'Th', 'K', 'Ex', 'D', 'I', 'G', 'S', 'Rl', 'Mm', 'Fl',
+const ПОЛЯ_ПЕРСОНАЖА = ['N', 'A', 'C', 'Ap', 'R', 'Mrg', 'Lgt', 'B', 'H', 'Ill', 'Prg', 'Mns', 'Ph', 'Bs', 'L', 'Th', 'K', 'Ex', 'D', 'I', 'G', 'S', 'Rl', 'Mm', 'Fl',
   'Jl', 'Bt', 'St', 'Eo', 'X', 'SxL', 'SxC', 'SxR', 'Ln', 'Tr', 'Fr', 'SS', 'Pos', 'Rnd', 'Dur', 'Prt', 'Org', 'Vit', 'Snd', 'BM', 'W', 'Kn', 'Ft',
   'NG', 'NT', 'ND', 'Mrk', 'AC', 'SxV', 'Ab', 'Ef'];
 // Игрок ведёт те же поля, что и персонажи; вместо W — своя близость UW.
@@ -46,6 +47,10 @@ const вКоды = (коды) => Object.fromEntries(коды.map(к => [mapKey(�
 const КОДЫ_СЦЕНЫ = вКоды(ПОЛЯ_СЦЕНЫ);
 const КОДЫ_ПЕРСОНАЖА = вКоды(ПОЛЯ_ПЕРСОНАЖА);
 const КОДЫ_ИГРОКА = вКоды(ПОЛЯ_ИГРОКА);
+// Малыши (bb): поля персонажа плюс свои — пол и нужды. Без них ход, где
+// малыш записан длинными ключами («Имя», «Одежда»…), не находил ребёнка по N:
+// «nc» в одежде, внешности, здоровье, вещах, отношениях и доверии оставался.
+const КОДЫ_МАЛЫША = вКоды([...ПОЛЯ_ПЕРСОНАЖА, 'sx', 'Nds']);
 
 function свернутьПоля(о, карта) {
   const out = {};
@@ -113,6 +118,8 @@ export function HUDвКодах(текстБлока, { сПоворотом = f
   if (объект(к.cs)) к.cs = [к.cs];
   if (Array.isArray(к.cs)) к.cs = к.cs.map(c => (объект(c) ? свернутьПоля(c, КОДЫ_ПЕРСОНАЖА) : c));
   if (объект(к.us)) к.us = свернутьПоля(к.us, КОДЫ_ИГРОКА);
+  if (объект(к.bb)) к.bb = [к.bb];
+  if (Array.isArray(к.bb)) к.bb = к.bb.map(м => (объект(м) ? свернутьПоля(м, КОДЫ_МАЛЫША) : м));
   return к;
 }
 
@@ -262,6 +269,8 @@ export function собратьСнимок(текстБлока) {
   else if (выкл('enableGuns')) убрать(к.me, ['gun']);
   if (!settings.enableUserBlock) delete к.us;
   if (выкл('enableCompanions')) delete к.pet;
+  // Жизнь эпохи: выключенные части «ep» и новые поля грамот, писем, спутников.
+  почиститьСнимок(к);
   if (выкл('enableCombat')) delete к.cb;
   if (!settings.enableWorld) delete к.wd;
   else {
@@ -512,7 +521,7 @@ const НАЗВАНИЯ_ПОЛЕЙ = {
   Dur: 'duration', Prt: 'protection', Org: 'orgasm readiness', Vit: 'vitals', Snd: 'sounds', BM: 'body map', W: 'intimate state',
   Kn: 'kinks', Ft: 'fetishes', NG: 'never', NT: 'turn-offs', ND: 'intimate detail', AC: 'aftercare', UW: 'intimate state',
 };
-const НАЗВАНИЯ_РАЗДЕЛОВ = { us: '{{user}}', cm: 'chats (last messages each; HUD keeps the earlier ones)', phn: 'phone', tp: 'intercepts (last message each)', pet: 'companions', sm: 'casket', lt: 'letters', ov: 'overheard' };
+const НАЗВАНИЯ_РАЗДЕЛОВ = { us: '{{user}}', cm: 'chats (last messages each; HUD keeps the earlier ones)', phn: 'phone', tp: 'intercepts (last message each)', pet: 'companions', sm: 'casket', lt: 'letters', ov: 'overheard', ep: 'medieval life' };
 const ПОЯСНЕНИЯ = { md: 'mood (hs: last lines; HUD keeps the earlier ones)', rt: 'route (last lines; HUD keeps the earlier ones — add new moves after them)', hd: 'does NOT know', knw: 'knows', stt: 'status', lv: 'level', f: 'fact', n: 'name', src: 'source' };
 
 export function легендаСнимка(строка) {

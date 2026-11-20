@@ -4,12 +4,12 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.89.69';
-import { решениеПоПодписи, подписьСна } from '../disputes.js?v=23.89.69';
-import { settings } from '../settings.js?v=23.89.69';
-import { аватаркаПоИмени } from './views.js?v=23.89.69';
-import { магияВМире } from '../era.js?v=23.89.69';
-import { реальныйПортрет } from './pet-real.js?v=23.89.69';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.89.70';
+import { решениеПоПодписи, подписьСна } from '../disputes.js?v=23.89.70';
+import { settings } from '../settings.js?v=23.89.70';
+import { аватаркаПоИмени } from './views.js?v=23.89.70';
+import { магияВМире } from '../era.js?v=23.89.70';
+import { реальныйПортрет } from './pet-real.js?v=23.89.70';
 
 // Умения спутника — не больше четырёх: модель копит их ходами, и в карточке
 // выстраивалась стена пилюль. Короткие (до шести слов) — вперёд, в порядке
@@ -342,7 +342,7 @@ export function родПортрета(вид, имя) {
   if (/зме|гадюк|удав|питон|кобр|полоз|snake|serpent|viper|python|cobra/i.test(s)) return 'snake';
   if (/сова|сов[уыё]|филин|сыч|неясыт|owl/i.test(s)) return 'owl';
   if (/летуч\p{L}*\s+мыш|нетопыр|вампир\p{L}*\s+мыш|\bbat\b/iu.test(s)) return 'bat';
-  if (/ворон|птиц|попуга|сокол|ястреб|голуб[ьяи]|воробе|сорок|канарей|феникс|raven|crow|bird|parrot|falcon|hawk|dove|phoenix|magpie/i.test(s)) return 'bird';
+  if (/ворон(?!о(?:й|го|му|е)|ая|ую|ые|ых|ыми?|ой)|птиц|попуга|сокол|ястреб|голуб[ьяи]|воробе|сорок|канарей|феникс|raven|crow|bird|parrot|falcon|hawk|dove|phoenix|magpie/i.test(s)) return 'bird';
   // «Лис» — с начала слова, чтобы Алиса не стала лисой.
   if (/(?:^|[^\p{L}])(?:лис|песц|песец|фенек|корсак)|fox|fennec/iu.test(s)) return 'fox';
   if (/(?:^|[^\p{L}])(?:рыс[ьи]|рысью|рыс[её]нок|lynx(?:es)?)(?!\p{L})/iu.test(вид || '')) return 'lynx';
@@ -350,7 +350,8 @@ export function родПортрета(вид, имя) {
   if (/(?:^|[^\p{L}])(?:лев|льв[а-яё]+|lion(?:ess(?:es)?|s)?)(?!\p{L})/iu.test(вид || '')) return 'lion';
   if (/далматин|овчар|терьер|спаниел|такс[аы]|хаски|лабрадор|ретривер|бульдог|пудел|шпиц|корги|мастиф|борз[аы]|гончая|ротвейлер|доберман|сенбернар|dalmatian|shepherd|terrier|spaniel|dachshund|husky|labrador|retriever|bulldog|poodle|corgi|mastiff/i.test(s)) return 'dog';
   if (/медвед|медвеж|bear|панд[аы]|panda/i.test(s)) return 'bear';
-  if (/конь|лошад|пони|кобыл|жереб|единорог|пегас|horse|pony|mare|stallion|unicorn|pegasus/i.test(s)) return 'horse';
+  // Верховые и тягловые (render/medieval-life.js): мерин, скакун, рысак, кляча, мул — тоже лошадь.
+  if (/конь|лошад|пони|кобыл|жереб|мерин(?!ос)|скакун|рысак|иноходц|иноходец|кляч|тяжеловоз|лошак|(?:^|[^\p{L}])мул(?:[аыуе]|ом)?(?!\p{L})|единорог|пегас|horse|pony|mare|stallion|gelding|steed|charger|destrier|palfrey|courser|colt|filly|\bmule|unicorn|pegasus/iu.test(s)) return 'horse';
   if (/кролик|зая[цч]|зайч|крольч|rabbit|bunny|hare/i.test(s)) return 'rabbit';
   if (/крыс|мыш|хомяк|хор[её]к|ласк|бел(?:к|очк)|шиншил|дегу|rat\b|mouse|hamster|ferret|weasel|squirrel|chinchilla/i.test(s)) return 'rodent';
   if (/кот|кош|рыс|тигр|льв|лев|пантер|барс|леопард|ягуар|гепард|оцелот|каракал|сервал|\bcat|kitten|lynx|tiger|lion|panther|leopard|jaguar|cheetah/i.test(s)) return 'cat';

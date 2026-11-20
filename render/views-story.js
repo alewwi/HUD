@@ -17,11 +17,11 @@
 // Конечный вид рисуется сразу: анимации HUD держит на паузе, пока на вид не
 // навели мышь или не нажали (css/views.css), — петли и на паузе законченны.
 
-import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.69';
-import { лицоЧеловека as лицо } from './views.js?v=23.89.69';
-import { normalizeDiaryMood } from './diary.js?v=23.89.69';
-import { relationVisualMeta, classifyRelationVisual, parseRelationList } from './relations-graph.js?v=23.89.69';
-import { namesLikelySame } from '../names.js?v=23.89.69';
+import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.70';
+import { лицоЧеловека as лицо } from './views.js?v=23.89.70';
+import { normalizeDiaryMood } from './diary.js?v=23.89.70';
+import { relationVisualMeta, classifyRelationVisual, parseRelationList } from './relations-graph.js?v=23.89.70';
+import { namesLikelySame } from '../names.js?v=23.89.70';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const ф = (n) => Number(n).toFixed(1);
@@ -656,7 +656,9 @@ function древоКрона(д, р) {
         // Блик — только на кружке с инициалами: на фото он ложился пятном.
         + (ч.адрес ? '' : `<path class="gloss" d="M-14-9A16 16 0 0 1-3-17"/>`)
         + `<rect class="plate" x="${ф(-ш / 2)}" y="31" width="${ф(ш)}" height="${роль ? 32 : 20}" rx="7"/>`
-        + `<text class="nm" y="45"${ч.неизвестно ? '' : ' data-i18n-skip'}>${э(нм)}</text>${роль ? `<text class="rl" data-i18n-skip y="57">${э(роль)}</text>` : ''}</g></g>`;
+        + `<text class="nm" y="45"${ч.неизвестно ? '' : ' data-i18n-skip'}>${э(нм)}</text>${роль ? `<text class="rl" data-i18n-skip y="57">${э(роль)}</text>` : ''}`
+        // Законность ребёнка (render/medieval-life.js) — помаркой под табличкой.
+        + (ч.законность ? `<text class="hud-fam-legit" data-i18n-skip y="${роль ? 74 : 62}" text-anchor="middle">${э(обрез(ч.законность, 22))}</text>` : '') + `</g></g>`;
     }).join('');
     const звёзды = Array.from({ length: 14 }, (_, k) => `<circle class="star" style="--d:${(-случай() * 4).toFixed(2)}s" cx="${ф(случай() * W)}" cy="${ф(случай() * H * .45)}" r="${(случай() * 1 + .5).toFixed(2)}"/>`).join('');
     const светлячки = Array.from({ length: 7 }, (_, k) => `<circle class="fly" style="--d:${(-k * 1.3).toFixed(1)}s;--fx:${ф((случай() - .5) * 40)}px;--fy:${ф(-10 - случай() * 30)}px" cx="${ф(30 + случай() * (W - 60))}" cy="${ф(40 + случай() * (H - 140))}" r="1.8"/>`).join('');
@@ -682,7 +684,7 @@ function бирка(x, y, слово, атр, класс) {
 function древоКнига(д, р) {
   const человек = (ч) => {
     const кем = р.кем.get(ч.id);
-    return `<span class="who${родЧеловека(ч)}"${человекАтр(ч.id)}>${портрет(ч, 'dot')}<span class="nm">${кем ? `<i class="kin">${э(кем)}</i>` : ''}<b>${имяВДреве(ч)}</b>${ч.роль ? `<small data-i18n-skip>${э(ч.роль)}</small>` : ''}</span></span>`;
+    return `<span class="who${родЧеловека(ч)}"${человекАтр(ч.id)}>${портрет(ч, 'dot')}<span class="nm">${кем ? `<i class="kin">${э(кем)}</i>` : ''}<b>${имяВДреве(ч)}</b>${ч.роль ? `<small data-i18n-skip>${э(ч.роль)}</small>` : ''}${ч.законность ? `<small class="hud-fam-legit" data-i18n-skip>${э(ч.законность)}</small>` : ''}</span></span>`;
   };
   const строка = (ид, сватья) => {
     const члены = ид.map(id => р.поИд.get(id)).filter(Boolean);

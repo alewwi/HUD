@@ -28,6 +28,8 @@ const КОРЕНЬ = {
   // Средневековье: шкатулка вместо телефона, письма вместо переписок,
   // подслушанное вместо перехватов.
   sm: 'satchel', lt: 'letters', ov: 'overheard',
+  // Жизнь эпохи (render/medieval-life.js): честь, вести, запасы, вера, суд…
+  ep: 'epoch',
   ph: 'phone', chats: 'chatsMap', taps: 'intercepts', bdiary: 'bodyDiary',
 };
 const ПАМЯТЬ = { lg: 'timeline', md: 'mood', rt: 'route', fct: 'important', sec: 'secrets', gun: 'guns', prm: 'promises', hk: 'household', fc: 'important', sc: 'secrets', log: 'timeline', facts: 'important' };
@@ -52,10 +54,10 @@ const ПОЛЯ_ТЕЛЕФОНА = {
 const ШКАТУЛКА = { ow: 'owner', cl: 'calendar', wl: 'wallet', nb: 'notes', mp: 'maps', doc: 'documents', kp: 'keepsakes' };
 const ПОЛЯ_ШКАТУЛКИ = {
   notes: ПОЛЯ_ТЕЛЕФОНА.notes, maps: ПОЛЯ_ТЕЛЕФОНА.maps, calendar: ПОЛЯ_ТЕЛЕФОНА.calendar,
-  documents: { ti: 'title', kd: 'kind', sl: 'seal', tx: 'text', st: 'status' },
+  documents: { ti: 'title', kd: 'kind', sl: 'seal', tx: 'text', st: 'status', ok: 'grants', wr: 'where', by: 'recognized', hr: 'here' },
   keepsakes: { ti: 'title', dsc: 'desc', frm: 'from' },
 };
-const ПИСЬМО = { fr: 'from', to: 'to', tm: 'time', st: 'status', sl: 'seal', via: 'via', tx: 'text' };
+const ПИСЬМО = { fr: 'from', to: 'to', tm: 'time', st: 'status', sl: 'seal', via: 'via', tx: 'text', eta: 'eta' };
 const ПОДСЛУШАННОЕ = { kd: 'kind', wh: 'where', how: 'how', tm: 'time', fr: 'from', to: 'to', sl: 'seal', ms: 'lines' };
 const ЗДОРОВЬЕ_ТЕЛ = { sl: 'sleep', st: 'steps', hr: 'pulse' };
 const КОШЕЛЁК = { bl: 'balance', cu: 'currency', trx: 'transactions', tx: 'transactions', bal: 'balance', cur: 'currency' };
@@ -94,7 +96,7 @@ const каждому = (список, словарь) => {
 // памяти (не закрыла скобку «me» вовремя): дневники, мир, шкатулка, письма…
 // Внутри памяти они никому не видны — поднимаем на место. «sc» не трогаем:
 // в памяти это старое написание секретов.
-const ВЫШЕ_ПАМЯТИ = new Set(['cm', 'phn', 'tp', 'dy', 'bd', 'dr', 'wd', 'pet', 'bb', 'babies', 'sm', 'lt', 'ov', 'us', 'cs',
+const ВЫШЕ_ПАМЯТИ = new Set(['cm', 'phn', 'tp', 'dy', 'bd', 'dr', 'wd', 'pet', 'bb', 'babies', 'sm', 'lt', 'ov', 'ep', 'epoch', 'us', 'cs',
   'chats', 'taps', 'bdiary', 'ph', 'chatsMap', 'phone', 'intercepts', 'diary', 'bodyDiary', 'dreams', 'world',
   'companions', 'satchel', 'letters', 'overheard', 'characters', 'user']);
 const пустое = (v) => v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length)
@@ -263,7 +265,7 @@ export const МЕТКИ = {
   // После близости (ND)
   se: 'Чувствительность', bo: 'Тело после', fe: 'Чувства после',
   // Болезни и травмы (Ill); стадия — та же sg, что у конфликта
-  nm: 'Что это', rc: 'Выздоровление', sy: 'Симптомы', trt: 'Лечение', zn: 'Зона',
+  nm: 'Что это', rc: 'Выздоровление', sy: 'Симптомы', trt: 'Лечение', zn: 'Зона', dng: 'Опасность', trn: 'Когда скажется',
   // Беременность (Prg)
   wk: 'Неделя', due: 'Роды', fa: 'Отец', knw: 'Кто знает', cnd: 'Как проходит',
   gnd: 'Пол ребёнка', bnm: 'Имя ребёнка', vis: 'Визит к врачу', crv: 'Тяга',

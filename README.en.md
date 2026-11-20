@@ -657,8 +657,10 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.69**:
+The latest version is **23.89.70**:
 
+- Medieval life, each part behind its own toggle: honour, delayed news right in the World news, charters with their rights, mounts and pack animals, supplies, faith and the Church (or the old gods), marriage and children's legitimacy (with a mark in the family tree), humours, wounds without antiseptics in Illnesses and injuries, household and courts. Any medieval part can be switched off and goes back to the modern behaviour; the Customization sample is filled in and ✎ editing knows the new blocks. A horse gets a horse portrait.
+- "nc" expands again for babies: a turn with full keys ("Имя", "Одежда"…) is read and saved in codes, and older turns are fixed when shown.
 - A letter's seal depends only on the letter itself: a letter from the previous turn's snapshot keeps its seal. The Almanac calendar: the "today" ring around the number, readable event times, an edgeless month plate, and a readable "Today" line and enchanted calendar on any theme. Original letters, the Casket buttons and lid are readable; checked live on desktop and phone.
 - The old-era views get a new finish: gilded corners, enamel section miniatures, a stone fireplace, wax seals on letters with a device of their own for each letter that break when the letter is opened. A new "Tavern board" view for notices. Old-era view animations run only under the mouse or on tap; words no longer break letter by letter on a narrow phone card.
 - Medieval era: fasts, saints and the farming season in the almanac, a family sign by the name (coat of arms, craft sign or house mark), illuminated initials in letters, news and notes. A "model only" preparation can be removed with a cross; fixed two preparations at once, a holiday and a fair on the same day and Orthodox dates after 1583.

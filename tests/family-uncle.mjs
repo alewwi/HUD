@@ -137,7 +137,7 @@ const все = А.ответыПроДядей();
 // Плашка вопроса над деревом.
 const RG = await import('file:///' + path.join(КОРЕНЬ, 'render/relations-graph.js').replace(/\\/g, '/') + '?v=' + ВЕРСИЯ);
 const код = fs.readFileSync(path.join(КОРЕНЬ, 'render/relations-graph.js'), 'utf8');
-проверить('граф передаёт ответы чата в дерево', /buildFamilyTree\(родня\.nodes, родня\.edges, markerBase, \{ дяди: ответыПроДядей\(\) \}\)/.test(код));
+проверить('граф передаёт ответы чата в дерево', /buildFamilyTree\(родня\.nodes, родня\.edges, markerBase, \{ дяди: ответыПроДядей\(\)[,}]/.test(код));
 проверить('плашка с кнопками родителей и «Не родня»', /data-fam-kin=/.test(код) && /'Не родня'/.test(код) && typeof RG.buildRelGraphHTML === 'function');
 const главный = fs.readFileSync(path.join(КОРЕНЬ, 'index.js'), 'utf8');
 проверить('ответ по кнопке пишется и дерево открывается снова', /ответитьПроДядю\(имя, родня\)/.test(главный) && /data-rel-mode="family"/.test(главный));

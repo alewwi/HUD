@@ -7,13 +7,14 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { кнопкаПодсказки } from './erase-button.js?v=23.89.69';
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.89.69';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.69';
-import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.89.69';
-import { видБлока } from './views.js?v=23.89.69';
-import { settings } from '../settings.js?v=23.89.69';
-import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.69';
+import { кнопкаПодсказки } from './erase-button.js?v=23.89.70';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.89.70';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.70';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.89.70';
+import { видБлока } from './views.js?v=23.89.70';
+import { settings } from '../settings.js?v=23.89.70';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.70';
+import { разобратьВесть } from './medieval-life.js?v=23.89.70';
 
 // Заголовки разделов «Мира» по эпохе: в средневековье нет «новостей»,
 // «афиши» и «комментариев Сети» — есть глашатай, ярмарки и пересуды.
@@ -29,8 +30,8 @@ const СРЕДНЕВЕКОВЬЕ = {
   '💬 Комментарии Сети': '💬 Пересуды',
 };
 const З = (заголовок) => (старина() && СРЕДНЕВЕКОВЬЕ[заголовок]) || заголовок;
-import { знакЗодиака } from '../i18n.js?v=23.89.69';
-import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.89.69';
+import { знакЗодиака } from '../i18n.js?v=23.89.70';
+import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.89.70';
 
 // Вид блока «Мира» из «Кастомизации»: новый — если выбран и собрался,
 // иначе прежний (render/world-views.js).
@@ -189,21 +190,21 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments, подГ
   if (доп.место) { try { html += доп.место() || ''; } catch (e) { console.warn('[TavernOS HUD] Правила места:', e); } }
   const headlineTitles = [];
   if (worldData.headlines && worldData.headlines.length > 0) {
+    // Вести с задержкой (средневековье, render/medieval-life.js): у строки ещё
+    // откуда, когда и кто принёс; выключено — заголовок и текст, как всегда.
     const статьи = worldData.headlines.map((hl, idx) => {
-      const parts = String(hl).split('|');
-      const title = parts[0].trim();
-      const body = parts.length > 1 ? parts.slice(1).join('|').trim() : '';
+      const { title, body, bare, весть, давность } = разобратьВесть(hl, доп.датаСцены || '');
       headlineTitles.push(title);
-      const voteKey = `hl-${idx}-${hudHashSeed(title + '\n' + body)}`;
-      return { title, body, voteKey, votes: getWorldVotes(voteKey) };
+      const voteKey = `hl-${idx}-${hudHashSeed(title + '\n' + bare)}`;
+      return { title, body, bare, весть, давность, voteKey, votes: getWorldVotes(voteKey) };
     });
     html += `<div class="hud-hint-box">${кнопкаПодсказки('news', статьи.map(с => с.title))}</div>`;
     html += вМире('newsView', вид => видНовостей(статьи, вид, З('📰 Главные новости')), () => {
       let h = `<div class="hud-world-section hud-world-section-news"><div class="hud-world-title">${З('📰 Главные новости')}</div>`;
-      статьи.forEach(({ title, body, voteKey, votes }) => {
+      статьи.forEach(({ title, bare: body, весть, voteKey, votes }) => {
         const colClass = body.length > 220 ? ' article-text-columns' : '';
         h += `<details class="hud-news-article">
-        <summary><span class="hud-news-headline">${escapeHtml(title)}</span>
+        <summary><span class="hud-news-headline">${escapeHtml(title)}</span>${весть || ''}
           ${старина() ? '' : `<span class="hud-news-stats">
             <button type="button" class="hud-news-vote hud-news-upvote${votes.votedUp ? ' is-on' : ''}" data-vote-key="${voteKey}" data-vote-kind="up" aria-pressed="${votes.votedUp ? 'true' : 'false'}">▲ <span class="hud-news-vote-n">${votes.up}</span></button>
             <span class="hud-news-stats-sep">|</span>

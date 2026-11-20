@@ -13,10 +13,10 @@
 // уязвимом положении, поэтому по умолчанию оно под покрывалом
 // (underwearVeil): открывается нажатием.
 
-import { escapeHtml, applyTooltips, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.69';
-import { settings } from '../settings.js?v=23.89.69';
-import { старина } from '../era.js?v=23.89.69';
-import { ико } from './view-icons.js?v=23.89.69';
+import { escapeHtml, applyTooltips, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.70';
+import { settings } from '../settings.js?v=23.89.70';
+import { стариннаяЗабота } from '../era.js?v=23.89.70';
+import { ико } from './view-icons.js?v=23.89.70';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const пусто = (s) => !s || /^(empty|none|нет|—|-)$/i.test(s.trim());
@@ -107,7 +107,7 @@ function силуэты(б, пол) {
   // Средневековье без названных вещей («льняное», «простое»): у женщины
   // сорочка, у мужчины брэ (силуэт свободных трусов), а не бюстгальтер с трусиками.
   const названо = ВЕЩИ.some(([, rx]) => rx.test(String(б.комплект || '').replace(/ё/gi, 'е').toLowerCase()));
-  const вещи = б.сорочка ? ['chemise'] : старина() && !названо ? [пол === 'm' ? 'boxers' : 'chemise'] : вещиБелья(б.комплект, пол);
+  const вещи = б.сорочка ? ['chemise'] : стариннаяЗабота() && !названо ? [пол === 'm' ? 'boxers' : 'chemise'] : вещиБелья(б.комплект, пол);
   const id = 'hud-un-g' + (++счётчикId);
   const клетки = вещи.map((к, i) => {
     const ф = ФОРМЫ[к];

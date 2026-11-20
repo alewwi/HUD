@@ -95,10 +95,12 @@ export const ПРИМЕР_HUD = {
       C: 'home T-shirt, grey sweatpants, barefoot',
       Ap: 'M, 185 cm, broad shoulders, short dark hair, stubble, a scar over the eyebrow',
       R: 'design engineer, Lilian\'s older brother, Anna\'s husband',
+      Mrg: 'wed to Anna in Saint Martin\'s cathedral; dowry — the house on Forest Street and a chest of linen',
+      Lgt: 'legitimate son, heir of the Grey house',
       B: 'relaxed after intimacy, but worried about his sister',
       H: 'healthy, the wrist aches',
       Bt: 'Artyom Wolf | a bottle of collector\'s whisky | that Lilian opens the door before midnight | open',
-      Ill: 'nm: right wrist sprain; sg: healing; rc: 60%; sy: aches with the weather; trt: elastic bandage',
+      Ill: 'nm: right wrist sprain; sg: healing; rc: 60%; sy: aches with the weather; trt: elastic bandage | nm: cut on the forearm; sg: fresh; rc: 25%; sy: the edges are red and throbbing; trt: bound with a rag; zn: left forearm; dng: festering; trn: in two or three days unless washed with wine',
       Ph: 'a pleasant heaviness in the body, thirsty',
       Bs: 'eng: 60 — holding up; awk: 70 — alert; sat: 75 — full; str: 45 — holding it in; slp: 6 h, went to bed at 01:00; dut: a site visit from 08:00',
       L: 'his and Anna\'s apartment on Forest Street, bedroom',
@@ -143,6 +145,7 @@ export const ПРИМЕР_HUD = {
       C: 'his shirt on bare skin, wool socks',
       Ap: 'F, 165 cm, wavy blond hair, blue eyes, freckles, a visible bump',
       R: 'music teacher on maternity leave, Mark\'s wife, Lilian\'s best friend',
+      Mrg: 'wed to Mark; dowry — the house on Forest Street and a chest of linen',
       B: 'sleepy, happy, her lower back pulls a little',
       H: 'the pregnancy is going well, mild anemia',
       Ill: 'nm: anemia of pregnancy; sg: stable; rc: 80%; sy: tired by the evening; trt: iron supplements',
@@ -217,6 +220,7 @@ export const ПРИМЕР_HUD = {
       C: 'her husband\'s stretched T-shirt, a milk stain on the chest, warm socks',
       Ap: 'F, 170 cm, red hair in a messy bun, green eyes, dark circles under the eyes, freckles',
       R: 'illustrator, Anna\'s friend from school, Mia\'s mom',
+      Mrg: 'lives with Dan unwed — the banns have been put off for three months, the priest threatens penance',
       B: 'worn out but happy, breasts feel full to bursting',
       H: 'recovering after the birth, short on sleep',
       Pp: 'bf: breast; lfd: 19:10; brs: heavy, full to bursting, leaking a little; sy: the stitches barely bother her, chronic lack of sleep, tearful by the evening',
@@ -386,6 +390,7 @@ export const ПРИМЕР_HUD = {
   ],
 
   pet: [
+    { n: 'Chestnut', sp: 'bay gelding', ag: '9 years', wnt: 'oats and a warm stall', ow: 'Mark Grey', md: 'tired but holding on', cnd: 'healthy, a rubbed withers', inj: 'rubbed withers — may fester under the saddle — in a day unless it is let dry', fd: 'oats in the morning, hay at night', bnd: '70', ld: 'two packs of books for the abbey — heavy', rst: 'good until sunset, then needs rest', fod: 'oats for two halts', tck: 'the left fore shoe hangs on two nails', stb: 'the «Lame Goose» stable, 2 coppers a night' },
     { n: 'Cinnamon', sp: 'ginger cat', ag: '3 years', eye: 'amber', wnt: 'for the door to open', trt: 'cream', ow: 'Lilian Grey', md: 'offended at being locked in the bedroom', cnd: 'healthy', fd: 'wet food, fed at 19:00', bnd: '85', skl: 'opens doors; steals ribbons', nte: 'scratching at the bedroom door', lv: 'sat: 4; eng: 3; cln: 5; joy: 1' },
     { n: 'Zuzu', sp: 'robot vacuum', ag: 'in its second year of service', wnt: 'to get to its charger', ow: 'Anna Grey', md: 'waiting for a command', cnd: 'charge 40%', fd: 'electricity, charging at night', bnd: '30', nte: 'stuck under the crib in a box', lv: 'chg: 2; fix: 4; joy: 2' },
   ],
@@ -396,6 +401,7 @@ export const ПРИМЕР_HUD = {
       C: 'yellow pajamas with ducklings, one sock is lost',
       Ap: 'blond curls like her mom\'s, blue eyes, a dimple on her cheek, two new teeth',
       R: 'daughter of Anna and Mark, Leo\'s twin',
+      Lgt: 'legitimate',
       B: 'sleepy, rubbing her eyes, but holding on',
       Bs: 'eng: 30 — worn out by the day; awk: 15 — falling asleep on the go; sat: 70 — full after porridge; str: 25 — a bit fussy, canines coming in; slp: 10 h, woke up twice',
       H: 'healthy, canines coming in',
@@ -415,6 +421,7 @@ export const ПРИМЕР_HUD = {
       C: 'blue romper with a dinosaur',
       Ap: 'dark buzzed hair like his dad\'s, grey eyes, chubby cheeks',
       R: 'son of Anna and Mark, Eva\'s twin',
+      Lgt: 'legitimate, inherits the house',
       B: 'lively, doesn\'t want to sleep, babbling nonstop',
       Bs: 'eng: 75 — racing around the playpen; awk: 60 — not going to sleep; sat: 55 — time for a snack; str: 40 — stuffy nose, cranky; slp: 9 h, woke up three times',
       H: 'a mild runny nose',
@@ -436,6 +443,7 @@ export const ПРИМЕР_HUD = {
       C: 'white bodysuit with a bunny, a starry swaddle',
       Ap: 'dark fuzz on the crown, grey-blue eyes, a tiny birthmark on the wrist',
       R: 'daughter of Kira and Dan, Anna\'s goddaughter',
+      Lgt: 'bastard, acknowledged by her father',
       B: 'full, dozing in mom\'s arms, grunting now and then',
       Bs: 'eng: 40 — dozing; awk: 20 — eyes drooping; sat: 85 — just fed; str: 35 — colic by the evening; slp: 6 h in snatches, woke up four times',
       H: 'healthy, colic in the evenings',
@@ -451,7 +459,7 @@ export const ПРИМЕР_HUD = {
   ],
 
   wd: {
-    nws: ['Exhibition of old maps | The city library has opened an exhibition of 18th-century atlases. Restorers worked on them for six months.', 'Showers until the weekend | Forecasters promise rain until Sunday and gusts of wind up to 15 m/s.'],
+    nws: ['Exhibition of old maps | The city library has opened an exhibition of 18th-century atlases. Restorers worked on them for six months. | here | today | the town crier', 'Showers until the weekend | Forecasters promise rain until Sunday and gusts of wind up to 15 m/s. | here | yesterday | fishermen from the river', 'The king is bedridden | The court argues over a regency, riders gallop to the northern barons. | The capital | 08.10 | a pilgrim from the south road', 'Salt doubled in price | The storm at Liss wrecked three salt barges. | Port Liss | 26.09 | a salt merchant'],
     rm: ['They say the «Binding» will soon close for renovation', 'In the house on Garden Street someone plays the violin every night'],
     fc: ['morning | overcast | +7°C | fog', 'day | drizzle | +10°C | drizzle', 'evening | rain | +9°C | rain', 'night | windy | +6°C | wind from the river'],
     zd: [
@@ -473,6 +481,18 @@ export const ПРИМЕР_HUD = {
     com: ['BookWorm: who saw the atlas at the exhibition? It\'s a miracle', 'Rainy_cat: the «Binding» won\'t close, I checked'],
   },
 
+  // Life of the age (medieval, render/medieval-life.js): each part by its own setting.
+  ep: {
+    hon: ['Booksellers\' guild | Lilian Grey | respect her but are jealous | took the abbey\'s order over the senior masters', 'Neighbours on Garden Street | Lilian Grey | pity her and gossip | receives a man alone in the evenings', 'The clergy | Lilian Grey | value her | bound the abbey psalter almost for nothing'],
+    sup: ['Candles | two nights', 'Bread | until tomorrow', 'Firewood | until market day', 'Glue and wax for bindings | ran out'],
+    fth: ['Lilian Grey | devout but secretly doubting | has not been to confession since Easter', 'Eleanor Grey | strict in faith | a pilgrimage vow made for her daughter'],
+    ch: ['Church court | Kira Lis | for living unwed, hearing on Sunday'],
+    wt: ['Mira Sol | whisper | herbs that gave a neighbour her sleep back «worked too well»'],
+    hum: ['Mark Grey | yellow bile | short-tempered, sleepless, face burning | the physician ordered bleeding and barley water'],
+    hh: ['Bertha | the Greys\' maid | 72 | scrubs pots and listens at the door', 'Hugh | groom | 35 | vanishes into the «Lame Goose»'],
+    law: ['Oleg | stealing cloth from the guild | ordeal by water | the burgrave | set for Saturday'],
+  },
+
   sm: {
     ow: 'Lilian Grey',
     cl: [{ dt: '18.10', ti: 'Fair on the square', kd: 'event', tm: 'by noon' }, { dt: '01.11', ti: 'All Saints\' Day', kd: 'holiday' }],
@@ -482,10 +502,12 @@ export const ПРИМЕР_HUD = {
     ] },
     nb: [{ ti: 'In the margins of the psalter', tm: 'Today', tx: 'I\'ll tell him. Come what may.', ftr: 'Lord, give me courage' }],
     mp: [{ pl: 'The Abbey of Saint Martin', nte: 'half a day\'s journey' }, { pl: 'The ford by the mill', nte: 'dangerous in the rain' }],
-    doc: [{ ti: 'Master bookbinder\'s charter', kd: 'charter', sl: 'booksellers\' guild', tx: 'Allows keeping her own workshop in the town', st: 'valid' }],
+    doc: [{ ti: 'Master bookbinder\'s charter', kd: 'charter', sl: 'booksellers\' guild', tx: 'Allows keeping her own workshop in the town', st: 'valid', ok: 'to keep a workshop and take apprentices', wr: 'the town and its suburbs', by: 'the booksellers\' guild and the town council', hr: 'yes' },
+      { ti: 'Safe-conduct of the Count of Lorn', kd: 'pass', sl: 'the Count of Lorn', tx: 'Orders the bearer and baggage let through unsearched', st: 'valid', ok: 'passage through the count\'s lands without toll or search', wr: 'the county of Lorn, across the river', by: 'the count\'s men', hr: 'no' }],
     kp: [{ ti: 'A dried rose', dsc: 'Between the pages of the book of hours, since that day in the downpour', frm: 'Artyom Wolf' }],
   },
   lt: [
+    { fr: 'Lilian Grey', to: 'Abbot Martin', tm: 'Yesterday, after mass', st: 'transit', sl: 'blue wax, an open book', via: 'the abbey courier', eta: 'in 2 days, by Saturday', tx: 'Holy father, the binding of your psalter is ready. Send for it once the roads dry.' },
     { fr: 'Lilian Grey', to: 'Artyom Wolf', tm: 'Today, by vespers', st: 'draft', sl: 'blue wax, an open book', via: 'will carry it herself', tx: 'I don\'t know how to speak beautifully, so I write. Since that day in the rain I think only of you.' },
     { fr: 'Eleanor Grey', to: 'Lilian Grey', tm: 'Yesterday', st: 'sealed', sl: 'black wax, the Grey coat of arms', via: 'a servant', tx: 'I expect you on Sunday for dinner. We need to talk about your future.' },
   ],
@@ -531,6 +553,32 @@ export const ПРИМЕР_СЕМЬИ = () => ({
     { кто: 'char:Anna Grey', когда: '12.08.2023, 05:40', дата: null, отец: 'Mark Grey', тип: 'fraternal', полы: ['f', 'm'], число: 2 },
     { кто: 'char:Kira Lis', когда: '07.09.2024, 04:15', дата: null, отец: 'Dan Lis', тип: 'one', полы: ['f'], число: 1 },
   ],
+});
+
+/** Sample chat data (sample-meta.js): a world feast with «How it is marked», fairs,
+ *  a fair preparation (two steps done), local rules and power. New every time. */
+export const ПРИМЕР_МЕТА = () => ({
+  tavernosHudHolidays: {
+    список: [{ id: 'sample-sheaf', имя: 'Feast of the Last Sheaf', дата: '22.10', о: 'the last sheaf is carried through the town to the cathedral, bread from the new grain is baked at the gates', ежегодно: true }],
+    ответы: { 'fair|2024-10-19|2024': 'yes' },
+    ярмарки: { '2024-10': [19, 29], '2024-11': [9] },
+    детали: { 'feast of the last sheaf|22.10': { имя: 'Feast of the Last Sheaf', суть: 'The town thanks the field: whoever ate this year\'s bread walks behind the sheaf.', обычай: 'Every family weaves its own ribbon into the sheaf — the ribbons tell who married and who was widowed this year.', место: 'From noon the gates are open without toll, long tables stand on the cathedral square.', событие: 'By vespers the sheaf is raised to the bell tower; whoever touches it first is lucky till spring.', когда: 0 } },
+    подготовка: { 'fair|2024-10-19|2024': { шаги: ['Pick the three best bindings for the stall', 'Arrange the cart with Hugh', 'Buy gold leaf from the visiting trader', 'Hang a sign by the workshop'], сдвиг: 0, вести: true, показ: true, от: 1e9, дата: Date.UTC(2024, 9, 19), имя: 'Ярмарка', модели: 'a fair', ярмарка: true, игрок: { 0: true, 1: true } } },
+  },
+  tavernosHudPlaces: {
+    список: [{ id: 'sample-garden', имя: 'Apartment',
+      правила: [
+        { текст: 'After the evening bell the house doors are locked, the key is with the landlady', когда: '21:00-06:00', когдаСлово: 'after the bell', дни: [], кого: 'lodgers and guests', где: 'the whole house', иначе: 'you sleep on the porch or pay the landlady for the trouble' },
+        { текст: 'A fire in the hearth after midnight only with a bucket of water beside it', когда: '00:00-05:00', когдаСлово: '', дни: [], кого: 'everyone', где: 'kitchen and living room', иначе: 'a fine to the fire guild' },
+        { текст: 'On Sunday before mass no noise and no trade', когда: 'always', когдаСлово: 'before mass', дни: ['sun'], кого: 'everyone', где: 'Garden Street', иначе: 'a rebuke from the priest, a fine the second time' },
+      ],
+      власть: [
+        { сфера: 'land', подпись: 'The house', кто: 'widow Martha, the landlady', заметка: 'lets rooms and hears everything' },
+        { сфера: 'guards', подпись: 'Night watch', кто: 'the town watch', заметка: 'rounds twice a night' },
+        { сфера: 'court', подпись: 'Court', кто: 'the burgrave', заметка: '' },
+        { сфера: 'church', подпись: 'Parish', кто: 'Father Benedict', заметка: '' },
+      ] }],
+  },
 });
 
 export const ПРИМЕР_БОЯ = {

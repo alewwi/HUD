@@ -4,6 +4,28 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.70 — 2026-11-20
+
+### Added
+- **Medieval life.** Each part has its own toggle in the Medieval block, all off by default. Everything shows where something similar already lives, with no new tabs:
+  - **Honour** in the World tab: how the guild, the court or the village judge a person, and why. Counted for the player, the character or both, following the factions setting.
+  - **Delayed news** inside the World news itself: a piece of news shows how old it is from the scene date, where it came from and who brought it ("9 days ago · The capital. Brought by: a pilgrim."). Local news has no "from". Letters in transit in the Casket show "arrives: …".
+  - **Charters** in the Casket: what they grant, where they hold and who recognises them. A charter with no force here gets a red "No force here" stamp.
+  - **Mounts and pack animals** in the companion card: load and stamina, and in full mode also fodder, tack and stabling.
+  - **Supplies** on the road and under siege: what is left and how long it lasts.
+  - **Faith and Church:** personal faith, the church (or the priests of the old gods) and witchcraft accusations as a ladder "whisper → suspicion → accusation → trial". The world's faith is western, Orthodox, the old gods (then the feasts follow the wheel of the year and the saints' calendar stays quiet) or several.
+  - **Marriage and children's legitimacy** as lines in people's cards; legitimacy also as a small mark under the child in the family tree.
+  - **Humours:** a physician's leaf in the World tab — which humour is in excess, the signs and the remedy.
+  - **Wounds without antiseptics** inside the Illnesses and injuries block itself: a wound gets a danger pill (festering, fever, gangrene) and a "Will show" line — when the danger shows. Companions get a "Wound" line.
+  - **Household** with loyalty, and **courts**: the charge, the stage (ordeal, trial by combat, verdict) and who judges.
+- Toggles of their own for care without modern things (midwife, wet nurse, rag teat) and for "Oaths" instead of "Promises". Any medieval part can now be switched off, and everything goes back to the modern behaviour.
+- **The Customization sample** shows everything new already filled in: a feast with details, a fair with a preparation under way, a place's rules and power, a horse with a load and a wound, a letter in transit, two charters, marriage and legitimacy, delayed news, wounds with their danger.
+- **✎ editing knows the new blocks:** medieval-life parts with labelled columns, five-part news, charter fields, a letter in transit and the horse, marriage and legitimacy, a wound's danger and timing in Illnesses and injuries.
+
+### Fixed
+- **A horse gets a horse portrait.** "Gelding", "steed", "courser", "mule" and the Russian words for them are recognised as a horse; a "black" (вороной) horse no longer turns into a bird.
+- **"nc" expands again for babies.** A turn with babies written in full keys ("Имя", "Одежда"…) could not find the child, and "nc" stayed in clothes, appearance, health, items, relationships and trust. Such a turn is now read and saved in codes, and turns already saved get fixed when shown.
+
 ## 23.89.69 — 2026-11-20
 
 ### Fixed

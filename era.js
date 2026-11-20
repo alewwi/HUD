@@ -38,7 +38,7 @@
 // мир современный, но люди пишут друг другу письма (письма вместо телефона или
 // вместе с ним).
 
-import { settings } from './settings.js?v=23.89.69';
+import { settings } from './settings.js?v=23.89.70';
 
 export const ЭПОХИ = ['modern', 'fantasy-modern', 'medieval', 'fantasy-medieval'];
 export const МАГИЯ = ['high', 'grounded'];
@@ -50,6 +50,9 @@ export const ТЕХНОЛОГИИ = ['auto', 'primitive', 'preindustrial', 'indu
 export const эпоха = (э = settings.era) => (ЭПОХИ.includes(э) ? э : 'modern');
 /** Телефонов нет: средневековье или средневековое фэнтези. */
 export const старина = (э = settings.era) => э === 'medieval' || э === 'fantasy-medieval';
+// Беременность, роды, кормление, бельё и советы цикла без современных вещей (повитуха, кормилица, сорочка)
+// — настройка medievalCare; выключена — те же блоки, что в современности.
+export const стариннаяЗабота = () => старина() && settings.medievalCare !== false;
 /** В мире есть магия: любое из двух фэнтези. */
 export const фэнтези = (э = settings.era) => э === 'fantasy-modern' || э === 'fantasy-medieval';
 /** Пара блоков эпохи: 'medieval' (шкатулка) или 'modern' (телефон). */

@@ -19,10 +19,11 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.69';
-import { settings } from '../settings.js?v=23.89.69';
-import { старина } from '../era.js?v=23.89.69';
-import { связьПраздников } from './holiday-lore.js?v=23.89.69';
+import { escapeHtml } from '../utils.js?v=23.89.70';
+import { settings } from '../settings.js?v=23.89.70';
+import { старина } from '../era.js?v=23.89.70';
+import { примерМета } from '../sample-meta.js?v=23.89.70';
+import { связьПраздников } from './holiday-lore.js?v=23.89.70';
 
 const КЛЮЧ = 'tavernosHudPlaces';
 export const местоВкл = () => старина() && settings.placeLore !== false;
@@ -30,8 +31,9 @@ export const местоВкл = () => старина() && settings.placeLore !==
 // --- Хранилище -----------------------------------------------------------------
 function контекст() { try { return globalThis.SillyTavern?.getContext?.() || null; } catch (_) { return null; } }
 function хранилище() {
+  // Пример в «Кастомизации» (sample-meta.js): своё «уже сгенерированное», без сохранения.
   const ctx = контекст();
-  const мета = ctx && (ctx.chatMetadata || ctx.chat_metadata);
+  const мета = примерМета() || (ctx && (ctx.chatMetadata || ctx.chat_metadata));
   if (!мета) return null;
   const х = (мета[КЛЮЧ] && typeof мета[КЛЮЧ] === 'object') ? мета[КЛЮЧ] : (мета[КЛЮЧ] = {});
   if (!Array.isArray(х.список)) х.список = [];
@@ -39,6 +41,7 @@ function хранилище() {
 }
 let таймер = 0;
 function сохранить() {
+  if (примерМета()) return;
   clearTimeout(таймер);
   таймер = setTimeout(() => { const ctx = контекст(); try { (ctx?.saveMetadataDebounced || ctx?.saveMetadata)?.call(ctx); } catch (_) { /* не критично */ } }, 300);
 }
@@ -278,7 +281,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
     if (кнопка.closest('.hud-custom-preview-body')) return;
     const д = кнопка.dataset;
     if (д.hudPlace === 'gen') {
-      import('./place-gen.js?v=23.89.69').then(м => м.открытьПравилаМеста({ адрес: д.addr || '', время: д.time || '', дата: д.date || '' }))
+      import('./place-gen.js?v=23.89.70').then(м => м.открытьПравилаМеста({ адрес: д.addr || '', время: д.time || '', дата: д.date || '' }))
         .catch(err => console.error('[TavernOS HUD] окно правил места не загрузилось:', err));
     } else if (д.hudPlace === 'del') {
       // Два нажатия: первое спрашивает, второе забывает.

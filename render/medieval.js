@@ -12,15 +12,16 @@
 // Переключение разделов шкатулки — на радиокнопках и CSS, без скриптов:
 // карточка HUD перерисовывается целиком, и состояние не нужно восстанавливать.
 
-import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.89.69';
-import { английский } from '../i18n.js?v=23.89.69';
-import { settings } from '../settings.js?v=23.89.69';
-import { явнаяМагия, приземлённое } from '../era.js?v=23.89.69';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.69';
-import { namesLikelySame } from '../names.js?v=23.89.69';
-import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.89.69';
-import { видРазделаШкатулки, восковаяПечать, вскрытоПисьмо } from './medieval-views.js?v=23.89.69';
-import { видБлока } from './views.js?v=23.89.69';
+import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.89.70';
+import { английский } from '../i18n.js?v=23.89.70';
+import { settings } from '../settings.js?v=23.89.70';
+import { явнаяМагия, приземлённое } from '../era.js?v=23.89.70';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.70';
+import { namesLikelySame } from '../names.js?v=23.89.70';
+import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.89.70';
+import { видРазделаШкатулки, восковаяПечать, вскрытоПисьмо } from './medieval-views.js?v=23.89.70';
+import { видБлока } from './views.js?v=23.89.70';
+import { письмаСоСроком, грамотыСПравами } from './medieval-life.js?v=23.89.70';
 
 const т = (v) => defeatWI(escapeHtml(String(v ?? '')));
 
@@ -249,7 +250,9 @@ const ВИД_ГРАМОТЫ = [
 ];
 const СТАТУС_ГРАМОТЫ = [
   [/forg|подд|фальш/i, 'forged', 'Подделка'], [/expir|просроч|истёк|истек/i, 'expired', 'Истекла'],
-  [/revok|отозв|отмен|аннул/i, 'revoked', 'Отозвана'], [/valid|действ|в силе/i, 'valid', 'В силе'],
+  [/revok|отозв|отмен|аннул/i, 'revoked', 'Отозвана'],
+  // Жизнь эпохи (render/medieval-life.js): грамота, что не действует там, где сцена.
+  [/не действ|здесь не|not here|no force/i, 'void', 'Здесь не действует'], [/valid|действ|в силе/i, 'valid', 'В силе'],
 ];
 function buildDocs(docs) {
   if (!docs || !docs.length) return пусто('📜', 'Ни одной бумаги с печатью');
@@ -313,7 +316,10 @@ export function hudHasCasket(satchel, letters) {
 // толькоПисьма — современный мир, где пишут письма (era.js, «Связь в современности»):
 // от шкатулки остаются одни письма.
 export function buildCasketHTML(satchel, letters, uid, isChecked, fallbackOwner, sceneDate, characters, { толькоПисьма = false } = {}) {
-  const s = satchel && typeof satchel === 'object' ? satchel : {};
+  // Жизнь эпохи (render/medieval-life.js): срок письма в пути — к доставке, права грамоты — к её тексту.
+  const s0 = satchel && typeof satchel === 'object' ? satchel : {};
+  const s = Array.isArray(s0.documents) ? { ...s0, documents: грамотыСПравами(s0.documents) } : s0;
+  letters = письмаСоСроком(letters);
   const owner = (s.owner && !/^(empty|none)$/i.test(s.owner) ? s.owner : '') || fallbackOwner || '';
   const on = (k) => settings[k] !== false;
   const нераспечатано = (letters || []).filter(l => статусПисьма(l.status).ключ === 'sealed').length;

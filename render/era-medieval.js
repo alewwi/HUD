@@ -13,11 +13,11 @@
 //
 // Текст модели в новую разметку идёт только через escapeHtml.
 
-import { escapeHtml } from '../utils.js?v=23.89.69';
-import { settings } from '../settings.js?v=23.89.69';
-import { старина, фэнтези, современныйВид, естьПодМагию, магияОблика, блокПодМагию } from '../era.js?v=23.89.69';
-import { преобразитьФэнтези, СЕЛЕКТОРЫ_ФЭНТЕЗИ, кошель } from './era-fantasy.js?v=23.89.69';
-import { английский } from '../i18n.js?v=23.89.69';
+import { escapeHtml } from '../utils.js?v=23.89.70';
+import { settings } from '../settings.js?v=23.89.70';
+import { старина, фэнтези, современныйВид, естьПодМагию, магияОблика, блокПодМагию } from '../era.js?v=23.89.70';
+import { преобразитьФэнтези, СЕЛЕКТОРЫ_ФЭНТЕЗИ, кошель } from './era-fantasy.js?v=23.89.70';
+import { английский } from '../i18n.js?v=23.89.70';
 
 // Средневековые виды — в старине; фэнтези-слой (era-fantasy.js) — в обоих фэнтези.
 const включено = () => старина() || фэнтези() || естьПодМагию();
@@ -293,7 +293,9 @@ function подписи(корень) {
     const эл = н.parentElement;
     if (!эл || !эл.closest('.hud-os-card') || эл.closest(НЕ_ПОДПИСИ)) continue;
     const чистый = н.nodeValue.replace(/​/g, '').trim();
-    const подпись = ПОДПИСИ_ЭПОХИ[чистый] || (ен && ПОДПИСИ_ЭПОХИ_EN[чистый]);
+    // «Обещания» → «Клятвы» — своей настройкой (medievalOaths): выключена — подпись как в современности.
+    const клятвы = settings.medievalOaths !== false || !/^🤝 (?:Обещания|Promises):$/.test(чистый);
+    const подпись = клятвы && (ПОДПИСИ_ЭПОХИ[чистый] || (ен && ПОДПИСИ_ЭПОХИ_EN[чистый]));
     if (подпись) { н.nodeValue = н.nodeValue.replace(/\S[\s\S]*\S|\S/, подпись); continue; }
     let т = н.nodeValue; for (const [re, на] of ЗАМЕНЫ) т = т.replace(re, на);
     if (ен) for (const [re, на] of ЗАМЕНЫ_EN) т = т.replace(re, на);

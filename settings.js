@@ -166,9 +166,31 @@ export const defaultSettings = {
   // Средневековье: святцы (посты, святые, сезон работ), строка модели о посте,
   // знак рода у имени и буквицы (render/almanac.js, heraldry.js, css/medieval-extra.css).
   medievalAlmanac: true,
+  // Беременность, роды, кормление, бельё и советы цикла без современных вещей (era.js,
+  // стариннаяЗабота) и «Обещания» → «Клятвы» (render/era-medieval.js).
+  medievalCare: true,
+  medievalOaths: true,
   medievalFastNote: false,
   heraldry: true,
   initials: true,
+  // Средневековье, жизнь эпохи (render/medieval-life.js): части, которые пишет
+  // модель, — каждая стоит токенов, поэтому все выключены. Вера мира — без
+  // токенов: святцы берут из неё обряд; модели уходит только с «Верой и Церковью».
+  medHonour: false,
+  medNews: false,
+  medCharters: false,
+  medMounts: 'off',
+  medSupplies: false,
+  medFaith: false,
+  medFaithWorld: 'auto',
+  medFaithPersonal: true,
+  medChurch: true,
+  medWitch: true,
+  medMarriage: false,
+  medHumours: false,
+  medWounds: false,
+  medHousehold: false,
+  medLaw: false,
   placeLore: true,
   placeLoreReminder: true,
   holidayProfileId: '',

@@ -17,8 +17,8 @@
 // в кодах (hud-snapshot.js, HUDвКодах).
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { namesLikelySame } from './names.js?v=23.89.69';
-import { блокКакБыл } from './hud-block.js?v=23.89.69';
+import { namesLikelySame } from './names.js?v=23.89.70';
+import { блокКакБыл } from './hud-block.js?v=23.89.70';
 
 export const NC = /^\s*(?:nc|n\/c|no change|unchanged)\s*\.?\s*$/i;
 export const ПОЛЯ_NC = ['Ap', 'C', 'Kn', 'Ft', 'NG', 'SxL'];
@@ -120,6 +120,22 @@ function развернутьМир(hud, прошлые, ключи) {
     if (!откуда) { if (v !== undefined) { delete hud.wd[к]; было = true; } continue; }
     if (!объект(hud.wd)) hud.wd = {};
     hud.wd[к] = копия(откуда.wd[к]);
+    было = true;
+  }
+  return было;
+}
+
+// --- Жизнь эпохи (render/medieval-life.js) ------------------------------------------
+// Часть «ep», которую модель не написала вовсе, — прежняя: честь, суд или
+// запасы не исчезают оттого, что ход о них промолчал. [] — явное «ничего».
+function развернутьЭпоху(hud, прошлые, ключи) {
+  let было = false;
+  for (const к of ключи) {
+    if (объект(hud.ep) && hud.ep[к] !== undefined) continue;
+    const откуда = прошлые.find(h => h && объект(h.ep) && Array.isArray(h.ep[к]) && h.ep[к].length && !этоNC(h.ep[к]));
+    if (!откуда) continue;
+    if (!объект(hud.ep)) hud.ep = {};
+    hud.ep[к] = копия(откуда.ep[к]);
     было = true;
   }
   return было;
@@ -261,7 +277,7 @@ function развернутьПамять(hud, прошлые, ключи) {
  * мир / память — какие ключи разворачивать (то, что включено в настройках и
  * просили писать коротко); nc разворачивается всегда. true — что-то поменялось.
  */
-export function развернутьКраткое(hud, прошлые, { мир = [], память = [] } = {}) {
+export function развернутьКраткое(hud, прошлые, { мир = [], память = [], эпоха = [] } = {}) {
   if (!объект(hud)) return false;
   const до = Array.isArray(прошлые) ? прошлые.filter(объект) : [];
   let было = false;
@@ -272,6 +288,7 @@ export function развернутьКраткое(hud, прошлые, { мир
   if (развернутьУзел(hud, до, { мимо: ['cs', 'us', 'bb'] })) было = true;
   if (мир.length && развернутьМир(hud, до, мир)) было = true;
   if (память.length && развернутьПамять(hud, до, память)) было = true;
+  if (эпоха.length && развернутьЭпоху(hud, до, эпоха)) было = true;
   if (снятьПометки(hud)) было = true;
   return было;
 }

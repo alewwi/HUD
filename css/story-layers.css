@@ -230,7 +230,8 @@
 .hud-cal .hud-cal-gen svg { width: 13px; height: 13px; fill: currentColor; }
 @media (hover: hover) and (pointer: fine) { .hud-cal .hud-cal-gen:hover { opacity: 1; background: color-mix(in srgb, #c59bff 14%, transparent); } }
 
-.hud-holgen { --hg: #c59bff; width: min(560px, 100%); min-width: 0; max-width: 100%; box-sizing: border-box; }
+/* Цвет окна — акцент темы: сиреневый был чужим почти во всех темах. */
+.hud-holgen { --hg: var(--hud-accent, #c59bff); width: min(560px, 100%); min-width: 0; max-width: 100%; box-sizing: border-box; }
 .hud-holgen .hud-modal-head { display: flex; align-items: center; gap: 10px; }
 .hud-holgen .hud-modal-x { margin-left: auto; flex: none; width: 28px; height: 28px; border-radius: 50%; border: 0; cursor: pointer; color: inherit; background: rgba(255, 255, 255, .06); font: inherit; }
 .hud-holgen-orb {
@@ -246,8 +247,8 @@
 .hud-holgen summary.hud-holgen-lbl { display: list-item; cursor: pointer; }
 .hud-holgen-src { display: flex; flex-wrap: wrap; gap: 6px; }
 .hud-holgen-toggle {
-  padding: 4px 11px; border-radius: 999px; font: inherit; font-size: 12px; cursor: pointer; color: inherit; opacity: .55;
-  border: 1px solid rgba(255, 255, 255, .14); background: rgba(255, 255, 255, .04); transition: opacity .15s ease, background-color .15s ease;
+  padding: 4px 11px; border-radius: 999px; font: inherit; font-size: 12px; cursor: pointer; color: inherit; opacity: .72;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent); background: rgba(255, 255, 255, .04); transition: opacity .15s ease, background-color .15s ease;
 }
 .hud-holgen-toggle[aria-pressed="true"] { opacity: 1; border-color: color-mix(in srgb, var(--hg) 60%, transparent); background: color-mix(in srgb, var(--hg) 20%, transparent); }
 .hud-holgen-books { display: flex; flex-direction: column; gap: 2px; max-height: 150px; overflow: auto; margin-top: 8px; padding: 6px 8px; border-radius: 10px; background: rgba(0, 0, 0, .2); }
@@ -267,7 +268,8 @@
 .hud-holgen-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
 .hud-holgen-run, .hud-holgen-add, .hud-holgen-manual-save {
   padding: 7px 16px; border-radius: 999px; border: 0; cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 700; color: #1a0f2a;
-  background: linear-gradient(135deg, #e3cdff, var(--hg)); box-shadow: 0 4px 16px -8px var(--hg);
+  /* Кнопка светлая при любом акценте: тёмные буквы на ней читаются и у тёмного акцента. */
+  background: linear-gradient(135deg, color-mix(in srgb, var(--hg) 30%, #fff), color-mix(in srgb, var(--hg) 58%, #fff)); box-shadow: 0 4px 16px -8px var(--hg);
 }
 .hud-holgen.is-busy .hud-holgen-run { color: inherit; background: rgba(255, 255, 255, .1); box-shadow: none; }
 .hud-holgen-add { margin-top: 10px; }
@@ -283,10 +285,13 @@
 .hud-holgen-list li.is-off .hud-holgen-name b { text-decoration: line-through; }
 .hud-holgen-date { display: grid; place-items: center; min-width: 52px; padding: 4px 6px; border-radius: 9px; text-align: center; background: color-mix(in srgb, var(--hg) 18%, transparent); }
 .hud-holgen-date b { font-size: 14px; font-variant-numeric: tabular-nums; line-height: 1.1; }
-.hud-holgen-date small { font-size: 9.5px; opacity: .7; }
+.hud-holgen-date small { font-size: 9.5px; opacity: .8; }
 .hud-holgen-name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .hud-holgen-name b { font-size: 13px; line-height: 1.3; overflow-wrap: break-word; }
-.hud-holgen-name small { font-size: 11.5px; line-height: 1.35; opacity: .7; }
+.hud-holgen-name small { font-size: 11.5px; line-height: 1.35; opacity: .82; }
+/* Таверна красит голый <small> своим цветом (на светлом окне — светлым) с прозрачностью:
+   дата «каждый год», описание праздника и подписи пропадали. Цвет — от текста окна. */
+.hud-holgen small { color: inherit; }
 .hud-holgen-x, .hud-holgen-del {
   flex: none; width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .14); cursor: pointer;
   font: inherit; font-size: 12px; color: inherit; background: rgba(255, 255, 255, .05); transition: background-color .15s ease;

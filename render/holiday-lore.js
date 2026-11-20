@@ -13,12 +13,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.69';
-import { settings } from '../settings.js?v=23.89.69';
-import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.69';
-import { праздникиГода } from './holidays.js?v=23.89.69';
-import { раскрывашка } from './fold.js?v=23.89.69';
-import { старина } from '../era.js?v=23.89.69';
+import { escapeHtml } from '../utils.js?v=23.89.70';
+import { settings } from '../settings.js?v=23.89.70';
+import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.70';
+import { праздникиГода } from './holidays.js?v=23.89.70';
+import { раскрывашка } from './fold.js?v=23.89.70';
+import { старина } from '../era.js?v=23.89.70';
+import { примерМета } from '../sample-meta.js?v=23.89.70';
 
 const КЛЮЧ = 'tavernosHudHolidays';
 const ДЕНЬ = 864e5;
@@ -32,8 +33,9 @@ export const связьПраздников = () => связь;
 // --- Хранилище -----------------------------------------------------------------
 function контекст() { try { return globalThis.SillyTavern?.getContext?.() || null; } catch (_) { return null; } }
 function хранилище() {
+  // Пример в «Кастомизации» (sample-meta.js): своё «уже сгенерированное», без сохранения.
   const ctx = контекст();
-  const мета = ctx && (ctx.chatMetadata || ctx.chat_metadata);
+  const мета = примерМета() || (ctx && (ctx.chatMetadata || ctx.chat_metadata));
   if (!мета) return null;
   const х = (мета[КЛЮЧ] && typeof мета[КЛЮЧ] === 'object') ? мета[КЛЮЧ] : (мета[КЛЮЧ] = {});
   if (!Array.isArray(х.список)) х.список = [];
@@ -42,6 +44,7 @@ function хранилище() {
 }
 let таймер = 0;
 function сохранить() {
+  if (примерМета()) return;
   clearTimeout(таймер);
   таймер = setTimeout(() => { const ctx = контекст(); try { (ctx?.saveMetadataDebounced || ctx?.saveMetadata)?.call(ctx); } catch (_) {} }, 300);
 }
@@ -553,7 +556,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
       if (шаг.dataset.hudPrepdrop !== undefined) {
         // Окно подтверждения (confirm-erase.js): подготовка уходит совсем.
         const ключ = шаг.dataset.hudPrepdrop;
-        import('../confirm-erase.js?v=23.89.69').then(м => м.уверены({
+        import('../confirm-erase.js?v=23.89.70').then(м => м.уверены({
           что: `«${шаг.dataset.name || ''}»`, текст: 'Подготовка уберётся совсем: модель перестанет её получать, а список шагов пропадёт.', кнопка: 'Убрать',
         })).then(да => {
           if (!да) return;
@@ -589,7 +592,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
       let данные = null;
       try { данные = JSON.parse(плашка.dataset.holPrep || 'null'); } catch (_) { данные = null; }
       if (!данные) return;
-      import('./holiday-prep.js?v=23.89.69').then(м => м.открытьПодготовку(данные))
+      import('./holiday-prep.js?v=23.89.70').then(м => м.открытьПодготовку(данные))
         .catch(err => console.error('[TavernOS HUD] окно подготовки не загрузилось:', err));
       return;
     }

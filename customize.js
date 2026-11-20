@@ -5,21 +5,21 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.69';
-import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.69';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.69';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.69';
-import { ВИДЫ_БЛОКОВ, видБлока, доступныеВиды, блокДоступен } from './render/views.js?v=23.89.69';
-import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху } from './era.js?v=23.89.69';
-import { порядокГрупп } from './tabs-order.js?v=23.89.69';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.69';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.69';
-import { hudБлоки } from './hud-block.js?v=23.89.69';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.69';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.69';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.69';
-import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.69';
-import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.69';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.70';
+import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.70';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.70';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.70';
+import { ВИДЫ_БЛОКОВ, видБлока, доступныеВиды, блокДоступен } from './render/views.js?v=23.89.70';
+import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху } from './era.js?v=23.89.70';
+import { порядокГрупп } from './tabs-order.js?v=23.89.70';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.70';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.70';
+import { hudБлоки } from './hud-block.js?v=23.89.70';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.70';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.70';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.70';
+import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.70';
+import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.70';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 // Язык из таблицы переводчика: английский пример с переведёнными кусками
 // (render/sample-translate.js), пересобирается при смене языка или файла.
@@ -32,14 +32,16 @@ const пример = () => {
   return примерТаблицы;
 };
 const текстПримера = (s) => (ключЯзыкаТаблицы() ? отобразитьСтроку(s, (к) => строкаТаблицы(к) || к) : s);
-import { задатьПримерСемьи } from './render/conception.js?v=23.89.69';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.69';
-import { привязатьИсторию } from './render/intimacy.js?v=23.89.69';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.69';
-import { собратьРисунок } from './render/lazy-svg.js?v=23.89.69';
-import { attachHelpMarks } from './help.js?v=23.89.69';
-import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.69';
-import { подключитьЛёгкостьОкна } from './customize-easy.js?v=23.89.69';
+import { задатьПримерСемьи } from './render/conception.js?v=23.89.70';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.70';
+import { задатьПримерМета } from './sample-meta.js?v=23.89.70';
+import { вьючные, вестиВНовостяхВкл, раныВкл } from './render/medieval-life.js?v=23.89.70';
+import { привязатьИсторию } from './render/intimacy.js?v=23.89.70';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.70';
+import { собратьРисунок } from './render/lazy-svg.js?v=23.89.70';
+import { attachHelpMarks } from './help.js?v=23.89.70';
+import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.70';
+import { подключитьЛёгкостьОкна } from './customize-easy.js?v=23.89.70';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -499,12 +501,24 @@ function источникиПросмотра() {
     }
     return данные;
   };
+  // Плашка подготовки над вкладками в чате есть только у последнего ответа модели;
+  // у примера её показываем всегда (index.js, __пример).
+  const сПлашкой = (данные) => {
+    if (!данные) return данные;
+    Object.defineProperty(данные, '__пример', { value: true, configurable: true });
+    // Конь примера (render/medieval-life.js): груз и силы — в лёгком режиме, корм, сбруя и постой — в расширенном.
+    const р = вьючные(), лишнее = [...(р === 'off' ? ['Груз', 'Выносливость', 'Корм', 'Сбруя', 'Постой'] : р === 'light' ? ['Корм', 'Сбруя', 'Постой'] : []), ...(раныВкл() ? [] : ['Рана'])];
+    if (лишнее.length) (данные.companions || []).forEach(п => { if (п && Array.isArray(п.extra)) п.extra = п.extra.filter(д => !лишнее.includes(д.key)); });
+    // Вести примера с «откуда · когда · кто» — только при включённых вестях с задержкой.
+    if (!вестиВНовостяхВкл() && данные.world && Array.isArray(данные.world.headlines)) данные.world.headlines = данные.world.headlines.map(с => (String(с).split('|').length >= 5 ? String(с).split('|').slice(0, 2).map(x => x.trim()).join(' | ') : с));
+    return данные;
+  };
   // И два прошлых хода для «Быта»: без них журнал примера из одного хода.
   const сБытом = (данные) => {
     if (данные) Object.defineProperty(данные, '__hudБытПрошлое', { value: пример().ПРИМЕР_БЫТА_ПРОШЛОЕ.map(т => parseHUDComplex(подставить(т))), configurable: true });
     return данные;
   };
-  источники.push({ откуда: толькоПример ? 'пример со всеми блоками' : 'пример — в чате ещё нет HUD', данные: () => сБытом(сСилами(сБоем(parseHUDComplex(подставить(пример().ПРИМЕР_HUD_ТЕКСТ))))), семья: пример().ПРИМЕР_СЕМЬИ });
+  источники.push({ откуда: толькоПример ? 'пример со всеми блоками' : 'пример — в чате ещё нет HUD', данные: () => сПлашкой(сБытом(сСилами(сБоем(parseHUDComplex(подставить(пример().ПРИМЕР_HUD_ТЕКСТ)))))), семья: пример().ПРИМЕР_СЕМЬИ, мета: пример().ПРИМЕР_МЕТА });
   источники.push({ откуда: 'базовый пример — в чате ещё нет HUD', данные: () => parseHUDComplex(подставить(пример().БАЗОВЫЙ_HUD_ТЕКСТ)) });
   return источники;
 }
@@ -612,6 +626,8 @@ export function собратьПросмотр(окно) {
     try {
       // У примера свои роды и беременность — до закрытия окна (conception.js).
       задатьПримерСемьи(источник.семья ? источник.семья() : null);
+      // И свои данные чата: праздники, ярмарки, подготовка, правила места (sample-meta.js).
+      задатьПримерМета(источник.мета ? источник.мета() : null);
       задатьПримерЗаметок(источник.семья && пример().ПРИМЕР_ЗАМЕТОК ? пример().ПРИМЕР_ЗАМЕТОК((() => { try { return getSafeUserName(); } catch (_) { return ''; } })()) : null);
       const данные = источник.данные();
       if (!данные) throw new Error('пустой разбор');
@@ -715,6 +731,7 @@ export function закрытьКастомизацию() {
   document.documentElement.classList.remove('hud-custom-open');
   задатьПримерСемьи(null);
   задатьПримерЗаметок(null);
+  задатьПримерМета(null);
   основа.сверитьЗначокЗаглушки();
   // Раскрытый граф из примера живёт в body — убираем его вместе с окном.
   document.querySelectorAll('.hud-rel-graph.is-expanded').forEach(г => {

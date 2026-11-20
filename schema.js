@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.89.69';
-import { mapKey } from './utils.js?v=23.89.69';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.69';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.69';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.69';
+import { settings } from './settings.js?v=23.89.70';
+import { mapKey } from './utils.js?v=23.89.70';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.70';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.70';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.70';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -258,6 +258,8 @@ export function normalizeJSONData(parsed) {
   }
 
   // Спутники: животные, фамильяры, дроны. Строка вместо объекта — одно имя.
+  // Верховые и тягловые (render/medieval-life.js): груз, силы, корм, сбруя, постой.
+  const ПОДПИСИ_ВЬЮЧНЫХ = { ld: 'Груз', rst: 'Выносливость', fod: 'Корм', tck: 'Сбруя', stb: 'Постой', inj: 'Рана' };
   const companionsParsed = (Array.isArray(parsed.companions) ? parsed.companions : [])
     .map(p => {
       if (typeof p === 'string') return { name: toStr(p), species: '', age: '', eyes: '', wants: '', treat: '', owner: '', mood: '', condition: '', diet: '', bond: '', skills: '', note: '', levels: '', extra: [] };
@@ -285,7 +287,7 @@ export function normalizeJSONData(parsed) {
       // Что осталось неузнанным — не выбрасываем: модель могла придумать своё
       // поле («возраст», «окрас»). Показываем строкой с тем ключом, что есть.
       // Нормализация бывает повторной — уже собранный список сохраняем.
-      спутник.extra = [...(Array.isArray(p.extra) ? p.extra.filter(д => д && д.key) : [])].concat(Object.keys(p).filter(k => k !== 'extra' && !взято.has(k) && ['string', 'number'].includes(typeof p[k]) && valid(один(k))).map(k => ({ key: k, value: один(k) })));
+      спутник.extra = [...(Array.isArray(p.extra) ? p.extra.filter(д => д && д.key) : [])].concat(Object.keys(p).filter(k => k !== 'extra' && !взято.has(k) && ['string', 'number'].includes(typeof p[k]) && valid(один(k))).map(k => ({ key: ПОДПИСИ_ВЬЮЧНЫХ[k.toLowerCase()] || k, value: один(k) })));
       return спутник;
     })
     .filter(p => p && valid(p.name));
@@ -440,7 +442,7 @@ export function normalizeJSONData(parsed) {
     owner: toStr(rawSatchel.owner),
     notes:     phoneSection(rawSatchel.notes,     ['title', 'time', 'text', 'footer']),
     maps:      phoneSection(rawSatchel.maps,      ['place', 'note']),
-    documents: phoneSection(rawSatchel.documents, ['title', 'kind', 'seal', 'text', 'status']),
+    documents: phoneSection(rawSatchel.documents, ['title', 'kind', 'seal', 'text', 'status', 'grants', 'where', 'recognized', 'here']),
     keepsakes: phoneSection(rawSatchel.keepsakes, ['title', 'desc', 'from']),
     wallet: (() => {
       const w = (rawSatchel.wallet && typeof rawSatchel.wallet === 'object' && !Array.isArray(rawSatchel.wallet)) ? rawSatchel.wallet : {};
@@ -450,13 +452,29 @@ export function normalizeJSONData(parsed) {
     })(),
     calendar: phoneSection(rawSatchel.calendar, ['date', 'title', 'kind', 'time', 'status', 'movedFrom']).map(с => ({ ...с, kind: видСобытия(с.kind), status: статусСобытия(с.status) })),
   };
-  const lettersParsed = phoneSection(parsed.letters, ['text', 'from', 'to', 'time', 'status', 'seal', 'via'])
+  const lettersParsed = phoneSection(parsed.letters, ['text', 'from', 'to', 'time', 'status', 'seal', 'via', 'eta'])
     .filter(l => valid(l.text) || valid(l.from));
   const overheardParsed = (Array.isArray(parsed.overheard) ? parsed.overheard : []).map(o => {
     if (!o || typeof o !== 'object') return null;
     return { kind: toStr(o.kind), where: toStr(o.where), how: toStr(o.how), time: toStr(o.time),
       from: toStr(o.from), to: toStr(o.to), seal: toStr(o.seal), lines: cleanArray(o.lines) };
   }).filter(o => o && (o.lines.length || valid(o.where)));
+
+  // Жизнь эпохи (render/medieval-life.js): части «ep» — строки «a | b | …»,
+  // разрезанные по «|». Повторная нормализация получает уже разрезанные.
+  const epochParsed = (() => {
+    const e = (parsed.epoch && typeof parsed.epoch === 'object' && !Array.isArray(parsed.epoch)) ? parsed.epoch : {};
+    const out = {};
+    for (const k of ['hon', 'sup', 'fth', 'ch', 'wt', 'hum', 'hh', 'law']) {
+      const v = e[k];
+      const rows = (Array.isArray(v) ? v : typeof v === 'string' ? [v] : [])
+        .map(x => (x && typeof x === 'object' ? Object.values(x).map(toStr).join(' | ') : toStr(x)).trim())
+        .filter(x => x && valid(x) && !/^nc$/i.test(x) && !/^\[.*\]$/.test(x) && x.includes('|'))
+        .map(x => x.split('|').map(y => y.trim())).slice(0, 8);
+      if (rows.length) out[k] = rows;
+    }
+    return out;
+  })();
 
   // Бой (cb) — срез хода, строками; render/combat.js разбирает сам.
   const боевой = (b) => {
@@ -473,7 +491,7 @@ export function normalizeJSONData(parsed) {
     // «Тем временем» (render/memory.js): кто вне кадра, где он и что знает.
     meanwhile: (Array.isArray(parsed.meanwhile) ? parsed.meanwhile : parsed.meanwhile && typeof parsed.meanwhile === 'object' ? [parsed.meanwhile] : [])
       .filter(o => o && typeof o === 'object').map(o => ({ имя: toStr(o.N ?? o.name), где: toStr(o.at), текст: toStr(o.tx), знает: toStr(o.kn), неЗнает: toStr(o.nk), догадки: toStr(o.gs) })).filter(o => o.имя && o.текст).slice(0, 3),
-    custom: своиЗначения(parsed.cst || parsed.custom), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, satchel: satchelParsed, letters: lettersParsed, overheard: overheardParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed, companions: companionsParsed, combat: боевой(parsed.combat),
+    custom: своиЗначения(parsed.cst || parsed.custom), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, satchel: satchelParsed, letters: lettersParsed, overheard: overheardParsed, epoch: epochParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed, companions: companionsParsed, combat: боевой(parsed.combat),
     // Малыши (bb): та же карточка, что у персонажа, только своё поле «Нужды».
     babies: (Array.isArray(parsed.babies) ? parsed.babies : (parsed.babies && typeof parsed.babies === 'object' ? [parsed.babies] : [])).filter(b => b && typeof b === 'object').map(mapKeys).filter(b => b['Имя']),
     world: { headlines: cleanArray(world.headlines), rumors: cleanArray(world.rumors),

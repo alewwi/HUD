@@ -1,0 +1,113 @@
+/* Жизнь эпохи во вкладке «Мир» (средневековье) — render/medieval-life.js.
+   Карточки того же языка, что «Правила места» (css/place-lore.css): цвета от
+   акцента темы, на тёмных темах без светлых подложек. Тон строки — полоса
+   слева: is-good (почёт, законный), is-mid (спорно), is-bad (позор, опасность). */
+
+.hud-mlf { --mlf-acc: color-mix(in srgb, var(--hud-accent, #c58a3c) 55%, #d9a04e); }
+.hud-mlf .hud-mlf-card { --v-acc: var(--mlf-acc); display: grid; gap: 7px; padding: 10px 12px; border-radius: 14px;
+  background: var(--v-surf); border: 1px solid var(--v-line);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 8px 18px -12px rgba(0,0,0,.7); }
+
+.hud-mlf-row { --tone: color-mix(in srgb, var(--mlf-acc) 70%, transparent);
+  position: relative; min-width: 0; padding: 7px 10px 7px 13px; border-radius: 10px;
+  background: color-mix(in srgb, var(--mlf-acc) 7%, rgba(0,0,0,.22));
+  border: 1px solid color-mix(in srgb, var(--mlf-acc) 20%, transparent); }
+.hud-mlf-row::before { content: ''; position: absolute; left: 4px; top: 7px; bottom: 7px; width: 3px; border-radius: 3px; background: var(--tone); }
+.hud-mlf-row.is-good { --tone: #6fae6a; }
+.hud-mlf-row.is-mid { --tone: #d6a64a; }
+.hud-mlf-row.is-bad { --tone: #d0574a; }
+.hud-mlf-row.is-post { --tone: color-mix(in srgb, var(--mlf-acc) 50%, #8fb7d9); }
+
+.hud-mlf-top { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; min-width: 0; }
+.hud-mlf-top b { font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; min-width: 0;
+  color: color-mix(in srgb, var(--mlf-acc) 35%, var(--ink-hi, #fff)); }
+.hud-mlf-tag, .hud-mlf-age { display: inline-block; max-width: 100%; padding: 1px 8px; border-radius: 9px; font-size: .8em; line-height: 1.45;
+  overflow-wrap: anywhere; background: color-mix(in srgb, var(--tone) 22%, rgba(0,0,0,.25));
+  border: 1px solid color-mix(in srgb, var(--tone) 45%, transparent); }
+.hud-mlf-age { font-weight: 700; font-variant-numeric: tabular-nums; }
+.hud-mlf-say { margin-top: 3px; line-height: 1.35; overflow-wrap: anywhere; }
+.hud-mlf-why { display: block; margin-top: 3px; font-size: .82em; opacity: .75; overflow-wrap: anywhere; }
+.hud-mlf-sub { margin: 4px 0 -1px; font-size: .78em; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; opacity: .7; }
+
+/* Грамота, которая здесь не действует. */
+.hud-mlf-warn { margin-top: 6px; padding: 5px 9px; border-radius: 8px; font-size: .86em; font-weight: 650; line-height: 1.3;
+  color: color-mix(in srgb, #d0574a 45%, var(--ink-hi, #fff));
+  background: color-mix(in srgb, #d0574a 18%, rgba(0,0,0,.3)); border: 1px dashed color-mix(in srgb, #d0574a 55%, transparent); }
+.hud-mlf-warn.is-soft { color: color-mix(in srgb, #d6a64a 45%, var(--ink-hi, #fff));
+  background: color-mix(in srgb, #d6a64a 14%, rgba(0,0,0,.3)); border-color: color-mix(in srgb, #d6a64a 50%, transparent); }
+
+/* Запасы — плашки; на исходе — красноватые. */
+.hud-mlf-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-mlf-chip { max-width: 100%; padding: 4px 10px; border-radius: 10px; font-size: .9em; line-height: 1.35; overflow-wrap: anywhere;
+  background: color-mix(in srgb, var(--mlf-acc) 10%, rgba(0,0,0,.25)); border: 1px solid color-mix(in srgb, var(--mlf-acc) 30%, transparent); }
+.hud-mlf-chip b { font-weight: 700; }
+.hud-mlf-chip.is-low { background: color-mix(in srgb, #d0574a 16%, rgba(0,0,0,.28)); border-color: color-mix(in srgb, #d0574a 50%, transparent); }
+
+/* Обвинение в колдовстве: четыре ступени, пройденные подсвечены. */
+.hud-mlf-steps { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 5px; }
+.hud-mlf-steps > span { flex: 1 0 auto; padding: 2px 6px; border-radius: 6px; text-align: center; font-size: .72em; line-height: 1.3; white-space: nowrap;
+  opacity: .68; background: rgba(0,0,0,.25); border: 1px solid color-mix(in srgb, #d0574a 25%, transparent); }
+.hud-mlf-steps > span.is-on { opacity: .85; background: color-mix(in srgb, #d0574a 22%, rgba(0,0,0,.25)); }
+.hud-mlf-steps > span.is-now { opacity: 1; font-weight: 700; background: color-mix(in srgb, #d0574a 45%, rgba(0,0,0,.2)); }
+
+/* Гумор — капля своего цвета. */
+.hud-mlf-hum { display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px 1px 6px; border-radius: 9px; font-size: .8em; line-height: 1.45;
+  background: color-mix(in srgb, var(--hum) 22%, rgba(0,0,0,.25)); border: 1px solid color-mix(in srgb, var(--hum) 50%, transparent); }
+.hud-mlf-hum::before { content: ''; flex: none; width: 8px; height: 10px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: var(--hum); }
+
+/* Верность домочадца. */
+.hud-mlf-bar { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 8px; margin-top: 5px; font-size: .8em; }
+.hud-mlf-bar > span { opacity: .75; }
+.hud-mlf-bar > i { position: relative; height: 6px; border-radius: 4px; background: rgba(0,0,0,.35); overflow: hidden; }
+.hud-mlf-bar > i > i { position: absolute; inset: 0 auto 0 0; border-radius: 4px; background: color-mix(in srgb, var(--mlf-acc) 80%, #fff); }
+.hud-mlf-bar > em { font-style: normal; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+:root.hud-scheme-light .hud-mlf-row { background: color-mix(in srgb, var(--mlf-acc) 9%, rgba(255,255,255,.55)); }
+:root.hud-scheme-light .hud-mlf-top b { color: color-mix(in srgb, var(--mlf-acc) 55%, #2a1f12); }
+:root.hud-scheme-light .hud-mlf-warn { color: #8a2a20; background: color-mix(in srgb, #d0574a 14%, #fff); }
+:root.hud-scheme-light .hud-mlf-warn.is-soft { color: #7a5410; background: color-mix(in srgb, #d6a64a 14%, #fff); }
+:root.hud-scheme-light .hud-mlf-chip, :root.hud-scheme-light .hud-mlf-tag, :root.hud-scheme-light .hud-mlf-age, :root.hud-scheme-light .hud-mlf-steps > span { background-color: rgba(255,255,255,.5); }
+
+/* Законность ребёнка в древе (render/family-tree.js, render/views-story.js) — помарка под карточкой. */
+text.hud-fam-legit { font-size: 9px; font-style: italic; fill: #d9b871; pointer-events: auto; }
+text.hud-fam-legit.is-good { fill: #9fcf98; }
+text.hud-fam-legit.is-bad { fill: #e6877b; }
+/* В «Родословной книге» — цветом строки, только курсивом: страница бывает и светлой, и тёмной. */
+small.hud-fam-legit { display: block; font-style: italic; font-size: .78em; color: inherit; opacity: .8; }
+
+/* Грамота, что не действует там, где сцена (render/medieval-life.js → render/medieval.js): печать красная. */
+.hud-doc.st-void .hud-doc-stamp { color: var(--ink-red, #a8322a); border-color: currentColor; }
+
+/* Вести с задержкой в новостях «Мира» (render/world.js, render/medieval-views.js):
+   [давность] Откуда. Весть принёс: кто — одной строкой с воздухом между частями. */
+.hud-news-from { --nf: color-mix(in srgb, var(--hud-accent, #c58a3c) 62%, #b98a3e);
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: 6px 0 10px; min-width: 0;
+  font-family: inherit; font-size: .8rem; font-weight: 400; line-height: 1.45; letter-spacing: 0; text-transform: none; }
+.hud-news-pill { flex: none; display: inline-flex; align-items: center; padding: 2px 10px; border-radius: 999px; white-space: nowrap;
+  font-size: .9em; font-weight: 700; letter-spacing: .02em; font-variant-numeric: tabular-nums;
+  color: color-mix(in srgb, var(--nf) 30%, var(--ink-hi, #fff));
+  background: color-mix(in srgb, var(--nf) 26%, rgba(0,0,0,.28));
+  border: 1px solid color-mix(in srgb, var(--nf) 55%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
+.hud-news-place { font-weight: 700; color: color-mix(in srgb, var(--nf) 45%, var(--ink-hi, #fff)); overflow-wrap: anywhere; min-width: 0; }
+.hud-news-by { min-width: 0; overflow-wrap: anywhere; opacity: .9; }
+.hud-news-by > i { font-style: normal; font-variant: small-caps; letter-spacing: .03em; opacity: .75; margin-right: 2px; }
+.hud-news-by > span { font-style: italic; }
+/* В заголовке новости (обычный вид): строка под заголовком, без его жирности и размера. */
+.hud-news-article summary .hud-news-from { margin: 0; font-size: .78em; }
+:root.hud-scheme-light .hud-news-pill { color: color-mix(in srgb, var(--nf) 70%, #2a1d0e); background: color-mix(in srgb, var(--nf) 16%, #fff8ec); }
+:root.hud-scheme-light .hud-news-place { color: color-mix(in srgb, var(--nf) 65%, #2a1d0e); }
+/* Листы старины светлые по замыслу и на тёмной теме — там чернила тёмные. */
+.hud-mv .hud-news-from { --nf: var(--rubric-ink, var(--rubric, #8a3a22)); }
+.hud-mv .hud-news-pill { color: #fff8e7; background: var(--rubric, #8a3a22); border-color: color-mix(in srgb, var(--rubric, #8a3a22) 70%, #000); box-shadow: none; }
+.hud-mv .hud-news-place { color: var(--nf); }
+.hud-mv .hud-news-by { color: inherit; }
+
+
+/* Опасность раны в «Болезнях и травмах» (настройка «Раны без антисептиков»). */
+:is(em, i).hud-ill-danger { font-style: normal; font-size: 10.5px; font-weight: 700; padding: 1px 8px; border-radius: var(--hud-r-chip, 999px); border: 1px solid currentColor; letter-spacing: .03em; white-space: nowrap; color: #7fbf78; }
+:is(em, i).hud-ill-danger.is-mid { color: #e0b052; }
+:is(em, i).hud-ill-danger.is-bad { color: #e8695c; background: color-mix(in srgb, #e8695c 12%, transparent); }
+:root:is(.hud-scheme-light, .hud-kinds-light) :is(em, i).hud-ill-danger { color: #3f7d39; }
+:root:is(.hud-scheme-light, .hud-kinds-light) :is(em, i).hud-ill-danger.is-mid { color: #9a6a10; }
+:root:is(.hud-scheme-light, .hud-kinds-light) :is(em, i).hud-ill-danger.is-bad { color: #b0352a; }

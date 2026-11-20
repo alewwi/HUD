@@ -4257,6 +4257,206 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
 }
 
 // ---------------------------------------------------------------------------
+группа('Жизнь эпохи: честь, вести, грамоты, вера, брак, суд');
+{
+  const { settings: Н } = await модуль('settings.js');
+  const Пр = await модуль('prompt.js');
+  const МЖ = await модуль('render/medieval-life.js');
+  const СН = await модуль('hud-snapshot.js');
+  const ключи = ['era', 'enableWorld', 'factions', 'medHonour', 'medNews', 'medCharters', 'medMounts', 'medSupplies', 'medFaith', 'medFaithWorld', 'medFaithPersonal', 'medChurch', 'medWitch', 'medMarriage', 'medHumours', 'medWounds', 'enableIllness', 'medHousehold', 'medLaw', 'enableCasket', 'castAppDocs', 'castAppLetters', 'enableCompanions', 'enableUserBlock', 'enableBabies'];
+  const было = ключи.map(к => Н[к]);
+  try {
+    Н.era = 'medieval'; Н.enableWorld = true; Н.enableCasket = true; Н.castAppDocs = true; Н.castAppLetters = true; Н.enableCompanions = true; Н.enableUserBlock = true; Н.factions = 'user';
+    for (const к of ['medHonour', 'medNews', 'medCharters', 'medSupplies', 'medFaith', 'medMarriage', 'medHumours', 'medWounds', 'medHousehold', 'medLaw']) Н[к] = false;
+    Н.enableIllness = true;
+    Н.medMounts = 'off';
+    const выкл = Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true });
+    проверить('по умолчанию всё выключено: ни "ep", ни новых полей', !выкл.includes('"ep": {') && !выкл.includes('"hr": "[here') && !выкл.includes('"eta":') && !выкл.includes('"ld":') && !выкл.includes('"Mrg":') && !выкл.includes('"Lgt":') && !выкл.includes('dng:') && !выкл.includes('"inj":'));
+    Object.assign(Н, { medHonour: true, medNews: true, medCharters: true, medSupplies: true, medFaith: true, medFaithPersonal: true, medChurch: true, medWitch: false, medMarriage: true, medHumours: true, medWounds: true, medHousehold: true, medLaw: true, medMounts: 'light', medFaithWorld: 'orthodox' });
+    const вкл = Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true });
+    const ep = вкл.slice(вкл.indexOf('"ep": {'), вкл.indexOf('\n }', вкл.indexOf('"ep": {')));
+    проверить('включённые части — в "ep", выключенная (колдовство) — нет, брака в "ep" нет', ['"hon":', '"sup":', '"fth":', '"ch":', '"hum":', '"hh":', '"law":'].every(к => ep.includes(к)) && !ep.includes('"wt":') && !ep.includes('"nw":') && !ep.includes('"mar":') && !ep.includes('"leg":') && !ep.includes('"wnd":'), ep.slice(0, 300));
+    проверить('раны — в формате «Болезней и травм» (dng, trn) и у спутников (inj), не в "ep"', вкл.includes('; dng: ONLY for a wound') && вкл.includes("trt; zn; dng; trn'") && вкл.includes('"inj": "[ONLY if wounded'));
+    проверить('"ep": неизменное — "nc", вера мира — православная, варианты в колонке через «/»', ep.includes('written just "nc"') && ep.includes('Orthodox Church') && ep.includes('accused / summoned'));
+    проверить('вести — в строке новостей: откуда, когда, кто принёс', вкл.includes('"nws": ["[headline] | [what the news says, 2-3 sentences] | [where from: here for local news'));
+    проверить('грамоты, письма в пути и лёгкий режим животных — свои поля', вкл.includes('"hr": "[here: yes | no | doubtful') && вкл.includes('"eta": "[ONLY while in transit') && вкл.includes('"ld":') && !вкл.includes('"stb":'));
+    const cs = вкл.slice(вкл.indexOf('"cs": ['), вкл.indexOf('"us": {')), us = вкл.slice(вкл.indexOf('"us": {'), вкл.indexOf('\n }', вкл.indexOf('"us": {'))), bb = вкл.includes('"bb": [') ? вкл.slice(вкл.indexOf('"bb": [')) : '';
+    проверить('брак и законность — поля персонажа и игрока', cs.includes('"Mrg": "[marriage') && cs.includes('"Lgt": "[birth') && us.includes('"Mrg":') && us.includes('"Lgt":') && (us.match(/"Mrg":/g) || []).length === 1);
+    проверить('честь — к кому, как в «Фракциях»: игрок; оба — по строке на каждого', ep.includes('[toward whom: {{user}}]') && (Н.factions = 'both', Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true }).includes('[toward whom: {{user}} or {{char}} — a separate row for each]')) && (Н.factions = 'char', Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true }).includes('[toward whom: {{char}}]')));
+    Н.factions = 'user';
+    проверить('брак и законность — в правиле «nc»', /NO CHANGE: in [^\n]*Mrg and Lgt write just "nc"/.test(Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true })));
+    {
+      // Старые боги: жрецы вместо Церкви в промте, колесо года вместо церковных праздников.
+      Н.medFaithWorld = 'old';
+      const П = Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true });
+      const { праздникиГода } = await модуль('render/holidays.js');
+      const имена = праздникиГода(1347).map(п => п.имя);
+      проверить('старые боги: в "ch" — жрецы, в году — солнцевороты и Самайн, без Пасхи', П.includes('the priests of the old gods') && !П.includes('excommunication / interdict') && имена.includes('Самайн') && имена.includes('Зимний солнцеворот') && !имена.includes('Пасха'), имена.join(', '));
+      Н.medFaithWorld = 'orthodox';
+    }
+    Н.enableWorld = false;
+    const безМира = Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true });
+    проверить('без вкладки «Мир» части «ep» не просятся, а брак, грамоты и письма — да', !безМира.includes('"ep": {') && безМира.includes('"Mrg":') && безМира.includes('"hr": "[here') && безМира.includes('"eta":'));
+    Н.enableWorld = true;
+    // Разбор и показ.
+    const д = Sch.normalizeJSONData(P.parseHUDComplex(hud({ sc: { T: '10:00', Dt: '20.05.1347' }, cs: [{ N: 'Агата', Mrg: 'помолвлена с Томасом', Lgt: 'бастард, признана отцом' }],
+      ep: { hon: ['Цех ткачей | Агата | держат за выскочку | села за стол с мастерами', 'nc'], sup: ['Овёс | на два привала'], law: ['Агата | кража сукна | ордалия | бургграф | —'], wt: ['Агата | подозрение | травы'] },
+      wd: { nws: ['Король болен | При дворе спорят о регентстве. | Столица | 11.05 | паломник', 'Торг у моста | Сегодня сукно дешевле. | здесь | сегодня | глашатай'] },
+      lt: [{ fr: 'Агата', to: 'Брат', st: 'transit', eta: 'через 3 дня', via: 'гонец', tx: 'Жива.' }],
+      sm: { doc: [{ ti: 'Охранная грамота', tx: 'Пропустить подателя.', ok: 'проезд по землям графа', wr: 'графство Лорн', by: 'люди графа', hr: 'no', st: 'valid' }] },
+      pet: [{ n: 'Гнедко', sp: 'конь', ld: 'два тюка', rst: 'до вечера' }] })));
+    проверить('разбор "ep": строки разрезаны, "nc" и пустое отброшены', д.epoch.hon.length === 1 && д.epoch.hon[0][2] === 'держат за выскочку' && !д.epoch.nw, JSON.stringify(д.epoch));
+    проверить('разбор: брак и законность — поля карточки', д.characters[0]['Брак'] === 'помолвлена с Томасом' && д.characters[0]['Законность'] === 'бастард, признана отцом');
+    проверить('разбор: грамота, письмо в пути и груз коня', д.satchel.documents[0].here === 'no' && д.letters[0].eta === 'через 3 дня' && д.companions[0].extra.some(x => x.key === 'Груз' && x.value === 'два тюка'));
+    const html = МЖ.блокиЭпохи(д);
+    проверить('карточки «Мира»: честь, запасы, суд; вестей, грамот и брака там нет', html.includes('🛡️ Честь') && html.includes('Овёс') && html.includes('⚖️ Суд и закон') && html.includes('is-bad') && !html.includes('Вести издалёка') && !html.includes('Охранная') && !html.includes('Брак'), html.slice(0, 600));
+    проверить('карточки: выключенная часть не показывается (колдовство)', !html.includes('Обвинение в колдовстве'));
+    проверить('карточки: классы разделов не совпадают с классами внутри (капля гумора)', !/hud-world-section[^"]*\bhud-mlf-hum\b/.test(html));
+    {
+      const р = Sch.normalizeJSONData(P.parseHUDComplex(hud({ sc: { T: '10:00', Dt: '20.05.1347' }, cs: [{ N: 'Агата', Ill: 'nm: порез на ладони; sg: fresh; rc: 20%; trt: тряпица; dng: гангрена; trn: через два дня | nm: простуда; sg: healing' }],
+        ep: { hum: ['Агата | жёлтая желчь | вспыльчива | кровопускание'], wnd: ['Агата | порез | нагноение | —'] }, pet: [{ n: 'Гнедко', sp: 'конь', inj: 'стёртая холка — может загноиться — через день' }] })));
+      const { строкиКарточки } = await модуль('render/character.js');
+      const карта = строкиКарточки(р.characters[0], 'Агата', 'c1');
+      const мирЛекаря = МЖ.блокиЭпохи(р);
+      проверить('раны: опасность и срок — внутри карточки болезни, отдельного блока ран в «Мире» нет',
+        /hud-ill-danger is-bad[^>]*>гангрена</.test(карта) && карта.includes('через два дня') && (карта.match(/hud-ill-danger/g) || []).length === 1
+        && мирЛекаря.includes('🩺 Лекарь') && !мирЛекаря.includes('Лекарь и раны') && !мирЛекаря.includes('порез'), карта.slice(карта.indexOf('hud-ill'), карта.indexOf('hud-ill') + 500));
+      проверить('раны: у спутника — строка «Рана»', р.companions[0].extra.some(x => x.key === 'Рана' && x.value.includes('стёртая холка')));
+      Н.medWounds = false;
+      const безРан = строкиКарточки(р.characters[0], 'Агата', 'c1');
+      const сн = { cs: [{ N: 'А', Ill: 'nm: порез; sg: fresh; dng: гангрена; trn: завтра | nm: простуда' }], pet: [{ n: 'Г', inj: 'x' }] };
+      МЖ.почиститьСнимок(сн);
+      проверить('раны выключены: карточка как в современности, снимок без dng/trn/inj', !безРан.includes('hud-ill-danger') && !безРан.includes('через два дня') && безРан.includes('порез на ладони')
+        && !/dng|trn/.test(сн.cs[0].Ill) && сн.cs[0].Ill.includes('порез') && сн.cs[0].Ill.includes('простуда') && !('inj' in сн.pet[0]), сн.cs[0].Ill);
+      Н.medWounds = true;
+    }
+    {
+      // Карандаш: новые блоки находятся по тексту и правятся своими формами.
+      const БЕ = await модуль('block-edit.js');
+      const { ПРИМЕР_HUD } = await модуль('render/sample-hud.js');
+      const х = JSON.parse(JSON.stringify(ПРИМЕР_HUD));
+      const марк = х.cs.findIndex(ч => ч.N === 'Марк Грей');
+      const конь = х.pet.findIndex(п => п.n === 'Гнедко');
+      const грамота = х.sm.doc.findIndex(д => д.hr === 'no');
+      const найти = (корни, текст) => (БЕ.путьПоТексту(х, корни, текст) || {}).блок;
+      const ключ = (п) => JSON.stringify(п);
+      проверить('карандаш: блоки эпохи, вести, грамота, письмо в пути, брак, рана и конь находятся по тексту', [
+        [найти(['wd', 'ep'], х.ep.hon[0].split('|')[2]), ['ep', 'hon']],
+        [найти(['wd', 'ep'], х.wd.nws[0].split('|')[0]), ['wd', 'nws']],
+        [найти(['sm', 'lt'], х.sm.doc[грамота].ok), ['sm', 'doc']],
+        [найти([['cs', марк]], х.cs[марк].Mrg), ['cs', марк, 'Mrg']],
+        [найти([['cs', марк]], 'нагноение'), ['cs', марк, 'Ill']],
+        [найти(['pet'], х.pet[конь].inj.split('—')[0]), ['pet', конь]],
+        [найти(['pet'], х.pet[конь].ld), ['pet', конь]],
+      ].every(([а, б]) => ключ(а) === ключ(б)), JSON.stringify([найти(['wd', 'ep'], х.ep.hon[0].split('|')[2]), найти([['cs', марк]], 'нагноение')]));
+      const фЧесть = БЕ.формаЗначения(['ep', 'hon'], х.ep.hon), фВесть = БЕ.формаЗначения(['wd', 'nws'], х.wd.nws);
+      const фБолезнь = БЕ.формаЗначения(['cs', марк, 'Ill'], х.cs[марк].Ill);
+      проверить('карандаш: формы — части с подписями, у болезни метки опасности и срока, у коня подписи «Рана» и «Груз»',
+        фЧесть.пункт.вид === 'части' && фЧесть.пункт.подписи[2] === 'Суждение' && фВесть.пункт.подписи.length === 5 && фВесть.пункт.подписи[4] === 'Кто принёс'
+        && фБолезнь.вид === 'метки' && фБолезнь.известные.some(([к]) => к === 'dng') && фБолезнь.известные.some(([к]) => к === 'trn')
+        && БЕ.подписьКлюча(['pet', конь, 'inj']) === 'Рана' && БЕ.подписьКлюча(['pet', конь, 'ld']) === 'Груз' && БЕ.подписьКлюча(['sm', 'doc', грамота, 'hr']) === 'Действует здесь'
+        && БЕ.подписьКлюча(['lt', 0, 'eta']) === 'Дойдёт' && БЕ.подписьКлюча(['cs', марк, 'Mrg']) === 'Брак' && БЕ.подписьКлюча(['ep', 'hum']) === 'Гуморы');
+      // Правка доходит до показа.
+      const пары = БЕ.разобратьМетки(х.cs[марк].Ill, фБолезнь.известные).map(п => (п.код === 'dng' ? { ...п, значение: 'гангрена' } : п));
+      БЕ.положить(х, ['cs', марк, 'Ill'], БЕ.собратьМетки(пары));
+      БЕ.положить(х, ['ep', 'hon', 0], БЕ.собратьЧасти(['Цех', 'Марк', 'уважают | очень', 'за честность']));
+      БЕ.положить(х, ['pet', конь, 'inj'], 'холка зажила — пока нет — —');
+      БЕ.положить(х, ['cs', марк, 'Mrg'], 'вдовец');
+      const п2 = Sch.normalizeJSONData(P.parseHUDComplex(hud(х)));
+      const м2 = п2.characters.find(ч => ч['Имя'] === 'Марк Грей');
+      const { строкиКарточки } = await модуль('render/character.js');
+      проверить('карандаш: исправленное видно — гангрена у раны, честь без лишней «|», рана коня, брак',
+        /hud-ill-danger is-bad[^>]*>гангрена</.test(строкиКарточки(м2, 'Марк Грей', 'c1')) && м2['Брак'] === 'вдовец'
+        && п2.epoch.hon[0][2] === 'уважают / очень' && п2.epoch.hon[0].length === 4 && п2.companions.find(п => п.name === 'Гнедко').extra.some(x => x.key === 'Рана' && x.value.startsWith('холка зажила')));
+    }
+    const { buildWorldHTML } = await модуль('render/world.js');
+    const мир = buildWorldHTML(д.world, 'w1', true, false, '', { датаСцены: '20.05.1347' });
+    проверить('«Мир»: у вести — откуда, давность от даты сцены и кто принёс; у местной — без «откуда»', /<span class="hud-news-pill"[^>]*>9 дн\. назад<\/span><b class="hud-news-place">Столица\.<\/b><span class="hud-news-by"><i>Весть принёс:<\/i> <span>паломник\.<\/span>/.test(мир) && мир.includes('hud-news-from is-local') && (мир.match(/9 дн\. назад/g) || []).length === 1 && !мир.includes('| Столица') && !мир.includes('Вести издалёка'), мир.slice(мир.indexOf('hud-news-article'), мир.indexOf('hud-news-article') + 700));
+    const { видМираСтарины } = await модуль('render/medieval-views.js');
+    const статьи = д.world.headlines.map(х => МЖ.разобратьВесть(х, '20.05.1347'));
+    const свиток = видМираСтарины('news', 'medieval', статьи, 'Вести', {});
+    проверить('вид старины: подпись вести под заголовком, текст без приписки', свиток.includes('9 дн. назад') && свиток.includes('При дворе спорят о регентстве.</p>') && !свиток.includes('— 9 дн.') && МЖ.разобратьВесть('Король болен | Спорят. | Столица | 11.05 | паломник', '20.05.1347').body === 'Спорят. — 9 дн. назад, Столица. Весть принёс: паломник.', свиток.slice(0, 500));
+    Н.medNews = false;
+    const безВестей = buildWorldHTML({ headlines: ['Указ | Текст указа'] }, 'w2', true, false, '', { датаСцены: '20.05.1347' });
+    проверить('вести выключены — новости как в современности', безВестей.includes('Текст указа') && !безВестей.includes('hud-news-from') && МЖ.разобратьВесть('А | Б | В | Г | Д').body === 'Б | В | Г | Д');
+    Н.medNews = true;
+    const { buildCasketHTML } = await модуль('render/medieval.js');
+    const шк = buildCasketHTML(д.satchel, д.letters, 'c1', true, 'Агата', '20.05.1347', д.characters);
+    проверить('шкатулка: у письма в пути — когда дойдёт, у грамоты — права, предупреждение и печать', шк.includes('дойдёт: через 3 дня') && шк.includes('Даёт право: проезд по землям графа') && шк.includes('За этими воротами ваша бумага ничего не значит') && шк.includes('Здесь не действует'), шк.slice(шк.indexOf('hud-docs'), шк.indexOf('hud-docs') + 500));
+    // Законность — помаркой под ребёнком в древе.
+    const { buildFamilyTree } = await модуль('render/family-tree.js');
+    const др = buildFamilyTree([{ id: 'a', name: 'Роланд' }, { id: 'b', name: 'Оуэн' }], [{ from: 'a', to: 'b', label: 'отец' }], 't', { законность: МЖ.законностьДляДрева({ characters: [{ 'Имя': 'Оуэн', 'Законность': 'бастард, признан отцом' }] }) });
+    проверить('древо: помарка законности под карточкой ребёнка', /class="hud-fam-legit is-mid"[^>]*>.*бастард, признан отцом/.test(др.svg) && др.данные.люди.find(ч => ч.имя === 'Оуэн')?.законность === 'бастард, признан отцом', др.svg.slice(-600));
+    // Снимок: выключенное уходит.
+    Н.medHonour = false; Н.medCharters = false; Н.medMarriage = false;
+    Н.medNews = false;
+    const снимок = СН.собратьСнимок(JSON.stringify({ sc: { Dt: '20.05.1347' }, wd: { nws: ['Король болен | Спорят о регентстве | Столица | 11.05 | паломник'] }, cs: [{ N: 'Агата', Mrg: 'x', Lgt: 'y' }], ep: { hon: ['a | b'], sup: ['Овёс | завтра'] }, sm: { doc: [{ ti: 'Г', hr: 'no', ok: 'x' }] } }));
+    проверить('снимок: выключенные части, поля грамот и брака убраны', снимок && снимок.ep && !снимок.ep.hon && снимок.ep.sup && снимок.sm.doc[0].ti === 'Г' && !('hr' in снимок.sm.doc[0]) && !('Mrg' in снимок.cs[0]) && !('Lgt' in снимок.cs[0]) && снимок.wd.nws[0] === 'Король болен | Спорят о регентстве', JSON.stringify(снимок && { ep: снимок.ep, sm: снимок.sm, cs: снимок.cs }));
+    // Пропущенная часть — прежняя, «nc» — прежняя, [] — пусто.
+    const HE = await модуль('hud-expand.js');
+    const ход = { ep: { sup: ['Овёс | завтра'], law: [], hh: 'nc' } };
+    HE.развернутьКраткое(ход, [{ ep: { hon: ['Соседи | Агата | уважают | помогла'], sup: ['Хлеб | неделя'], law: ['Агата | кража | суд | бургграф | —'], hh: ['Берта | служанка | 70 | стирает'] } }], { эпоха: ['hon', 'sup', 'law', 'hh'] });
+    проверить('разворот: пропущенная часть «ep» — прежняя, своя остаётся, [] не трогается, nc — прежнее', ход.ep.hon?.[0].startsWith('Соседи') && ход.ep.sup[0] === 'Овёс | завтра' && Array.isArray(ход.ep.law) && !ход.ep.law.length && ход.ep.hh?.[0]?.startsWith('Берта'), JSON.stringify(ход.ep));
+    Н.era = 'modern';
+    проверить('вне старины: ни промта, ни карточек, ни "ep" в снимке', !Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true }).includes('"ep": {') && МЖ.блокиЭпохи(д) === '' && МЖ.разобратьВесть('А | Б | Столица | 11.05 | паломник').весть === '' && !(СН.собратьСнимок(JSON.stringify({ sc: { Dt: '1' }, ep: { sup: ['a | b'] } })) || {}).ep);
+  } finally { ключи.forEach((к, i) => { Н[к] = было[i]; }); }
+  {
+    // Верховые: мерин, скакун, мул — портрет лошади; «вороной» — масть, а не ворон.
+    const { родПортрета } = await модуль('render/extras.js');
+    const виды = ['гнедой мерин', 'bay gelding', 'вороной скакун', 'вороная кобыла', 'старый мул', 'ворон-фамильяр', 'формула', 'мулат'].map(в => родПортрета(в, 'X'));
+    проверить('портрет: мерин, скакун, мул — лошадь; ворон — птица; «формула» и «мулат» — не мул', виды.slice(0, 5).every(р => р === 'horse') && виды[5] === 'bird' && виды[6] !== 'horse' && виды[7] !== 'horse', виды.join(', '));
+  }
+  const стиль = fs.readFileSync(path.join(КОРЕНЬ, 'css/medieval-life.css'), 'utf8');
+  проверить('стили подключены, без наведения', fs.readFileSync(path.join(КОРЕНЬ, 'css/all.css'), 'utf8').includes('medieval-life.css') && fs.readFileSync(path.join(КОРЕНЬ, 'css-loader.js'), 'utf8').includes("'medieval-life'") && !стиль.includes(':hover'));
+}
+
+группа('Средневековье: каждую часть можно выключить — и вернуть, как в современности');
+{
+  const { settings: Н } = await модуль('settings.js');
+  const Пр = await модуль('prompt.js');
+  const ключи = ['era', 'medievalCare', 'medievalOaths', 'enableFairs', 'placeLore', 'medievalAlmanac', 'heraldry', 'enableWorld', 'medCharters', 'medNews', 'medMarriage', 'medMounts', 'enableCasket', 'castAppDocs', 'castAppLetters', 'enableCompanions'];
+  const было = ключи.map(к => Н[к]);
+  try {
+    Н.era = 'medieval';
+    // Беременность и уход.
+    const { buildPregnancy } = await модуль('render/pregnancy.js');
+    const { buildPostpartum } = await модуль('render/postpartum.js');
+    const { buildUnderwear } = await модуль('render/underwear.js');
+    const срок = 'wk: 20; due: 01.03.1348';
+    Н.medievalCare = true;
+    const сУходом = { б: buildPregnancy(срок, { сцена: '20.10.1347' }), к: buildPostpartum('bf: formula'), п: Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true }), бел: buildUnderwear('', { пол: 'f' }) };
+    Н.medievalCare = false;
+    const безУхода = { б: buildPregnancy(срок, { сцена: '20.10.1347' }), к: buildPostpartum('bf: formula'), п: Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true }), бел: buildUnderwear('', { пол: 'f' }) };
+    проверить('уход старины: повитуха и кормилица — с галкой; без неё — как в современности', сУходом.к.includes('кормилица') && !безУхода.к.includes('кормилица') && сУходом.п.includes('midwife') && !безУхода.п.includes('midwife') && !безУхода.п.includes('wet nurse') && безУхода.п.includes('ultrasound'), [сУходом.к.includes('кормилица'), безУхода.к.includes('кормилица'), сУходом.п.includes('midwife'), безУхода.п.includes('midwife')].join());
+    проверить('уход старины: срок беременности меняется по галке', сУходом.б !== безУхода.б);
+    Н.medievalCare = true;
+    // Ярмарки, правила места, святцы, знак рода.
+    const HL = await модуль('render/holiday-lore.js');
+    const PL = await модуль('render/place-lore.js');
+    const AL = await модуль('render/almanac.js');
+    const ГР = await модуль('render/heraldry.js');
+    Н.enableFairs = false; Н.placeLore = false; Н.medievalAlmanac = false; Н.heraldry = false;
+    проверить('ярмарки, правила места, святцы и знак рода выключаются', HL.ярмаркиЧата(Date.UTC(1347, 9, 20)).length === 0 && PL.блокМеста({ scene: { 'Место': 'Варен, рынок' } }) === '' && !AL.святцыВкл() && ГР.знакРода('Сэр Роланд Грей', 'рыцарь') === '');
+    Н.enableFairs = true; Н.placeLore = true; Н.medievalAlmanac = true; Н.heraldry = true;
+    проверить('…и включаются обратно', AL.святцыВкл() && ГР.знакРода('Сэр Роланд Грей', 'рыцарь') !== '' && /Правила места/.test(PL.блокМеста({ scene: { 'Место': 'Варен, рынок' } })));
+    // Жизнь эпохи: шкатулка и новости — без лишнего при выключенных галках.
+    const МЖ = await модуль('render/medieval-life.js');
+    Object.assign(Н, { enableWorld: true, enableCasket: true, castAppDocs: true, castAppLetters: true, medCharters: false, medNews: false, medMarriage: false, medMounts: 'off', enableCompanions: true });
+    const доки = [{ title: 'Г', text: 'Т', here: 'no', grants: 'x', status: 'valid' }], письма = [{ from: 'А', to: 'Б', status: 'transit', eta: 'завтра', via: 'гонец' }];
+    проверить('грамоты, письма, вести, брак и животные выключены — данные как есть', МЖ.грамотыСПравами(доки) === доки && МЖ.письмаСоСроком(письма) === письма && МЖ.разобратьВесть('А | Б | В | Г | Д').весть === '' && МЖ.промптБрака() === '' && МЖ.промптВьючных() === '' && МЖ.законностьДляДрева({ characters: [{ 'Имя': 'О', 'Законность': 'бастард' }] }).length === 0);
+    // «Клятвы»: подпись меняется только с галкой.
+    const код = fs.readFileSync(path.join(КОРЕНЬ, 'render/era-medieval.js'), 'utf8');
+    проверить('«Обещания» → «Клятвы» — своей галкой', /medievalOaths !== false/.test(код) && /'🤝 Обещания:': '🤝 Клятвы:'/.test(код));
+    // Каждая галка средневековья — в настройках и в обработчике.
+    const ui = fs.readFileSync(path.join(КОРЕНЬ, 'settings-ui.js'), 'utf8');
+    const ГАЛКИ = [['hud-med-care', 'medievalCare'], ['hud-med-oaths', 'medievalOaths'], ['hud-enable-fairs', 'enableFairs'], ['hud-place-lore', 'placeLore'], ['hud-place-lore-note', 'placeLoreReminder'], ['hud-med-almanac', 'medievalAlmanac'], ['hud-med-fast-note', 'medievalFastNote'], ['hud-heraldry', 'heraldry'], ['hud-initials', 'initials'],
+      ['hud-med-honour', 'medHonour'], ['hud-med-news', 'medNews'], ['hud-med-charters', 'medCharters'], ['hud-med-supplies', 'medSupplies'], ['hud-med-faith', 'medFaith'], ['hud-med-faith-personal', 'medFaithPersonal'], ['hud-med-church', 'medChurch'], ['hud-med-witch', 'medWitch'], ['hud-med-marriage', 'medMarriage'], ['hud-med-humours', 'medHumours'], ['hud-med-wounds', 'medWounds'], ['hud-med-household', 'medHousehold'], ['hud-med-law', 'medLaw']];
+    const нет = ГАЛКИ.filter(([id, к]) => !ui.includes(`галка('${id}'`) || !ui.includes(`['${id}', '${к}']`) || !(к in Н));
+    проверить('у каждой части средневековья — галка с обработчиком и значением по умолчанию', !нет.length && ui.includes("id=\"hud-med-mounts\"") && ui.includes("id=\"hud-med-faith-world\""), JSON.stringify(нет));
+  } finally { ключи.forEach((к, i) => { Н[к] = было[i]; }); }
+}
+
+// ---------------------------------------------------------------------------
 группа('Виды старины: Шкатулка и Мир');
 {
   const Ст = await модуль('settings.js'), V = await модуль('render/views.js'), MV = await модуль('render/medieval-views.js');
