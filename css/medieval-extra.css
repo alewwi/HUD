@@ -1,0 +1,65 @@
+/* Средневековье: святцы (render/almanac.js), знак рода (render/heraldry.js)
+   и буквицы. Только в старинных эпохах (css-loader.js). На тёмных темах —
+   тёмные подложки, светлые — только под :root.hud-scheme-light. Анимаций,
+   от которых зависит вид, нет. */
+
+/* --- Святцы: строка «Сегодня» и постные дни ---------------------------------- */
+.hud-cal-almanac { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 10px; margin: 0 0 8px; padding: 6px 10px; border-radius: 10px;
+  font-size: 12px; line-height: 1.35; background: color-mix(in srgb, var(--hud-accent, #b98a4a) 10%, rgba(0, 0, 0, .22));
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #b98a4a) 28%, transparent); }
+.hud-cal-almanac > b { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+.hud-cal-almanac > span { min-width: 0; overflow-wrap: anywhere; }
+.hud-cal-almanac > span + span::before { content: '·'; margin-right: 10px; opacity: .5; }
+/* Постный день — тихая штриховка, поверх неё точки дел и «сегодня» видны как прежде. */
+.hud-cal-day.is-fast { background-image: repeating-linear-gradient(135deg, color-mix(in srgb, #8a7bb0 22%, transparent) 0 2px, transparent 2px 6px) !important; }
+:root.hud-scheme-light .hud-cal-day.is-fast { background-image: repeating-linear-gradient(135deg, color-mix(in srgb, #5d4a8a 18%, transparent) 0 2px, transparent 2px 6px) !important; }
+:root.hud-scheme-light .hud-cal-almanac { background: color-mix(in srgb, var(--hud-accent, #b98a4a) 9%, rgba(255, 255, 255, .55)); }
+
+/* --- Знак рода у имени ------------------------------------------------------------ */
+.hud-arms-btn { all: unset; box-sizing: border-box; flex: none; display: inline-grid; place-items: center; width: 22px; height: 24px; margin: 0 2px; cursor: pointer;
+  vertical-align: middle; border-radius: 4px; color: var(--hud-accent, #c9a24a); }
+.hud-arms-btn:focus-visible { outline: 2px solid color-mix(in srgb, var(--hud-accent, #c9a24a) 60%, transparent); }
+.hud-arms-btn .hud-arms { width: 100%; height: 100%; filter: none; }
+.hud-arms-btn .hud-arms.is-craft, .hud-arms-btn .hud-arms.is-mark { width: 20px; height: 20px; }
+@media (hover: hover) and (pointer: fine) { .hud-arms-btn:hover { background: color-mix(in srgb, var(--hud-accent, #c9a24a) 16%, transparent); } }
+/* Окно знака рода. */
+.hud-modal.hud-holgen.hud-armsgen { width: min(400px, 100%); }
+.hud-armsgen-top { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; }
+.hud-armsgen-preview { width: 72px; height: 80px; display: grid; place-items: center; color: var(--hg, #c59bff); }
+.hud-armsgen-preview .hud-arms.is-big { width: 72px; height: 80px; }
+.hud-armsgen-preview .hud-arms.is-craft.is-big, .hud-armsgen-preview .hud-arms.is-mark.is-big { width: 64px; height: 64px; }
+.hud-armsgen-arms[hidden], .hud-armsgen-roll[hidden] { display: none; }
+
+/* --- Буквицы: миниатюра из рукописи у первой буквы ------------------------------- */
+:root[data-hud-initials] .hud-letter-sheet > p:first-of-type:not(.hud-letter-blank)::first-letter,
+:root[data-hud-initials] .hud-news-article .article-text::first-letter,
+:root[data-hud-initials] .hud-quill-note .hud-dropcap {
+  float: left; margin: .06em .2em 0 0 !important; padding: .1em .17em .06em !important; border-radius: 3px;
+  font-family: var(--fh, 'Kurale', 'Cormorant Garamond', Georgia, serif) !important; font-style: normal !important; font-weight: 700 !important;
+  font-size: 2.4em !important; line-height: 1 !important; color: #f6e7b8 !important;
+  text-shadow: 0 1px 0 #5a3d0e, 0 0 6px rgba(0, 0, 0, .45) !important;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23e3c26b' stroke-width='1.3' stroke-linecap='round' opacity='.6'%3E%3Cpath d='M3 37c6-2 8-7 6-12M37 3c-6 2-8 7-6 12M3 30c3 0 5-1 6-3M37 10c-3 0-5 1-6 3'/%3E%3Ccircle cx='9' cy='25' r='1.6'/%3E%3Ccircle cx='31' cy='15' r='1.6'/%3E%3C/g%3E%3C/svg%3E") center / 100% 100% no-repeat,
+    radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--hud-accent, #8e2a2a) 75%, #3a2414), color-mix(in srgb, var(--hud-accent, #8e2a2a) 45%, #120a08)) !important;
+  border: 2px solid #c9a24a !important; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .45), 0 2px 6px rgba(0, 0, 0, .4) !important;
+}
+:root[data-hud-initials].hud-scheme-light .hud-letter-sheet > p:first-of-type:not(.hud-letter-blank)::first-letter,
+:root[data-hud-initials].hud-scheme-light .hud-news-article .article-text::first-letter,
+:root[data-hud-initials].hud-scheme-light .hud-quill-note .hud-dropcap {
+  color: color-mix(in srgb, var(--hud-accent, #8e2a2a) 80%, #2a1608) !important; text-shadow: 0 1px 0 rgba(255, 255, 255, .6) !important;
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Cg fill='none' stroke='%23a97f22' stroke-width='1.3' stroke-linecap='round' opacity='.65'%3E%3Cpath d='M3 37c6-2 8-7 6-12M37 3c-6 2-8 7-6 12M3 30c3 0 5-1 6-3M37 10c-3 0-5 1-6 3'/%3E%3Ccircle cx='9' cy='25' r='1.6'/%3E%3Ccircle cx='31' cy='15' r='1.6'/%3E%3C/g%3E%3C/svg%3E") center / 100% 100% no-repeat,
+    linear-gradient(160deg, #f7ecd0, #e8d5a8) !important;
+}
+@media (max-width: 600px) {
+  :root[data-hud-initials] .hud-letter-sheet > p:first-of-type:not(.hud-letter-blank)::first-letter,
+  :root[data-hud-initials] .hud-news-article .article-text::first-letter,
+  :root[data-hud-initials] .hud-quill-note .hud-dropcap { font-size: 1.9em !important; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  :root[data-hud-initials] .hud-letter-sheet > p:first-of-type:not(.hud-letter-blank)::first-letter,
+  :root[data-hud-initials] .hud-news-article .article-text::first-letter,
+  :root[data-hud-initials] .hud-quill-note .hud-dropcap { font-size: 1.9em !important; }
+} }
+/* cq ↑ */

@@ -20,17 +20,18 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.66';
-import { статусОбещания } from './hud-expand.js?v=23.89.66';
-import { полеВкл } from './deep-fields.js?v=23.89.66';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.66';
-import { namesLikelySame } from './names.js?v=23.89.66';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.66';
-import { праздникиГода } from './render/holidays.js?v=23.89.66';
-import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.66';
-import { заметкаМеста } from './render/place-lore.js?v=23.89.66';
-import { заметкаСил } from './render/powers.js?v=23.89.66';
-import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.66';
+import { settings } from './settings.js?v=23.89.67';
+import { статусОбещания } from './hud-expand.js?v=23.89.67';
+import { полеВкл } from './deep-fields.js?v=23.89.67';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.67';
+import { namesLikelySame } from './names.js?v=23.89.67';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.67';
+import { праздникиГода } from './render/holidays.js?v=23.89.67';
+import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.67';
+import { заметкаМеста } from './render/place-lore.js?v=23.89.67';
+import { заметкаПоста } from './render/almanac.js?v=23.89.67';
+import { заметкаСил } from './render/powers.js?v=23.89.67';
+import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.67';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -934,6 +935,8 @@ export function заметкиХода({ чат, снимок = null, тип = '
     { const п = заметкаДеталейПраздника(сцена); if (п) строки.push(п); }
     // Подготовка, которую ведёт модель (render/holiday-lore.js): открытые шаги, в сам день — что успели.
     строки.push(...заметкаПодготовки(сцена));
+    // Пост в святцах средневековья (render/almanac.js) — только по настройке.
+    { const п = заметкаПоста(сцена); if (п) строки.push(п); }
     // Правила и власть места (средневековье, render/place-lore.js): что действует сейчас.
     { const п = заметкаМеста(снимок); if (п) строки.push(п); }
     // Силы приземлённого фэнтези (render/powers.js): мана, чары по времени, тело и сила.

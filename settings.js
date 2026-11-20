@@ -163,6 +163,12 @@ export const defaultSettings = {
   // Подготовка к празднику или ярмарке для модели: list — модель видит открытые
   // шаги каждый ход и отмечает сделанные (sc.Pq); once — одна подсказка.
   prepTracking: 'list',
+  // Средневековье: святцы (посты, святые, сезон работ), строка модели о посте,
+  // знак рода у имени и буквицы (render/almanac.js, heraldry.js, css/medieval-extra.css).
+  medievalAlmanac: true,
+  medievalFastNote: false,
+  heraldry: true,
+  initials: true,
   placeLore: true,
   placeLoreReminder: true,
   holidayProfileId: '',

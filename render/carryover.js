@@ -14,18 +14,18 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.66';
-import { проставитьДень } from './msg-feed.js?v=23.89.66';
-import { normalizeJSONData } from '../schema.js?v=23.89.66';
-import { settings } from '../settings.js?v=23.89.66';
-import { статусРужья } from '../codes.js?v=23.89.66';
-import { extractHudBlock } from '../hud-block.js?v=23.89.66';
-import { развернутьHUD } from '../offload.js?v=23.89.66';
-import { namesLikelySame } from '../names.js?v=23.89.66';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.89.66';
-import { readParsed, writeParsed } from '../store.js?v=23.89.66';
-import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.89.66';
-import { ключСлуха } from './rumor-times.js?v=23.89.66';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.67';
+import { проставитьДень } from './msg-feed.js?v=23.89.67';
+import { normalizeJSONData } from '../schema.js?v=23.89.67';
+import { settings } from '../settings.js?v=23.89.67';
+import { статусРужья } from '../codes.js?v=23.89.67';
+import { extractHudBlock } from '../hud-block.js?v=23.89.67';
+import { развернутьHUD } from '../offload.js?v=23.89.67';
+import { namesLikelySame } from '../names.js?v=23.89.67';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.89.67';
+import { readParsed, writeParsed } from '../store.js?v=23.89.67';
+import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.89.67';
+import { ключСлуха } from './rumor-times.js?v=23.89.67';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');

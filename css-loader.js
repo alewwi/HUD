@@ -18,8 +18,8 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.89.66';
-import { естьПодМагию } from './era.js?v=23.89.66';
+import { settings } from './settings.js?v=23.89.67';
+import { естьПодМагию } from './era.js?v=23.89.67';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';
@@ -59,6 +59,8 @@ export const ЧАСТИ = [
   // Силы приземлённого фэнтези (render/powers.js): способности, чары, отдача.
   // Виды Шкатулки и Мира для старины (render/medieval-views.js).
   ['medieval-views', (s) => s.era === 'medieval' || s.era === 'fantasy-medieval'],
+  // Святцы, знак рода и буквицы средневековья (render/almanac.js, heraldry.js).
+  ['medieval-extra', (s) => s.era === 'medieval' || s.era === 'fantasy-medieval'],
   // Правила и власть места во вкладке «Мир» (render/place-lore.js) — средневековье.
   ['place-lore', (s) => (s.era === 'medieval' || s.era === 'fantasy-medieval') && s.placeLore !== false],
   ['powers', (s) => s.era === 'fantasy-modern' || s.era === 'fantasy-medieval' || s.magicPresence === 'hidden'],

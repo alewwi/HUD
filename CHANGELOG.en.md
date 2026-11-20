@@ -4,6 +4,22 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.67 — 2026-11-20
+
+### Added
+- **Fasts, saints and the farming season in the almanac** (medieval; setting "📿 Fasts, saints and the farming season in the almanac"). The HUD works it out from the scene date: Lent and Advent, and for the Orthodox Great Lent, the Apostles', Dormition and Nativity fasts; Orthodox dates follow the old style, like Easter. Fast days are hatched in the almanac, saints' days are their own "Saints" calendar (tap for "How it is marked"), and a "Today" line above the month shows the fast, the saint and what the village is doing. Nothing goes to the model; optionally one line during fasts only ("🔔 Remind the model of fasts"). There is no almanac in fantasy with open magic or in grounded fantasy.
+- **A family sign by the name** (setting "🛡️ Family sign by the name"). Nobles get a coat of arms (field, division and charge following "no metal on metal"), craftsmen a craft sign, everyone else a house mark. Who is who comes from the character's role, the arms from the family name: one family, one sign. Tap it for another variant or your own field, tincture, division and charge.
+- **Illuminated initials** (setting "🖋️ Illuminated initials"). The first letter of letters, herald's news and quill notes looks like a manuscript miniature: a gold frame, a vine, a field in the theme colour.
+- **A "model only" preparation can be removed**: a short line with a cross and a confirmation window. "Remove preparation" on a visible list asks in a window too.
+
+### Fixed
+- **Two preparations at once:** the second one's step numbers now follow the first, so "1+" no longer counts for both.
+- **A holiday and a fair on the same day** — the model hears about both, not just the holiday.
+- **"How it is marked" details of a HUD-placed fair** no longer go to the model on the same date next year when there is no fair.
+- **A saved preparation shows** even when preparation is offered 0 days ahead.
+- **Saints' days no longer push plans** out of the "Soon" list.
+- **Orthodox fixed feasts** (Christmas, Epiphany…) after 1583 follow the old style, like the fasts. The almanac and the built-in holidays agree on what counts as an Orthodox world, Rus and Byzantium included.
+
 ## 23.89.66 — 2026-11-20
 
 ### Fixed

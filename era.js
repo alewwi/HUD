@@ -38,7 +38,7 @@
 // мир современный, но люди пишут друг другу письма (письма вместо телефона или
 // вместе с ним).
 
-import { settings } from './settings.js?v=23.89.66';
+import { settings } from './settings.js?v=23.89.67';
 
 export const ЭПОХИ = ['modern', 'fantasy-modern', 'medieval', 'fantasy-medieval'];
 export const МАГИЯ = ['high', 'grounded'];
@@ -128,6 +128,8 @@ export const блокПодМагию = (ключ) => (фэнтези() ? !со�
 export function отметитьЭпоху(root = typeof document !== 'undefined' ? document.documentElement : null) {
   if (!root || !root.dataset) return;
   root.dataset.hudEra = эпоха();
+  // Буквицы средневековья (css/medieval-extra.css): по настройке initials.
+  if (старина() && settings.initials !== false) root.dataset.hudInitials = '1'; else delete root.dataset.hudInitials;
   // Переменные цвета фэнтези-видов висят на data-hud-magic; при скрытой магии
   // эпоха на корне остаётся обычной — общий колдовской оттенок не включается.
   const м = магияОблика();

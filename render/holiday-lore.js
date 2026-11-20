@@ -13,12 +13,12 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.66';
-import { settings } from '../settings.js?v=23.89.66';
-import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.66';
-import { праздникиГода } from './holidays.js?v=23.89.66';
-import { раскрывашка } from './fold.js?v=23.89.66';
-import { старина } from '../era.js?v=23.89.66';
+import { escapeHtml } from '../utils.js?v=23.89.67';
+import { settings } from '../settings.js?v=23.89.67';
+import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.67';
+import { праздникиГода } from './holidays.js?v=23.89.67';
+import { раскрывашка } from './fold.js?v=23.89.67';
+import { старина } from '../era.js?v=23.89.67';
 
 const КЛЮЧ = 'tavernosHudHolidays';
 const ДЕНЬ = 864e5;
@@ -149,6 +149,10 @@ export function заметкаДеталейПраздника(сцена) {
     // Разовый праздник (событие календаря с годом) — только в свой год.
     if (з.год && з.год !== год) return false;
     const и = имяК(з.имя);
+    // Ярмарка, которую расставил HUD, — только если в этот день она и правда есть:
+    // в ту же дату через год её может не быть.
+    // Событие календаря с годом («Ярмарка» в 2031-м) — своя запись, ей правило ниже.
+    if (и === имяК(ЯРМАРКА) && !з.год) return ярмаркиВкл() && ярмаркиЧата(сцена).some(п => п.дата === Date.UTC(год, д.getUTCMonth(), д.getUTCDate()));
     const мира = х.список.filter(п => имяК(п.имя) === и && String(п.дата).slice(0, 5) === день);
     // Праздник мира с годом в дате — разовый: в другие годы его нет.
     if (мира.length) return settings.holidayGen !== false && мира.some(п => String(п.дата).length <= 5 || п.ежегодно || +String(п.дата).slice(6) === год);
@@ -319,13 +323,18 @@ export function заметкаПраздниковМира(сцена) {
   // «Праздники мира» выключены — модель о них не слышит, даже если список остался.
   if ((settings.holidayGen === false && !ярмаркиВкл()) || режим === 'off' || !Number.isFinite(сцена)) return '';
   const все = вокруг(сцена);
-  const сегодня = все.find(п => п.через === 0 && !п.ярмарка) || все.find(п => п.через === 0);
+  // Праздник и ярмарка в один день — модель слышит про оба.
+  const праздник = все.find(п => п.через === 0 && !п.ярмарка);
+  const ярмарка = все.find(п => п.через === 0 && п.ярмарка);
   const про = (п) => п.о ? ` (${безТочки(п.о)})` : '';
   // Ярмарка — окно возможностей на один день: завтра этих людей здесь не будет.
   // У придуманной моделью — своё имя и описание, у расставленной HUD — просто «ярмарка».
   const имяЯрмарки = (п) => (п.имя !== ЯРМАРКА ? ` — «${п.модели}»${про(п)}` : '');
-  if (сегодня && сегодня.ярмарка) return `Today is a fair day here${имяЯрмарки(сегодня)}: rare craftsmen, buyers, storytellers and carters from afar are in town for this day only. The player may sell or buy what is rare, look for someone, hear news from far away or hire on — offer these as chances, never decide for the player. They leave tomorrow: after today such traders and travellers are gone until the next fair.`;
-  if (сегодня) return `Today is «${сегодня.модели}»${про(сегодня)}, a holiday of this world already set in the story: people around may mark it the way this world does. It can stay in the background.`;
+  const сегодня = [
+    праздник && `Today is «${праздник.модели}»${про(праздник)}, a holiday of this world already set in the story: people around may mark it the way this world does. It can stay in the background.`,
+    ярмарка && `Today is a fair day here${имяЯрмарки(ярмарка)}: rare craftsmen, buyers, storytellers and carters from afar are in town for this day only. The player may sell or buy what is rare, look for someone, hear news from far away or hire on — offer these as chances, never decide for the player. They leave tomorrow: after today such traders and travellers are gone until the next fair.`,
+  ].filter(Boolean);
+  if (сегодня.length) return сегодня.join(' ');
   if (режим !== 'before') return '';
   const скоро = все.filter(п => п.через > 0 && п.через <= 2).sort((а, б) => а.через - б.через)[0];
   if (скоро && скоро.ярмарка) return `A fair${имяЯрмарки(скоро)} comes to town in ${скоро.через} ${скоро.через === 1 ? 'day' : 'days'}: let it show in passing, only where it fits — carts on the road, talk of what the traders will bring.`;
@@ -352,7 +361,7 @@ export function разобратьОтметки(s) {
   const out = {};
   for (const м of String(s || '').matchAll(ОТМЕТКА)) {
     const i = +м[1] - 1;
-    if (i >= 0 && i < 12) out[i] = /[+＋✓✔]/.test(м[2]);
+    if (i >= 0 && i < 30) out[i] = /[+＋✓✔]/.test(м[2]);
   }
   return out;
 }
@@ -373,10 +382,13 @@ function отметкиМодели(от) {
 export function подготовка(ключ) {
   const з = хранилище()?.подготовка?.[ключ];
   if (!з || !Array.isArray(з.шаги) || !з.шаги.length) return null;
+  // Номера у модели сквозные: у второй подготовки они идут после первой (сдвиг),
+  // чтобы «1+» не засчитался обеим.
+  const сдвиг = Number.isInteger(з.сдвиг) ? з.сдвиг : 0;
   const модель = з.вести ? отметкиМодели(з.от) : {};
   const игрок = з.игрок && typeof з.игрок === 'object' ? з.игрок : {};
-  const сделано = з.шаги.map((_, i) => (i in игрок ? !!игрок[i] : !!модель[i]));
-  return { шаги: з.шаги.slice(), сделано, вести: !!з.вести, показ: з.показ !== false, дата: з.дата, имя: з.имя || '', модели: з.модели || з.имя || '', ярмарка: !!з.ярмарка };
+  const сделано = з.шаги.map((_, i) => (i in игрок ? !!игрок[i] : !!модель[сдвиг + i]));
+  return { шаги: з.шаги.slice(), сделано, сдвиг, вести: !!з.вести, показ: з.показ !== false, дата: з.дата, имя: з.имя || '', модели: з.модели || з.имя || '', ярмарка: !!з.ярмарка };
 }
 /** мета — { вести, показ, дата, имя, модели, ярмарка }. Без шагов запись убирается. */
 export function сохранитьПодготовку(ключ, шаги, мета = {}) {
@@ -385,7 +397,9 @@ export function сохранитьПодготовку(ключ, шаги, ме�
   if (!х.подготовка || typeof х.подготовка !== 'object') х.подготовка = {};
   const чистые = (шаги || []).map(ш => String(ш || '').trim().slice(0, 200)).filter(Boolean).slice(0, 6);
   const чат = контекст()?.chat;
-  if (чистые.length) х.подготовка[ключ] = { шаги: чистые, вести: !!мета.вести, показ: мета.показ !== false, от: Array.isArray(чат) ? чат.length : 0,
+  // Сдвиг номеров — после других подготовок, которые модель ещё ведёт.
+  const сдвиг = мета.вести ? живыеПодготовки(деньПоследнейСцены).filter(п => п.ключ !== ключ && п.вести).reduce((м, п) => Math.max(м, (п.сдвиг || 0) + п.шаги.length), 0) : 0;
+  if (чистые.length) х.подготовка[ключ] = { шаги: чистые, сдвиг, вести: !!мета.вести, показ: мета.показ !== false, от: Array.isArray(чат) ? чат.length : 0,
     дата: Number.isFinite(мета.дата) ? мета.дата : null, имя: String(мета.имя || ''), модели: String(мета.модели || мета.имя || ''), ярмарка: !!мета.ярмарка, игрок: {} };
   else delete х.подготовка[ключ];
   сохранить();
@@ -443,7 +457,7 @@ export function заметкаПодготовки(сцена) {
     const открытые = пункты(false);
     if (!открытые.length) continue;
     const д = new Date(п.дата);
-    строки.push(`Preparation for ${что} (in ${через} ${через === 1 ? 'day' : 'days'}, ${дд(д.getUTCDate())}.${дд(д.getUTCMonth() + 1)}) — steps still open: ${открытые.map(([i, ш]) => `${i + 1}) ${безТ(ш)}`).join('; ')}. Let them come up where they fit, never force them. If the characters do one in this reply, mark it in sc.Pq by its number, e.g. "${открытые[0][0] + 1}+" ("${открытые[0][0] + 1}-" if tried but not done).`);
+    строки.push(`Preparation for ${что} (in ${через} ${через === 1 ? 'day' : 'days'}, ${дд(д.getUTCDate())}.${дд(д.getUTCMonth() + 1)}) — steps still open: ${открытые.map(([i, ш]) => `${п.сдвиг + i + 1}) ${безТ(ш)}`).join('; ')}. Let them come up where they fit, never force them. If the characters do one in this reply, mark it in sc.Pq by its number, e.g. "${п.сдвиг + открытые[0][0] + 1}+" ("${п.сдвиг + открытые[0][0] + 1}-" if tried but not done).`);
   }
   return строки;
 }
@@ -487,13 +501,15 @@ function кандидатыПодготовки(сцена) {
  * сохранил себе подготовку, — её список, до самого дня. сценаДата — «Дата» сцены.
  */
 export function плашкаПодготовки(сценаДата) {
-  const n = parseInt(settings.holidayPrepDays ?? 7, 10);
-  if (!Number.isFinite(n) || n <= 0) return '';
+  // 0 дней — вопрос «Начать подготовку?» не задаётся, но уже сохранённая
+  // подготовка всё равно видна до своего дня.
+  const nСырое = parseInt(settings.holidayPrepDays ?? 7, 10);
+  const n = Number.isFinite(nСырое) ? Math.max(0, nСырое) : 7;
   const сцена = деньСцены(сценаДата);
   if (сцена === null) return '';
   const х = хранилище();
   if (!х) return '';
-  const кандидаты = кандидатыПодготовки(сцена).sort((а, б) => а.через - б.через);
+  const кандидаты = n > 0 ? кандидатыПодготовки(сцена).sort((а, б) => а.через - б.через) : [];
   const ключ = (п) => п.id + '|' + п.год;
   const когдаСтрокой = (п) => { const д = new Date(п.дата); return `${дд(д.getUTCDate())}.${дд(д.getUTCMonth() + 1)}`; };
   const голова = (п, подпись) => `<i class="hud-holprep-ico">${КАЛЕНДАРЬ}</i><span class="hud-holprep-what"><b>«${escapeHtml(п.имя)}»</b><small>${подпись}</small></span>`;
@@ -508,7 +524,14 @@ export function плашкаПодготовки(сценаДата) {
     const всё = з.сделано.every(Boolean);
     html += `<div class="hud-holprep is-saved${всё ? ' is-done' : ''}">` + раскрывашка('hud-holprep-fold', голова(псевдо, (всё ? 'всё готово' : `подготовка ${з.сделано.filter(Boolean).length}/${з.шаги.length}`) + ' · ' + срок(псевдо)),
       `<ol class="hud-holprep-steps">${з.шаги.map((ш, i) => `<li${з.сделано[i] ? ' class="is-done"' : ''}><button type="button" data-hud-prepstep="${i}" data-key="${escapeHtml(з.ключ)}" aria-pressed="${з.сделано[i]}" title="${з.сделано[i] ? 'Вернуть' : 'Отметить сделанным'}">${escapeHtml(ш)}</button></li>`).join('')}</ol>`
-      + `<div class="hud-holprep-foot">${з.вести ? `<small>${'модель видит открытые шаги и отмечает сделанные'}</small>` : ''}<button type="button" class="hud-holprep-drop" data-hud-prepdrop="${escapeHtml(з.ключ)}">Убрать подготовку</button></div>`) + `</div>`;
+      + `<div class="hud-holprep-foot">${з.вести ? `<small>${'модель видит открытые шаги и отмечает сделанные'}</small>` : ''}<button type="button" class="hud-holprep-drop" data-hud-prepdrop="${escapeHtml(з.ключ)}" data-name="${escapeHtml(з.имя)}">Убрать подготовку</button></div>`) + `</div>`;
+  }
+  // «Отправить только модели»: список игроку не виден, но убрать его можно —
+  // короткой строкой с крестиком (и окном подтверждения).
+  for (const з of живыеПодготовки(сцена).filter(з => !з.показ && з.вести && з.сделано.some(с => !с)).sort((а, б) => а.дата - б.дата).slice(0, 2)) {
+    const через = Math.round((з.дата - сцена) / ДЕНЬ);
+    html += `<div class="hud-holprep is-model-only"><span class="hud-holprep-mo">📋 Подготовка к «${escapeHtml(з.имя)}» — только у модели · ${escapeHtml(срок({ дата: з.дата, через }))}</span>`
+      + `<button type="button" class="hud-holprep-kill" data-hud-prepdrop="${escapeHtml(з.ключ)}" data-name="${escapeHtml(з.имя)}" title="Убрать подготовку" aria-label="Убрать подготовку">✕</button></div>`;
   }
   const п = кандидаты.find(п => п.через > 0 && п.через <= n && !х.ответы[ключ(п)]);
   if (!п) return html;
@@ -528,9 +551,15 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
       e.preventDefault(); e.stopPropagation();
       if (шаг.closest('.hud-custom-preview-body')) return;
       if (шаг.dataset.hudPrepdrop !== undefined) {
-        if (!шаг.classList.contains('is-armed')) { шаг.classList.add('is-armed'); шаг.textContent = 'Точно убрать?'; return; }
-        убратьПодготовку(шаг.dataset.hudPrepdrop);
-        шаг.closest('.hud-holprep')?.remove();
+        // Окно подтверждения (confirm-erase.js): подготовка уходит совсем.
+        const ключ = шаг.dataset.hudPrepdrop;
+        import('../confirm-erase.js?v=23.89.67').then(м => м.уверены({
+          что: `«${шаг.dataset.name || ''}»`, текст: 'Подготовка уберётся совсем: модель перестанет её получать, а список шагов пропадёт.', кнопка: 'Убрать',
+        })).then(да => {
+          if (!да) return;
+          убратьПодготовку(ключ);
+          document.querySelectorAll(`[data-hud-prepdrop="${CSS.escape(ключ)}"]`).forEach(б => б.closest('.hud-holprep')?.remove());
+        }).catch(err => console.error('[TavernOS HUD] подтверждение не открылось:', err));
         return;
       }
       const стало = переключитьШаг(шаг.dataset.key, +шаг.dataset.hudPrepstep);
@@ -560,7 +589,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
       let данные = null;
       try { данные = JSON.parse(плашка.dataset.holPrep || 'null'); } catch (_) { данные = null; }
       if (!данные) return;
-      import('./holiday-prep.js?v=23.89.66').then(м => м.открытьПодготовку(данные))
+      import('./holiday-prep.js?v=23.89.67').then(м => м.открытьПодготовку(данные))
         .catch(err => console.error('[TavernOS HUD] окно подготовки не загрузилось:', err));
       return;
     }
