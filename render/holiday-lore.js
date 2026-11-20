@@ -13,12 +13,12 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.67';
-import { settings } from '../settings.js?v=23.89.67';
-import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.67';
-import { праздникиГода } from './holidays.js?v=23.89.67';
-import { раскрывашка } from './fold.js?v=23.89.67';
-import { старина } from '../era.js?v=23.89.67';
+import { escapeHtml } from '../utils.js?v=23.89.68';
+import { settings } from '../settings.js?v=23.89.68';
+import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.68';
+import { праздникиГода } from './holidays.js?v=23.89.68';
+import { раскрывашка } from './fold.js?v=23.89.68';
+import { старина } from '../era.js?v=23.89.68';
 
 const КЛЮЧ = 'tavernosHudHolidays';
 const ДЕНЬ = 864e5;
@@ -553,7 +553,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
       if (шаг.dataset.hudPrepdrop !== undefined) {
         // Окно подтверждения (confirm-erase.js): подготовка уходит совсем.
         const ключ = шаг.dataset.hudPrepdrop;
-        import('../confirm-erase.js?v=23.89.67').then(м => м.уверены({
+        import('../confirm-erase.js?v=23.89.68').then(м => м.уверены({
           что: `«${шаг.dataset.name || ''}»`, текст: 'Подготовка уберётся совсем: модель перестанет её получать, а список шагов пропадёт.', кнопка: 'Убрать',
         })).then(да => {
           if (!да) return;
@@ -589,7 +589,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
       let данные = null;
       try { данные = JSON.parse(плашка.dataset.holPrep || 'null'); } catch (_) { данные = null; }
       if (!данные) return;
-      import('./holiday-prep.js?v=23.89.67').then(м => м.открытьПодготовку(данные))
+      import('./holiday-prep.js?v=23.89.68').then(м => м.открытьПодготовку(данные))
         .catch(err => console.error('[TavernOS HUD] окно подготовки не загрузилось:', err));
       return;
     }

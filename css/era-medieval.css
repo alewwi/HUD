@@ -356,7 +356,10 @@
 .era-skin .hud-letter { interpolate-size: allow-keywords; }
 .era-skin .hud-letter::details-content { block-size: 0; overflow: clip; opacity: 0; transition: block-size .55s cubic-bezier(.3,.7,.2,1), opacity .4s ease, content-visibility .55s allow-discrete; }
 .era-skin .hud-letter[open]::details-content { block-size: auto; opacity: 1; }
-.era-skin .hud-letter[open] .hud-letter-sheet { animation: era-unfold .6s cubic-bezier(.3,.7,.2,1) both; transform-origin: 50% 0; }
+/* Лист письма не разворачивается сам при каждой отрисовке: открытое письмо
+   сразу лежит развёрнутым, а открытие нажатием выдвигает его (medieval-views.css,
+   ::details-content). */
+.era-skin .hud-letter[open] .hud-letter-sheet { transform: perspective(500px) rotate(-.4deg); transform-origin: 50% 0; }
 @keyframes era-unfold { from { transform: perspective(500px) rotateX(-28deg) translateY(-6px) rotate(-.4deg); opacity: 0; } to { transform: perspective(500px) rotateX(0) translateY(0) rotate(-.4deg); opacity: 1; } }
 .era-skin .hud-letter .hud-seal.era-wax svg:first-child { transition: transform .5s cubic-bezier(.3,1.6,.4,1); }
 .era-skin .hud-letter[open] .hud-seal.era-wax svg:first-child { transform: rotate(-8deg) scale(.96); }

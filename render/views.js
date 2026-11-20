@@ -7,14 +7,14 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.67';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.67';
-import { namesLikelySame } from '../names.js?v=23.89.67';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.67';
-import { settings } from '../settings.js?v=23.89.67';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.67';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.67';
-import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.89.67';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.68';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.68';
+import { namesLikelySame } from '../names.js?v=23.89.68';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.68';
+import { settings } from '../settings.js?v=23.89.68';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.68';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.68';
+import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.89.68';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -118,7 +118,7 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'forecastView', группа: 'Мир', поле: 'Прогноз погоды', виды: { classic: 'Карточки', sky: 'Небо суток', window: 'Окна', house: 'Погодный домик' } },
   { ключ: 'horoscopeView', группа: 'Мир', поле: 'Гороскоп', виды: { classic: 'Карточки', wheel: 'Зодиакальный круг', gems: 'Талисманы', elements: 'Стихии' } },
   { ключ: 'eventsView', группа: 'Мир', поле: 'Афиша', виды: { classic: 'Билеты', column: 'Афишная тумба', marquee: 'Вывеска', vinyl: 'Пластинки', medieval: 'Ярмарочные хоругви', enchanted: 'Бал светляков' }, эпохи: ЭПОХИ_МИРА },
-  { ключ: 'adsView', группа: 'Мир', поле: 'Доска объявлений', виды: { classic: 'Неон', tearoff: 'Отрывные листки', classified: 'Газета', pager: 'Пейджер' } },
+  { ключ: 'adsView', группа: 'Мир', поле: 'Доска объявлений', виды: { classic: 'Неон', tearoff: 'Отрывные листки', classified: 'Газета', pager: 'Пейджер', tavern: 'Доска трактира' }, эпохи: { tavern: 'старина' } },
   { ключ: 'commentsView', группа: 'Мир', поле: 'Комментарии Сети', виды: { classic: 'Лента', stream: 'Стрим-чат', forum: 'Форум', threads: 'Ветка', medieval: 'Пересуды у очага', enchanted: 'Колодец эха' }, эпохи: ЭПОХИ_МИРА },
 ];
 

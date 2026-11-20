@@ -18,20 +18,20 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.67';
-import { спор, спрашивать, основыИгрока, подписьСна } from '../disputes.js?v=23.89.67';
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.67';
-import { settings } from '../settings.js?v=23.89.67';
-import { градусы } from '../units.js?v=23.89.67';
-import { разобратьХод } from './carryover.js?v=23.89.67';
-import { моментСцены } from './intimacy.js?v=23.89.67';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.67';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.67';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.67';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.67';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.67';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.67';
-import { английский } from '../i18n.js?v=23.89.67';
+import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.68';
+import { спор, спрашивать, основыИгрока, подписьСна } from '../disputes.js?v=23.89.68';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.68';
+import { settings } from '../settings.js?v=23.89.68';
+import { градусы } from '../units.js?v=23.89.68';
+import { разобратьХод } from './carryover.js?v=23.89.68';
+import { моментСцены } from './intimacy.js?v=23.89.68';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.68';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.68';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.68';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.68';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.68';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.68';
+import { английский } from '../i18n.js?v=23.89.68';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;

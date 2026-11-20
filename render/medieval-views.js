@@ -11,8 +11,10 @@
 // Вид рисуется целиком в обёртке .hud-mv: стили не выходят за неё.
 // Время суток в «Тем временем» — то же, что у плашки погоды (частьДня).
 
-import { escapeHtml, defeatWI } from '../utils.js?v=23.89.67';
-import { старина, явнаяМагия } from '../era.js?v=23.89.67';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.68';
+import { старина, явнаяМагия } from '../era.js?v=23.89.68';
+import { английский } from '../i18n.js?v=23.89.68';
+import { миниатюра, каминМастерской, гербПисьма, печатьМастерской } from './medieval-workshop.js?v=23.89.68';
 
 // Шкатулка, как и прежние её виды, — с невидимым знаком против лорбука (defeatWI).
 // Мир — без него, как прежние виды Мира: звёздочка «Ввести в сюжет» и правка
@@ -25,7 +27,9 @@ const тег = (имя, v, класс = '') => есть(v) ? `<${имя}${кла
 const знак = (символ, класс = '') => `<span class="${класс}" aria-hidden="true">${символ}</span>`;
 // Пилюля статуса: тон по смыслу (leaf — хорошо, gold — в пути, wax — беда,
 // ash — угасло, без тона — акцент темы). Ярлыки — пилюля и дата одной строкой.
-const пилюля = (текст, тон = '', имя = 'small') => есть(текст) ? `<${имя} class="m-pill${тон ? ' is-' + тон : ''}">${т(текст)}</${имя}>` : '';
+// Статус — слово интерфейса, а не текст лора: без невидимого знака defeatWI после
+// первой буквы (по нему узкая пилюля переносила «Ч|ерновик»).
+const пилюля = (текст, тон = '', имя = 'small') => есть(текст) ? `<${имя} class="m-pill${тон ? ' is-' + тон : ''}">${escapeHtml(String(текст))}</${имя}>` : '';
 const ярлыки = (...части) => части.join('').trim() ? `<span class="m-tags">${части.join('')}</span>` : '';
 const ТОН_ПИСЬМА = { sealed: 'wax', draft: 'ash', transit: 'gold', sent: 'gold', burned: 'ash', hidden: 'ash', read: 'leaf' };
 const ТОН_ГРАМОТЫ = { valid: 'leaf', expired: 'ash', revoked: 'wax', forged: 'wax' };
@@ -195,11 +199,48 @@ export const ЭПОХА_ВИДА = {
   'folded-letters': 'старина', 'courier-book': 'старина', 'mail-chest': 'старина', feather: 'чары', mirror: 'чары',
   'sealed-charter': 'старина', 'town-register': 'старина', 'roller-scroll': 'старина', basalt: 'чары', ribbon: 'чары',
   herbarium: 'старина', 'tied-tags': 'старина', 'memory-locket': 'старина', amber: 'чары', chain: 'чары',
-  medieval: 'старина', enchanted: 'чары',
+  medieval: 'старина', enchanted: 'чары', tavern: 'старина',
 };
 export const условиеЭпохи = (метка) => метка === 'чары' ? старина() && явнаяМагия() : метка === 'старина' ? старина() : true;
 
-const обёртка = (класс, тело) => `<div class="hud-mv"><section class="m-sheet ${класс}">${тело}</section></div>`;
+// Золочёные уголки листа и эмалевая миниатюра под шапкой (render/medieval-workshop.js).
+const рамка = '<span class="workshop-frame" aria-hidden="true"><i></i><i></i><i></i><i></i></span>';
+function сМиниатюрой(тело, блок) {
+  const м = блок ? миниатюра(блок) : '';
+  if (!м) return тело;
+  const s = String(тело).trimStart();
+  const хвост = s.startsWith('<h3') ? '</h3>' : s.startsWith('<header') ? '</header>' : '';
+  const i = хвост ? s.indexOf(хвост) : -1;
+  return i < 0 ? м + s : s.slice(0, i + хвост.length) + м + s.slice(i + хвост.length);
+}
+const обёртка = (класс, тело, блок = '') => `<div class="hud-mv"><section class="m-sheet ${класс}">${рамка}${сМиниатюрой(тело, блок)}</section></div>`;
+
+// --- Восковые печати писем ---------------------------------------------------------
+// Печать стоит на каждом отправленном письме (черновик и сожжённое — без неё),
+// герб — по самому письму, цвет — по описанию воска или по отправителю.
+// Прочитанное приходит со сломанной печатью; открыли письмо — печать ломается
+// и остаётся сломанной при перерисовке, пока страница открыта.
+const вскрыто = new Set();
+const ключПисьма = (l) => hudHashSeed([l.from, l.to, l.time, l.text].map(v => String(v ?? '')).join('|')).toString(36);
+/** { класс, атр, html, герб } для письма; прошлый — герб письма выше. */
+export function восковаяПечать(l, ключ, цвет, прошлый = -1) {
+  if (!l || ключ === 'draft' || ключ === 'burned') return { класс: '', атр: '', html: '', герб: прошлый };
+  const к = ключПисьма(l), герб = гербПисьма(l, прошлый);
+  return { класс: ' wax-letter' + (ключ === 'read' || вскрыто.has(к) ? ' wax-broken' : ''), атр: ` data-wax="${к}"`, html: печатьМастерской(цвет, герб), герб };
+}
+/** Письмо уже вскрывали на этой странице: подпись «Печать сломана». */
+export const вскрытоПисьмо = (l) => Boolean(l) && вскрыто.has(ключПисьма(l));
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+  document.addEventListener('toggle', (e) => {
+    const письмо = e.target;
+    if (!письмо || !письмо.classList || !письмо.classList.contains('wax-letter') || !письмо.open) return;
+    письмо.classList.add('wax-broken');
+    if (письмо.dataset.wax) вскрыто.add(письмо.dataset.wax);
+    if (!письмо.matches('.is-sealed, .st-sealed')) return;
+    const пилюля = письмо.querySelector(':scope > summary :is(.m-pill, .hud-letter-st)');
+    if (пилюля) пилюля.textContent = английский() ? 'The seal is broken' : 'Печать сломана';
+  }, true);
+}
 
 // --- Шкатулка ------------------------------------------------------------------------
 /**
@@ -212,16 +253,20 @@ export function видРазделаШкатулки(раздел, вид, д) {
   if (!вид || вид === 'classic' || !условиеЭпохи(ЭПОХА_ВИДА[вид])) return '';
   const з = т(д.заголовок || '');
   const h3 = `<h3>${з}</h3>`;
+  const лист = (класс, тело) => обёртка(класс, тело, раздел);
+  const печати = [];
+  (д.letters || []).reduce((прошлый, l) => { const п = восковаяПечать(l, д.письмо(l.status).ключ, д.воск ? д.воск(l) : 'var(--hud-accent)', прошлый); печати.push(п); return п.герб; }, -1);
   const луна = `<i class="m-moon" style="--lit:${д.луна?.свет ?? .5};--side:${д.луна?.сторона ?? 1}" aria-hidden="true"></i>`;
   const имяЛуны = т(д.луна?.имя || '');
   const календарь = д.календарь || '';
   const сноска = (n) => есть(n.footer) ? `<footer>${т(n.footer)}</footer>` : '';
   const записи = (рисунок) => (д.notes || []).map(рисунок).join('');
-  const мета = (l) => ярлыки(пилюля(д.письмо(l.status).текст, ТОН_ПИСЬМА[д.письмо(l.status).ключ]), тег('small', l.time, 'm-when'));
+  const статус = (l) => { const с = д.письмо(l.status); return с.ключ === 'sealed' && вскрытоПисьмо(l) ? { ...с, текст: 'Печать сломана' } : с; };
+  const мета = (l) => ярлыки(пилюля(статус(l).текст, ТОН_ПИСЬМА[статус(l).ключ]), тег('small', l.time, 'm-when'));
   const тело = (l) => `<div class="c-letter-body">${String(l.text || '').split(/\n+/).filter(есть).map(x => `<p>${т(x)}</p>`).join('')}
-    ${есть(l.seal) ? `<small class="m-from">${подп('Печать')} · ${т(l.seal)}</small>` : ''}${есть(l.via) ? `<small class="m-from">${подп('С кем')} · ${т(l.via)}</small>` : ''}</div>`;
+    ${есть(l.seal) ? `<small class="m-from">${подп('Печать')} · ${т(l.seal)}</small>` : ''}${есть(l.via) ? `<small class="m-from">${подп('Доставка')} · ${т(l.via)}</small>` : ''}</div>`;
   const запечатано = (l) => д.письмо(l.status).ключ === 'sealed';
-  const почта = (лицо) => (д.letters || []).map(l => `<details class="c-letter${запечатано(l) ? ' is-sealed' : ''}"><summary>${лицо(l)}</summary>${тело(l)}</details>`).join('');
+  const почта = (лицо) => (д.letters || []).map((l, i) => `<details class="c-letter${запечатано(l) ? ' is-sealed' : ''}${печати[i].класс}"${печати[i].атр}><summary>${лицо(l)}${печати[i].html}</summary>${тело(l)}</details>`).join('');
   const бумаги = (рисунок) => (д.documents || []).map(doc => рисунок(doc, д.грамота(doc))).join('');
   const вещи = (рисунок) => (д.keepsakes || []).map(рисунок).join('');
   const от = (k) => есть(k.from) ? `<small class="m-from">${подп('От кого')} · ${т(k.from)}</small>` : '';
@@ -231,52 +276,49 @@ export function видРазделаШкатулки(раздел, вид, д) {
 
   switch (вид) {
     // Святцы
-    case 'menologion': return обёртка('c-menologion', `<header class="c-month-mast">${знак('✦')}${h3}${знак('✦')}</header>
+    case 'menologion': return лист('c-menologion', `<header class="c-month-mast">${знак('✦')}${h3}${знак('✦')}</header>
       <div class="c-month-layout"><div class="c-lunette">${луна}<small>${имяЛуны}</small></div></div>${календарь}`);
-    case 'parish-calendar': return обёртка('c-parish-calendar', `<header class="c-parish-mast"><div class="c-bell" aria-hidden="true"><i></i></div><div>${h3}</div></header>
+    case 'parish-calendar': return лист('c-parish-calendar', `<header class="c-parish-mast"><div class="c-bell" aria-hidden="true"><i></i></div><div>${h3}</div></header>
       ${календарь}${имяЛуны ? `<footer>${знак('☾')} ${имяЛуны}</footer>` : ''}`);
-    case 'lunar-wheel': return обёртка('c-lunar-wheel', `${h3}<div class="c-orrery"><span class="c-orbit" aria-hidden="true"></span>${луна}<b>${имяЛуны}</b></div>${календарь}`);
-    case 'orbits': case 'tide': return обёртка(`arc-sheet arc-${вид}`, `<header class="arc-mast"><i aria-hidden="true"></i>${h3}<i aria-hidden="true"></i></header>${лунныйПейзаж(вид === 'tide')}${имяЛуны ? `<small class="arc-moon-name">${имяЛуны}</small>` : ''}${календарь}`);
+    case 'lunar-wheel': return лист('c-lunar-wheel', `${h3}<div class="c-orrery"><span class="c-orbit" aria-hidden="true"></span>${луна}<b>${имяЛуны}</b></div>${календарь}`);
+    case 'orbits': case 'tide': return лист(`arc-sheet arc-${вид}`, `<header class="arc-mast"><i aria-hidden="true"></i>${h3}<i aria-hidden="true"></i></header>${лунныйПейзаж(вид === 'tide')}${имяЛуны ? `<small class="arc-moon-name">${имяЛуны}</small>` : ''}${календарь}`);
     // Записи
-    case 'psalter-margins': return обёртка('c-psalter-margins', h3 + (записи(n => `<article class="c-marginalia">
+    case 'psalter-margins': return лист('c-psalter-margins', h3 + (записи(n => `<article class="c-marginalia">
       <aside class="psalter-vine" aria-hidden="true"><b>✥</b><em>❦</em><b>✥</b></aside><div>${тег('h4', n.title || 'Без заглавия')}${тег('small', n.time, 'm-when')}
       ${сБуквицей(n.text)}${сноска(n)}</div></article>`) || пусто('Перо сухое — записей нет')));
-    case 'stitched-notebook': return обёртка('c-stitched-notebook', `<header>${h3}<span class="c-quill" aria-hidden="true"></span></header>` + (записи(n => `<article class="c-notebook-page">
+    case 'stitched-notebook': return лист('c-stitched-notebook', `<header>${h3}<span class="c-quill" aria-hidden="true"></span></header>` + (записи(n => `<article class="c-notebook-page">
       <div>${тег('h4', n.title || 'Без заглавия')}${тег('small', n.time, 'm-when')}</div>${тег('p', n.text)}${сноска(n)}</article>`) || пусто('Перо сухое — записей нет')));
-    case 'candle-note': return обёртка('c-candle-note', `<header><div class="c-candle" aria-hidden="true"><i></i></div>${h3}</header>` + (записи(n => `<article class="c-loose-note">${тег('small', n.time, 'm-when')}${тег('h4', n.title || 'Без заглавия')}${тег('p', n.text)}${сноска(n)}</article>`) || пусто('Перо сухое — записей нет')));
-    case 'roots': case 'spectral': return обёртка(`arc-sheet arc-${вид}`, `<header class="arc-mast"><i aria-hidden="true"></i>${h3}<i aria-hidden="true"></i></header>` + (записи(n => `<article><div class="arc-illustration art-${вид}" aria-hidden="true">${гравюра(вид)}</div><header>${тег('small', n.time, 'm-when')}${тег('h4', n.title || 'Без заглавия')}</header>${тег('p', n.text)}${тег('footer', n.footer)}</article>`) || пусто('Страницы пусты')));
+    case 'candle-note': return лист('c-candle-note', `<header><div class="c-candle" aria-hidden="true"><i></i></div>${h3}</header>` + (записи(n => `<article class="c-loose-note">${тег('small', n.time, 'm-when')}${тег('h4', n.title || 'Без заглавия')}${тег('p', n.text)}${сноска(n)}</article>`) || пусто('Перо сухое — записей нет')));
+    case 'roots': case 'spectral': return лист(`arc-sheet arc-${вид}`, `<header class="arc-mast"><i aria-hidden="true"></i>${h3}<i aria-hidden="true"></i></header>` + (записи(n => `<article><div class="arc-illustration art-${вид}" aria-hidden="true">${гравюра(вид)}</div><header>${тег('small', n.time, 'm-when')}${тег('h4', n.title || 'Без заглавия')}</header>${тег('p', n.text)}${тег('footer', n.footer)}</article>`) || пусто('Страницы пусты')));
     // Письма
-    case 'folded-letters': return обёртка('c-folded-letters', `<header class="silk-head">${h3}</header><div class="silk-ribbon">
-      ${(д.letters || []).map(l => `<details class="silk-packet${запечатано(l) ? ' is-sealed' : ''}"><summary><span class="silk-knot" aria-hidden="true"></span><span>
-        ${мета(l)}${тег('b', l.to || '—')}${есть(l.from) ? `<small class="m-from">${подп('От')} ${т(l.from)}</small>` : ''}</span></summary>${тело(l)}</details>`).join('') || пусто('Писем нет — никто не писал')}</div>`);
-    case 'courier-book': return обёртка('c-courier-book', `<header>${знак('⚑')}${h3}</header><div class="c-courier-track" aria-hidden="true"><i></i></div>` + (почта(l => `
+    case 'folded-letters': return лист('c-folded-letters', `<header class="silk-head">${h3}</header><div class="silk-ribbon">
+      ${(д.letters || []).map((l, i) => `<details class="silk-packet${запечатано(l) ? ' is-sealed' : ''}${печати[i].класс}"${печати[i].атр}><summary><span class="silk-knot" aria-hidden="true"></span><span>
+        ${мета(l)}${тег('b', l.to || '—')}${есть(l.from) ? `<small class="m-from">${подп('От')} ${т(l.from)}</small>` : ''}</span>${печати[i].html}</summary>${тело(l)}</details>`).join('') || пусто('Писем нет — никто не писал')}</div>`);
+    case 'courier-book': return лист('c-courier-book', `<header>${знак('⚑')}${h3}</header><div class="c-courier-track" aria-hidden="true"><i></i></div>` + (почта(l => `
       <span class="c-route">${тег('b', l.from || 'Неизвестный')}<span aria-hidden="true">→</span>${тег('b', l.to || '—')}</span>${мета(l)}`) || пусто('Писем нет — никто не писал')));
-    case 'mail-chest': return обёртка('c-mail-chest', `<header><span class="c-mail-lock" aria-hidden="true"></span>${h3}</header>` + (почта(l => `
+    case 'mail-chest': return лист('c-mail-chest', `<header><span class="c-mail-lock" aria-hidden="true"></span>${h3}</header>` + (почта(l => `
       <span class="c-letter-slot">${знак(запечатано(l) ? '✦' : '✉︎')}<span>${тег('b', l.from || 'Неизвестный')}${есть(l.to) ? `<small class="m-from">${подп('Для')} ${т(l.to)}</small>` : ''}${мета(l)}</span></span>`) || пусто('Писем нет — никто не писал')));
-    case 'feather': case 'mirror': return обёртка(`arc-sheet arc-${вид}`, `<header class="arc-mast"><i aria-hidden="true"></i>${h3}<i aria-hidden="true"></i></header>` + ((д.letters || []).map(l => `<details${запечатано(l) ? ' class="is-sealed"' : ''}><summary><div class="arc-illustration art-${вид}" aria-hidden="true">${гравюра(вид)}</div><span>${мета(l)}${тег('h4', l.to || '—')}${тег('small', l.from, 'm-from')}</span></summary><section>${String(l.text || '').split(/\n+/).filter(есть).map(x => `<p>${т(x)}</p>`).join('')}${тег('small', l.seal)}${тег('small', l.via)}</section></details>`).join('') || пусто('Посланий нет')));
+    case 'feather': case 'mirror': return лист(`arc-sheet arc-${вид}`, `<header class="arc-mast"><i aria-hidden="true"></i>${h3}<i aria-hidden="true"></i></header>` + ((д.letters || []).map((l, i) => `<details class="${запечатано(l) ? 'is-sealed' : ''}${печати[i].класс}"${печати[i].атр}><summary><div class="arc-illustration art-${вид}" aria-hidden="true">${гравюра(вид)}</div><span>${мета(l)}${тег('h4', l.to || '—')}${тег('small', l.from, 'm-from')}</span>${печати[i].html}</summary><section>${String(l.text || '').split(/\n+/).filter(есть).map(x => `<p>${т(x)}</p>`).join('')}${тег('small', l.seal)}${есть(l.via) ? `<small>${подп('Доставка')} · ${т(l.via)}</small>` : ''}</section></details>`).join('') || пусто('Посланий нет')));
     // Грамоты
-    case 'sealed-charter': return обёртка('c-sealed-charter', h3 + (бумаги((doc, г) => `<article class="c-hanging${г.ключ ? ' st-' + г.ключ : ''}">
+    case 'sealed-charter': return лист('c-sealed-charter', h3 + (бумаги((doc, г) => `<article class="c-hanging${г.ключ ? ' st-' + г.ключ : ''}">
       <header>${тег('small', г.вид, 'm-kind')}${тег('h4', doc.title || 'Без заглавия')}</header>${сБуквицей(doc.text)}
       <footer>${тег('span', doc.seal, 'm-from')}${пилюля(г.статус, ТОН_ГРАМОТЫ[г.ключ])}</footer>${знак('⚜︎', 'm-mark m-seal')}</article>`) || пусто('Ни одной бумаги с печатью')));
-    case 'town-register': return обёртка('c-town-register', `<header class="tube-head">${h3}</header>` + (бумаги((doc, г) => `<article class="archive-tube${г.ключ ? ' st-' + г.ключ : ''}"><header>${тег('small', г.вид, 'm-kind')}${тег('h4', doc.title || 'Без заглавия')}</header>
+    case 'town-register': return лист('c-town-register', `<header class="tube-head">${h3}</header>` + (бумаги((doc, г) => `<article class="archive-tube${г.ключ ? ' st-' + г.ключ : ''}"><header>${тег('small', г.вид, 'm-kind')}${тег('h4', doc.title || 'Без заглавия')}</header>
       <div class="tube-insert">${тег('p', doc.text)}<footer>${тег('small', doc.seal, 'm-from')}${пилюля(г.статус, ТОН_ГРАМОТЫ[г.ключ], 'b')}</footer></div></article>`) || пусто('Ни одной бумаги с печатью')));
-    case 'roller-scroll': return обёртка('c-roller-scroll', h3 + (бумаги((doc, г) => `<article class="c-rolled-doc${г.ключ ? ' st-' + г.ключ : ''}"><span class="c-rod" aria-hidden="true"></span>
+    case 'roller-scroll': return лист('c-roller-scroll', h3 + (бумаги((doc, г) => `<article class="c-rolled-doc${г.ключ ? ' st-' + г.ключ : ''}"><span class="c-rod" aria-hidden="true"></span>
       <header>${тег('small', г.вид, 'm-kind')}${тег('h4', doc.title || 'Без заглавия')}</header>${тег('p', doc.text)}
       <footer>${знак('✦', 'm-mark m-seal')}<span>${т(doc.seal || '')}${пилюля(г.статус, ТОН_ГРАМОТЫ[г.ключ])}</span></footer><span class="c-rod is-bottom" aria-hidden="true"></span></article>`) || пусто('Ни одной бумаги с печатью')));
-    case 'basalt': case 'ribbon': return обёртка(`arc-sheet arc-${вид}`, `<header class="arc-mast"><i aria-hidden="true"></i>${h3}<i aria-hidden="true"></i></header>` + (бумаги((doc, г) => `<article><div class="arc-illustration art-${вид}" aria-hidden="true">${гравюра(вид)}</div>${тег('small', г.вид, 'm-kind')}${тег('h4', doc.title || 'Без заглавия')}${тег('p', doc.text)}<footer>${тег('small', doc.seal, 'm-from')}${пилюля(г.статус, ТОН_ГРАМОТЫ[г.ключ], 'b')}</footer></article>`) || пусто('Свитков нет')));
+    case 'basalt': case 'ribbon': return лист(`arc-sheet arc-${вид}`, `<header class="arc-mast"><i aria-hidden="true"></i>${h3}<i aria-hidden="true"></i></header>` + (бумаги((doc, г) => `<article><div class="arc-illustration art-${вид}" aria-hidden="true">${гравюра(вид)}</div>${тег('small', г.вид, 'm-kind')}${тег('h4', doc.title || 'Без заглавия')}${тег('p', doc.text)}<footer>${тег('small', doc.seal, 'm-from')}${пилюля(г.статус, ТОН_ГРАМОТЫ[г.ключ], 'b')}</footer></article>`) || пусто('Свитков нет')));
     // Памятки
-    case 'herbarium': return обёртка('c-herbarium', h3 + (вещи(k => `<figure class="c-herbarium"><div>${роза}</div><figcaption>${тег('h4', k.title || 'Вещица')}${тег('p', k.desc)}${от(k)}</figcaption></figure>`) || пусто('Памятных вещей нет')));
-    case 'tied-tags': return обёртка('c-tied-tags', h3 + (вещи(k => `<article class="c-tied-tag"><span class="c-string" aria-hidden="true"></span>${тег('h4', k.title || 'Вещица')}${от(k)}${тег('p', k.desc)}</article>`) || пусто('Памятных вещей нет')));
-    case 'memory-locket': return обёртка('c-memory-locket', h3 + (вещи(k => `<figure class="c-locket"><div class="c-locket-lid">${роза}</div><figcaption>${тег('h4', k.title || 'Вещица')}${тег('p', k.desc)}${от(k)}</figcaption></figure>`) || пусто('Памятных вещей нет')));
-    case 'amber': case 'chain': return обёртка(`arc-sheet arc-${вид}`, `<header class="arc-mast"><i aria-hidden="true"></i>${h3}<i aria-hidden="true"></i></header>` + (вещи(k => `<figure><div class="arc-illustration art-${вид}" aria-hidden="true">${гравюра(вид)}</div><figcaption>${тег('h4', k.title || 'Вещица')}${тег('p', k.desc)}${тег('small', k.from, 'm-from')}</figcaption></figure>`) || пусто('Оберегов нет')));
+    case 'herbarium': return лист('c-herbarium', h3 + (вещи(k => `<figure class="c-herbarium"><div>${роза}</div><figcaption>${тег('h4', k.title || 'Вещица')}${тег('p', k.desc)}${от(k)}</figcaption></figure>`) || пусто('Памятных вещей нет')));
+    case 'tied-tags': return лист('c-tied-tags', h3 + (вещи(k => `<article class="c-tied-tag"><span class="c-string" aria-hidden="true"></span>${тег('h4', k.title || 'Вещица')}${от(k)}${тег('p', k.desc)}</article>`) || пусто('Памятных вещей нет')));
+    case 'memory-locket': return лист('c-memory-locket', h3 + (вещи(k => `<figure class="c-locket"><div class="c-locket-lid">${роза}</div><figcaption>${тег('h4', k.title || 'Вещица')}${тег('p', k.desc)}${от(k)}</figcaption></figure>`) || пусто('Памятных вещей нет')));
+    case 'amber': case 'chain': return лист(`arc-sheet arc-${вид}`, `<header class="arc-mast"><i aria-hidden="true"></i>${h3}<i aria-hidden="true"></i></header>` + (вещи(k => `<figure><div class="arc-illustration art-${вид}" aria-hidden="true">${гравюра(вид)}</div><figcaption>${тег('h4', k.title || 'Вещица')}${тег('p', k.desc)}${тег('small', k.from, 'm-from')}</figcaption></figure>`) || пусто('Оберегов нет')));
     default: return '';
   }
 }
 
 // --- Мир ------------------------------------------------------------------------------
-const камин = `<div class="stone-hearth" aria-hidden="true"><div class="firebox"><span class="coal-bed"></span>
-  <i class="split-log"></i><i class="split-log"></i><i class="split-log"></i>
-  <div class="fire-tongues">${[1, 2, 3, 4, 5].map(n => `<i style="--n:${n}"></i>`).join('')}</div><span class="fire-sparks"></span></div></div>`;
 const ткацкий = `<div class="chronicle-loom" aria-hidden="true"><i></i><span>❖</span><i></i></div>`;
 const навес = `<div class="fair-canopy" aria-hidden="true"><i></i><b>✵</b><i></i></div>`;
 const доска = `<div class="w-tableau w-notice-board" aria-hidden="true"><i class="w-lantern"></i><i class="w-lantern"></i><i class="w-board-bell"></i></div>`;
@@ -298,11 +340,12 @@ export function видМираСтарины(блок, вид, данные, з�
   try { return видМира(блок, вид, данные, заголовок, сцена); } finally { безЗнака = false; }
 }
 function видМира(блок, вид, данные, заголовок, сцена) {
-  if ((вид !== 'medieval' && вид !== 'enchanted') || !условиеЭпохи(ЭПОХА_ВИДА[вид])) return '';
+  if (!['medieval', 'enchanted', 'tavern'].includes(вид) || !условиеЭпохи(ЭПОХА_ВИДА[вид])) return '';
   const список = Array.isArray(данные) ? данные.filter(Boolean) : [];
   if (!список.length) return '';
   const з = т(заголовок);
   const секция = (тело) => `<div class="hud-world-section hud-mv-section" data-mv-block="${блок}">${тело}</div>`;
+  if (вид === 'tavern') return блок === 'ads' ? секция(доскаТрактира(з, список)) : '';
   if (вид === 'enchanted') {
     const [сюжет, имя] = ЧАРЫ_МИРА[блок];
     const украшение = блок === 'meanwhile' ? `<div class="arc-window">${долина(частьДня(сцена.время, сцена.дата))}</div>` : панорама(сюжет);
@@ -313,10 +356,23 @@ function видМира(блок, вид, данные, заголовок, сц
     factions: `<header class="w-herald"><span aria-hidden="true">⚜︎</span><h3>${з}</h3></header>`,
     meanwhile: `<header class="w-triptych valley-head">${долина(частьДня(сцена.время, сцена.дата))}<h3>${з}</h3></header>`,
     city: `<header class="w-city-head"><h3 class="w-plaque">${з}</h3>${доска}</header>`,
-    comments: `<header class="w-hearth"><h3>${з}</h3>${камин}</header>`,
+    comments: `<header class="w-hearth"><h3>${з}</h3>${каминМастерской()}</header>`,
     events: `<header class="w-fair"><h3>${з}</h3>${навес}</header>`,
   };
-  return секция(обёртка(`m-${блок}`, `${шапки[блок]}<div class="m-content">${телоСтарины(блок, список)}</div>`));
+  return секция(обёртка(`m-${блок}`, `${шапки[блок]}<div class="m-content">${телоСтарины(блок, список)}</div>`, блок));
+}
+
+// Доска трактира: листки на кожаной доске, у каждого сургучный знак; нажатие
+// раскрывает листок. о: { рубрика, заголовок, текст, контакт }.
+const ЗНАКИ_ЛИСТКА = ['✥', '⚜︎', '❦', '✠', '❧'];
+function доскаТрактира(з, список) {
+  return `<div class="hud-mv"><section class="m-sheet tavern-board">
+  <header class="tavern-board-head"><span aria-hidden="true">❧</span><h3>${з}</h3><span aria-hidden="true">❧</span></header>
+  <div class="tavern-notices">${список.map((о, i, все) => { const тело = есть(о.текст) || есть(о.контакт); const первый = все.findIndex(x => есть(x.текст) || есть(x.контакт)) === i; return `<details class="tavern-notice${тело ? '' : ' is-plain'}"${тело && первый ? ' open' : ''}>
+    <summary><span class="tavern-seal" aria-hidden="true">${ЗНАКИ_ЛИСТКА[hudHashSeed(String(о.заголовок || '') + String(о.текст || '')) % ЗНАКИ_ЛИСТКА.length]}</span><span>${тег('small', о.рубрика)}
+      ${тег('strong', о.заголовок || о.текст)}</span></summary>
+    ${тело ? `<div class="tavern-notice-body">${тег('p', о.текст)}${тег('footer', о.контакт)}</div>` : ''}
+  </details>`; }).join('')}</div></section></div>`;
 }
 
 function телоСтарины(блок, список) {

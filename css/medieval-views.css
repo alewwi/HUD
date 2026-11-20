@@ -844,10 +844,12 @@
    виде. Петли — огонь, флажки, облака, звёзды, дым, гонец — стоят и оживают
    под курсором или после касания карточки (fx-live). */
 .hud-mv :is(.w-balance i, .c-letter-body, .c-string, .m-botanical, .c-rolled-doc, .m-comments cite, details[open] section, .c-courier-track i) { animation: none !important; }
-.hud-mv *, .hud-mv *::before, .hud-mv *::after { animation-play-state: paused; }
-.hud-os-card.fx-live .hud-mv *, .hud-os-card.fx-live .hud-mv *::before, .hud-os-card.fx-live .hud-mv *::after { animation-play-state: running; }
+/* С !important: правило вида «animation: …» с селектором сильнее иначе снова
+   запускало петлю, и виды двигались сами по себе. */
+.hud-mv *, .hud-mv *::before, .hud-mv *::after { animation-play-state: paused !important; }
+.hud-os-card.fx-live .hud-mv *, .hud-os-card.fx-live .hud-mv *::before, .hud-os-card.fx-live .hud-mv *::after { animation-play-state: running !important; }
 @media (hover: hover) and (pointer: fine) {
-  .hud-mv:hover *, .hud-mv:hover *::before, .hud-mv:hover *::after { animation-play-state: running; }
+  .hud-mv:hover *, .hud-mv:hover *::before, .hud-mv:hover *::after { animation-play-state: running !important; }
 }
 /* Гонец бежит по дороге книги гонца — только живым. */
 @keyframes hud-mv-courier-run { 0% { left: 4%; } 50% { left: 72%; } 100% { left: 4%; } }
@@ -874,7 +876,7 @@
   --ink: color-mix(in srgb, #f6ead8 92%, var(--hud-accent));
   --rubric: color-mix(in srgb, var(--hud-accent) 58%, #1c0f15);
   --rubric-ink: color-mix(in srgb, var(--hud-accent) 28%, #fbe1d2);
-  --folio-blue-ink: color-mix(in srgb, #a9d2e6 86%, var(--hud-accent));
+  --folio-blue-ink: color-mix(in srgb, #c3e3f2 90%, var(--hud-accent));
   --folio-green-ink: color-mix(in srgb, #a8dcc4 86%, var(--hud-accent)); }
 .hud-mv .c-lunar-wheel { --rubric-ink: var(--gold); }
 /* Светлые темы: буквы рубрики и красок на пергаменте — глубже, чем рубрика для фона
@@ -886,6 +888,9 @@
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv .m-sheet:not(.arc-sheet) .hud-cal { background: linear-gradient(155deg, color-mix(in srgb, color-mix(in srgb, var(--hud-accent) 20%, #1d1526) 94%, transparent), color-mix(in srgb, #140e1a 92%, transparent) 60%, color-mix(in srgb, color-mix(in srgb, var(--hud-accent) 16%, #1d1526) 93%, transparent)); }
 /* Пилюли на тёмном листе: тон смешан с белым, а не с полупрозрачным фоном. */
 .hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .m-sheet :is(small, b, dt, span).m-pill { color: color-mix(in srgb, var(--pill) 38%, #fff); }
+/* Основание пилюли тёмное: сквозь полупрозрачное письмо просвечивала рамка. У чар — своё свечение. */
+.hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .m-sheet:not(.arc-sheet) :is(small, b, dt, span).m-pill {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--pill) 24%, #120b0fd9), color-mix(in srgb, var(--pill) 12%, #120b0fd9)); }
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv { --mv-tone: #fffaf2; --mv-tone-amt: 12%; --mv-alpha: 74%; }
 /* Тёмные по замыслу листы (ларец, свеча, лунное колесо, гербовник, пересуды, чары…)
    на светлых темах остаются тёмными и плотнее: светлый тон делал их сиреневато-
@@ -951,7 +956,7 @@
   display: inline-flex; align-items: center; gap: .48em; width: fit-content; max-width: 100%; min-width: 0;
   margin: 4px 0 2px; padding: .16em .78em .2em .62em; vertical-align: middle;
   font: 700 13.5px/1.2 var(--mv-f-caps); letter-spacing: .06em; font-style: normal; font-variant: normal; text-transform: none;
-  color: color-mix(in srgb, var(--pill) 24%, currentColor);
+  color: color-mix(in srgb, var(--pill) 18%, currentColor);
   background: linear-gradient(180deg, color-mix(in srgb, var(--pill) 22%, transparent), color-mix(in srgb, var(--pill) 9%, transparent));
   border: 1px solid color-mix(in srgb, var(--pill) 58%, transparent); border-radius: 999px;
   box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--pill) 7%, transparent), inset 0 1px 0 #ffffff1f;
@@ -1019,7 +1024,7 @@
 .hud-mv .arc-sheet summary > span { flex: 1 1 auto; min-width: 0; }
 .hud-mv .arc-sheet summary > .arc-illustration { flex: none; }
 /* Перо пишет на светлой бумаге: пилюля — тёмными чернилами, не светом. */
-.hud-mv .arc-feather :is(small, b, dt, span).m-pill { color: color-mix(in srgb, var(--pill) 60%, var(--ink)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pill) 12%, transparent); }
+.hud-mv .arc-feather :is(small, b, dt, span).m-pill { color: color-mix(in srgb, var(--pill) 30%, var(--ink)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pill) 12%, transparent); }
 
 /* Календарь Святцев и Лунника — стекло, а не ещё один лист бумаги: сквозь него
    виден лист, цвет текста — от листа. */
@@ -1041,7 +1046,7 @@
   background: linear-gradient(155deg, color-mix(in srgb, color-mix(in srgb, var(--hud-accent) 24%, #1d1526) 78%, transparent), color-mix(in srgb, #140e1a 70%, transparent) 60%, color-mix(in srgb, color-mix(in srgb, var(--hud-accent) 18%, #1d1526) 74%, transparent));
   border-color: #ffffff2e; box-shadow: inset 0 1px 0 #ffffff33, inset 0 0 18px #00000033, 0 6px 16px #0000002e; }
 /* На тёмном стекле — светлые пилюли и «Сегодня». */
-.hud-mv .m-sheet .hud-cal :is(.hud-cal-chip, .hud-cal-gen) { color: color-mix(in srgb, var(--pill) 55%, #fff); }
+.hud-mv .m-sheet .hud-cal :is(.hud-cal-chip, .hud-cal-gen) { color: color-mix(in srgb, var(--pill) 40%, #fff); }
 .hud-mv .m-sheet .hud-cal .hud-cal-count, .hud-mv .m-sheet .hud-cal .hud-cal-count b { color: color-mix(in srgb, var(--hud-accent) 32%, #fff); }
 /* Имена и «ещё N» в «Скоро» — тише цветом, но не прозрачностью до нечитаемого. */
 .hud-mv .hud-cal :is(em, .hud-cal-soon-more) { opacity: .82; }
@@ -1051,3 +1056,494 @@
 .hud-mv .m-sheet .hud-cal :is(.hud-cal-week span, .hud-cal-day b, .hud-cal-head small, .hud-cal-none, .hud-cal-soon-head, .hud-cal-soon-when small) { opacity: 1; }
 .hud-mv .m-sheet .hud-cal :is(.hud-cal-week span, .hud-cal-head small, .hud-cal-soon-head, .hud-cal-soon-when small, .hud-cal-none) { color: color-mix(in srgb, currentColor 72%, #9a8f9a); }
 .hud-mv .m-sheet .hud-cal .hud-cal-day.is-past b { color: color-mix(in srgb, currentColor 58%, #8a7f8a); }
+
+/* ── Мастерская: оформление «Обновлённое» со стенда ──────────────────────────────
+   tests/tools/medieval-views-stand.html. Золочёные уголки, эмалевые миниатюры,
+   восковые печати на письмах (render/medieval-workshop.js), доска трактира.
+   Движение — как у всего HUD: на паузе, под мышью или после касания (fx-live). */
+.hud-mv .m-sheet,
+.hud-mv .tavern-board {
+  --foil: color-mix(in srgb, #f8d584 75%, var(--hud-accent));
+  --bronze: #885521;
+  --leather: color-mix(in srgb, #291820 78%, var(--hud-accent));
+  --workshop-paper: color-mix(in srgb, #ffedc9 92%, var(--hud-accent));
+  --workshop-ink: #2d1c18;
+}
+.hud-mv .m-sheet:not(.tavern-board) {
+  padding-inline: clamp(12px, 5%, 28px);
+  border-color: var(--bronze);
+  box-shadow: inset 0 0 0 2px #2d191966, inset 0 0 0 3px var(--foil), 0 12px 24px #180f1460;
+}
+.hud-mv .workshop-frame {
+  position: absolute;
+  z-index: 2;
+  inset: 4px;
+  display: block;
+  pointer-events: none;
+}
+.hud-mv .workshop-frame i {
+  position: absolute;
+  width: clamp(12px, 5cqi, 29px);
+  aspect-ratio: 1;
+  border: solid var(--foil);
+  border-width: 2px 0 0 2px;
+  border-start-start-radius: 75%;
+  background:
+    radial-gradient(ellipse at 39% 21%, var(--foil) 0 11%, transparent 13%),
+    radial-gradient(ellipse at 21% 39%, var(--foil) 0 11%, transparent 13%);
+  filter: drop-shadow(0 1px 1px #2b1a18);
+}
+.hud-mv .workshop-frame i:nth-child(1) { inset: 0 auto auto 0; }
+.hud-mv .workshop-frame i:nth-child(2) { inset: 0 0 auto auto; rotate: 90deg; }
+.hud-mv .workshop-frame i:nth-child(3) { inset: auto 0 0 auto; rotate: 180deg; }
+.hud-mv .workshop-frame i:nth-child(4) { inset: auto auto 0 0; rotate: 270deg; }
+.hud-mv .m-sheet h3 { text-wrap: balance; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv :is(.c-menologion, .c-psalter-margins, .c-herbarium).m-sheet {
+  --rubric-ink: #683625;
+  background:
+    radial-gradient(ellipse at 50% 20%, #fff8dbad, transparent 65%),
+    repeating-linear-gradient(115deg, transparent 0 4px, #5c36160a 5px, transparent 7px),
+    linear-gradient(145deg, var(--workshop-paper), #d7ad72);
+  color: var(--workshop-ink);
+}
+.hud-mv .c-marginalia .m-drop::first-letter {
+  color: #752f2d;
+  text-shadow: 1px 1px #f5cb79;
+}
+.hud-mv :is(.c-lunette, .c-bell, .c-orrery, .c-locket-lid, .c-mail-lock, .m-seal, .w-herald > span) {
+  filter: drop-shadow(0 3px 4px #3d230859);
+}
+.hud-mv .c-lunette {
+  background-image: radial-gradient(circle at 20% 35%, #ffe6a6 0 1px, transparent 2px),
+    radial-gradient(circle at 78% 26%, #ffebbd 0 1px, transparent 2px),
+    radial-gradient(ellipse at 50% 70%, #765870, #241e36 76%);
+}
+.hud-mv .m-moon { animation: hud-mv-ws-moon 6s ease-in-out infinite alternate; }
+.hud-mv .c-orbit { animation: hud-mv-ws-orbit 36s linear infinite; }
+.hud-mv .c-bell i { transform-origin: top center; animation: hud-mv-ws-bell 8s ease-in-out infinite; }
+.hud-mv :is(.c-loose-note, .c-notebook-page, .m-proclamation, .m-decree) {
+  box-shadow: 0 4px 9px #3a221c38, inset 0 0 10px #6e3f2527;
+}
+@media (hover: hover) and (pointer: fine) {
+.hud-mv .c-letter summary:hover,
+.hud-mv .silk-packet summary:hover {
+  box-shadow: inset 0 -2px var(--bronze);
+}
+}
+.hud-mv :is(.archive-tube, .c-rolled-doc, .c-tied-tag, .c-locket, .c-hanging) {
+  filter: drop-shadow(0 3px 3px #3d23084a);
+}
+.hud-mv .m-botanical svg {
+  transform-origin: 50% 94%;
+  animation: hud-mv-ws-sway 5s ease-in-out infinite alternate;
+}
+.hud-mv .m-news .w-merlon,
+.hud-mv .m-factions .w-herald {
+  padding: 10px 8px;
+  border-image: linear-gradient(90deg, transparent, var(--bronze), transparent) 1;
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+}
+.hud-mv :is(.w-armorial, .m-pennant > .m-mark) {
+  transform-origin: center top;
+  animation: hud-mv-ws-sway 6s ease-in-out infinite alternate;
+}
+.hud-mv .m-banner:nth-child(even) .w-armorial { animation-delay: -3s; }
+.hud-mv .valley-head {
+  overflow: hidden;
+  border: 3px double var(--foil);
+  border-radius: 48% 48% 0 0 / 20% 20% 0 0;
+  box-shadow: 0 2px 8px #31212360;
+}
+.hud-mv .w-lantern {
+  animation: hud-mv-ws-lamp 4s ease-in-out infinite alternate;
+}
+.hud-mv .w-lantern:nth-child(2) { animation-delay: -2.5s; }
+.hud-mv .w-hearth .workshop-hearth {
+  display: block;
+  width: min(100%, 184px);
+  height: auto;
+  aspect-ratio: 180 / 146;
+  filter: drop-shadow(0 4px 5px #29171055);
+}
+.hud-mv .hearth-blaze {
+  transform-box: fill-box;
+  transform-origin: center bottom;
+  animation: hud-mv-hearth-flicker 1.2s ease-in-out infinite alternate;
+}
+.hud-mv .hearth-embers { animation: hud-mv-hearth-drift 2s ease-out infinite; }
+@keyframes hud-mv-hearth-flicker { to { transform: scale(.95, .92) skewX(-2deg); } }
+@keyframes hud-mv-hearth-drift { to { transform: translate(2px, -7px); opacity: 0; } }
+.hud-mv .w-balance i { animation: hud-mv-ws-unfold 700ms ease-out both; }
+.hud-mv .arc-window,
+.hud-mv .arc-illustration { box-shadow: 0 0 15px color-mix(in srgb, var(--hud-accent) 40%, transparent); }
+
+.hud-mv .tavern-board {
+  padding: clamp(10px, 4%, 24px);
+  color: var(--foil);
+  border: 4px double var(--foil);
+  border-radius: 28px 28px 6px 6px;
+  background:
+    radial-gradient(ellipse at 50% 0, #c98a4c70, transparent 67%),
+    repeating-linear-gradient(2deg, transparent 0 5px, #1f0e1460 6px, transparent 8px 12px),
+    repeating-linear-gradient(0deg, transparent 0 63px, #140a10 64px 66px),
+    var(--leather);
+  box-shadow: inset 0 0 0 3px #140a11, inset 0 0 24px #150c10, 0 10px 28px #120b0e80;
+}
+.hud-mv .tavern-board-head {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  padding: 6px 0 14px;
+  border-bottom: 3px double var(--bronze);
+  margin-bottom: 15px;
+}
+.hud-mv .tavern-board-head span { font-size: clamp(14px, 6cqi, 26px); }
+.hud-mv .tavern-board-head span:last-child { transform: scaleX(-1); }
+.hud-mv .tavern-notices { display: grid; gap: 12px; }
+.hud-mv .tavern-notice {
+  position: relative;
+  color: var(--workshop-ink);
+  background:
+    radial-gradient(ellipse at 26% 15%, #fff4d5, transparent 80%),
+    repeating-linear-gradient(114deg, transparent 0 4px, #69401a0b 5px, transparent 6px),
+    linear-gradient(135deg, var(--workshop-paper), #d9ad76);
+  border: 1px solid #bc8a50;
+  border-radius: 2px 5px 10px 3px;
+  box-shadow: 2px 4px 7px #13080bc0, inset 0 0 8px #61371a3b;
+}
+.hud-mv .tavern-notice summary {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: clamp(5px, 3cqi, 12px);
+  align-items: center;
+  padding: 9px;
+  cursor: pointer;
+  list-style: none;
+}
+.hud-mv .tavern-notice summary::-webkit-details-marker { display: none; }
+.hud-mv .tavern-notice summary::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border: solid #733b25;
+  border-width: 0 1.5px 1.5px 0;
+  rotate: 45deg;
+  transition: rotate 220ms ease;
+}
+.hud-mv .tavern-notice[open] summary::after { rotate: 225deg; }
+@media (hover: hover) and (pointer: fine) {
+.hud-mv .tavern-notice summary:hover { background: #fff5ce55; }
+}
+.hud-mv .tavern-notice summary small {
+  color: #743724;
+  font-weight: 700;
+}
+.hud-mv .tavern-seal {
+  display: grid;
+  place-items: center;
+  width: clamp(22px, 10cqi, 40px);
+  aspect-ratio: 1;
+  border-radius: 44% 53% 42% 50%;
+  color: #fff1c6;
+  background: radial-gradient(circle at 33% 25%, #bb6d59, #743028 68%, #462124);
+  box-shadow: inset 0 0 0 3px #ffcc973b, 1px 2px 3px #3e1c1a70;
+  transition: rotate 250ms ease;
+}
+.hud-mv .tavern-notice:nth-child(2) .tavern-seal { background: radial-gradient(circle at 30% 20%, #71865b, #354530 70%); }
+.hud-mv .tavern-notice:nth-child(3) .tavern-seal { background: radial-gradient(circle at 30% 20%, #a87f4b, #5b3923 70%); }
+.hud-mv .tavern-notice-body {
+  margin: 0 10px 10px;
+  border-top: 1px solid #93683d85;
+}
+.hud-mv .tavern-notice-body footer { margin-top: 6px; color: #693b28; font-size: .83em; font-style: italic; }
+
+@container (max-width: 245px) {
+  .hud-mv .tavern-notice summary {
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 6px;
+    font-size: 14px;
+    line-height: 1.3;
+  }
+  .hud-mv .tavern-seal {
+    position: absolute;
+    inset: 6px 8px auto auto;
+    width: 18px;
+    font-size: 11px;
+  }
+  .hud-mv .tavern-notice summary small { padding-inline-end: 22px; }
+}
+
+@keyframes hud-mv-ws-moon {
+  from { filter: drop-shadow(0 0 2px #f9d48455); }
+  to { filter: drop-shadow(0 0 9px #f9d484bd); }
+}
+@keyframes hud-mv-ws-orbit { to { rotate: 1turn; } }
+@keyframes hud-mv-ws-bell {
+  0%, 75%, 100% { rotate: 0deg; }
+  81%, 92% { rotate: 9deg; }
+  87%, 96% { rotate: -6deg; }
+}
+@keyframes hud-mv-ws-sway { from { rotate: -2deg; } to { rotate: 2deg; } }
+@keyframes hud-mv-ws-lamp {
+  from { filter: drop-shadow(0 0 3px #f3a74966); }
+  to { filter: drop-shadow(0 0 9px #f3a749b0); }
+}
+@keyframes hud-mv-ws-unfold {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.hud-mv .workshop-miniature {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(58px, 18cqi, 88px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(2px, 1cqi, 6px);
+  padding: 4px clamp(4px, 1.3cqi, 8px);
+  margin: 10px auto 14px;
+  width: min(100%, 440px);
+  color: var(--foil);
+  border-block: 1px solid var(--bronze);
+  background: radial-gradient(ellipse at center, #4a3c41, transparent 72%),
+    repeating-linear-gradient(42deg, transparent 0 4px, #ffeab508 5px 6px), var(--leather);
+  box-shadow: inset 0 2px #edc77738, inset 0 -2px #edc77738;
+}
+.hud-mv .workshop-miniature svg {
+  display: block; width: 100%; height: auto;
+  fill: none; stroke: currentColor; stroke-width: 1;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+.hud-mv .workshop-miniature .sprig:last-child { transform: scaleX(-1); }
+.hud-mv .workshop-miniature .instrument { transform-box: fill-box; transform-origin: center; animation: hud-mv-ws-orbit 28s linear infinite; }
+.hud-mv .workshop-miniature .sprig { animation: hud-mv-ws-gilding 6s ease-in-out infinite alternate; }
+@keyframes hud-mv-ws-gilding { from { stroke: #ac8559; } to { stroke: #ffdda0; } }
+
+/* Keep each label and its explanation together, with room inside the rules. */
+.hud-mv .m-meanwhile .m-scene dl {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px 0;
+}
+.hud-mv .m-meanwhile .m-scene dl > div {
+  flex: 1 1 10.8em;
+  display: grid;
+  align-content: start;
+  justify-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 5px clamp(6px, 2cqi, 13px);
+  text-align: center;
+  border-inline: 0;
+  background:
+    linear-gradient(transparent, var(--foil) 20%, var(--bronze) 80%, transparent) left center / 1px 100% no-repeat,
+    linear-gradient(transparent, var(--foil) 20%, var(--bronze) 80%, transparent) right center / 1px 100% no-repeat;
+}
+.hud-mv .m-scene dd { text-wrap: pretty; line-height: 1.5; }
+.hud-mv .m-sheet :is(dt, span, b, small).m-pill {
+  white-space: normal;
+  overflow-wrap: break-word;
+  overflow: visible;
+  text-align: center;
+  justify-content: center;
+}
+.hud-mv .m-meanwhile .m-scene h4,
+.hud-mv .m-meanwhile .m-scene .m-where { text-align: center; }
+.hud-mv .chronicle-loom {
+  background: radial-gradient(ellipse at center, #9b6362 0, transparent 48%),
+    repeating-linear-gradient(95deg, transparent 0 3px, #faeac416 4px 5px),
+    linear-gradient(90deg, var(--folio-blue), var(--wax), var(--folio-blue));
+}
+.hud-mv .chronicle-loom span { animation: hud-mv-ws-enamel 5s ease-in-out infinite; }
+@keyframes hud-mv-ws-enamel { 50% { filter: drop-shadow(0 0 3px #ffdf9b); } }
+
+/* Marginal dates, decorated initials and month labels. */
+.hud-mv .m-sheet .m-when {
+  display: inline-block;
+  max-width: 100%;
+  width: fit-content;
+  padding: .22em .78em .26em;
+  margin-block: .3em;
+  background: linear-gradient(105deg, #cfb07c, #ffebbc 46%, #dcbb83);
+  color: #452e21;
+  border-inline: 3px double #745433;
+  box-shadow: 0 1px 2px #24190d55;
+  font-variant-numeric: tabular-nums;
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.35;
+}
+.hud-mv .m-sheet h4 { text-wrap: balance; }
+.hud-mv .m-sheet .m-drop::first-letter {
+  color: #fff1bf;
+  background: repeating-linear-gradient(45deg, transparent 0 4px, #ffc7781b 5px 6px),
+    linear-gradient(145deg, #943b46, #62303e);
+  border: 3px double #d5ae69;
+  text-shadow: 0 1px #422026;
+}
+.hud-mv .hud-cal-head {
+  padding: .22em .65em;
+  color: #ffedbd;
+  border-block: 1px solid var(--bronze);
+  background: radial-gradient(ellipse at bottom, #614436, #332736);
+  font-variant: small-caps;
+}
+.hud-mv .hud-cal-day.is-selected {
+  box-shadow: inset 0 0 0 1px var(--foil), inset 0 0 0 3px #513739;
+}
+.hud-mv .hud-cal-day.has-ev .hud-cal-dots { filter: drop-shadow(0 0 2px #fcd88d99); }
+.hud-mv :is(.m-proclamation, .m-voice, .c-notebook-page, .c-loose-note) {
+  border-block-end: 3px double color-mix(in srgb, currentColor 38%, transparent);
+}
+.hud-mv :is(.w-armorial, .m-pennant) { box-shadow: inset 0 0 0 1px #c9a15c55, 0 3px 6px #2b1a2533; }
+.hud-mv .c-hanging .m-seal {
+  outline: 1px dashed #e7bd80;
+  outline-offset: -5px;
+  transform-origin: center top;
+  animation: hud-mv-ws-sway 4.5s ease-in-out infinite alternate;
+}
+.hud-mv .tavern-notice summary:focus-visible .tavern-seal { filter: brightness(1.12); }
+@media (hover: hover) and (pointer: fine) { .hud-mv .tavern-notice summary:hover .tavern-seal { filter: brightness(1.12); } }
+.hud-mv .c-mail-lock::before {
+  inset: 50% auto auto 50%;
+  translate: -50% -50%;
+}
+.hud-mv .c-letter > summary { padding-inline-end: 20px; }
+.hud-mv .c-letter.is-sealed > summary { padding-inline-end: 39px; }
+.hud-mv .c-letter.is-sealed > summary::before { right: 20px; }
+.hud-mv .c-letter-slot { padding-inline-end: 0; min-width: 0; }
+.hud-mv .c-letter-slot > span:last-child { min-width: 0; }
+.hud-mv .c-letter > summary::after,
+.hud-mv .c-letter[open] > summary::after {
+  content: '';
+  position: absolute;
+  inset: 50% 4px auto auto;
+  translate: 0 -50%;
+  width: 7px;
+  height: 7px;
+  border: solid currentColor;
+  border-width: 0 1.5px 1.5px 0;
+  rotate: 45deg;
+  transition: rotate 320ms ease-in-out;
+}
+.hud-mv .c-letter[open] > summary::after { rotate: 225deg; }
+.hud-mv .tavern-seal { display: grid; place-items: center; line-height: 1; transition: filter 240ms ease; }
+
+/* Anchor the full-size panel to the moving lower edge. The viewport reveals
+   the panel sliding out from under the summary in either direction. */
+.hud-os-card details.wax-letter > summary {
+  position: relative;
+  padding-bottom: 61px;
+}
+.hud-mv .wax-letter.c-letter > summary::before { content: none; }
+.hud-os-card .wax-letter > summary > .hud-seal { visibility: hidden; }
+.hud-os-card .wax-fastener {
+  --cast: var(--hud-accent);
+  --wax-glint: color-mix(in srgb, var(--cast) 43%, white);
+  --wax-mid: color-mix(in srgb, var(--cast) 75%, white);
+  --wax-deep: color-mix(in srgb, var(--cast) 39%, black);
+  position: absolute;
+  inset: auto 0 0;
+  height: 61px;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  isolation: isolate;
+}
+.hud-os-card .wax-fastener::before {
+  content: '';
+  position: absolute;
+  inset: 52% 8% auto;
+  height: 3px;
+  background: repeating-linear-gradient(122deg,#674628 0 2px,#d7b384 2px 3px,#9b784d 3px 4px);
+  border-radius: 40%;
+  box-shadow: 0 1px 1px #24151280;
+}
+.hud-os-card .wax-fastener .letter-wax {
+  display: block;
+  position: relative;
+  width: min(84px,100%);
+  height: 67px;
+  align-self: end;
+  overflow: visible;
+}
+.hud-os-card .wax-shadow { filter: drop-shadow(0 2px 1.3px #130b0da6); }
+.hud-os-card .wax-shard { opacity: 0; transform-origin: 50px 42px; }
+.hud-os-card .wax-broken .wax-whole { visibility: hidden; }
+.hud-os-card .wax-broken .wax-shard { opacity: 1; }
+.hud-os-card .wax-broken .wax-shard.shard-a { transform: translate(-1.5px, 0) rotate(-3deg); }
+.hud-os-card .wax-broken .wax-shard.shard-b { transform: translate(3px, 2px) rotate(7deg); }
+.hud-os-card .wax-broken[open] .wax-shard.shard-a { transform: translate(-3px, -1px) rotate(-5deg); }
+.hud-os-card .wax-broken[open] .wax-shard.shard-b { transform: translate(8px, 5px) rotate(14deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-os-card .wax-shard { transition: transform 390ms cubic-bezier(.16,.85,.26,1); }
+  .hud-os-card .wax-shard.shard-b { transition-delay: 35ms; }
+}
+
+@supports (interpolate-size: allow-keywords) and selector(details::details-content) {
+  .hud-mv details::details-content, .hud-os-card details.hud-letter::details-content {
+    interpolate-size: allow-keywords;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    block-size: 0;
+    overflow: clip;
+    transition: block-size 480ms cubic-bezier(.4,0,.2,1),
+      content-visibility 480ms allow-discrete;
+  }
+  .hud-mv details[open]::details-content, .hud-os-card details.hud-letter[open]::details-content { block-size: auto; }
+  .hud-mv details > :not(summary), .hud-os-card details.hud-letter > :not(summary) { flex: none; }
+  .hud-mv details[open] > :is(.c-letter-body, section) { animation: none !important; }
+}
+
+/* Тёмные темы — тёмные материалы и у мастерской: листки доски трактира и плашка
+   даты — тёмный пергамент со светлыми буквами (светлые — только на светлых темах). */
+.hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .tavern-notice {
+  color: var(--ink);
+  background: radial-gradient(ellipse at 26% 15%, color-mix(in srgb, var(--hud-accent) 14%, #ffe6bc1f), transparent 80%),
+    repeating-linear-gradient(114deg, transparent 0 4px, #ffe3b208 5px, transparent 6px),
+    linear-gradient(135deg, color-mix(in srgb, #3a2c25 88%, var(--hud-accent)), color-mix(in srgb, #241a17 90%, var(--hud-accent)));
+  border-color: #8a6440; box-shadow: 2px 4px 7px #0a0406c0, inset 0 0 8px #00000040;
+}
+.hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .tavern-notice summary small,
+.hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .tavern-notice-body footer { color: var(--rubric-ink); }
+.hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .tavern-notice summary::after { border-color: currentColor; }
+.hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .tavern-notice-body { border-top-color: #c9a06a55; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .tavern-notice summary:hover { background: #ffe6b812; }
+}
+.hud-mv:not(:is(.hud-scheme-light, .hud-kinds-light) *) .m-sheet .m-when {
+  background: linear-gradient(105deg, #3b2b1f, #5b4431 46%, #3f2e20); color: #f6e0b4; border-inline-color: #b58d55;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-mv details::details-content, .hud-os-card details.hud-letter::details-content { transition: none; }
+  .hud-os-card .wax-shard { transition: none; }
+}
+/* Листок из одной строки нечего раскрывать: без стрелки и без руки-указателя. */
+.hud-mv .tavern-notice.is-plain summary { cursor: default; }
+.hud-mv .tavern-notice.is-plain summary::after { visibility: hidden; }
+/* Лента заклинателя: подписи вида и печати — светлее, фон ленты средний. */
+.hud-mv .arc-ribbon :is(.m-kind, .m-from) { color: color-mix(in srgb, var(--silver) 62%, #fff); }
+/* Золотые заголовки на тёмных листах на узкой карточке мельче 24px — светлее. */
+.hud-mv :is(.c-tied-tags h3, .w-plaque) { color: color-mix(in srgb, var(--gold) 72%, #fff); }
+.hud-mv .tavern-board h3 { color: color-mix(in srgb, var(--foil) 76%, #fff); }
+/* Узкая карточка телефона: отступы под печать и стрелку меньше, иначе колонка
+   имени и пилюли сжимались до буквы в строке. */
+@container (max-width: 260px) {
+  .hud-mv :is(.c-letter, .c-letter.is-sealed) > summary { padding-inline-end: 16px; }
+  .hud-mv .c-letter-slot { gap: 5px; }
+  .hud-mv .c-letter-slot > span:first-child { width: 18px; }
+  .hud-mv .c-mail-chest .c-letter { padding: 6px 5px; }
+  .hud-mv .m-sheet .m-when { padding-inline: .5em; }
+}
+@container (max-width: 260px) {
+  /* «Скоро» в календаре: дата над делами, имена переносятся, а не вылезают за стекло. */
+  .hud-mv .hud-cal .hud-cal-soon-day { grid-template-columns: minmax(0, 1fr); gap: 3px; }
+  .hud-mv .hud-cal-soon-item em { white-space: normal; }
+  /* Связка писем: колонка текста может сжиматься, узел — уже. */
+  .hud-mv .silk-packet summary { grid-template-columns: 20px minmax(0, 1fr); }
+  .hud-mv .silk-ribbon { padding-left: 8px; }
+}
+/* Тёмные по замыслу листы: золото для букв светлее, на любой теме. */
+.hud-mv :is(.c-lunar-wheel, .c-candle-note, .c-folded-letters, .c-mail-chest, .c-sealed-charter, .c-town-register, .c-tied-tags, .c-memory-locket, .m-factions, .m-comments, .m-city) { --gold: color-mix(in srgb, var(--hud-accent) 32%, #fbe6b6); }

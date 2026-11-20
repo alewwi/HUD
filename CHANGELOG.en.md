@@ -4,6 +4,19 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.68 — 2026-11-20
+
+### Changed
+- **The old-era views get the new finish** (as on the "Updated" stand). Casket sheets and the medieval World views have gilded corners and an enamel miniature of the section under the title: a sealed letter, a quill with an inkwell, an astrolabe, a charter, a herbarium, a herald, a coat of arms, a town hall, a fair tent, tankards by the hearth. The hearth gossip has a new stone fireplace. Dates sit on bronze plaques and drop caps in a red frame; the moon, the bell, the arms and the lanterns move more calmly.
+- **Wax seals on letters.** Every sent letter is closed with a seal on a cord; drafts and burned letters have none. Each letter has its own device on the seal (sun, stag, rose, key, raven, moon, tower, oak, ship). It is chosen from the letter itself, so different letters get different seals, one letter keeps the same seal on every redraw, and two neighbouring letters never share a device. The wax colour follows the seal description ("black wax") or the sender. Open a sealed letter and the seal breaks in two and stays broken, and the status changes to "The seal is broken". Letters already read arrive with a broken seal. This works in every letter view, the original one too.
+- **"Tavern board"**, a new view of the notice board in medieval worlds, now replaces the neon board by default. Notes on a leather board with wax marks; the first sentence is the title, and a tap opens the rest. A one-line note does not open. In Customization a tap on the board leads to its view.
+- **"Delivery"** instead of "With whom" on letters.
+
+### Fixed
+- **The old-era view animations run only under the mouse or after a tap on the card**, as everywhere in the HUD. Before, a view rule with a stronger selector restarted the loops (the moon, the bell, the banners, the fire) and they moved on their own. The sheet of an original letter no longer unfolds on every redraw; opening it with a tap slides it out smoothly.
+- **Narrow phone card:** in the mail chest, the courier book and the silk ribbon letters, names and pills no longer break letter by letter ("D|raft"), names in the calendar's Soon list wrap instead of spilling past the glass, and gold titles on dark sheets are lighter.
+- The last borderline contrast spots: captions on the enchanter's ribbon, the quill's pills on light themes, the Holidays button in the enchanted calendar. Checked pixel by pixel on ten themes and at 255 and 215 px wide.
+
 ## 23.89.67 — 2026-11-20
 
 ### Added

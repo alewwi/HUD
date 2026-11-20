@@ -12,15 +12,15 @@
 // Переключение разделов шкатулки — на радиокнопках и CSS, без скриптов:
 // карточка HUD перерисовывается целиком, и состояние не нужно восстанавливать.
 
-import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.89.67';
-import { английский } from '../i18n.js?v=23.89.67';
-import { settings } from '../settings.js?v=23.89.67';
-import { явнаяМагия, приземлённое } from '../era.js?v=23.89.67';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.67';
-import { namesLikelySame } from '../names.js?v=23.89.67';
-import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.89.67';
-import { видРазделаШкатулки } from './medieval-views.js?v=23.89.67';
-import { видБлока } from './views.js?v=23.89.67';
+import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.89.68';
+import { английский } from '../i18n.js?v=23.89.68';
+import { settings } from '../settings.js?v=23.89.68';
+import { явнаяМагия, приземлённое } from '../era.js?v=23.89.68';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.68';
+import { namesLikelySame } from '../names.js?v=23.89.68';
+import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.89.68';
+import { видРазделаШкатулки, восковаяПечать, вскрытоПисьмо } from './medieval-views.js?v=23.89.68';
+import { видБлока } from './views.js?v=23.89.68';
 
 const т = (v) => defeatWI(escapeHtml(String(v ?? '')));
 
@@ -67,15 +67,19 @@ const первая = (имя) => (String(имя || '').replace(/[^\p{L}]/gu, '')
 
 function buildLetters(letters, owner) {
   if (!letters || !letters.length) return пусто('✉️', 'Писем нет — никто не писал');
+  let прошлыйГерб = -1;
   return `<div class="hud-letters">` + letters.map(l => {
-    const с = статусПисьма(l.status);
+    const с0 = статусПисьма(l.status);
+    const с = с0.ключ === 'sealed' && вскрытоПисьмо(l) ? { ...с0, текст: 'Печать сломана' } : с0;
     const исходящее = owner && l.from && namesLikelySame(l.from, owner);
     const цвет = цветВоска(l.seal, l.from);
     const абзацы = String(l.text || '').split(/\n+/).map(x => x.trim()).filter(Boolean).map(x => `<p>${т(x)}</p>`).join('');
     const запечатано = с.ключ === 'sealed';
+    const воск = восковаяПечать(l, с.ключ, цвет, прошлыйГерб);
+    прошлыйГерб = воск.герб;
     // Адресат во входящем нужен, только если письмо не самому владельцу.
     const чужойАдресат = !исходящее && l.to && !(owner && namesLikelySame(l.to, owner)) ? l.to : '';
-    return `<details class="hud-letter st-${с.ключ} ${исходящее ? 'is-out' : 'is-in'}"${запечатано ? '' : ' open'}>
+    return `<details class="hud-letter st-${с.ключ} ${исходящее ? 'is-out' : 'is-in'}${воск.класс}"${воск.атр}${запечатано ? '' : ' open'}>
       <summary class="hud-letter-head">
         ${печать(цвет, первая(l.from), запечатано ? 'is-whole' : 'is-broken')}
         <span class="hud-letter-who">
@@ -86,11 +90,12 @@ function buildLetters(letters, owner) {
           ${с.текст ? `<i class="hud-letter-st">${escapeHtml(с.текст)}</i>` : ''}
           ${l.time ? `<small>${т(l.time)}</small>` : ''}
         </span>
+        ${воск.html}
       </summary>
       <div class="hud-letter-sheet">
         ${запечатано ? '<div class="hud-letter-opened">Печать сломана</div>' : ''}
         ${абзацы || '<p class="hud-letter-blank">Лист чист.</p>'}
-        ${чужойАдресат || l.via ? `<footer>${чужойАдресат ? `Адресат: ${т(чужойАдресат)}` : ''}${l.via ? `${чужойАдресат ? ' · ' : ''}С кем: ${т(l.via)}` : ''}</footer>` : ''}
+        ${чужойАдресат || l.via ? `<footer>${чужойАдресат ? `Адресат: ${т(чужойАдресат)}` : ''}${l.via ? `${чужойАдресат ? ' · ' : ''}Доставка: ${т(l.via)}` : ''}</footer>` : ''}
       </div>
     </details>`;
   }).join('') + `</div>`;
@@ -339,7 +344,7 @@ export function buildCasketHTML(satchel, letters, uid, isChecked, fallbackOwner,
       заголовок: р.label, notes: s.notes, letters, documents: s.documents, keepsakes: s.keepsakes,
       календарь: р.id === 'almanac' ? buildCalendarApp(s.calendar, characters, sceneDate, owner || null) : '',
       луна: р.id === 'almanac' ? лунаСцены(sceneDate) : null,
-      письмо: статусПисьма, грамота: видГрамоты,
+      письмо: статусПисьма, грамота: видГрамоты, воск: (l) => цветВоска(l.seal, l.from),
     });
     if (свой) р.body = свой;
   }

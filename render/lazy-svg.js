@@ -13,7 +13,7 @@
 // Без IntersectionObserver (тесты в Node, очень старый браузер) и при
 // выключенной «Ленивой загрузке вкладок» рисунок собирается сразу.
 
-import { settings } from '../settings.js?v=23.89.67';
+import { settings } from '../settings.js?v=23.89.68';
 
 const ЗАГОТОВОК = 300;
 const заготовки = new Map();

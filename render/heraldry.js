@@ -13,9 +13,9 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.67';
-import { settings } from '../settings.js?v=23.89.67';
-import { старина } from '../era.js?v=23.89.67';
+import { escapeHtml } from '../utils.js?v=23.89.68';
+import { settings } from '../settings.js?v=23.89.68';
+import { старина } from '../era.js?v=23.89.68';
 
 const КЛЮЧ = 'tavernosHudArms';
 export const гербыВкл = () => старина() && settings.heraldry !== false;
@@ -181,7 +181,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
     if (!кнопка) return;
     e.preventDefault(); e.stopPropagation();
     if (кнопка.closest('.hud-custom-preview-body')) return;
-    import('./heraldry-edit.js?v=23.89.67').then(м => м.открытьГерб(кнопка.dataset.hudArms, кнопка.dataset.role || ''))
+    import('./heraldry-edit.js?v=23.89.68').then(м => м.открытьГерб(кнопка.dataset.hudArms, кнопка.dataset.role || ''))
       .catch(err => console.error('[TavernOS HUD] окно герба не загрузилось:', err));
   }, true);
 }

@@ -9,9 +9,9 @@
 // телефона в примере работают как обычно. Что каждая настройка есть в карте,
 // проверяет tests/unit.mjs.
 
-import { settings } from './settings.js?v=23.89.67';
-import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.67';
-import { т } from './i18n.js?v=23.89.67';
+import { settings } from './settings.js?v=23.89.68';
+import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.68';
+import { т } from './i18n.js?v=23.89.68';
 
 const ВИДЫ_ПОД_КЛАСС = {
   age: 'ageView', clothes: 'clothesView', looks: 'looksView', role: 'roleView', body: 'bodyStateView', phys: 'physView', powers: 'abilitiesView', health: 'healthView',
@@ -53,6 +53,7 @@ export const КАРТА = [
   // Виды Мира для старины — по блоку.
   ['[data-mv-block="news"]', ['newsView']], ['[data-mv-block="factions"]', ['factionsView']], ['[data-mv-block="meanwhile"]', ['meanwhileView']],
   ['[data-mv-block="city"]', ['cityView']], ['[data-mv-block="comments"]', ['commentsView']], ['[data-mv-block="events"]', ['eventsView']],
+  ['[data-mv-block="ads"]', ['adsView']],
   // Виды из render/views-story.js и прежние блоки тех же полей.
   ['.hud-tl, .hud-timeline-container', ['timelineView']],
   ['.hud-em, .hud-mood-group', ['moodView']],

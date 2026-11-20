@@ -4296,7 +4296,7 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     проверить('id градиентов у каждой долины свои', MV.долина('day').match(/id="([^"]+)"/)[1] !== MV.долина('day').match(/id="([^"]+)"/)[1]);
     const css = fs.readFileSync(path.join(КОРЕНЬ, 'css/medieval-views.css'), 'utf8');
     проверить('стили старины: всё под .hud-mv, анимации со своей приставкой, без стенда', !/\.stand-|manuscript/.test(css.replace(/\/\*[\s\S]*?\*\//g, '')) && [...css.matchAll(/@keyframes\s+([\w-]+)/g)].every(м => м[1].startsWith('hud-mv-'))
-      && css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/@keyframes[^{]+\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, '').split('\n').filter(l => /\{/.test(l) && !/^\s*@/.test(l)).every(l => /^\s*(?:@media[^{]*\{\s*)?(?:\.hud-mv|:root:is|\.hud-os-card\.fx-live \.hud-mv)/.test(l)));
+      && css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/@keyframes[^{]+\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, '').split('\n').filter(l => /\{/.test(l) && !/^\s*@/.test(l)).every(l => /^\s*(?:@media[^{]*\{\s*)?(?:\.hud-mv|:root:is|\.hud-os-card\.fx-live \.hud-mv|\.hud-os-card (?:\.wax-|details\.(?:wax|hud)-letter))/.test(l)));
     проверить('стили старины подключены только в средневековье', fs.readFileSync(path.join(КОРЕНЬ, 'css/all.css'), 'utf8').includes('medieval-views.css') && /\['medieval-views', \(s\) => s\.era === 'medieval' \|\| s\.era === 'fantasy-medieval'\]/.test(fs.readFileSync(path.join(КОРЕНЬ, 'css-loader.js'), 'utf8')));
   } finally { Object.assign(Ст.settings, было); for (const [к, v] of Object.entries(было)) if (v === undefined) delete Ст.settings[к]; }
 }
