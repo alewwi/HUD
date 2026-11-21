@@ -28,27 +28,39 @@
   container-type: inline-size; position: relative; isolation: isolate; width: 100%; box-sizing: border-box;
   color: var(--ink); background: var(--ground); border: 1px solid var(--line); box-shadow: 0 2px 3px #0000001a, 0 8px 20px #00000014;
   -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
-  overflow-wrap: anywhere; font: 15px/1.5 "Segoe UI", Arial, sans-serif; text-align: start; }
+  overflow-wrap: anywhere; font: 15px/1.5 var(--mv-f-body, Georgia, serif); text-align: start;
+  font-kerning: normal; text-rendering: optimizeLegibility; font-variant-ligatures: common-ligatures;
+  /* Свечение текста Таверны размывает буквы на светлых листках (колокол, витраж). */
+  text-shadow: none; }
 .hud-mv .wl-sheet *, .hud-mv .wl-sheet *::before, .hud-mv .wl-sheet *::after { box-sizing: border-box; }
 /* Таверна и карточка красят заголовки, абзацы, цитаты и кнопки по-своему — внутри вида всё своё. */
 .hud-mv .wl-sheet :is(h3, h4, p, dl, dd, blockquote, figure) { margin: 0; padding: 0; border: 0; background: none; color: inherit; text-shadow: none; }
-.hud-mv .wl-sheet :is(h3, h4, blockquote) { font-family: Georgia, "Times New Roman", serif; }
+/* Буквы — как у остальной старины (css/medieval-views.css): текст — Georgia, заголовки —
+   Cormorant Garamond, подписи и ярлыки — капитель Cormorant SC, состояния — курсивом.
+   У Cormorant глазок мельче, чем у Georgia, — font-size-adjust выравнивает их на тех же размерах. */
+.hud-mv .wl-sheet { --wl-f-head: var(--mv-f-head, 'Cormorant Garamond', Georgia, serif); --wl-f-caps: var(--mv-f-caps, 'Cormorant SC', Georgia, serif); }
+.hud-mv .wl-sheet :is(p, dd, blockquote, footer) { text-wrap: pretty; hyphens: auto; }
+.hud-mv .wl-sheet :is(h3, h4) { font-family: var(--wl-f-head); font-size-adjust: .47; letter-spacing: .006em; }
+.hud-mv .wl-sheet blockquote { font-family: var(--mv-f-body, Georgia, serif); }
 .hud-mv .wl-sheet svg { display: block; max-width: 100%; height: auto; overflow: visible; }
-.hud-mv .wl-sheet h3 { font-size: clamp(19px, 5cqi, 32px); line-height: 1.14; letter-spacing: -.025em; font-weight: 500; }
-.hud-mv .wl-sheet h4 { font-size: clamp(16px, 3.8cqi, 23px); line-height: 1.22; font-weight: 600; }
+.hud-mv .wl-sheet h3 { font-size: clamp(19px, 5cqi, 32px); line-height: 1.12; font-weight: 600; }
+.hud-mv .wl-sheet h4 { font-size: clamp(16px, 3.8cqi, 23px); line-height: 1.18; font-weight: 700; }
 .hud-mv .wl-sheet p { margin-top: 5px; }
-.hud-mv .wl-sheet :is(small, dt) { font-size: 12px; line-height: 1.45; }
-.hud-mv .wl-sheet small { display: block; color: var(--detail); font-weight: 600; }
-.hud-mv .wl-sheet h3 + :is(strong, em) { display: block; margin-top: 4px; font-size: 14px; }
+.hud-mv .wl-sheet :is(small, dt, summary, figcaption) { font-family: var(--wl-f-caps); font-size-adjust: .5; font-weight: 600; letter-spacing: .045em; }
+.hud-mv .wl-sheet :is(small, dt) { font-size: 12px; line-height: 1.4; }
+.hud-mv .wl-sheet small { display: block; color: var(--detail); }
+/* Состояние под именем («строга в вере», «шёпот») — курсивная антиква, как подпись в книге. */
+.hud-mv .wl-sheet h3 + :is(strong, em) { display: block; margin-top: 4px; font: italic 600 17px/1.25 var(--wl-f-head); font-size-adjust: .47; }
 .hud-mv .wl-sheet [hidden] { display: none !important; }
 .hud-mv .wl-sheet :where(button, summary) { cursor: pointer; }
 .hud-mv .wl-sheet button { font: inherit; margin: 0; }
-.hud-mv .wl-sheet summary { font-weight: 650; font-size: 14px; }
+.hud-mv .wl-sheet summary { font-size: 14px; }
 .hud-mv .wl-sheet .authority { padding: 14px var(--gutter) 16px; }
-.hud-mv .wl-sheet .authority h4 { font-size: 17px; margin-bottom: 8px; }
+.hud-mv .wl-sheet .authority h4 { font-size: 19px; margin-bottom: 8px; }
 .hud-mv .wl-sheet .authority dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr)); gap: 12px; }
-.hud-mv .wl-sheet .authority dt { font-size: 14px; font-weight: 700; }
-.hud-mv .wl-sheet .authority dd { font-size: 13px; line-height: 1.45; }
+/* У власти dt — имя, а не ярлык: антиквой, как заголовок записи. */
+.hud-mv .wl-sheet .authority dt { font: 700 16px/1.25 var(--wl-f-head); font-size-adjust: .47; letter-spacing: .006em; }
+.hud-mv .wl-sheet .authority dd { font-size: 13.5px; line-height: 1.45; }
 .hud-mv .wl-sheet .authority dd b { font-weight: 600; }
 /* Кнопки места: забыть место и узнать заново — как у прежней карточки. */
 .hud-mv .wl-sheet .wl-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 9px var(--gutter) 12px; border-top: 1px dashed var(--line); font-size: 12px; }
@@ -102,9 +114,9 @@
 .hud-mv .wl-atlas .map-record small { color: var(--blue); }
 .hud-mv .wl-atlas .map-now { color: var(--good); }
 .hud-mv .wl-atlas .map-record dl { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 8px 0; font-size: 14px; }
-.hud-mv .wl-atlas .map-record dt { font-weight: 650; font-size: 14px; }
+.hud-mv .wl-atlas .map-record dt { font-size: 13.5px; }
 .hud-mv .wl-atlas .map-risk { padding-top: 6px; border-top: 1px dotted var(--line); font-size: 14px; }
-.hud-mv .wl-atlas .map-risk b { display: inline-block; color: var(--danger); margin-right: 3px; }
+.hud-mv .wl-atlas .map-risk b { display: inline-block; color: var(--danger); margin-right: 3px; font: 700 14px/1.4 var(--wl-f-caps); font-size-adjust: .5; letter-spacing: .045em; }
 .hud-mv .wl-atlas .map-empty { margin: 12px var(--gutter); font-style: italic; }
 .hud-mv .wl-atlas .authority { border-top: 1px dashed var(--line); background: color-mix(in srgb, #608c70 12%, transparent); }
 
@@ -126,7 +138,7 @@
 .hud-mv .wl-bell .broadside h4 { margin: 7px 0; font-size: clamp(18px, 4.5cqi, 29px); line-height: 1.06; hyphens: auto; }
 .hud-mv .wl-bell .bell-time { color: #7c252c; font-weight: 750; font-size: 13px; }
 .hud-mv .wl-bell .broadside footer { margin-top: 10px; border-top: 3px double #bd9870; padding-top: 6px; font: 14px/1.4 Georgia, serif; }
-.hud-mv .wl-bell .broadside footer b { display: block; color: #792c2d; font: 700 12px/1.6 "Segoe UI", sans-serif; }
+.hud-mv .wl-bell .broadside footer b { display: block; color: #792c2d; font: 700 13px/1.6 var(--wl-f-caps); font-size-adjust: .5; letter-spacing: .05em; }
 .hud-mv .wl-bell .bell-quiet { margin: 14px 12px; color: #ffe6c2; font-style: italic; }
 .hud-mv .wl-bell .reserve { margin: 4px 12px 12px; color: #ffefd5; }
 .hud-mv .wl-bell .reserve summary { display: flex; align-items: center; gap: 7px; padding: 5px 1px; list-style: none; }
@@ -162,7 +174,7 @@
   background: repeating-linear-gradient(45deg, transparent 0 4px, #ddbd745e 4px 5px, transparent 5px 8px); }
 .hud-mv .wl-arms .blazon-text { padding: 10px 9px 14px; background: var(--ground); border: 1px solid var(--line); border-top: 0; flex: 5; text-align: start;
   -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
-.hud-mv .wl-arms .judgement { display: block; border-left: 3px solid currentColor; padding-left: 7px; margin: 7px 0; font: 700 17px/1.2 Georgia, serif; color: var(--caution); }
+.hud-mv .wl-arms .judgement { display: block; border-left: 3px solid currentColor; padding-left: 7px; margin: 7px 0; font: 700 19px/1.15 var(--wl-f-head); font-size-adjust: .47; color: var(--caution); }
 .hud-mv .wl-sheet .judgement.support, .hud-mv .wl-sheet .support .speaker { color: var(--good); }
 .hud-mv .wl-sheet .judgement.doubt, .hud-mv .wl-sheet .doubt .speaker { color: var(--danger); }
 .hud-mv .wl-sheet .neutral .speaker { color: var(--caution); }
@@ -173,11 +185,11 @@
 .hud-mv .wl-voices .testimony section { background: var(--ground); padding: 12px 15px; border-radius: 16px; border: 1px solid var(--line);
   -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
 .hud-mv .wl-voices .testimony h3 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; padding: 0 0 7px; border-bottom: 1px solid var(--line); }
-.hud-mv .wl-voices .testimony h3 small { font: 600 12px/1.4 "Segoe UI", sans-serif; }
+.hud-mv .wl-voices .testimony h3 small { font: 600 12px/1.4 var(--wl-f-caps); font-size-adjust: .5; letter-spacing: .045em; }
 .hud-mv .wl-voices .testimony figure { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: start; padding-top: 13px; }
 .hud-mv .wl-voices .speaker { display: grid; align-items: end; border-radius: 50% 50% 5px 5px; background: color-mix(in srgb, currentColor 12%, var(--sheet)); --wash: var(--sheet); }
 .hud-mv .wl-voices .speaker svg { width: 43px; height: auto; }
-.hud-mv .wl-voices .testimony figcaption { font-weight: 750; font-size: 13px; }
+.hud-mv .wl-voices .testimony figcaption { font-weight: 700; font-size: 14px; }
 .hud-mv .wl-voices .testimony blockquote { display: inline-block; position: relative; margin: 4px 0; padding: 7px 12px; border-radius: 0 16px 16px 16px;
   background: light-dark(#d0ebdc, #184b43); color: light-dark(#154e39, #d2ffe8); font: italic 19px/1.23 Georgia, serif; }
 .hud-mv .wl-voices .testimony .doubt { grid-template-columns: minmax(0, 1fr) 44px; }
@@ -202,9 +214,10 @@
 .hud-mv .wl-glass .chapel article { background: var(--lift); padding: 0 10px 15px; }
 .hud-mv .wl-glass .inlay { height: 5px; margin: 0 -10px 11px; background: var(--jewel); }
 .hud-mv .wl-glass .chapel h3 { font-size: clamp(17px, 3.2cqi, 22px); margin: 5px 0; hyphens: auto; }
-.hud-mv .wl-glass .chapel article > strong { display: block; color: var(--blue); font-size: 14px; }
+.hud-mv .wl-glass .chapel article > strong { color: var(--blue); }
 .hud-mv .wl-sheet :is(.chapel, .vigil) p { font-size: 14px; }
 .hud-mv .wl-sheet .rumour { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; color: var(--danger); font-size: 14px; }
+.hud-mv .wl-sheet .rumour b { font: italic 600 17px/1.25 var(--wl-f-head); font-size-adjust: .47; }
 .hud-mv .wl-sheet .rumour-scale { display: inline-flex; gap: 3px; }
 .hud-mv .wl-sheet .rumour-scale i { width: 8px; height: 8px; border: 1px solid currentColor; transform: rotate(45deg) scale(.8); }
 .hud-mv .wl-sheet .rumour-scale .past { background: color-mix(in srgb, currentColor 40%, transparent); }
@@ -225,7 +238,7 @@
 .hud-mv .wl-wax .intention + .intention { border-top: 1px dotted #b19280; }
 .hud-mv .wl-wax .intention small { color: #e4c5a0; font-size: 12px; }
 .hud-mv .wl-wax .intention h3 { color: #fff0d7; font-size: clamp(18px, 3.6cqi, 24px); margin-top: 3px; }
-.hud-mv .wl-wax .intention :is(em, i) { display: inline-block; color: #ffcd88; font: italic 17px/1.35 Georgia, serif; }
+.hud-mv .wl-wax .intention :is(em, i) { display: inline-block; color: #ffcd88; font: italic 600 18px/1.3 var(--wl-f-head); font-size-adjust: .47; }
 .hud-mv .wl-wax .intention .rumour { color: #ffabb2; }
 
 /* --- Связка ключницы: бирки на крючках, верность — отдельной эмалью ----------------------------------- */
@@ -245,10 +258,10 @@
 .hud-mv .wl-keys .key-card p { flex: 1; margin-top: 9px; border-top: 1px dashed var(--line); padding-top: 8px; font-size: 14px; }
 .hud-mv .wl-sheet .high { --trust: var(--good); } .hud-mv .wl-sheet .middle { --trust: var(--caution); } .hud-mv .wl-sheet .low { --trust: var(--danger); } .hud-mv .wl-sheet .none { --trust: var(--detail); }
 .hud-mv .wl-keys .trust { margin-top: 9px; color: var(--trust); }
-.hud-mv .wl-keys .trust > span:first-child, .hud-mv .wl-keys .trust b small { font-size: 12px; font-weight: 650; color: inherit; }
+.hud-mv .wl-keys .trust > span:first-child, .hud-mv .wl-keys .trust b small { font: 600 12px/1.4 var(--wl-f-caps); font-size-adjust: .5; letter-spacing: .045em; color: inherit; }
 .hud-mv .wl-keys .trust b { display: block; font: 700 28px/1.1 Georgia, serif; }
 .hud-mv .wl-keys .trust b small { display: inline; }
-.hud-mv .wl-keys .trust > em { display: block; font: italic 15px/1.3 Georgia, serif; color: inherit; }
+.hud-mv .wl-keys .trust > em { display: block; font: italic 600 17px/1.25 var(--wl-f-head); font-size-adjust: .47; color: inherit; }
 .hud-mv .wl-keys .trust-bar { display: block; height: 6px; margin: 5px 0; border-radius: 5px; background: var(--wash); overflow: hidden; }
 .hud-mv .wl-keys .trust-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--trust); }
 
@@ -262,12 +275,12 @@
 .hud-mv .wl-house .room { display: flex; flex-direction: column; min-width: 0; background: var(--lift); }
 .hud-mv .wl-house .chamber { display: grid; justify-items: stretch; background: #654a38; border-bottom: 2px solid #48372d; }
 .hud-mv .wl-house .chamber svg { width: 100%; height: auto; }
-.hud-mv .wl-house .chamber span { display: block; text-align: center; padding: 3px 8px; color: #ffebc4; font: 600 13px/1.4 Georgia, serif; letter-spacing: .035em; border-top: 1px solid #af8b5f; }
+.hud-mv .wl-house .chamber span { display: block; text-align: center; padding: 3px 8px; color: #ffebc4; font: 600 14px/1.4 var(--wl-f-caps); font-size-adjust: .5; letter-spacing: .06em; border-top: 1px solid #af8b5f; }
 @container (max-width: 390px) { .hud-mv .wl-house .manor { grid-template-columns: minmax(0, 1fr); } }
 .hud-mv .wl-house .occupant { flex: 1; display: flex; flex-direction: column; align-items: flex-start; padding: 10px 12px; }
 .hud-mv .wl-house .occupant h3 { font-size: clamp(19px, 4.4cqi, 23px); }
 .hud-mv .wl-house .occupant p { font-size: 14px; flex: 1; }
-.hud-mv .wl-house .trust-pin { display: inline-block; margin-top: 8px; border-bottom: 2px solid var(--trust); color: var(--trust); font-size: 12px; }
+.hud-mv .wl-house .trust-pin { display: inline-block; margin-top: 8px; border-bottom: 2px solid var(--trust); color: var(--trust); font: 600 12.5px/1.4 var(--wl-f-caps); font-size-adjust: .5; letter-spacing: .045em; }
 
 /* --- Весы суда: один балдахин над списком дел ------------------------------------------------ */
 .hud-mv .wl-court { border: 3px double var(--line); }
@@ -280,17 +293,17 @@
 .hud-mv .wl-court .tribunal article + article { border-top: 3px double var(--line); }
 .hud-mv .wl-court .hearing { display: flex; flex-wrap: wrap-reverse; align-items: center; gap: 7px 14px; justify-content: space-between; }
 .hud-mv .wl-court .hearing h3 { order: -1; font-size: clamp(20px, 4.7cqi, 30px); }
-.hud-mv .wl-sheet :is(.hearing small, .stage) { display: inline-block; padding: 3px 7px; border: 1px solid currentColor; color: var(--blue); font-size: 12px; font-weight: 700; }
+.hud-mv .wl-sheet :is(.hearing small, .stage) { display: inline-block; padding: 3px 7px; border: 1px solid currentColor; color: var(--blue); font: 700 12.5px/1.3 var(--wl-f-caps); font-size-adjust: .5; letter-spacing: .05em; }
 .hud-mv .wl-court .decided .hearing small { color: var(--danger); border-style: double; border-width: 3px; }
 .hud-mv .wl-court .tribunal dl { margin: 10px 0; }
-.hud-mv .wl-court .tribunal dl > div { display: grid; grid-template-columns: minmax(65px, 22%) minmax(0, 1fr); gap: 8px; margin: 3px 0; }
+.hud-mv .wl-court .tribunal dl > div { display: grid; grid-template-columns: minmax(65px, 22%) minmax(0, 1fr); align-items: baseline; gap: 8px; margin: 3px 0; }
 .hud-mv .wl-court .tribunal :is(dt, dd) { font-size: 14px; }
-.hud-mv .wl-court .tribunal dt { font-weight: 650; }
+.hud-mv .wl-court .tribunal dt { font-size: 13.5px; }
 .hud-mv .wl-court .ruling { padding: 10px 12px; border-left: 5px solid #39808f;
   background: light-dark(color-mix(in srgb, #d7e9e6 85%, transparent), color-mix(in srgb, #203f48 85%, transparent)); color: light-dark(#193c41, #e1f5ed); }
 .hud-mv .wl-court .decided .ruling { border-color: #ac574e; background: light-dark(color-mix(in srgb, #f0dbce 85%, transparent), color-mix(in srgb, #522d3c 85%, transparent)); color: light-dark(#682938, #ffe4dc); }
-.hud-mv .wl-court .ruling b { display: inline-block; text-transform: uppercase; font-size: 11px; letter-spacing: .09em; }
-.hud-mv .wl-court .ruling p { font: 600 17px/1.3 Georgia, serif; margin-top: 3px; }
+.hud-mv .wl-court .ruling b { display: inline-block; font: 700 13px/1.4 var(--wl-f-caps); font-size-adjust: .5; letter-spacing: .07em; }
+.hud-mv .wl-court .ruling p { font: 600 19px/1.25 var(--wl-f-head); font-size-adjust: .47; margin-top: 3px; }
 
 /* --- Зарубки тяжбы: две половины расколотой бирки ------------------------------------------------ */
 .hud-mv .wl-tally .tallies { display: grid; gap: 14px; }
@@ -308,7 +321,7 @@
 .hud-mv .wl-tally .split-stick section:first-child { position: relative; padding-right: 16px; }
 .hud-mv .wl-tally .split-stick section:first-child::after { content: ""; position: absolute; inset: 0 0 0 auto; width: 6px; background: linear-gradient(135deg, transparent 50%, #795940 51%) right top / 6px 18px repeat-y; }
 .hud-mv .wl-tally .split-stick small { color: inherit; }
-.hud-mv .wl-tally .split-stick h4 { margin: 6px 0; font: 700 18px Georgia, serif; }
+.hud-mv .wl-tally .split-stick h4 { margin: 6px 0; font: 700 19px/1.15 var(--wl-f-head); font-size-adjust: .47; }
 .hud-mv .wl-tally .stage { color: inherit; margin-top: 10px; border-style: dashed; border-radius: 2px; }
 .hud-mv .wl-tally header .stage { margin: 0 0 0 auto; color: #fff6e0; border-color: #e5b574b3; flex: none; max-width: 48%; }
 .hud-mv .wl-tally .stage[data-final=true] { background: #822e38; color: #fff2d5; border: 3px double #ffcd96; }
@@ -328,10 +341,10 @@
   .hud-mv .wl-bell .billboard { grid-template-columns: minmax(0, 1fr); }
   .hud-mv .wl-bell .billboard .broadside:nth-child(2) { margin: 0; }
   .hud-mv .wl-arms .standards, .hud-mv .wl-arms .standards:is(.wl-n1, .wl-n2) { grid-template-columns: minmax(0, 1fr); padding: 6px; background: color-mix(in srgb, #785c43 var(--plate), transparent); }
-  .hud-mv .wl-arms .standard { display: grid; grid-template-columns: minmax(70px, 33%) minmax(0, 1fr); }
-  .hud-mv .wl-arms .standard header { padding: 8px 5px 18px; border-top: 4px ridge #bd925a; }
+  .hud-mv .wl-arms .standard { display: grid; grid-template-columns: minmax(84px, 38%) minmax(0, 1fr); }
+  .hud-mv .wl-arms .standard header { padding: 8px 2px 18px; border-top: 4px ridge #bd925a; }
   .hud-mv .wl-arms .standard header::before { margin: -8px 0 5px; }
-  .hud-mv .wl-arms .standard header h3 { font-size: 16px; }
+  .hud-mv .wl-arms .standard header h3 { font-size: clamp(14px, 5.4cqi, 16px); font-size-adjust: none; letter-spacing: 0; }
   .hud-mv .wl-arms .embroidery svg { width: 50px; }
   .hud-mv .wl-glass .chapel, .hud-mv .wl-glass .chapel:is(.wl-n1, .wl-n2) { grid-template-columns: minmax(0, 1fr); }
   .hud-mv .wl-glass .chapel article { border-left: 5px solid var(--jewel); padding: 10px; }

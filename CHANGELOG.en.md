@@ -4,6 +4,14 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.81 — 2026-11-21
+
+### Changed
+- **Lettering in the new World views matches the rest of the medieval look.** In Place rules, Honour, Faith, Household and Courts, descriptions and everything inside the expanded part used to be in a plain sans-serif. Now body text is in Georgia, headings and names in Cormorant Garamond, captions and labels ("Personal faith", "Charge", "If broken", "Loyalty · 72 of 100", room names) in small caps, and states ("strict in faith", "whisper") and the court's ruling in italic serif. On the "Town crier's bell" notices the text glow no longer blurs the letters. On a narrow card the Honour banner names no longer break mid-word.
+
+### Fixed
+- **Figures in the "Manor cross-section".** Every household member's neck was drawn over the tunic and spread into a blob on the collar; now it goes under the collar in an even line, and long hair falls behind the back. The maid in the linen room had her cap slipping sideways over half her face, and her braid lay over the collar as a dark patch at the neck. Now the cap frames her face evenly and the hair is tucked under it. The resident's capelet in the common room is the same on both sides.
+
 ## 23.89.80 — 2026-11-21
 
 ### Fixed

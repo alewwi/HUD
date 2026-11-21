@@ -12,21 +12,21 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.89.80';
+import { settings } from './settings.js?v=23.89.81';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { тМодели as т } from './i18n.js?v=23.89.80';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.80';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.89.80';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.80';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.89.80';
-import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.89.80';
-import { упомянутВТексте } from './names.js?v=23.89.80';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.80';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.80';
-import { доверияБезПричин } from './turn-notes.js?v=23.89.80';
-import { ступениВСнимке } from './render/trust-stages.js?v=23.89.80';
+import { тМодели as т } from './i18n.js?v=23.89.81';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.81';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.89.81';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.81';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.89.81';
+import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.89.81';
+import { упомянутВТексте } from './names.js?v=23.89.81';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.81';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.81';
+import { доверияБезПричин } from './turn-notes.js?v=23.89.81';
+import { ступениВСнимке } from './render/trust-stages.js?v=23.89.81';
 const имяИгрокаСнимка = () => { try { return window.SillyTavern?.getContext?.()?.name1 || ''; } catch (_) { return ''; } };
-import { почиститьСнимок } from './render/medieval-life.js?v=23.89.80';
+import { почиститьСнимок } from './render/medieval-life.js?v=23.89.81';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 

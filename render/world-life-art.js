@@ -184,7 +184,7 @@ export const householdRooms = (() => {
     cook: ['#705043','M-10-6q0-11 10-11t10 11v8q1 6-4 7l-5-2-5 2q-6-2-6-8z'],
     servant: ['#503830','M-10-6q-1-12 10-12t10 12v6q0 5-4 6H-5q-5 0-5-6z'],
     squire: ['#955e40','M-10-5q-2-12 9-13t12 11l-1 8 2 8-4-2-2 4-4-4-5 3-2-3-5 2 1-7z'],
-    maid: ['#614438','M-10-5q0-12 10-12t10 12v6q0 6-5 7l2 6-5 4-5-5 2-5q-9 1-9-7z'],
+    maid: ['#614438','M-10-5q0-12 10-12t10 12v5q0 4-4 5H-6q-4-1-4-5z'],
     steward: ['#8c8072','M-10-5q-1-12 10-12t10 12l1 10-4 3-3-3-8 1-4 2-3-4z'],
     resident: ['#687780','M-14 9q1-12 2-19 2-8 12-12 11 4 13 16l2 17-7 5-9-3-7 3z'],
   };
@@ -195,20 +195,20 @@ export const householdRooms = (() => {
       line('M-10-8Q0-11 11-9l4 2q-6 0-10 2l-14 1z','#465f52'),
     cook: line('M-10-8l-2-5q-3-4 0-7 3-2 7 0 4-5 10-2 6-2 9 2 2 4-3 8l-1 4z','#fae7bf')+
       line('M-10-11q10-3 20 0l-1 5q-9-3-18 0z','#e7cc9e')+stroke('M-5-19q2 3 1 6m8-7-2 6','#bf9e73',.8),
-    maid: line('M-11 0q-3-13 5-18 9-6 16 4l2 7-3 4-2-7q-5-3-11 0l-4 11z','#eedcba')+
-      stroke('M-9-4q0-8 6-11 5-2 9 2','#c7ac85',.9),
+    // Чепец ровно обрамляет лицо с обеих сторон; волосы убраны под него, коса не ложится на ворот.
+    maid: line('M-12 3C-13-11-7-19 0-19S13-11 12 3H9C9-6 6-11 0-11S-9-6-9 3z','#eedcba')+
+      stroke('M-11.2-3Q0-21.5 11.2-3','#c7ac85',.9),
     steward: line('M-10-9l1-7q8-5 18 0l2 7q-10-4-21 0z','#784e58')+
       line('M-11-9q11-4 22 0v4q-11-4-22 0z','#583e49'),
   };
   function avatar(id,x,y) {
     const [colour,back]=hair[id];
-    const neck=fill('M-3.5 5h7v7l3 2q-6.5 4-13 0l3-2z',shadow);
     const face=line('M0-13c5.8 0 9 3.5 9 9 0 7-3.8 13-9 13S-9 3-9-4c0-5.5 3.2-9 9-9z',skin,'stroke="none" class="manor-face"');
     const fringe=id==='squire' ? 'M-9-9q5-10 14-5 5 3 5 8l-4-3-2 4-2-3-5 3 1-3-7 3z'
       : 'M-9-8q2-9 10-9 9 0 9 10l-5-3q-5 3-9 1l-5 4z';
     const beard=id==='steward' ? fill('M-9 0q1 6 5 7 4 1 8 0 4-1 5-7 1 11-9 14Q-10 11-9 0z',colour) : '';
     const hood=id==='resident' ? stroke('M-9-10q3-6 9-9 7 4 10 12m-21 16 8 3m8 0 7-3','#a3aaac',1) : '';
-    return group(`translate(${x} ${y})`,line(back,colour)+neck+face+fill(fringe,colour)+beard+(hats[id]||'')+hood);
+    return group(`translate(${x} ${y})`,face+fill(fringe,colour)+beard+(hats[id]||'')+hood);
   }
 
   // A sleeve ends at the wrist, the hand encloses the grip, and the held
@@ -255,8 +255,11 @@ export const householdRooms = (() => {
   function shoes(x) {
     return group(`translate(${x} 81)`,line('M-10 0h6v8h-11q-1-2 2-3l3-1zm14 0h6v4l3 1q3 1 2 3H4z','#584238'));
   }
+  // Волосы сзади и шея — под рубахой: ворот обрезает шею ровной линией, а не кругляшом
+  // поверх ворота, и длинные волосы уходят за спину, а не ложатся на шею.
+  const nape = (id,x,y) => group(`translate(${x} ${y})`,line(hair[id][1],hair[id][0])+fill('M-3.4 4h6.8v11h-6.8z',shadow));
   function person(id,x,colour,trim) {
-    return shoes(x)+robe(x,colour,trim)+avatar(id,x,31);
+    return shoes(x)+nape(id,x,31)+robe(x,colour,trim)+avatar(id,x,31);
   }
   function keysScene() {
     const shelf=line('M9 29h55v3H9zm4 3v5l6-5m33 0 6 5v-5',wood)+jug(23,22.7,.63)+jug(40,23.3,.57)+line('M49 19h11v10H49z','#ccac75');
@@ -361,7 +364,7 @@ export const householdRooms = (() => {
   function residentScene() {
     const bench=line('M107 65h40v5h-40zm4 5v15h4V70m23 0v15h4V70',wood);
     return windowLight(22,14)+group('',fill('M26 36q2-3 4 0 1-4 4-4-3 1-4 5z','#566957'),'class="window-bird"')+bench+person('resident',78,'#75838b','#bcc0ad')+
-      line('M66 47q10 4 12 9l13-10 5 4-18 12-16-12z','#98a09d')+dot(78,57,1.8,gold)+
+      line('M64 46q9 4 14 10 5-6 14-10l4 4-18 12-18-12z','#98a09d')+dot(78,57,1.8,gold)+
       arm([67,50],[61,64],[76,70],'#889397','support')+arm([89,50],[94,63],[80,69],'#889397');
   }
   const scenes = {keys:keysScene, groom:groomScene, cook:cookScene, servant:servantScene,
