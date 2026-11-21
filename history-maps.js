@@ -12,6 +12,7 @@
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
 import { getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.75';
+import { применитьСтупени, ступениВкл } from './render/trust-stages.js?v=23.89.75';
 import { namesLikelySame } from './names.js?v=23.89.75';
 
 const текст = (v) => (v === null || v === undefined ? '' : typeof v === 'string' ? v : Array.isArray(v) ? v.map(текст).join('; ') : typeof v === 'object' ? Object.values(v).map(текст).join('; ') : String(v)).trim();
@@ -145,7 +146,8 @@ export function создатьКарты() {
     for (const c of Array.isArray(data.characters) ? data.characters : []) {
       const от = c && кто(c['Имя']);
       if (!от) continue;
-      for (const кусок of текст(c['Доверие']).split(';')) {
+      // Ступени доверия (render/trust-stages.js): потолок и замки — как на экране.
+      for (const кусок of текст(ступениВкл() ? применитьСтупени(текст(c['Имя']), текст(c['Доверие']), at).значение : c['Доверие']).split(';')) {
         const м = кусок.match(/^\s*([^:]+):\s*([+\-−]?\d{1,3})/);
         if (!м) continue;
         const к = кто(м[1]);

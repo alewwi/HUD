@@ -14,6 +14,8 @@ const ЗАМЕНЫ = [
   ["'nm: отдача — <stage>'", "'nm: backlash — <stage>'"],
   ['головокружение (passes in about an hour), кровь из носа (about 3 hours), обморок (out cold', 'dizziness (passes in about an hour), nosebleed (about 3 hours), fainting (out cold'],
   ['), тяжёлая травма (', '), severe injury ('],
+  // Ступени доверия (render/trust-stages.js), заводской список в описании Tr.
+  ['-100 Заклятые враги, -80 Враги, -60 Неприязнь, -40 Недоверие, -20 Холодок, 0 Настороже, 20 Знакомые, 40 Симпатия, 60 Близкие, 80 Родные', '-100 Sworn enemies, -80 Enemies, -60 Hostile, -40 Distrust, -20 Cold, 0 Wary, 20 Acquainted, 40 Fond, 60 Close, 80 Kindred'],
   // Язык и коды.
   ['- 🌍 LANG: write values in Russian; character names follow "N".', '- 🌍 LANG: write values in English; character names follow "N".'],
   // Последняя строка инструкции (prompt.js): начало чата могло пройти на

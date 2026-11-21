@@ -24,6 +24,8 @@ import { упомянутВТексте } from './names.js?v=23.89.75';
 import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.75';
 import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.75';
 import { доверияБезПричин } from './turn-notes.js?v=23.89.75';
+import { ступениВСнимке } from './render/trust-stages.js?v=23.89.75';
+const имяИгрокаСнимка = () => { try { return window.SillyTavern?.getContext?.()?.name1 || ''; } catch (_) { return ''; } };
 import { почиститьСнимок } from './render/medieval-life.js?v=23.89.75';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -286,6 +288,9 @@ export function собратьСнимок(текстБлока) {
   if (выкл('betsList')) поПерсонажам(['Bt']);
   // Причины сдвигов доверия — только на свой ход: в снимке им незачем повторяться.
   (Array.isArray(к.cs) ? к.cs : []).forEach(c => { if (объект(c) && c.Tr) c.Tr = доверияБезПричин(c.Tr); });
+  // Ступени доверия (render/trust-stages.js): потолок открытой ступени и замки игрока.
+  if (объект(к.us) && к.us.Tr) к.us.Tr = доверияБезПричин(к.us.Tr);
+  ступениВСнимке(к, имяИгрокаСнимка());
   if (выкл('enablePregnancy')) поПерсонажам(['Prg']);
   // Беременность, закрытая потерей: иначе модель перепишет Prg из снимка.
   const сценаМс = датаИзТекста(объект(к.sc) ? к.sc.Dt : '');
@@ -314,6 +319,8 @@ export function собратьСнимок(текстБлока) {
   const чистый = вычистить(к);
   if (!объект(чистый)) return null;
   if (желание) Object.defineProperty(чистый, '__желание', { value: true, enumerable: false });
+  // Заметки ступеней доверия (потолки, замки) — тоже мимо строки снимка.
+  if (к.__ступени) Object.defineProperty(чистый, '__ступени', { value: к.__ступени, enumerable: false, configurable: true });
   return чистый;
 }
 

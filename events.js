@@ -713,9 +713,9 @@ export function initGlobalEvents(ctx) {
         if (ctx.attachHelpMarks) ctx.attachHelpMarks(target);
       }
       if (target) target.classList.add('active');
-      if (target && былаВысота !== null) плавнаяСменаВкладки(телоВкладок, былаВысота, target);
+      if (target && былаВысота !== null && !tab.dataset.hudRestoring) плавнаяСменаВкладки(телоВкладок, былаВысота, target);
       // Значок привёл сюда: вопрос может лежать ниже края вкладки.
-      if (target && tab.querySelector('.hud-tab-attn')) {
+      if (target && !tab.dataset.hudRestoring && tab.querySelector('.hud-tab-attn')) {
         // Свежесобранная вкладка за это время может смениться: ищем уже в ней.
         const id = target.id;
         // Приглашение в любом виде (карточки, пригласительная, сургуч) — по его кнопке.

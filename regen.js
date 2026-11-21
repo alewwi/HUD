@@ -8,6 +8,8 @@
 import { настройка, settings, defaultSettings } from './settings.js?v=23.89.75';
 import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.75';
 import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.75';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.75';
+import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.75';
 import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.75';
 import { генерацияТаверны } from './utils.js?v=23.89.75';
 import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.75';
@@ -391,7 +393,8 @@ export async function handleHudRegenButton(regenBtn) {
           // значение — это значение по умолчанию, а не 0. Раньше здесь пустое поле
           // выключало снимок, а в обычном ответе снимок был.
           const развёрнутыхРеген = (() => { const n = parseInt(settings.hudsToKeep, 10); return isNaN(n) || n < 0 ? (defaultSettings.hudsToKeep ?? 1) : n; })();
-          if (settings.hudSnapshot !== false && развёрнутыхРеген > 0) {
+          const соСнимком = settings.hudSnapshot !== false && развёрнутыхРеген > 0;
+          if (соСнимком || (!телефон && settings.trustLocks !== false)) {
               for (let j = mesIdNum - 1; j >= 0 && !объектСнимкаРеген; j--) {
                   const m = chatData[j];
                   if (!m || m.is_user || m.is_system) continue;
@@ -409,7 +412,8 @@ export async function handleHudRegenButton(regenBtn) {
           const инструкцияРеген = buildDynamicPrompt({ nsfw: nsfwРеген, режим: 'regen', бой: решитьБой(объектСнимкаРеген, последниеТекстыЧата(chatData, mesIdNum + 1)) });
           const инструкция = телефон ? промптТелефона(инструкцияРеген) : инструкцияРеген;
           if (!инструкция) throw new Error('телефон выключен в настройках — перегенерировать нечего');
-          const strictBasePrompt = основа.раскрытьИнструкцию(инструкция, объектСнимкаРеген ? строкаСнимка(объектСнимкаРеген, nsfwРеген) : '');
+          const факты = телефон ? [] : [...заметкиСтупеней(объектСнимкаРеген), ...заметкиКубика(chatData, mesIdNum)];
+          const strictBasePrompt = [основа.раскрытьИнструкцию(инструкция, соСнимком && объектСнимкаРеген ? строкаСнимка(объектСнимкаРеген, nsfwРеген) : ''), ...факты].join('\n');
 
           for (let i = startIndex; i <= mesIdNum; i++) {
           let msg = chatData[i];

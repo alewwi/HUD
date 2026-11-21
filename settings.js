@@ -126,7 +126,13 @@ export const defaultSettings = {
   enableScars: true,
   // Кто чего не знает (карточка, заметки хода), замки доверия, обещания, «Тем временем».
   knowledgeLine: true,
+  // Ступени доверия (render/trust-stages.js): шкала −100…100, следующая ступень —
+  // с разрешения игрока ('ask') или сама ('free'); свои ступени — [{ min, name }].
   trustLocks: true,
+  trustPermit: 'ask',
+  trustStageList: null,
+  // Тайный бросок «Заметили ли» под «Социальным разоблачением» (render/notice-dice.js).
+  noticeDice: true,
   promisesList: true,
   // Пари между персонажами (поле Bt): ставка видна в карточках обоих.
   betsList: true,

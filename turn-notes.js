@@ -21,6 +21,10 @@
 // с другой целью устарела. Всё лежит в метаданных чата.
 
 import { settings } from './settings.js?v=23.89.75';
+import { английский } from './i18n.js?v=23.89.75';
+import { flattenFieldValue } from './utils.js?v=23.89.75';
+import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.89.75';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.75';
 import { статусОбещания } from './hud-expand.js?v=23.89.75';
 import { полеВкл } from './deep-fields.js?v=23.89.75';
 import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.75';
@@ -195,7 +199,7 @@ export function разобратьПричину(сырое) {
   return { почему: m ? чистаяПричина(m[2]) : '', рана: !!(m && m[1]) };
 }
 /** Доверие без причин: для шкал и для снимка модели. */
-export const доверияБезПричин = (значение) => String(значение ?? '').replace(/(\d)\s*\([^()]*\)/g, '$1');
+export const доверияБезПричин = (значение) => flattenFieldValue(значение).replace(/(\d)\s*\([^()]*\)/g, '$1');
 
 /**
  * Что случилось с доверием на этом ходу. Свайп с другим числом заменяет запись
@@ -871,16 +875,21 @@ function заметкаЗнаний(х, снимок, чат, цель, игро
 // перейти — нужно событие (идея «замков» из движка симпатии LIWE). Правило
 // стоит в описании Tr (prompt.js); здесь — напоминание, когда доверие уже у
 // самого порога: раз в восемь ответов на пару, не больше двух строк.
-const ЗАМКИ = [[20, 'acquaintance'], [40, 'friend'], [60, 'close'], [80, 'bound for life']];
+// Пороги — начала ступеней выше нуля (render/trust-stages.js), с отрицательной
+// стороны тоже: из вражды в неприязнь одной болтовнёй не выйти.
 function заметкаЗамков(х, снимок, чат, цель) {
   if (settings.trustLocks === false) return [];
+  const ЗАМКИ = ступени().filter(с => с.min > -100).map(с => [с.min, с.en && английский() ? с.en : с.name]);
+  // У потолка, который игрок ещё не открыл, и у замка — своя заметка (заметкиСтупеней).
+  const своя = [...(снимок?.__ступени?.потолки || []), ...(снимок?.__ступени?.замки || [])];
+  const занято = (кто, к) => своя.some(п => namesLikelySame(п.кто, кто) && namesLikelySame(п.к, к));
   const строки = [];
   for (const c of Array.isArray(снимок?.cs) ? снимок.cs : []) {
     if (!c || !c.N || строки.length >= 2) continue;
     for (const ч of String(Array.isArray(c.Tr) ? c.Tr.join('; ') : c.Tr ?? '').split(/[;\n]/)) {
-      const м = ч.match(/^\s*([^:：(]{1,40}?)\s*[:：]\s*(\d{1,3})/);
-      if (!м || строки.length >= 2) continue;
-      const v = +м[2], замок = ЗАМКИ.find(([п]) => v >= п - 3 && v < п);
+      const м = ч.match(/^\s*([^:：(]{1,40}?)\s*[:：]\s*([−–-]?\d{1,3})/);
+      if (!м || строки.length >= 2 || /\[locked/i.test(ч) || занято(чисто(c.N), м[1].trim())) continue;
+      const v = +м[2].replace(/[−–]/, '-'), замок = ЗАМКИ.find(([п]) => v >= п - 3 && v < п);
       if (!замок) continue;
       const текст = `${чисто(c.N)}'s trust in ${м[1].trim()} is ${v}, right below the "${замок[1]}" line at ${замок[0]}. It crosses that line only after a key event in the story: real help with nothing to gain, danger faced together, a secret shared, support in a weak moment, a sacrifice. Ordinary kindness keeps it below.`;
       if (пораНапомнить(х, чат, цель, `замок|${чисто(c.N)}|${м[1].trim()}|${замок[0]}`, текст, РАЗ_ШРАМА)) строки.push(текст);
@@ -920,11 +929,14 @@ export function заметкиХода({ чат, снимок = null, тип = '
   const части = [подсказкиХода(х, цель)];
   // Ответы игрока на вопросы о противоречиях (disputes.js): «верно у HUD» и «своё» — поправка модели.
   { const п = заметкаСпоров(цель); if (п.length) части.push(`## ⚖️ CORRECTIONS FROM THE PLAYER — the player checked these, take them as true\n- ${п.join('\n- ')}`); }
+  const строки = заметкиКубика(чат, цель);
   if (снимок) {
-    const строки = [];
     if (вкл('enableScars')) строки.push(...заметкаОтношений(х, снимок, чат, цель, игрок));
     строки.push(...заметкаЗнаний(х, снимок, чат, цель, игрок));
     строки.push(...заметкаЗамков(х, снимок, чат, цель));
+    // Ступени: потолок, который игрок ещё не открыл, замки и только что открытые ступени.
+    строки.push(...заметкиСтупеней(снимок));
+
     if (вкл('enableBodyCues') && нота('cue')) { const д = заметкаДеталей(х, снимок, цель, игрок); if (д) строки.push(д); }
     if (вкл('enableNeglect') && нота('neg')) строки.push(...заметкаЗапущенного(х, снимок, чат, цель, сцена, игрок));
     if (вкл('enableWeight') && нота('wg')) { const в = заметкаВеса(х, снимок, цель, сцена, игрок); if (в) строки.push(в); }
@@ -942,8 +954,8 @@ export function заметкиХода({ чат, снимок = null, тип = '
     // Силы приземлённого фэнтези (render/powers.js): мана, чары по времени, тело и сила.
     строки.push(...заметкаСил(людиСнимка(снимок, игрок), снимок.sc));
     строки.push(...заметкаПриглашений(х, цель, сцена, игрок), ...заметкаСроков(х, снимок, цель, сцена));
-    if (строки.length) части.push(`## 📝 THIS TURN\n- ${строки.join('\n- ')}`);
   }
+  if (строки.length) части.push(`## 📝 THIS TURN\n- ${строки.join('\n- ')}`);
   сохранить();
   return части.filter(Boolean).join('\n\n');
 }

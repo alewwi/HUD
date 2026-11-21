@@ -27,7 +27,7 @@ const МЕТКА = 'data-hud-css';
 // [файл, когда нужен]. Без условия — нужен всегда.
 export const ЧАСТИ = [
   // Токены — первыми: только объявления переменных, остальные части их читают.
-  ['tokens'], ['base'], ['themes'], ['misc'], ['phone-skins'], ['views'], ['views-fields'], ['views-trio'], ['views-plus'], ['family'], ['family-views'],
+  ['tokens'], ['base'], ['themes'], ['misc'], ['phone-skins'], ['views'], ['views-fields'], ['views-trio'], ['views-plus'], ['trust-stages'], ['notice-dice', (s) => s.noticeDice !== false], ['family'], ['family-views'],
   ['world-views', (s) => s.enableWorld !== false],
   ['dream-views', (s) => s.enableDreams !== false],
   ['diary-moods', (s) => s.enableDiary !== false],
