@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.74**:
+The latest version is **23.89.75**:
 
+- "Manor cross-section" knows more posts in Russian and English, in any case and number; an unknown post gets the "Common room".
 - The Customization sample: factions and reputation are invented — its own player and character instead of names from the chat, more factions and shifts since the last turn; medieval and fantasy eras get factions of their own.
 - Views for the medieval World blocks: "Town plan" and "Crier's bell" for place rules, "Roll of guild arms" and "Chorus of witnesses" for honour, "Chapel windows" and "Vigil flame" for faith, "Housekeeper's keys" and "Manor cross-section" for the household, "Scales of the court" and "Tally of the suit" for courts, transparent and blurred like the rest. Every medieval World view shows a short entry first, and the details open and close smoothly on tap. Holiday and preparation cards are as wide as the twist card.
 - Medieval humours live inside Illnesses and injuries, like a wound's danger; the "Physician" card in the World tab is gone.

@@ -7,13 +7,13 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.74';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.74';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.74';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.74';
-import { settings } from '../settings.js?v=23.89.74';
-import { ответыПроДядей } from './family-asks.js?v=23.89.74';
-import { законностьДляДрева } from './medieval-life.js?v=23.89.74';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.75';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.75';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.75';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.75';
+import { settings } from '../settings.js?v=23.89.75';
+import { ответыПроДядей } from './family-asks.js?v=23.89.75';
+import { законностьДляДрева } from './medieval-life.js?v=23.89.75';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';

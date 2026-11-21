@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.75 — 2026-11-21
+
+### Changed
+- **"Manor cross-section" knows more posts.** The room is still chosen by the household member's post, with a wider dictionary in Russian and English: storekeepers, cellarers and pantlers in the storeroom; coachmen, carters, ostlers and farriers in the stable; scullions, kitchen maids and bakers in the kitchen; pages, porters, ushers and cupbearers in the great hall; guards, men-at-arms and blacksmiths in the armoury; laundresses, seamstresses, nannies and wet nurses in the linen room; clerks, scribes, treasurers and bailiffs in the counting room. Russian posts are recognised in other cases and numbers too, and English ones in the plural. A post that is not in the dictionary (a falconer, a gardener, a physician) gets the "Common room": a person by the window with a bench.
+
 ## 23.89.74 — 2026-11-21
 
 ### Fixed

@@ -130,25 +130,41 @@ export const engravings = (() => {
   return {map,bell,shield,witness,windowPane,candle,key,scales,column,tally,icon:i=>svg('24 24',p(icons[i],'none','stroke-width="1.5"'))};
 })();
 
-// Комнаты усадьбы для «Разреза усадьбы»: сцену выбирает только должность.
+// Комнаты усадьбы для «Разреза усадьбы»: сцену выбирает только должность (поле «роль»
+// домочадца, как модель её написала — по-русски или по-английски). Должности нет в
+// словаре — «Общая горница» (fallback): человек сидит у окна на лавке.
 export const householdRooms = (() => {
   const rooms = [
-    ['keys','Кладовая','#c3cd98','ключница|ключник|ключничка|housekeeper|keeper of the keys'],
-    ['groom','Конюшня','#a5c3bf','конюх|конюший|конюшая|конюшенная|конюшиха|groom|stablehand|stable hand|stable boy|stable girl|stablemaster'],
-    ['cook','Кухня','#dfaf88','повар|повариха|кухарка|кухарь|кухонный мастер|cook|chef'],
-    ['servant','Большой зал','#c9bd90','слуга|слуги|слугач|лакей|камердинер|прислуга|servant|footman|valet|manservant'],
-    ['squire','Оружейная','#a7bbcb','оруженосец|оруженоска|оруженосица|щитоносец|squire|shield bearer|armour bearer|armor bearer'],
-    ['maid','Бельевая','#d7b9c0','горничная|служанка|камеристка|покоївка|maid|housemaid|chambermaid|maidservant|lady in waiting'],
-    ['steward','Счётная палата','#cec09c','управляющий|управляющая|управитель|управительница|распорядитель|распорядительница|дворецкий|эконом|экономка|мажордом|сенешаль|steward|stewardess|estate manager|butler|seneschal'],
+    ['keys','Кладовая','#c3cd98','ключница|ключник|ключничка|кладовщик|кладовщица|кладовая|келарь|келарша|погребщик|погребщица|ларник|ларечник|хранитель ключей|хранительница ключей|чашник|виночерпий|housekeeper|keeper of the keys|key keeper|keykeeper|storekeeper|storeman|cellarer|cellarman|cellar master|pantler|pantryman|pantry maid'],
+    ['groom','Конюшня','#a5c3bf','конюх|конюший|конюшая|конюшенный|конюшенная|конюшиха|конюшонок|стремянный|стремянной|кучер|возница|возчик|ямщик|форейтор|коновал|табунщик|погонщик|подконюший|groom|stablehand|stable hand|stable boy|stable girl|stable lad|stablemaster|stable master|ostler|hostler|horseboy|horse boy|horsemaster|coachman|carter|wagoner|waggoner|driver|farrier|muleteer|equerry'],
+    ['cook','Кухня','#dfaf88','повар|повариха|кухарка|кухарь|стряпуха|стряпка|поваренок|поварята|кухонный мастер|кухонный мальчик|кухонная девка|кухонная девушка|судомойка|посудомойка|пекарь|пекарша|хлебник|хлебница|пирожник|мясник|пивовар|сыровар|cook|chef|head cook|undercook|kitchen boy|kitchen maid|kitchen girl|scullion|scullery maid|baker|butcher|brewer|turnspit|dishwasher'],
+    ['servant','Большой зал','#c9bd90','слуга|слуги|слугач|лакей|камердинер|прислуга|прислужник|прислужница|челядинец|челядинка|челядь|дворовый|дворовая|дворня|холоп|холопка|отрок|паж|стольник|кравчий|привратник|привратница|придверник|служка|servant|footman|valet|manservant|page|page boy|usher|porter|doorkeeper|doorman|attendant|cupbearer|server|houseboy|lackey|retainer|serf'],
+    ['squire','Оружейная','#a7bbcb','оруженосец|оруженоска|оруженосица|щитоносец|копейщик|стражник|стражница|страж|дружинник|ратник|латник|оружейник|бронник|телохранитель|караульный|дозорный|кузнец|кузнечиха|подмастерье кузнеца|sentry|squire|shield bearer|armour bearer|armor bearer|guard|guardsman|man at arms|men at arms|armourer|armorer|bodyguard|watchman|soldier|blacksmith|smith'],
+    ['maid','Бельевая','#d7b9c0','горничная|служанка|камеристка|покоївка|прачка|портомоя|швея|белошвейка|кастелянша|пряха|ткачиха|вышивальщица|нянька|нянюшка|кормилица|постельничий|постельница|сенная девушка|сенная девка|maid|housemaid|chambermaid|maidservant|lady in waiting|lady s maid|ladys maid|laundress|laundry maid|washerwoman|seamstress|needlewoman|nursemaid|nanny|wet nurse|linen maid'],
+    ['steward','Счётная палата','#cec09c','управляющий|управляющая|управитель|управительница|распорядитель|распорядительница|дворецкий|эконом|экономка|мажордом|сенешаль|тиун|приказчик|казначей|казначейша|писарь|писец|дьяк|подьячий|счетовод|секретарь|камергер|бейлиф|steward|stewardess|estate manager|butler|seneschal|bailiff|reeve|clerk|scribe|treasurer|chamberlain|secretary|majordomo|reckoner|accountant'],
   ];
   const fallback = ['resident','Общая горница','#bdc0c7'];
   const words = value => String(value ?? '').toLowerCase().replaceAll('ё','е').replace(/[^\p{L}\p{N}]+/gu,' ').trim();
   const aliases = new Map(rooms.flatMap(room=>room[3].split('|').map(alias=>[words(alias),room])));
+  // Падежи и число: «конюха», «кухаркой», «служанки», «grooms» узнаются по основе
+  // однословной должности (без окончания), но основа не короче четырёх букв.
+  const ОКОНЧАНИЕ = /(?:ая|яя|ый|ий|ой|ое|ее|ые|ие|а|я|ь|й|о|е|ы|и)$/u;
+  const основы = [...aliases].filter(([alias]) => !alias.includes(' ')).map(([alias, room]) => {
+    if (/^\p{Script=Latin}+$/u.test(alias)) return [alias, room, 'en'];
+    const основа = alias.length >= 5 ? alias.replace(ОКОНЧАНИЕ, '') : alias;
+    return [основа.length >= 4 ? основа : alias, room, основа.length >= 4 ? 'ru' : 'exact'];
+  });
   function find(role) {
     const normalized = words(role);
+    if (!normalized) return fallback;
     if (aliases.has(normalized)) return aliases.get(normalized);
     const phrase = ' ' + normalized + ' ';
     for (const [alias, room] of aliases) if (phrase.includes(' ' + alias + ' ')) return room;
+    for (const слово of normalized.split(' ')) {
+      for (const [основа, room, вид] of основы) {
+        if (вид === 'en' ? (слово === основа + 's' || слово === основа + 'es') : вид === 'ru' && слово.startsWith(основа) && слово.length - основа.length <= 4) return room;
+      }
+    }
     return fallback;
   }
 
