@@ -11,19 +11,19 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.89.77';
-import { normalizeJSONData } from './schema.js?v=23.89.77';
-import { parseRelationList } from './render/relations-graph.js?v=23.89.77';
-import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.77';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.77';
-import { createDashboard } from './chat-stats.js?v=23.89.77';
-import { статусРужья } from './codes.js?v=23.89.77';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.77';
-import { историяБеременностей } from './render/conception.js?v=23.89.77';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.77';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.77';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.77';
-import { создатьКарты } from './history-maps.js?v=23.89.77';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.78';
+import { normalizeJSONData } from './schema.js?v=23.89.78';
+import { parseRelationList } from './render/relations-graph.js?v=23.89.78';
+import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.78';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.78';
+import { createDashboard } from './chat-stats.js?v=23.89.78';
+import { статусРужья } from './codes.js?v=23.89.78';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.78';
+import { историяБеременностей } from './render/conception.js?v=23.89.78';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.78';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.78';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.78';
+import { создатьКарты } from './history-maps.js?v=23.89.78';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -116,8 +116,8 @@ const чистоеИмя = (имя) => имяБезПриставки(текст
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.89.77';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.77';
+import { extractHudBlock } from './hud-block.js?v=23.89.78';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.78';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.

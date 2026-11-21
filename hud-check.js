@@ -9,11 +9,11 @@
 // честно бывает 'empty', комментариев может не быть вовсе. Ложная тревога
 // здесь стоит лишнего запроса к модели, поэтому лучше промолчать.
 
-import { settings } from './settings.js?v=23.89.77';
-import { extractHudBlock } from './hud-block.js?v=23.89.77';
-import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.89.77';
-import { противоречияБыта } from './render/life.js?v=23.89.77';
-import { сжатыеПоля, лимитПоля } from './compact-fields.js?v=23.89.77';
+import { settings } from './settings.js?v=23.89.78';
+import { extractHudBlock } from './hud-block.js?v=23.89.78';
+import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.89.78';
+import { противоречияБыта } from './render/life.js?v=23.89.78';
+import { сжатыеПоля, лимитПоля } from './compact-fields.js?v=23.89.78';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const МЕТКА = /<\s*new this turn\b[^>]*>/i;

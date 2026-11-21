@@ -685,6 +685,8 @@ export const ПРИМЕР_БОЯ = {
   ch: 'dst: 40; to: the car by the arch; obs: trash bins, the neighbor with a dog; evt: the lookout ran for the car, Mark went after him',
 };
 export const ПРИМЕР_БОЯ_РАНЫ = 'nm: knife cut on the forearm; sg: fresh; rc: 10%; sy: bleeding, fingers going numb; trt: pressed it with his palm; zn: left forearm';
+// In old eras ("Wounds without antiseptics" and "Humours"): the same wound with its danger and timing, plus an illness with its humour.
+export const ПРИМЕР_БОЯ_РАНЫ_СТАРИНЫ = ПРИМЕР_БОЯ_РАНЫ + '; dng: festering; trn: in two or three days unless washed with wine | nm: overflowing bile; sg: worsening; rc: 40%; sy: short-tempered, sleepless, face burning; trt: the physician ordered bleeding and barley water; hum: yellow bile';
 export const ПРИМЕР_СИЛ = {
   'Lilian': {
     Ab: 'nm: water; mst: trained; cn: hold or turn a stream the size of a bucket, pull a handful of water out of the air, cool a burn; lim: cannot raise a wave, stop a river or touch the blood in another body; cst: chill in the fingers, then thirst | nm: sense for spirits; mst: novice; cn: hears a water spirit nearby if it calls her itself; lim: cannot see spirits or speak to them; cst: aching temples',

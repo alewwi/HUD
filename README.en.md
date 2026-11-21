@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.77**:
+The latest version is **23.89.78**:
 
+- Charter texts in the Casket read as separate sentences; in the medieval sample Mark's wound shows its danger and the illness with its humour.
 - Tabs scroll with the mouse wheel on PC: left and right over the tab strip, as before below it.
 - The HUD token limit goes up to 131072 instead of 32768; the cross in the "Place rules and power" window no longer sticks out of the pill.
 - Trust stages: a −100 to 100 scale, stages from "Sworn enemies" to "Kindred" in every trust view, hostility below zero, a ceiling at the open stage with an "Allow" button, a lock that fixes trust for the model, your own stages in the settings.

@@ -4390,7 +4390,7 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     Н.medNews = true;
     const { buildCasketHTML } = await модуль('render/medieval.js');
     const шк = buildCasketHTML(д.satchel, д.letters, 'c1', true, 'Агата', '20.05.1347', д.characters);
-    проверить('шкатулка: у письма в пути — когда дойдёт, у грамоты — права, предупреждение и печать', шк.includes('дойдёт: через 3 дня') && шк.includes('Даёт право: проезд по землям графа') && шк.includes('За этими воротами ваша бумага ничего не значит') && шк.includes('Здесь не действует'), шк.slice(шк.indexOf('hud-docs'), шк.indexOf('hud-docs') + 500));
+    проверить('шкатулка: у письма в пути — когда дойдёт, у грамоты — права, предупреждение и печать', шк.includes('дойдёт: через 3 дня') && шк.includes('подателя. Даёт право: проезд по землям графа.') && шк.includes('признаёт: люди графа.') && шк.includes('За этими воротами ваша бумага ничего не значит') && шк.includes('Здесь не действует'), шк.slice(шк.indexOf('hud-docs'), шк.indexOf('hud-docs') + 500));
     // Законность — помаркой под ребёнком в древе.
     const { buildFamilyTree } = await модуль('render/family-tree.js');
     const др = buildFamilyTree([{ id: 'a', name: 'Роланд' }, { id: 'b', name: 'Оуэн' }], [{ from: 'a', to: 'b', label: 'отец' }], 't', { законность: МЖ.законностьДляДрева({ characters: [{ 'Имя': 'Оуэн', 'Законность': 'бастард, признан отцом' }] }) });

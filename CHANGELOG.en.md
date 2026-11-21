@@ -4,6 +4,12 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.78 — 2026-11-21
+
+### Fixed
+- **Charter texts in the Casket.** Each part is its own sentence: "…in the town. Grants: … Holds in: … Recognised by: the count's men." Before, the description ran into "Grants" without a full stop.
+- **Mark's wound in the medieval sample.** The combat sample replaced Mark's Illnesses and injuries, so the wound's danger and the illness with its humour were lost in old eras. Now the combat wound shows "festering" and its timing, next to "overflowing bile" with yellow bile.
+
 ## 23.89.77 — 2026-11-21
 
 ### Fixed

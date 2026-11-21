@@ -23,12 +23,12 @@
 // (hud-expand.js разворачивает из прошлого хода). Показ — карточки во вкладке
 // «Мир» (блокиЭпохи), промт — промптЭпохи и поля к грамотам, письмам, спутникам.
 
-import { settings } from '../settings.js?v=23.89.77';
-import { старина, магияСкрыта, заклинанияВМире, дарыВМире } from '../era.js?v=23.89.77';
-import { escapeHtml } from '../utils.js?v=23.89.77';
-import { английский } from '../i18n.js?v=23.89.77';
-import { видБлока } from './views.js?v=23.89.77';
-import { видЖизни, естьВидЖизни } from './world-life-views.js?v=23.89.77';
+import { settings } from '../settings.js?v=23.89.78';
+import { старина, магияСкрыта, заклинанияВМире, дарыВМире } from '../era.js?v=23.89.78';
+import { escapeHtml } from '../utils.js?v=23.89.78';
+import { английский } from '../i18n.js?v=23.89.78';
+import { видБлока } from './views.js?v=23.89.78';
+import { видЖизни, естьВидЖизни } from './world-life-views.js?v=23.89.78';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -255,7 +255,9 @@ export function грамотыСПравами(доки) {
   return доки.map(д => {
     if (!д || !(д.grants || д.where || д.recognized || д.here)) return д;
     const en = английский();
-    const текст = [д.text, д.grants && `${en ? 'Grants' : 'Даёт право'}: ${д.grants}.`, д.where && `${en ? 'Holds in' : 'Действует'}: ${д.where}${д.recognized ? `, ${en ? 'recognised by' : 'признаёт'} ${д.recognized}` : ''}.`,
+    // Каждая часть — своим предложением: «…в городе. Даёт право: … Кто признаёт: …»
+    const сТочкой = (s) => { const т = String(s || '').trim(); return !т ? '' : /[.!?…]$/.test(т) ? т : т + '.'; };
+    const текст = [сТочкой(д.text), д.grants && сТочкой(`${en ? 'Grants' : 'Даёт право'}: ${д.grants}`), д.where && сТочкой(`${en ? 'Holds in' : 'Действует'}: ${д.where}`), д.recognized && сТочкой(`${en ? 'Recognised by' : 'Кто признаёт'}: ${д.recognized}`),
       грамотаНеЗдесь(д) ? (en ? '⚠ Beyond these gates your paper means nothing.' : '⚠ За этими воротами ваша бумага ничего не значит.') : грамотаСпорна(д) ? (en ? '⚠ Here this paper may not be recognised.' : '⚠ Здесь эту бумагу могут и не признать.') : '']
       .filter(Boolean).join(' ').replace(/\.\./g, '.');
     // Не действует здесь — своя печать «Здесь не действует» (медиевальные статусы грамот).
