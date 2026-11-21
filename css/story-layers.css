@@ -281,6 +281,9 @@
   background: color-mix(in srgb, var(--hg) 7%, rgba(0, 0, 0, .22)); border: 1px solid color-mix(in srgb, var(--hg) 22%, transparent);
   transition: opacity .2s ease, filter .2s ease;
 }
+/* Без даты слева (правила и власть места, подготовка, праздники эпохи) — две колонки:
+   в трёх текст вставал в колонку «по содержимому», и крестик вылезал за край пилюли. */
+.hud-holgen-list li:not(:has(> .hud-holgen-date)) { grid-template-columns: minmax(0, 1fr) auto; }
 .hud-holgen-list li.is-off { opacity: .45; filter: grayscale(.8); }
 .hud-holgen-list li.is-off .hud-holgen-name b { text-decoration: line-through; }
 .hud-holgen-date { display: grid; place-items: center; min-width: 52px; padding: 4px 6px; border-radius: 9px; text-align: center; background: color-mix(in srgb, var(--hg) 18%, transparent); }

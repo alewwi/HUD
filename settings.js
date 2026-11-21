@@ -862,3 +862,8 @@ export function унаследованноеТелефоном() {
     phoneFontSize: settings.fontSizeMain !== undefined ? Number(settings.fontSizeMain) - 1 : 13,
   };
 }
+
+// Потолок «Лимита токенов HUD» (создание, перегенерация, ➕ и повтор после обрыва).
+// 32768 было мало для длинных HUD; 131072 — самый большой вывод у нынешних
+// моделей. Больше, чем умеет провайдер, он сам отклонит с ошибкой.
+export const HUD_MAX_TOKENS_CAP = 131072;

@@ -4,6 +4,14 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.76 — 2026-11-21
+
+### Changed
+- **HUD token limit goes up to 131072** (was 32768): creation, regeneration, ➕ and the retry after a cut-off. If the provider allows less, it answers with an error itself.
+
+### Fixed
+- **The "don't take" cross in the "Place rules and power" window** sits inside the pill instead of sticking out; the same in other lists without a date on the left (preparation, era holidays).
+
 ## 23.89.75 — 2026-11-21
 
 ### Added

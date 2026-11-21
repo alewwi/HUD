@@ -3606,7 +3606,7 @@ export const СЛОВАРЬ_EN = {
   "Противоречия с бытом": "Contradictions with daily life",
   "С инструкцией нового ответа — короткая просьба: если в прошлом HUD не было обязательного (мысли, дневник, гороскоп), включить это сейчас; если в быте еда без подробностей («поели», «семейный ужин»), дописать в таймлайн, что ели, с прежним временем. Это не перегенерация: просьба едет вместе с обычным запросом": "Along with the instruction for the new reply — a short request: if the previous HUD lacked something required (thoughts, diary, horoscope), include it now; if daily life has food without details (“ate”, “family dinner”), add to the timeline what was eaten, with the earlier time. This isn't a regeneration: the request travels with the normal one",
   "Дописывать пропущенное": "Fill in what was missed",
-  "Отдельный лимит токенов только для запроса создания/регенерации HUD": "A separate token limit only for the HUD create/regenerate request",
+  "Отдельный лимит токенов только для запроса создания/регенерации HUD. До 131072 — больше, чем умеет провайдер, он сам отклонит": "A separate token limit only for the HUD create/regenerate request. Up to 131072: if that is more than the provider allows, the provider refuses it",
   "Лимит токенов HUD": "HUD token limit",
   "При регене HUD слать последние": "On HUD regen send the last",
   "Позволяет перегенерировать HUD (🔄) через ДРУГОЙ сохранённый профиль подключения": "Lets you regenerate the HUD (🔄) through ANOTHER saved connection profile",

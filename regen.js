@@ -5,14 +5,14 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings } from './settings.js?v=23.89.75';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.75';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.75';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.75';
-import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.75';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.75';
-import { генерацияТаверны } from './utils.js?v=23.89.75';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.75';
+import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.76';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.76';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.76';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.76';
+import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.76';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.76';
+import { генерацияТаверны } from './utils.js?v=23.89.76';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.76';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -156,7 +156,7 @@ export function нуженЛимитБольше(data, извлечь = null) {
   return !hudБлоки(текст).some(б => hudCloseRe().test(б.full));
 }
 /** Лимит для повтора, когда рассуждения съели весь прежний. */
-export const лимитПовтора = (лимит) => Math.min(32768, лимит * 2);
+export const лимитПовтора = (лимит) => Math.min(HUD_MAX_TOKENS_CAP, лимит * 2);
 /** В разобранном HUD есть основа — сцена или персонажи. */
 export function естьОсноваHUD(р) {
   if (!р || typeof р !== 'object') return false;
@@ -513,7 +513,7 @@ export async function handleHudRegenButton(regenBtn) {
 
       let aiText = '';
       let оборвался = false;
-      const hudMaxTokens = Math.max(256, Math.min(32768, parseInt(settings.hudMaxTokens, 10) || 8192));
+      const hudMaxTokens = Math.max(256, Math.min(HUD_MAX_TOKENS_CAP, parseInt(settings.hudMaxTokens, 10) || 8192));
 
       // Тело переиспользуем от последнего рабочего запроса ST: провайдер-специфичные
       // поля (ключи, прокси, семплеры) нужны, иначе часть бэкендов отвергает запрос.
@@ -643,7 +643,7 @@ export async function handleHudRegenButton(regenBtn) {
           // Ответ оборвался раньше конца HUD (чаще всего рассуждающая модель —
           // DeepSeek, GLM — потратила лимит на рассуждения): один повтор с
           // вдвое большим лимитом.
-          if (нуженЛимитБольше(data, извлечь) && hudMaxTokens < 32768 && !отменено()) {
+          if (нуженЛимитБольше(data, извлечь) && hudMaxTokens < HUD_MAX_TOKENS_CAP && !отменено()) {
               const больше = лимитПовтора(hudMaxTokens);
               основа.showHudToast('info', 'HUD', 'Ответ оборвался по лимиту токенов — повторяю с удвоенным лимитом.');
               data = await запросить(больше);

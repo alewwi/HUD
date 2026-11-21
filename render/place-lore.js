@@ -19,13 +19,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.75';
-import { settings } from '../settings.js?v=23.89.75';
-import { старина } from '../era.js?v=23.89.75';
-import { примерМета } from '../sample-meta.js?v=23.89.75';
-import { связьПраздников } from './holiday-lore.js?v=23.89.75';
-import { видБлока } from './views.js?v=23.89.75';
-import { видЖизни, естьВидЖизни } from './world-life-views.js?v=23.89.75';
+import { escapeHtml } from '../utils.js?v=23.89.76';
+import { settings } from '../settings.js?v=23.89.76';
+import { старина } from '../era.js?v=23.89.76';
+import { примерМета } from '../sample-meta.js?v=23.89.76';
+import { связьПраздников } from './holiday-lore.js?v=23.89.76';
+import { видБлока } from './views.js?v=23.89.76';
+import { видЖизни, естьВидЖизни } from './world-life-views.js?v=23.89.76';
 
 const КЛЮЧ = 'tavernosHudPlaces';
 export const местоВкл = () => старина() && settings.placeLore !== false;
@@ -103,7 +103,8 @@ export function местаАдреса(адрес, места = местаЧат
 const ДНИ = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const ДНИ_RU = { вс: 'sun', пн: 'mon', вт: 'tue', ср: 'wed', чт: 'thu', пт: 'fri', сб: 'sat' };
 const СФЕРЫ = ['land', 'bridge', 'toll', 'market', 'court', 'guards', 'complaints', 'church', 'crossing', 'other'];
-const строка = v => String(v ?? '').replace(/\s+/g, ' ').trim();
+// Длина не режется посреди фразы; потолок 1000 — только от сорвавшейся модели.
+const строка = v => String(v ?? '').replace(/\s+/g, ' ').trim().slice(0, 1000);
 function когдаИз(v) {
   const s = String(v ?? '').trim().toLowerCase();
   if (!s || /^(?:always|всегда|any|anytime)$/.test(s)) return 'always';
@@ -292,7 +293,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
     if (кнопка.closest('.hud-custom-preview-body')) return;
     const д = кнопка.dataset;
     if (д.hudPlace === 'gen') {
-      import('./place-gen.js?v=23.89.75').then(м => м.открытьПравилаМеста({ адрес: д.addr || '', время: д.time || '', дата: д.date || '' }))
+      import('./place-gen.js?v=23.89.76').then(м => м.открытьПравилаМеста({ адрес: д.addr || '', время: д.time || '', дата: д.date || '' }))
         .catch(err => console.error('[TavernOS HUD] окно правил места не загрузилось:', err));
     } else if (д.hudPlace === 'del') {
       // Два нажатия: первое спрашивает, второе забывает.

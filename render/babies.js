@@ -15,14 +15,14 @@
 // Оформление — детское: у девочек бантики и куколки, у мальчиков машинки и
 // динозавры (css/family.css).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.75';
-import { английский } from '../i18n.js?v=23.89.75';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.75';
-import { settings } from '../settings.js?v=23.89.75';
-import { роды, деньРодов, деньРожденияМалыша, поправитьДатуРодов, дм, спорВозраста, забытьСпорВозраста } from './conception.js?v=23.89.75';
-import { часовМежду } from './fertility.js?v=23.89.75';
-import { buildCharacterHTML } from './character.js?v=23.89.75';
-import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.89.75';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.76';
+import { английский } from '../i18n.js?v=23.89.76';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.76';
+import { settings } from '../settings.js?v=23.89.76';
+import { роды, деньРодов, деньРожденияМалыша, поправитьДатуРодов, дм, спорВозраста, забытьСпорВозраста } from './conception.js?v=23.89.76';
+import { часовМежду } from './fertility.js?v=23.89.76';
+import { buildCharacterHTML } from './character.js?v=23.89.76';
+import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.89.76';
 
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const текст = (о, к) => снятьЗаглушки(flattenFieldValue(о && о[к]));
