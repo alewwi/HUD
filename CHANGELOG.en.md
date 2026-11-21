@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.79 — 2026-11-21
+
+### Fixed
+- **Chapel windows and the key rack without an empty cell.** In the "Stained glass" view of Faith and the "Keys" view of Household the cards sit three to a row. When the last row had fewer than three, an empty grey patch was left beside them. Now the last card stretches to the end of the row: a single one takes the full width, a second one spans two columns. On a narrow card everything stays in one column.
+
 ## 23.89.78 — 2026-11-21
 
 ### Fixed

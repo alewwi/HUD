@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.78**:
+The latest version is **23.89.79**:
 
+- In the chapel windows and on the key rack the last card stretches to the end of the row, with no empty grey cell.
 - Charter texts in the Casket read as separate sentences; in the medieval sample Mark's wound shows its danger and the illness with its humour.
 - Tabs scroll with the mouse wheel on PC: left and right over the tab strip, as before below it.
 - The HUD token limit goes up to 131072 instead of 32768; the cross in the "Place rules and power" window no longer sticks out of the pill.

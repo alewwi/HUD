@@ -313,6 +313,16 @@
 .hud-mv .wl-tally header .stage { margin: 0 0 0 auto; color: #fff6e0; border-color: #e5b574b3; flex: none; max-width: 48%; }
 .hud-mv .wl-tally .stage[data-final=true] { background: #822e38; color: #fff2d5; border: 3px double #ffcd96; }
 
+/* Неполный последний ряд на доске (витраж, связка ключей): последняя запись занимает
+   свободное место, иначе рядом оставался пустой кусок доски. Только в три колонки —
+   в одну колонку span создал бы лишнюю. */
+@container (min-width: 431px) {
+  .hud-mv .wl-glass .chapel:not(.wl-n1, .wl-n2) > article:last-child:nth-child(3n+1),
+  .hud-mv .wl-keys .keyrack:not(.wl-n1, .wl-n2) > .key-tag:last-child:nth-child(3n+1) { grid-column: 1 / -1; }
+  .hud-mv .wl-glass .chapel:not(.wl-n1, .wl-n2) > article:last-child:nth-child(3n+2),
+  .hud-mv .wl-keys .keyrack:not(.wl-n1, .wl-n2) > .key-tag:last-child:nth-child(3n+2) { grid-column: span 2; }
+}
+
 /* --- Узкие карточки (телефон ~215px) --------------------------------------------------------- */
 @container (max-width: 430px) {
   .hud-mv .wl-bell .billboard { grid-template-columns: minmax(0, 1fr); }
