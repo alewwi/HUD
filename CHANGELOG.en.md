@@ -4,6 +4,23 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.73 — 2026-11-21
+
+### Added
+- **Views for the medieval World blocks.** Place rules, Honour, Faith, Household and Courts each get two views in Customization → World blocks; the new one is the default and "As before" stays:
+  - Place rules — "Town plan" (a map with marked spots; tapping a marker or a spot shows its rule) and "Crier's bell" (notices on a board, the rest under "Other rules");
+  - Honour — "Roll of guild arms" (a banner for each circle) and "Chorus of witnesses" (what is said about each person);
+  - Faith — "Chapel windows" (stained glass and the witchcraft accusation ladder) and "Vigil flame" (candles and a book of intentions);
+  - Household — "Housekeeper's keys" (tags with loyalty) and "Manor cross-section" (a room for each post: storeroom, stable, kitchen, armoury…);
+  - Courts — "Scales of the court" and "Tally of the suit"; an ordeal or a duel is still an order, a verdict is a ruling of the court.
+  The sheets have the same background as the other medieval views: as transparent as the theme's blocks and blurred; entries on dark boards are a little denser.
+- **Short first.** In the new views and in the other medieval and enchanted World views (Crier's scroll, Armorial, Chronicle panels, Board of decrees, Hearth gossip, Fair pennants and their enchanted twins) an entry shows the essentials, and the details open smoothly on tap and close just as smoothly. Long gossip shows two lines first. Tavern board notices start folded and open smoothly too.
+- Tapping these blocks in the Customization sample leads to their view setting, from the new view and from the old card alike.
+
+### Fixed
+- **Holiday, fair and preparation cards** above the tabs are as wide as the "Where it may lead" twist card and no longer touch the theme frame.
+- Honour: "ценят" (valued) counts as respect.
+
 ## 23.89.72 — 2026-11-20
 
 ### Fixed

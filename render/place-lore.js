@@ -19,11 +19,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.72';
-import { settings } from '../settings.js?v=23.89.72';
-import { старина } from '../era.js?v=23.89.72';
-import { примерМета } from '../sample-meta.js?v=23.89.72';
-import { связьПраздников } from './holiday-lore.js?v=23.89.72';
+import { escapeHtml } from '../utils.js?v=23.89.73';
+import { settings } from '../settings.js?v=23.89.73';
+import { старина } from '../era.js?v=23.89.73';
+import { примерМета } from '../sample-meta.js?v=23.89.73';
+import { связьПраздников } from './holiday-lore.js?v=23.89.73';
+import { видБлока } from './views.js?v=23.89.73';
+import { видЖизни, естьВидЖизни } from './world-life-views.js?v=23.89.73';
 
 const КЛЮЧ = 'tavernosHudPlaces';
 export const местоВкл = () => старина() && settings.placeLore !== false;
@@ -240,6 +242,15 @@ export function блокМеста(data) {
   }
   const { сейчас, прочие } = правилаСейчас(места, { адрес, время, дата });
   const несколько = места.length > 1;
+  // Вид «План слободы» или «Колокол глашатая» (render/world-life-views.js); «Как было» — карточка ниже.
+  const вид = видБлока('placeRulesView');
+  if (естьВидЖизни('place', вид)) {
+    const правило = (п, сейчасЛи) => ({ где: п.где || п.место, текст: п.текст, когда: срокСлово(п), кого: п.кого, иначе: п.иначе, сейчас: сейчасЛи });
+    const власть = места.flatMap(м => властьПоДержателям(м.власть)).map(г => ({ кто: г.кто, области: г.сферы.map(в => в.подпись || СЛОВО_СФЕРЫ[в.сфера]).join(' · '), заметка: г.сферы.filter(в => в.заметка).map(в => в.заметка).join(' · ') }));
+    const кнопки = `<div class="wl-foot">${места.map(м => `<span class="wl-place-name">${э(м.имя)}<button type="button" class="hud-plc-del" data-hud-place="del" data-id="${э(м.id)}" title="Забыть это место" aria-label="Забыть это место">✕</button></span>`).join('')}${кнопка('✨ Другое место или заново')}</div>`;
+    const html = видЖизни('place', вид, { места, правила: [...сейчас.map(п => правило(п, true)), ...прочие.map(п => правило(п, false))], власть, кнопки });
+    if (html) return html;
+  }
   return `<div class="hud-world-section hud-plc"><div class="hud-world-title">🏰 Правила места</div>`
     + `<div class="hud-v hud-plc-card">`
     + `<div class="hud-plc-head"><span class="hud-plc-names">${места.map(м => `<span class="hud-plc-name">${э(м.имя)}<button type="button" class="hud-plc-del" data-hud-place="del" data-id="${э(м.id)}" title="Забыть это место" aria-label="Забыть это место">✕</button></span>`).join('')}</span></div>`
@@ -281,7 +292,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
     if (кнопка.closest('.hud-custom-preview-body')) return;
     const д = кнопка.dataset;
     if (д.hudPlace === 'gen') {
-      import('./place-gen.js?v=23.89.72').then(м => м.открытьПравилаМеста({ адрес: д.addr || '', время: д.time || '', дата: д.date || '' }))
+      import('./place-gen.js?v=23.89.73').then(м => м.открытьПравилаМеста({ адрес: д.addr || '', время: д.time || '', дата: д.date || '' }))
         .catch(err => console.error('[TavernOS HUD] окно правил места не загрузилось:', err));
     } else if (д.hudPlace === 'del') {
       // Два нажатия: первое спрашивает, второе забывает.

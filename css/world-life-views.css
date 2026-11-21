@@ -1,0 +1,476 @@
+/* TavernOS HUD © 2026 alewwi — AGPL-3.0.
+   Виды средневековых блоков вкладки «Мир» (render/world-life-views.js): Правила
+   места, Честь, Вера, Домочадцы, Суд и закон. Перенесено со стенда
+   tests/tools/world-life-stand. Всё внутри .hud-mv .hud-wl.
+   Фон — как у остальных средневековых видов (css/medieval-views.css): лист
+   прозрачный ровно настолько, насколько прозрачны плашки темы
+   (--hud-card-inner-alpha → --mv-alpha), и размывает то, что под ним
+   (--hud-blur-intensity). Рисунки, ткань знамён и листки объявлений — плотные.
+   Движение — как у всего старинного: на паузе, под мышью или после касания (fx-live). */
+
+/* --- Токены ------------------------------------------------------------------------------
+   --sheet — плотный цвет листа: им заливаются рисунки и с ним смешиваются линии и подписи.
+   --ground — сам фон листа: полупрозрачный пергамент из medieval-views.css (--vellum), как у .m-sheet.
+   --plate — сколько остаётся от тёмных по замыслу досок (колокол, витраж, ключи, бирки):
+   на светлых темах не ниже 80%, иначе светлые буквы на них тонут. */
+.hud-mv.hud-wl { color-scheme: dark; --sheet: color-mix(in srgb, #2f2522 86%, var(--hud-accent)); --ground: var(--vellum); --plate: var(--mv-alpha);
+  --blur: blur(var(--hud-blur-intensity, 8px));
+  /* Записи на тёмной доске (витраж, ключи, комнаты усадьбы) плотнее самой доски: полупрозрачный
+     светлый лист поверх тёмного выходил мутно-серым. Доска остаётся прозрачной и с размытием. */
+  --lift: color-mix(in srgb, var(--sheet) min(100%, calc(var(--mv-alpha) + 30%)), transparent); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-mv.hud-wl { color-scheme: light; --sheet: color-mix(in srgb, #f9ebd1 91%, var(--hud-accent)); --plate: var(--mv-dark-alpha); }
+.hud-wl-section.hud-world-section > .hud-world-title { margin-bottom: 6px; }
+
+.hud-mv .wl-sheet { --tone: var(--hud-accent); --line: color-mix(in srgb, var(--ink) 31%, var(--sheet));
+  --wash: color-mix(in srgb, var(--tone) 17%, var(--sheet)); --metal: color-mix(in srgb, var(--tone) 53%, var(--sheet));
+  --detail: color-mix(in srgb, var(--ink) 87%, var(--sheet)); --gutter: clamp(11px, 4cqi, 25px);
+  --good: light-dark(#10513e, #a3edc9); --caution: light-dark(#733507, #ffca85); --danger: light-dark(#802833, #ffb1af); --blue: light-dark(#204b70, #a9dbff);
+  container-type: inline-size; position: relative; isolation: isolate; width: 100%; box-sizing: border-box;
+  color: var(--ink); background: var(--ground); border: 1px solid var(--line); box-shadow: 0 2px 3px #0000001a, 0 8px 20px #00000014;
+  -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur);
+  overflow-wrap: anywhere; font: 15px/1.5 "Segoe UI", Arial, sans-serif; text-align: start; }
+.hud-mv .wl-sheet *, .hud-mv .wl-sheet *::before, .hud-mv .wl-sheet *::after { box-sizing: border-box; }
+/* Таверна и карточка красят заголовки, абзацы, цитаты и кнопки по-своему — внутри вида всё своё. */
+.hud-mv .wl-sheet :is(h3, h4, p, dl, dd, blockquote, figure) { margin: 0; padding: 0; border: 0; background: none; color: inherit; text-shadow: none; }
+.hud-mv .wl-sheet :is(h3, h4, blockquote) { font-family: Georgia, "Times New Roman", serif; }
+.hud-mv .wl-sheet svg { display: block; max-width: 100%; height: auto; overflow: visible; }
+.hud-mv .wl-sheet h3 { font-size: clamp(19px, 5cqi, 32px); line-height: 1.14; letter-spacing: -.025em; font-weight: 500; }
+.hud-mv .wl-sheet h4 { font-size: clamp(16px, 3.8cqi, 23px); line-height: 1.22; font-weight: 600; }
+.hud-mv .wl-sheet p { margin-top: 5px; }
+.hud-mv .wl-sheet :is(small, dt) { font-size: 12px; line-height: 1.45; }
+.hud-mv .wl-sheet small { display: block; color: var(--detail); font-weight: 600; }
+.hud-mv .wl-sheet h3 + :is(strong, em) { display: block; margin-top: 4px; font-size: 14px; }
+.hud-mv .wl-sheet [hidden] { display: none !important; }
+.hud-mv .wl-sheet :where(button, summary) { cursor: pointer; }
+.hud-mv .wl-sheet button { font: inherit; margin: 0; }
+.hud-mv .wl-sheet summary { font-weight: 650; font-size: 14px; }
+.hud-mv .wl-sheet .authority { padding: 14px var(--gutter) 16px; }
+.hud-mv .wl-sheet .authority h4 { font-size: 17px; margin-bottom: 8px; }
+.hud-mv .wl-sheet .authority dl { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(160px, 100%), 1fr)); gap: 12px; }
+.hud-mv .wl-sheet .authority dt { font-size: 14px; font-weight: 700; }
+.hud-mv .wl-sheet .authority dd { font-size: 13px; line-height: 1.45; }
+.hud-mv .wl-sheet .authority dd b { font-weight: 600; }
+/* Кнопки места: забыть место и узнать заново — как у прежней карточки. */
+.hud-mv .wl-sheet .wl-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; padding: 9px var(--gutter) 12px; border-top: 1px dashed var(--line); font-size: 12px; }
+.hud-mv .wl-sheet .wl-place-name { display: inline-flex; align-items: center; gap: 4px; padding: 2px 4px 2px 8px; border: 1px solid var(--line); border-radius: 4px; font-weight: 600; }
+.hud-mv .wl-sheet .wl-foot :is(.hud-plc-del, .hud-plc-gen) { padding: 2px 6px; border: 1px solid var(--line); border-radius: 4px; background: color-mix(in srgb, var(--sheet) 70%, transparent); color: inherit; font-size: 12px; line-height: 1.4; }
+.hud-mv .wl-sheet .wl-foot .hud-plc-del { border: 0; background: none; padding: 0 3px; opacity: .8; }
+.hud-mv .wl-sheet .wl-foot .hud-plc-gen { margin-inline-start: auto; }
+
+/* --- Краткая запись и плавное раскрытие ---------------------------------------------------
+   Сначала главное; подробности (.wl-more) раскрываются по нажатию сеткой 0fr → 1fr и так же
+   плавно сворачиваются. Скрытое не ловит фокус (visibility после сворачивания). Правила общие
+   для всех видов старины во вкладке «Мир»: и новых, и render/medieval-views.js. */
+.hud-mv [data-wl-item] { cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.hud-mv [data-wl-item]:focus-visible { outline: 2px solid color-mix(in srgb, currentColor 55%, transparent); outline-offset: 2px; }
+.hud-mv .wl-more { display: grid; grid-template-rows: 0fr; opacity: 0; visibility: hidden; margin: 0; padding: 0; border: 0; }
+.hud-mv .wl-more-in { min-height: 0; overflow: hidden; }
+.hud-mv [data-wl-item][aria-expanded="true"] .wl-more { grid-template-rows: 1fr; opacity: 1; visibility: visible; }
+.hud-mv .wl-chev { display: block; flex: none; width: 8px; height: 8px; margin: 7px auto 1px; border: solid currentColor; border-width: 0 1.6px 1.6px 0; transform: rotate(45deg); opacity: .5; }
+.hud-mv [data-wl-item][aria-expanded="true"] .wl-chev { transform: translateY(3px) rotate(-135deg); }
+.hud-mv .wl-sheet .authority dl > div { align-content: start; }
+.hud-mv [data-wl-item] .wl-chev { color: inherit; }
+/* Длинные пересуды и шёпот духов: сначала две строки с затуханием, по нажатию — весь текст. */
+.hud-mv blockquote[data-clamp] > p { overflow: hidden; max-height: calc(1.5em * 2); -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
+.hud-mv blockquote[data-clamp][aria-expanded="true"] > p { max-height: none; -webkit-mask-image: none; mask-image: none; }
+
+
+/* --- План слободы: легенда и метки показывают одну запись ---------------------------------- */
+.hud-mv .wl-atlas { border-top: 4px solid #28776c; border-radius: 3px; }
+.hud-mv .wl-atlas .atlas-heading { padding: 12px var(--gutter) 4px; background: linear-gradient(100deg, #dfedc9, #b2dcdc); color: #173d40; }
+.hud-mv .wl-atlas .atlas-heading small { color: #305958; text-transform: uppercase; font-size: 11px; letter-spacing: .14em; }
+.hud-mv .wl-atlas .atlas-heading h3 { font-size: clamp(23px, 6.3cqi, 39px); }
+.hud-mv .wl-atlas .map-art { position: relative; color: #314d42; background: linear-gradient(#cae3d2, #dceac4 38%, #bfc98d 72%, #ded5a0); --sheet: #fff2cd; --wash: #7fa877; --metal: #e6a84c; }
+.hud-mv .wl-atlas .map-art svg { width: 100%; stroke-width: 1; }
+.hud-mv .wl-atlas .map-art .fine { color: #7c7941; stroke-width: .8; }
+.hud-mv .wl-atlas .map-art .water { color: #ecf4d9; stroke-width: 1; }
+.hud-mv .wl-atlas .loc-0 { --loc: #994637; } .hud-mv .wl-atlas .loc-1 { --loc: #245e86; } .hud-mv .wl-atlas .loc-2 { --loc: #30683d; }
+.hud-mv .wl-atlas .loc-3 { --loc: #8a5a1c; } .hud-mv .wl-atlas .loc-4 { --loc: #6b4a8a; } .hud-mv .wl-atlas .loc-5 { --loc: #2f6f73; }
+.hud-mv .wl-atlas .map-dot { position: absolute; display: grid; place-items: center; transform: translate(-50%, -50%); border: 2px solid #fff3cf;
+  background: var(--loc); color: #fff; width: clamp(22px, 5cqi, 30px); height: clamp(22px, 5cqi, 30px); padding: 0; border-radius: 50%; box-shadow: 0 2px 4px #25362575;
+  font: 600 12px/1 Georgia, serif; }
+.hud-mv .wl-atlas .map-dot.loc-0 { left: 37%; top: 61%; } .hud-mv .wl-atlas .map-dot.loc-1 { left: 63%; top: 76%; } .hud-mv .wl-atlas .map-dot.loc-2 { left: 80%; top: 33%; }
+.hud-mv .wl-atlas .map-dot.loc-3 { left: 16%; top: 52%; } .hud-mv .wl-atlas .map-dot.loc-4 { left: 50%; top: 40%; } .hud-mv .wl-atlas .map-dot.loc-5 { left: 91%; top: 74%; }
+.hud-mv .wl-atlas .map-dot[aria-pressed=true] { outline: 2px solid #26352f; outline-offset: 1px; }
+.hud-mv .wl-atlas .map-dot:focus-visible { outline: 3px solid #161818; outline-offset: 4px; }
+.hud-mv .wl-atlas .map-key { display: flex; flex-wrap: wrap; gap: 5px; padding: 8px 10px; background: light-dark(color-mix(in srgb, #e1e9d5 var(--plate), transparent), color-mix(in srgb, #223a36 var(--plate), transparent)); border-block: 1px solid var(--line); }
+.hud-mv .wl-atlas .map-tab { display: flex; align-items: center; gap: 6px; text-align: start; padding: 5px 7px; background: color-mix(in srgb, var(--sheet) 80%, transparent); color: var(--ink); border: 1px solid var(--line); border-radius: 4px; font-size: 12px; font-weight: 600; }
+.hud-mv .wl-atlas .map-tab[aria-pressed=true] { background: var(--loc); color: #fff; border-color: var(--loc); }
+.hud-mv .wl-atlas .map-tab i { display: grid; place-items: center; width: 17px; height: 17px; flex: none; color: #fff; background: var(--loc); border: 1px solid #ffffff94; border-radius: 100%; font: normal 600 12px Georgia, serif; }
+.hud-mv .wl-atlas .map-tab.is-now i { box-shadow: 0 0 0 2px color-mix(in srgb, var(--loc) 35%, transparent); }
+.hud-mv .wl-atlas .map-record { margin: 14px var(--gutter); padding-left: 13px; border-left: 4px solid var(--loc); }
+.hud-mv .wl-atlas .map-record small { color: var(--blue); }
+.hud-mv .wl-atlas .map-now { color: var(--good); }
+.hud-mv .wl-atlas .map-record dl { display: flex; flex-wrap: wrap; gap: 4px 22px; margin: 8px 0; font-size: 14px; }
+.hud-mv .wl-atlas .map-record dt { font-weight: 650; font-size: 14px; }
+.hud-mv .wl-atlas .map-risk { padding-top: 6px; border-top: 1px dotted var(--line); font-size: 14px; }
+.hud-mv .wl-atlas .map-risk b { display: inline-block; color: var(--danger); margin-right: 3px; }
+.hud-mv .wl-atlas .map-empty { margin: 12px var(--gutter); font-style: italic; }
+.hud-mv .wl-atlas .authority { border-top: 1px dashed var(--line); background: color-mix(in srgb, #608c70 12%, transparent); }
+
+/* --- Колокол глашатая: листки на крашеной доске ------------------------------------------------ */
+.hud-mv .wl-bell { --board: color-mix(in srgb, #742f38 89%, var(--hud-accent)); border: 5px solid color-mix(in srgb, #523337 var(--plate), transparent); border-radius: 3px; color: #ffebcd;
+  background: repeating-linear-gradient(0deg, #ffffff03 0 2px, #411a2815 2px 4px), color-mix(in srgb, var(--board) var(--plate), transparent); }
+.hud-mv .wl-bell .belfry { display: grid; grid-template-columns: minmax(0, 1fr) 33%; align-items: center; margin: 9px 10px 0; padding: 12px; border: 3px double #e9b573;
+  background: linear-gradient(110deg, #521a2c, #823e36); color: #ffe6b2; --sheet: #762d34; --metal: #eac16a; --wash: #af814b; }
+.hud-mv .wl-bell .belfry small { color: #ffe1ab; text-transform: uppercase; font-size: 11px; letter-spacing: .15em; }
+.hud-mv .wl-bell .belfry h3 { color: #fff3d9; font-size: clamp(21px, 5.7cqi, 38px); font-variant: small-caps; line-height: 1.03; margin-top: 5px; }
+.hud-mv .wl-bell .belfry svg { width: 100%; stroke-width: 1.6; }
+.hud-mv .wl-bell .billboard { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 11px; align-items: start; padding: 15px 11px 8px; }
+.hud-mv .wl-bell .billboard.wl-n1 { grid-template-columns: minmax(0, 1fr); }
+.hud-mv .wl-bell .broadside { position: relative; color: #39251b; background: #fae9bf; border: 1px solid #b4945b; padding: 20px 12px 14px; text-align: center;
+  box-shadow: inset 0 0 0 3px #fae9bf, inset 0 0 0 4px #bc9e68, 2px 3px 0 #36182169; }
+.hud-mv .wl-bell .broadside::before { content: ""; position: absolute; top: 5px; left: calc(50% - 3px); width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(at 35% 32%, #ffe7ae, #b18347 52%, #624435 78%); box-shadow: 0 1px 2px #4e351b; }
+.hud-mv .wl-bell .billboard .broadside:nth-child(2) { margin-top: 12px; background: #f5dcc0; border-color: #b68161; box-shadow: inset 0 0 0 3px #f5dcc0, inset 0 0 0 4px #bc9e68, 2px 3px 0 #36182169; }
+.hud-mv .wl-bell .broadside small { color: #674329; font-size: 11px; text-transform: uppercase; letter-spacing: .04em; }
+.hud-mv .wl-bell .broadside h4 { margin: 7px 0; font-size: clamp(18px, 4.5cqi, 29px); line-height: 1.06; hyphens: auto; }
+.hud-mv .wl-bell .bell-time { color: #7c252c; font-weight: 750; font-size: 13px; }
+.hud-mv .wl-bell .broadside footer { margin-top: 10px; border-top: 3px double #bd9870; padding-top: 6px; font: 14px/1.4 Georgia, serif; }
+.hud-mv .wl-bell .broadside footer b { display: block; color: #792c2d; font: 700 12px/1.6 "Segoe UI", sans-serif; }
+.hud-mv .wl-bell .bell-quiet { margin: 14px 12px; color: #ffe6c2; font-style: italic; }
+.hud-mv .wl-bell .reserve { margin: 4px 12px 12px; color: #ffefd5; }
+.hud-mv .wl-bell .reserve summary { display: flex; align-items: center; gap: 7px; padding: 5px 1px; list-style: none; }
+.hud-mv .wl-bell .reserve summary::-webkit-details-marker { display: none; }
+.hud-mv .wl-bell .reserve summary::before { content: ""; flex: none; width: 7px; height: 7px; border: solid currentColor; border-width: 1.5px 1.5px 0 0; transform: rotate(45deg); }
+.hud-mv .wl-bell .reserve[open] summary::before { transform: rotate(135deg); }
+.hud-mv .wl-bell .reserve .broadside { margin-top: 6px; }
+.hud-mv .wl-bell .authority { background: color-mix(in srgb, #3f2427 var(--plate), transparent); border-top: 2px solid #c99461; }
+.hud-mv .wl-bell .authority h4, .hud-mv .wl-bell .authority dt { color: #ffe0a4; }
+.hud-mv .wl-bell .authority dd { color: #fff0da; }
+.hud-mv .wl-bell .wl-foot { border-top-color: #c9946166; color: #ffefd5; --line: #e9b57380; --sheet: #3f2427; }
+
+/* --- Гербовник общин: знамёна на общей латунной перекладине -------------------------------------
+   Цвет знамени — среды, а мнение — подписанная строка под ним. */
+.hud-mv .wl-arms, .hud-mv .wl-voices, .hud-mv .wl-house, .hud-mv .wl-tally { border: 0; background: none; box-shadow: none; -webkit-backdrop-filter: none; backdrop-filter: none; }
+.hud-mv .wl-arms .standards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; padding: 4px 3px 0;
+  background: linear-gradient(#735439, #e7c994 43%, #8e5937 70%, #483127) top / 100% 7px no-repeat; }
+.hud-mv .wl-arms .standards.wl-n1 { grid-template-columns: minmax(0, 1fr); }
+.hud-mv .wl-arms .standards.wl-n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hud-mv .wl-arms .standard { min-width: 0; display: flex; flex-direction: column; text-align: center; }
+.hud-mv .wl-arms .standard header::before { content: ""; display: block; height: 5px; margin: -10px 0 5px; border-inline: 5px double #d8b779; }
+@container (min-width: 431px) { .hud-mv .wl-arms .standard { display: grid; grid-row: span 2; grid-template-rows: subgrid; row-gap: 0; } }
+.hud-mv .wl-arms .livery-0 { --fabric: #176752; --stripe: #5da477; }
+.hud-mv .wl-arms .livery-1 { --fabric: #762c4b; --stripe: #a3526c; }
+.hud-mv .wl-arms .livery-2 { --fabric: #2f5380; --stripe: #648aac; }
+.hud-mv .wl-arms .standard header { position: relative; padding: 10px 8px 24px; flex: 1; color: #fff7df;
+  background: linear-gradient(90deg, #ffffff16, transparent 15% 82%, #0002), repeating-linear-gradient(50deg, transparent 0 4px, #ffffff07 4px 5px), var(--fabric);
+  border-inline: 4px double #ebcd89; clip-path: polygon(0 0, 100% 0, 100% calc(100% - 14px), 50% 100%, 0 calc(100% - 14px)); }
+.hud-mv .wl-arms .standard header h3 { font-size: clamp(16px, 3.6cqi, 23px); hyphens: auto; color: #fff7df; }
+.hud-mv .wl-arms .embroidery { position: relative; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 4px; --sheet: var(--fabric); --wash: var(--stripe); color: #f6d584; }
+.hud-mv .wl-arms .embroidery svg { width: 65px; margin: 0 auto 3px; stroke-width: 1.7; }
+.hud-mv .wl-arms .embroidery::before, .hud-mv .wl-arms .embroidery::after { content: ""; height: 10px; border-block: 1px solid #e9cc8694;
+  background: repeating-linear-gradient(45deg, transparent 0 4px, #ddbd745e 4px 5px, transparent 5px 8px); }
+.hud-mv .wl-arms .blazon-text { padding: 10px 9px 14px; background: var(--ground); border: 1px solid var(--line); border-top: 0; flex: 5; text-align: start;
+  -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
+.hud-mv .wl-arms .judgement { display: block; border-left: 3px solid currentColor; padding-left: 7px; margin: 7px 0; font: 700 17px/1.2 Georgia, serif; color: var(--caution); }
+.hud-mv .wl-sheet .judgement.support, .hud-mv .wl-sheet .support .speaker { color: var(--good); }
+.hud-mv .wl-sheet .judgement.doubt, .hud-mv .wl-sheet .doubt .speaker { color: var(--danger); }
+.hud-mv .wl-sheet .neutral .speaker { color: var(--caution); }
+.hud-mv .wl-arms .blazon-text p { font-size: 14px; }
+
+/* --- Хор свидетелей --------------------------------------------------------------------------- */
+.hud-mv .wl-voices .testimony { display: grid; gap: 12px; }
+.hud-mv .wl-voices .testimony section { background: var(--ground); padding: 12px 15px; border-radius: 16px; border: 1px solid var(--line);
+  -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
+.hud-mv .wl-voices .testimony h3 { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; padding: 0 0 7px; border-bottom: 1px solid var(--line); }
+.hud-mv .wl-voices .testimony h3 small { font: 600 12px/1.4 "Segoe UI", sans-serif; }
+.hud-mv .wl-voices .testimony figure { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 12px; align-items: start; padding-top: 13px; }
+.hud-mv .wl-voices .speaker { display: grid; align-items: end; border-radius: 50% 50% 5px 5px; background: color-mix(in srgb, currentColor 12%, var(--sheet)); --wash: var(--sheet); }
+.hud-mv .wl-voices .speaker svg { width: 43px; height: auto; }
+.hud-mv .wl-voices .testimony figcaption { font-weight: 750; font-size: 13px; }
+.hud-mv .wl-voices .testimony blockquote { display: inline-block; position: relative; margin: 4px 0; padding: 7px 12px; border-radius: 0 16px 16px 16px;
+  background: light-dark(#d0ebdc, #184b43); color: light-dark(#154e39, #d2ffe8); font: italic 19px/1.23 Georgia, serif; }
+.hud-mv .wl-voices .testimony .doubt { grid-template-columns: minmax(0, 1fr) 44px; }
+.hud-mv .wl-voices .testimony .doubt .speaker { grid-column: 2; grid-row: 1; }
+.hud-mv .wl-voices .testimony .doubt > div:last-child { text-align: right; }
+.hud-mv .wl-voices .doubt blockquote { border-radius: 16px 0 16px 16px; background: light-dark(#f2d5d1, #5c3247); color: light-dark(#722834, #ffe2e1); }
+.hud-mv .wl-voices .neutral blockquote { background: light-dark(#f1e1c4, #4d3a1f); color: light-dark(#6a3b0b, #ffe7c2); }
+.hud-mv .wl-voices .testimony p { margin: 0; font-size: 14px; }
+
+/* --- Окна часовни: цветное стекло над каменным подоконником --------------------------------------- */
+.hud-mv .wl-glass { background: color-mix(in srgb, color-mix(in srgb, #243047 86%, var(--hud-accent)) var(--plate), transparent); padding: 9px; border: 4px double #ad9464; }
+.hud-mv .wl-glass .rose-wall { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; padding: 9px 6px 0; border-bottom: 5px double #b29b75;
+  background: repeating-linear-gradient(0deg, #ffffff07 0 1px, transparent 1px 22px), color-mix(in srgb, #232d42 var(--plate), transparent); }
+.hud-mv .wl-glass .rose-wall.wl-n1 { grid-template-columns: minmax(0, 105px); justify-content: center; }
+.hud-mv .wl-glass .rose-wall.wl-n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hud-mv .wl-sheet .glass-0 { --jewel: #32b4aa; --foil: #f2ca6e; } .hud-mv .wl-sheet .glass-1 { --jewel: #668cd6; --foil: #f2b978; } .hud-mv .wl-sheet .glass-2 { --jewel: #d17bb9; --foil: #ffc87b; }
+.hud-mv .wl-glass .lancet { color: #1b2432; --wash: var(--jewel); --sheet: #dbba85; --metal: var(--foil); background: radial-gradient(ellipse at 50% 65%, color-mix(in srgb, var(--jewel) 64%, #182133), #24283c 72%); border-radius: 60% 60% 0 0; }
+.hud-mv .wl-glass .lancet svg { width: min(100%, 105px); margin: auto; stroke-width: 1.5; }
+.hud-mv .wl-glass .chapel { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 3px; }
+.hud-mv .wl-glass .chapel.wl-n1 { grid-template-columns: minmax(0, 1fr); }
+.hud-mv .wl-glass .chapel.wl-n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hud-mv .wl-glass .chapel article { background: var(--lift); padding: 0 10px 15px; }
+.hud-mv .wl-glass .inlay { height: 5px; margin: 0 -10px 11px; background: var(--jewel); }
+.hud-mv .wl-glass .chapel h3 { font-size: clamp(17px, 3.2cqi, 22px); margin: 5px 0; hyphens: auto; }
+.hud-mv .wl-glass .chapel article > strong { display: block; color: var(--blue); font-size: 14px; }
+.hud-mv .wl-sheet :is(.chapel, .vigil) p { font-size: 14px; }
+.hud-mv .wl-sheet .rumour { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; color: var(--danger); font-size: 14px; }
+.hud-mv .wl-sheet .rumour-scale { display: inline-flex; gap: 3px; }
+.hud-mv .wl-sheet .rumour-scale i { width: 8px; height: 8px; border: 1px solid currentColor; transform: rotate(45deg) scale(.8); }
+.hud-mv .wl-sheet .rumour-scale .past { background: color-mix(in srgb, currentColor 40%, transparent); }
+.hud-mv .wl-sheet .rumour-scale .now { background: currentColor; }
+
+/* --- Огонь бдения: ночной алтарь и книга намерений ----------------------------------------------- */
+.hud-mv .wl-wax { border: 1px solid #84654d; border-radius: 46% 46% 6px 6px / 22px 22px 6px 6px; overflow: hidden; color: #f7ebdc;
+  background: color-mix(in srgb, color-mix(in srgb, #281e36 88%, var(--hud-accent)) var(--plate), transparent); }
+.hud-mv .wl-wax .altar { position: relative; isolation: isolate; display: flex; justify-content: center; align-items: flex-end; gap: 9%; padding: 14px 10% 0; border-bottom: 7px ridge #ac7953; color: #ffdc8f;
+  --metal: #f6af46; --sheet: #ffe1a3; --wash: #b5723f; background: radial-gradient(ellipse at 50% 108%, #8a472a 0, #4c3541 45%, transparent 78%); }
+.hud-mv .wl-wax .altar::before { content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; opacity: .7;
+  background: radial-gradient(circle at 21% 24%, #eec982 0 1px, transparent 1.8px) 0 0 / 69px 38px, radial-gradient(circle at 43% 42%, #c58a6e 0 .8px, transparent 1.6px) 0 0 / 59px 51px; }
+.hud-mv .wl-wax .altar svg { width: 18%; max-width: 66px; stroke-width: 1.1; filter: drop-shadow(0 0 7px #f8ad443d); }
+.hud-mv .wl-wax .altar svg:first-child:not(:only-child) { transform: scale(.87); transform-origin: center bottom; }
+.hud-mv .wl-wax .altar svg:nth-child(3) { transform: scale(.74); transform-origin: center bottom; }
+.hud-mv .wl-wax .vigil-notes { padding: 0 var(--gutter); }
+.hud-mv .wl-wax .intention { display: grid; grid-template-columns: minmax(0, 35%) minmax(0, 1fr); gap: 15px; padding: 14px 0; }
+.hud-mv .wl-wax .intention + .intention { border-top: 1px dotted #b19280; }
+.hud-mv .wl-wax .intention small { color: #e4c5a0; font-size: 12px; }
+.hud-mv .wl-wax .intention h3 { color: #fff0d7; font-size: clamp(18px, 3.6cqi, 24px); margin-top: 3px; }
+.hud-mv .wl-wax .intention :is(em, i) { display: inline-block; color: #ffcd88; font: italic 17px/1.35 Georgia, serif; }
+.hud-mv .wl-wax .intention .rumour { color: #ffabb2; }
+
+/* --- Связка ключницы: бирки на крючках, верность — отдельной эмалью ----------------------------------- */
+.hud-mv .wl-keys { border: 4px solid color-mix(in srgb, #594535 var(--plate), transparent); padding: 12px 7px; box-shadow: inset 0 0 12px #29190f80;
+  background: repeating-linear-gradient(6deg, #ffffff07 0 1px, transparent 1px 12px), color-mix(in srgb, color-mix(in srgb, #51392f 88%, var(--hud-accent)) var(--plate), transparent); }
+.hud-mv .wl-keys .keyrack { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px 7px; }
+.hud-mv .wl-keys .keyrack.wl-n1 { grid-template-columns: minmax(0, min(100%, 260px)); justify-content: center; }
+.hud-mv .wl-keys .keyrack.wl-n2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.hud-mv .wl-keys .key-tag { display: flex; flex-direction: column; align-items: stretch; min-width: 0; }
+.hud-mv .wl-keys .peg { position: relative; isolation: isolate; z-index: 1; --metal: #e6b667; --sheet: #724f38; --wash: #bc894e; color: #ffdda0; }
+.hud-mv .wl-keys .peg::before { content: ""; position: absolute; z-index: -1; inset: 0 -3.5px auto; height: 12px; border-block: 1px solid #442d21; background: linear-gradient(#ba8450, #7a553d 60%, #553424); }
+.hud-mv .wl-keys .peg::after { content: ""; position: absolute; z-index: -1; top: 6px; bottom: -10px; left: calc(50% - 1px); width: 2px; background: repeating-linear-gradient(45deg, #9d7346 0 1px, #d6b27a 1px 3px); }
+.hud-mv .wl-keys .peg svg { height: 65px; width: auto; margin: auto; stroke-width: 1.7; }
+.hud-mv .wl-keys .key-card { flex: 1; position: relative; display: flex; flex-direction: column; padding: 14px 10px; border-radius: 17px 17px 3px 3px; background: var(--lift); box-shadow: 1px 3px 4px #19100d7a; }
+.hud-mv .wl-keys .eyelet { width: 9px; height: 9px; margin: -8px auto 5px; border: 2px solid #b1874b; border-radius: 50%; background: #533a31; }
+.hud-mv .wl-keys .key-card h3 { font-size: clamp(18px, 4cqi, 22px); }
+.hud-mv .wl-keys .key-card p { flex: 1; margin-top: 9px; border-top: 1px dashed var(--line); padding-top: 8px; font-size: 14px; }
+.hud-mv .wl-sheet .high { --trust: var(--good); } .hud-mv .wl-sheet .middle { --trust: var(--caution); } .hud-mv .wl-sheet .low { --trust: var(--danger); } .hud-mv .wl-sheet .none { --trust: var(--detail); }
+.hud-mv .wl-keys .trust { margin-top: 9px; color: var(--trust); }
+.hud-mv .wl-keys .trust > span:first-child, .hud-mv .wl-keys .trust b small { font-size: 12px; font-weight: 650; color: inherit; }
+.hud-mv .wl-keys .trust b { display: block; font: 700 28px/1.1 Georgia, serif; }
+.hud-mv .wl-keys .trust b small { display: inline; }
+.hud-mv .wl-keys .trust > em { display: block; font: italic 15px/1.3 Georgia, serif; color: inherit; }
+.hud-mv .wl-keys .trust-bar { display: block; height: 6px; margin: 5px 0; border-radius: 5px; background: var(--wash); overflow: hidden; }
+.hud-mv .wl-keys .trust-bar > i { display: block; height: 100%; border-radius: inherit; background: var(--trust); }
+
+/* --- Разрез усадьбы: у каждой должности своя комната ------------------------------------------- */
+.hud-mv .wl-house .roof { height: clamp(25px, 8cqi, 49px);
+  background: repeating-linear-gradient(0deg, transparent 0 8px, #612f2c 8px 10px), repeating-linear-gradient(115deg, #a64a37 0 13px, #ce7860 13px 15px, #9d4f39 15px 24px);
+  clip-path: polygon(0 100%, 15% 11%, 68% 11%, 68% 0, 74% 0, 74% 11%, 85% 11%, 100% 100%); border-bottom: 6px solid #563f33; }
+.hud-mv .wl-house .manor { margin: 0 2%; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 5px; border: 5px solid color-mix(in srgb, #71513e var(--plate), transparent);
+  background: color-mix(in srgb, #71513e var(--plate), transparent); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
+.hud-mv .wl-house .manor.is-single { grid-template-columns: minmax(0, 1fr); }
+.hud-mv .wl-house .room { display: flex; flex-direction: column; min-width: 0; background: var(--lift); }
+.hud-mv .wl-house .chamber { display: grid; justify-items: stretch; background: #654a38; border-bottom: 2px solid #48372d; }
+.hud-mv .wl-house .chamber svg { width: 100%; height: auto; }
+.hud-mv .wl-house .chamber span { display: block; text-align: center; padding: 3px 8px; color: #ffebc4; font: 600 13px/1.4 Georgia, serif; letter-spacing: .035em; border-top: 1px solid #af8b5f; }
+@container (max-width: 390px) { .hud-mv .wl-house .manor { grid-template-columns: minmax(0, 1fr); } }
+.hud-mv .wl-house .occupant { flex: 1; display: flex; flex-direction: column; align-items: flex-start; padding: 10px 12px; }
+.hud-mv .wl-house .occupant h3 { font-size: clamp(19px, 4.4cqi, 23px); }
+.hud-mv .wl-house .occupant p { font-size: 14px; flex: 1; }
+.hud-mv .wl-house .trust-pin { display: inline-block; margin-top: 8px; border-bottom: 2px solid var(--trust); color: var(--trust); font-size: 12px; }
+
+/* --- Весы суда: один балдахин над списком дел ------------------------------------------------ */
+.hud-mv .wl-court { border: 3px double var(--line); }
+.hud-mv .wl-court .court-frieze { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 6px; padding: 0 4%; border-top: 4px double #d4ba85; border-bottom: 5px ridge #b49359;
+  background: repeating-linear-gradient(90deg, transparent 0 6%, #19233255 7%, transparent 9%), linear-gradient(100deg, #213b52, #385c72, #27394e);
+  color: #ffe4a5; --sheet: #274157; --wash: #d5af68; --metal: #be9145; }
+.hud-mv .wl-court .court-frieze svg { width: auto; height: clamp(54px, 14cqi, 78px); margin-block: -1px; stroke-width: 1.05; }
+.hud-mv .wl-court .court-frieze svg:nth-child(2) { width: auto; max-width: 55%; height: clamp(42px, 12cqi, 68px); margin-bottom: -2px; stroke-width: 1.65; }
+.hud-mv .wl-court .tribunal article { padding: 16px var(--gutter); }
+.hud-mv .wl-court .tribunal article + article { border-top: 3px double var(--line); }
+.hud-mv .wl-court .hearing { display: flex; flex-wrap: wrap-reverse; align-items: center; gap: 7px 14px; justify-content: space-between; }
+.hud-mv .wl-court .hearing h3 { order: -1; font-size: clamp(20px, 4.7cqi, 30px); }
+.hud-mv .wl-sheet :is(.hearing small, .stage) { display: inline-block; padding: 3px 7px; border: 1px solid currentColor; color: var(--blue); font-size: 12px; font-weight: 700; }
+.hud-mv .wl-court .decided .hearing small { color: var(--danger); border-style: double; border-width: 3px; }
+.hud-mv .wl-court .tribunal dl { margin: 10px 0; }
+.hud-mv .wl-court .tribunal dl > div { display: grid; grid-template-columns: minmax(65px, 22%) minmax(0, 1fr); gap: 8px; margin: 3px 0; }
+.hud-mv .wl-court .tribunal :is(dt, dd) { font-size: 14px; }
+.hud-mv .wl-court .tribunal dt { font-weight: 650; }
+.hud-mv .wl-court .ruling { padding: 10px 12px; border-left: 5px solid #39808f;
+  background: light-dark(color-mix(in srgb, #d7e9e6 85%, transparent), color-mix(in srgb, #203f48 85%, transparent)); color: light-dark(#193c41, #e1f5ed); }
+.hud-mv .wl-court .decided .ruling { border-color: #ac574e; background: light-dark(color-mix(in srgb, #f0dbce 85%, transparent), color-mix(in srgb, #522d3c 85%, transparent)); color: light-dark(#682938, #ffe4dc); }
+.hud-mv .wl-court .ruling b { display: inline-block; text-transform: uppercase; font-size: 11px; letter-spacing: .09em; }
+.hud-mv .wl-court .ruling p { font: 600 17px/1.3 Georgia, serif; margin-top: 3px; }
+
+/* --- Зарубки тяжбы: две половины расколотой бирки ------------------------------------------------ */
+.hud-mv .wl-tally .tallies { display: grid; gap: 14px; }
+.hud-mv .wl-tally .tallies article { padding: 9px; border-radius: 4px; border: 1px solid #a4825b; box-shadow: inset 0 0 0 3px #4831224d;
+  background: color-mix(in srgb, color-mix(in srgb, #795940 81%, var(--hud-accent)) var(--plate), transparent); -webkit-backdrop-filter: var(--blur); backdrop-filter: var(--blur); }
+.hud-mv .wl-tally .tallies header { display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; padding: 0 4px 7px; color: #fff6e0; --metal: #e5b574; --wash: #bf8955; --sheet: #815b3a; }
+.hud-mv .wl-tally .tallies header h3 { font-size: clamp(18px, 4.2cqi, 27px); color: #fff6e0; }
+.hud-mv .wl-tally .tallies header svg { flex: none; width: 57px; }
+.hud-mv .wl-tally .split-stick { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 3px; }
+.hud-mv .wl-tally .split-stick section { padding: 12px; border-top: 6px solid transparent; border-image: repeating-linear-gradient(115deg, #966640 0 2px, #c29b6c 2px 7px, #e4bd87 7px 10px) 6 0 0;
+  background: repeating-linear-gradient(3deg, transparent 0 13px, #916b3f0e 13px 14px, transparent 14px 20px), light-dark(color-mix(in srgb, #f1d4a2 88%, transparent), color-mix(in srgb, #4c3629 88%, transparent));
+  color: light-dark(#462c20, #fff0cf); }
+.hud-mv .wl-tally .split-stick section + section { background: repeating-linear-gradient(3deg, transparent 0 13px, #916b3f0e 13px 14px, transparent 14px 20px), light-dark(color-mix(in srgb, #e2bf84 88%, transparent), color-mix(in srgb, #3c4133 88%, transparent));
+  color: light-dark(#432b1e, #f8ebc8); }
+.hud-mv .wl-tally .split-stick section:first-child { position: relative; padding-right: 16px; }
+.hud-mv .wl-tally .split-stick section:first-child::after { content: ""; position: absolute; inset: 0 0 0 auto; width: 6px; background: linear-gradient(135deg, transparent 50%, #795940 51%) right top / 6px 18px repeat-y; }
+.hud-mv .wl-tally .split-stick small { color: inherit; }
+.hud-mv .wl-tally .split-stick h4 { margin: 6px 0; font: 700 18px Georgia, serif; }
+.hud-mv .wl-tally .stage { color: inherit; margin-top: 10px; border-style: dashed; border-radius: 2px; }
+.hud-mv .wl-tally header .stage { margin: 0 0 0 auto; color: #fff6e0; border-color: #e5b574b3; flex: none; max-width: 48%; }
+.hud-mv .wl-tally .stage[data-final=true] { background: #822e38; color: #fff2d5; border: 3px double #ffcd96; }
+
+/* --- Узкие карточки (телефон ~215px) --------------------------------------------------------- */
+@container (max-width: 430px) {
+  .hud-mv .wl-bell .billboard { grid-template-columns: minmax(0, 1fr); }
+  .hud-mv .wl-bell .billboard .broadside:nth-child(2) { margin: 0; }
+  .hud-mv .wl-arms .standards, .hud-mv .wl-arms .standards:is(.wl-n1, .wl-n2) { grid-template-columns: minmax(0, 1fr); padding: 6px; background: color-mix(in srgb, #785c43 var(--plate), transparent); }
+  .hud-mv .wl-arms .standard { display: grid; grid-template-columns: minmax(70px, 33%) minmax(0, 1fr); }
+  .hud-mv .wl-arms .standard header { padding: 8px 5px 18px; border-top: 4px ridge #bd925a; }
+  .hud-mv .wl-arms .standard header::before { margin: -8px 0 5px; }
+  .hud-mv .wl-arms .standard header h3 { font-size: 16px; }
+  .hud-mv .wl-arms .embroidery svg { width: 50px; }
+  .hud-mv .wl-glass .chapel, .hud-mv .wl-glass .chapel:is(.wl-n1, .wl-n2) { grid-template-columns: minmax(0, 1fr); }
+  .hud-mv .wl-glass .chapel article { border-left: 5px solid var(--jewel); padding: 10px; }
+  .hud-mv .wl-glass .chapel .inlay { display: none; }
+  .hud-mv .wl-keys .keyrack, .hud-mv .wl-keys .keyrack.wl-n2 { grid-template-columns: repeat(auto-fit, minmax(min(145px, 100%), 1fr)); gap: 10px 7px; }
+}
+@container (max-width: 320px) {
+  .hud-mv .wl-court .hearing { display: block; }
+  .hud-mv .wl-court .hearing small { margin-bottom: 5px; }
+  .hud-mv .wl-bell .belfry { grid-template-columns: minmax(0, 1fr) 29%; padding: 8px; margin: 6px 4px 0; }
+  .hud-mv .wl-bell .billboard { padding-inline: 5px; }
+  .hud-mv .wl-voices .testimony section { padding: 10px; }
+  .hud-mv .wl-voices .testimony figure { grid-template-columns: 25px minmax(0, 1fr); gap: 6px; }
+  .hud-mv .wl-voices .testimony .doubt { grid-template-columns: minmax(0, 1fr) 25px; }
+  .hud-mv .wl-wax .intention { grid-template-columns: minmax(0, 1fr); gap: 3px; }
+  .hud-mv .wl-tally .split-stick { grid-template-columns: minmax(0, 1fr); }
+  .hud-mv .wl-court .tribunal dl > div { display: block; margin-top: 6px; }
+  .hud-mv .wl-atlas .map-record dl { gap: 2px 14px; }
+}
+
+/* --- Движение -------------------------------------------------------------------------------
+   Пауза, наведение и касание — общие для .hud-mv (css/medieval-views.css). Имена с wl-,
+   чтобы не встретиться с анимациями Таверны и тем. */
+@keyframes wl-pennant { 50% { transform: skewY(-7deg) scaleX(.92); } }
+@keyframes wl-ripple { 50% { opacity: .38; transform: translateX(2px); } }
+@keyframes wl-mill-turn { to { transform: rotate(360deg); } }
+@keyframes wl-chime { 20% { transform: rotate(6deg); } 62% { transform: rotate(-5deg); } }
+@keyframes wl-flash { 50% { opacity: .35; } }
+@keyframes wl-speaking { 50% { transform: rotate(-2deg); } }
+@keyframes wl-glow { 50% { filter: brightness(1.22); } }
+@keyframes wl-burning { 33% { transform: skewX(6deg) scaleY(.93); } 70% { transform: skewX(-4deg) scaleY(1.06); } }
+@keyframes wl-turn-key { 50% { transform: rotate(-6deg); } }
+@keyframes wl-manor-light { 50% { opacity: .12; transform: translateX(2px); } }
+@keyframes wl-weigh { 50% { transform: rotate(3deg); } }
+@keyframes wl-match-halves { 50% { transform: translateY(2px); } }
+@keyframes wl-compass-settle { 18% { transform: rotate(12deg); } 42% { transform: rotate(-5deg); } 65% { transform: rotate(2deg); } }
+@keyframes wl-canopy-light { 50% { background-position: 100% 0; } }
+@keyframes wl-paper-edge { 50% { rotate: .55deg; } }
+@keyframes wl-stitch { 50% { opacity: .5; } }
+@keyframes wl-underglow { 50% { box-shadow: inset 0 -2px var(--jewel), 0 0 7px color-mix(in srgb, var(--jewel) 40%, transparent); } }
+@keyframes wl-halo { 50% { opacity: .55; stroke-width: 1.7; } }
+@keyframes wl-steam-rise { 50% { opacity: .3; translate: 0 -3px; } }
+@keyframes wl-quill-write { 22%, 62% { transform: rotate(5deg); } 42%, 80% { transform: rotate(-3deg); } }
+@keyframes wl-pan-level { 50% { transform: rotate(-3deg); } }
+@keyframes wl-seal-ink { 50% { box-shadow: inset 0 0 0 1px currentColor; } }
+@keyframes wl-gauge-light { 50% { filter: brightness(1.18); } }
+@keyframes wl-swallows-pass { 35% { transform: translate(10px, -4px); } 70% { transform: translate(17px, -2px); opacity: 0; } 72% { transform: translate(-8px, 3px); opacity: 0; } }
+@keyframes wl-bell-echo { 0%, 48%, 100% { stroke-dashoffset: 1; opacity: .16; } 20%, 76% { stroke-dashoffset: 0; opacity: .82; } 40%, 94% { stroke-dashoffset: -1; opacity: .1; } }
+@keyframes wl-trace-thread { to { stroke-dashoffset: -100; } }
+@keyframes wl-voice-marks { 0%, 54%, 100% { opacity: 0; transform: translateX(-1px); } 18%, 74% { opacity: .85; transform: translateX(.5px); } 37%, 92% { opacity: .12; transform: translateX(2.5px); } }
+@keyframes wl-glass-refraction { 50% { transform: translateY(3px); opacity: .42; } }
+@keyframes wl-wax-drop { 0%, 24% { transform: translateY(0) scaleY(.65); opacity: .3; } 62% { opacity: .9; } 92%, 100% { transform: translateY(5px) scaleY(1.1); opacity: 0; } }
+@keyframes wl-metal-polish { 0%, 12% { stroke-dashoffset: 4; opacity: .25; } 58% { opacity: .95; } 90%, 100% { stroke-dashoffset: -16; opacity: .25; } }
+@keyframes wl-count-cuts { 0%, 24%, 100% { stroke: currentColor; } 9% { stroke: #f8db96; stroke-width: 1.75; } }
+@keyframes wl-curry-coat { 0%, 14%, 100% { transform: rotate(0); } 48% { transform: rotate(4deg); } 78% { transform: rotate(-1.5deg); } }
+@keyframes wl-horse-listens { 0%, 23%, 66%, 100% { transform: rotate(0); } 39% { transform: rotate(12deg); } 53% { transform: rotate(5deg); } 84% { transform: rotate(-4deg); } }
+@keyframes wl-horse-blinks { 0%, 49%, 54%, 100% { transform: scaleY(1); } 51% { transform: scaleY(.12); } }
+@keyframes wl-horse-breathes { 48% { transform: scale(1.22, 1.13); } }
+@keyframes wl-quiet-boil { 0%, 100% { transform: scaleY(.25); opacity: .45; } 62% { transform: scaleY(1); opacity: 1; } 82% { transform: scaleY(.6); opacity: .7; } }
+@keyframes wl-fringe-draft { 50% { transform: skewX(-7deg); } }
+@keyframes wl-fold-linen { 50% { d: path("M59 63q8 2 22-1l4 8q-10 4-19 1l-12 5-6-1z"); } }
+@keyframes wl-write-ink { 0%, 8% { stroke-dashoffset: 1; } 72%, 100% { stroke-dashoffset: 0; } }
+@keyframes wl-bird-at-window { 50% { transform: translate(6px, -3px); } }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hud-mv .wl-more { transition: grid-template-rows .36s var(--hud-ease-out, cubic-bezier(.22, .8, .28, 1)), opacity .24s ease, visibility 0s linear .36s; }
+  .hud-mv [data-wl-item][aria-expanded="true"] .wl-more { transition: grid-template-rows .36s var(--hud-ease-out, cubic-bezier(.22, .8, .28, 1)), opacity .3s ease .05s, visibility 0s; }
+  .hud-mv .wl-chev { transition: transform .32s var(--hud-ease-out, ease-out), opacity .2s; }
+  /* Две строки пересудов раскрываются плавно там, где браузер умеет анимировать до auto. */
+  @supports (interpolate-size: allow-keywords) {
+    .hud-mv blockquote[data-clamp] > p { interpolate-size: allow-keywords; transition: max-height .36s var(--hud-ease-out, ease-out); }
+    .hud-mv blockquote[data-clamp][aria-expanded="true"] > p { max-height: max-content; }
+  }
+  /* Листки «Доски трактира» — тоже плавно. */
+  @supports (interpolate-size: allow-keywords) and selector(details::details-content) {
+    .hud-mv .tavern-notice { interpolate-size: allow-keywords; }
+    .hud-mv .tavern-notice::details-content { block-size: 0; overflow: clip; transition: block-size .36s var(--hud-ease-out, ease-out), content-visibility .36s allow-discrete; }
+    .hud-mv .tavern-notice[open]::details-content { block-size: auto; }
+  }
+  /* «Другие правила» у колокола — тоже плавно, где браузер умеет анимировать <details>. */
+  @supports (interpolate-size: allow-keywords) and selector(details::details-content) {
+    .hud-mv .wl-sheet .reserve { interpolate-size: allow-keywords; }
+    .hud-mv .wl-sheet .reserve::details-content { block-size: 0; overflow: clip; transition: block-size .36s var(--hud-ease-out, ease-out), content-visibility .36s allow-discrete; }
+    .hud-mv .wl-sheet .reserve[open]::details-content { block-size: auto; }
+  }
+  .hud-mv .wl-sheet .reserve summary::before { transition: transform .23s var(--hud-ease-out, ease-out); }
+  .hud-mv .wl-sheet :is(.map-dot, .map-tab, .reserve summary) { transition: background-color .2s, color .2s, border-color .2s, box-shadow .2s, filter .16s; }
+  .hud-mv .wl-sheet .needle { animation: wl-compass-settle 4.2s ease-in-out infinite; }
+  .hud-mv .wl-sheet .billboard .broadside { transform-origin: 50% 8px; animation: wl-paper-edge 3.8s ease-in-out infinite; }
+  .hud-mv .wl-sheet .billboard .broadside:nth-child(2) { animation-direction: reverse; }
+  .hud-mv .wl-sheet .standard header::after { content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(110deg, transparent 32%, #ffdf9e24 49%, transparent 67%) 0 0 / 240% 100%; animation: wl-canopy-light 4.3s ease-in-out infinite; }
+  .hud-mv .wl-sheet .inlay { animation: wl-underglow 3.2s ease-in-out infinite; }
+  .hud-mv .wl-sheet .rumour-scale .now { animation: wl-stitch 2.5s ease-in-out infinite; }
+  .hud-mv .wl-sheet .altar svg > circle { animation: wl-halo 2.4s ease-in-out infinite; }
+  .hud-mv .wl-sheet .altar svg:nth-child(2) > circle { animation-delay: -.8s; }
+  .hud-mv .wl-sheet .trust-bar > i { animation: wl-gauge-light 2.6s ease-in-out infinite; }
+  .hud-mv .wl-sheet .pot-steam { animation: wl-steam-rise 2.3s ease-in-out infinite; }
+  .hud-mv .wl-sheet .quill { animation: wl-quill-write 2s ease-in-out infinite; }
+  .hud-mv .wl-sheet .pan { animation: wl-pan-level 3.6s ease-in-out infinite; }
+  .hud-mv .wl-sheet :is(.hearing small, .stage) { animation: wl-seal-ink 3.4s ease-in-out infinite; }
+  .hud-mv .wl-sheet .flag { animation: wl-pennant 2.8s ease-in-out infinite; transform-box: fill-box; transform-origin: left; }
+  .hud-mv .wl-sheet .sails { animation: wl-mill-turn 18s linear infinite; }
+  .hud-mv .wl-sheet .water { animation: wl-ripple 4s ease-in-out infinite; }
+  .hud-mv .wl-sheet .swing { animation: wl-chime 3.4s ease-in-out infinite; }
+  .hud-mv .wl-sheet .glint { animation: wl-flash 2.4s ease-in-out infinite; }
+  .hud-mv .wl-sheet .testimony svg { animation: wl-speaking 3.4s ease-in-out infinite; transform-origin: center bottom; }
+  .hud-mv .wl-sheet .glass-light { animation: wl-glow 3s ease-in-out infinite; }
+  .hud-mv .wl-sheet .flame { animation: wl-burning 1.9s ease-in-out infinite; }
+  .hud-mv .wl-sheet .key-sway { animation: wl-turn-key 3s ease-in-out infinite; }
+  .hud-mv .wl-sheet .manor-daylight { animation: wl-manor-light 5s ease-in-out infinite; }
+  .hud-mv .wl-sheet .handheld-keys { animation: wl-gauge-light 3.2s ease-in-out infinite; }
+  .hud-mv .wl-sheet .manor-flame { transform-box: fill-box; transform-origin: center bottom; animation: wl-burning 1.8s ease-in-out infinite; }
+  .hud-mv .wl-sheet .balance { animation: wl-weigh 3.6s ease-in-out infinite; }
+  .hud-mv .wl-sheet .tally-half { animation: wl-match-halves 2.8s ease-in-out infinite; }
+  .hud-mv .wl-sheet .map-swallows { animation: wl-swallows-pass 5.6s ease-in-out infinite; }
+  .hud-mv .wl-sheet .bell-echo { stroke-dasharray: 1; animation: wl-bell-echo 3.4s ease-out infinite; }
+  .hud-mv .wl-sheet .gilt-thread { animation: wl-trace-thread 4.8s linear infinite; }
+  .hud-mv .wl-sheet .witness-voice { animation: wl-voice-marks 3.4s ease-out infinite; }
+  .hud-mv .wl-sheet .glass-facets { animation: wl-glass-refraction 3.7s ease-in-out infinite; }
+  .hud-mv .wl-sheet .wax-bead { transform-box: fill-box; transform-origin: top; animation: wl-wax-drop 4.5s ease-in infinite; }
+  .hud-mv .wl-sheet .altar svg:nth-child(2) .wax-bead { animation-delay: -1.7s; }
+  .hud-mv .wl-sheet .altar svg:nth-child(3) .wax-bead { animation-delay: -3s; }
+  .hud-mv .wl-sheet :is(.polished-key, .balance-rim, .hoop-light, .helm-light) { animation: wl-metal-polish 3.6s ease-in-out infinite; }
+  .hud-mv .wl-sheet .balance > g:nth-child(3) .balance-rim { animation-delay: -1.8s; }
+  .hud-mv .wl-sheet .tally-notch { animation: wl-count-cuts 3.2s ease-in-out infinite; animation-delay: calc(var(--notch) * .16s); }
+  .hud-mv .wl-sheet .groom-stroke { transform-origin: 73px 49px; animation: wl-curry-coat 2.9s ease-in-out infinite; }
+  .hud-mv .wl-sheet .horse-ear { transform-origin: 121px 22px; animation: wl-horse-listens 4.8s ease-in-out infinite; }
+  .hud-mv .wl-sheet :is(.horse-eye, .horse-nostril) { transform-box: fill-box; transform-origin: center; }
+  .hud-mv .wl-sheet .horse-eye { animation: wl-horse-blinks 4.7s linear infinite; }
+  .hud-mv .wl-sheet .horse-nostril { animation: wl-horse-breathes 2.8s ease-in-out infinite; }
+  .hud-mv .wl-sheet .pot-bubbles { transform-box: fill-box; transform-origin: center bottom; animation: wl-quiet-boil 1.55s ease-in-out infinite; }
+  .hud-mv .wl-sheet .tapestry-fringe { transform-origin: 30px 52px; animation: wl-fringe-draft 3.8s ease-in-out infinite; }
+  .hud-mv .wl-sheet .linen-fold { animation: wl-fold-linen 3.3s ease-in-out infinite; }
+  .hud-mv .wl-sheet .ledger-ink { stroke-dasharray: 1; animation: wl-write-ink 2s ease-out infinite; }
+  .hud-mv .wl-sheet .window-bird { animation: wl-bird-at-window 4.2s ease-in-out infinite; }
+  .hud-mv .wl-sheet :is(.broadside, .blazon-text, .testimony blockquote, .chapel article, .intention, .key-card, .occupant, .ruling, .split-stick section, .authority dl > div, .map-record) {
+    transition: box-shadow .2s var(--hud-ease-out, ease-out), background-color .2s var(--hud-ease-out, ease-out); }
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  .hud-mv .wl-sheet :is(.map-dot, .map-tab, .reserve summary):hover { filter: brightness(1.08); box-shadow: inset 0 -2px color-mix(in srgb, currentColor 40%, transparent); }
+  .hud-mv [data-wl-item]:hover .wl-chev { opacity: .85; }
+  .hud-mv .wl-sheet :is(.map-record, .authority dl > div):hover { box-shadow: inset 2px 0 color-mix(in srgb, currentColor 30%, transparent); }
+  .hud-mv .wl-sheet .standard:hover .judgement, .hud-mv .wl-sheet .testimony figure:hover blockquote { box-shadow: inset 0 -2px currentColor; }
+  .hud-mv .wl-sheet :is(.chapel article, .intention):hover { box-shadow: inset 0 -2px var(--jewel, #dab782); }
+  .hud-mv .wl-sheet .key-tag:hover .key-card, .hud-mv .wl-sheet .room:hover .occupant { box-shadow: inset 0 -3px var(--trust, var(--metal)); }
+  .hud-mv .wl-sheet .tribunal article:hover .ruling, .hud-mv .wl-sheet .tallies article:hover .split-stick section:last-child { box-shadow: inset 0 -2px currentColor; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-mv .wl-sheet *, .hud-mv .wl-sheet *::before, .hud-mv .wl-sheet *::after, .hud-mv .wl-sheet .reserve::details-content,
+  .hud-mv :is(.wl-more, .wl-chev, blockquote[data-clamp] > p), .hud-mv .tavern-notice::details-content { transition: none !important; animation: none !important; }
+}

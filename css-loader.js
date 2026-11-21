@@ -18,8 +18,8 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.89.72';
-import { естьПодМагию } from './era.js?v=23.89.72';
+import { settings } from './settings.js?v=23.89.73';
+import { естьПодМагию } from './era.js?v=23.89.73';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';
@@ -65,6 +65,8 @@ export const ЧАСТИ = [
   ['place-lore', (s) => (s.era === 'medieval' || s.era === 'fantasy-medieval') && s.placeLore !== false],
   // Жизнь эпохи во вкладке «Мир» (render/medieval-life.js): честь, вести, вера, суд…
   ['medieval-life', (s) => s.era === 'medieval' || s.era === 'fantasy-medieval'],
+  // Виды средневековых блоков Мира (render/world-life-views.js): план слободы, гербовник, часовня, усадьба, суд.
+  ['world-life-views', (s) => s.era === 'medieval' || s.era === 'fantasy-medieval'],
   ['powers', (s) => s.era === 'fantasy-modern' || s.era === 'fantasy-medieval' || s.magicPresence === 'hidden'],
   ['compact'],
   // Английские подписи, которые живут в CSS (content: '…').

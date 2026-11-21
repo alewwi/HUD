@@ -11,10 +11,12 @@
 // Вид рисуется целиком в обёртке .hud-mv: стили не выходят за неё.
 // Время суток в «Тем временем» — то же, что у плашки погоды (частьДня).
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.72';
-import { старина, явнаяМагия } from '../era.js?v=23.89.72';
-import { английский } from '../i18n.js?v=23.89.72';
-import { миниатюра, каминМастерской, гербПисьма, печатьМастерской } from './medieval-workshop.js?v=23.89.72';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.73';
+import { старина, явнаяМагия } from '../era.js?v=23.89.73';
+import { английский } from '../i18n.js?v=23.89.73';
+import { миниатюра, каминМастерской, гербПисьма, печатьМастерской } from './medieval-workshop.js?v=23.89.73';
+// Краткая запись Мира: главное сразу, подробности раскрываются плавно по нажатию (render/world-life-views.js).
+import { подробно, пункт } from './world-life-views.js?v=23.89.73';
 
 // Шкатулка, как и прежние её виды, — с невидимым знаком против лорбука (defeatWI).
 // Мир — без него, как прежние виды Мира: звёздочка «Ввести в сюжет» и правка
@@ -369,41 +371,45 @@ const ЗНАКИ_ЛИСТКА = ['✥', '⚜︎', '❦', '✠', '❧'];
 function доскаТрактира(з, список) {
   return `<div class="hud-mv"><section class="m-sheet tavern-board">
   <header class="tavern-board-head"><span aria-hidden="true">❧</span><h3>${з}</h3><span aria-hidden="true">❧</span></header>
-  <div class="tavern-notices">${список.map((о, i, все) => { const тело = есть(о.текст) || есть(о.контакт); const первый = все.findIndex(x => есть(x.текст) || есть(x.контакт)) === i; return `<details class="tavern-notice${тело ? '' : ' is-plain'}"${тело && первый ? ' open' : ''}>
+  <div class="tavern-notices">${список.map((о) => { const тело = есть(о.текст) || есть(о.контакт); return `<details class="tavern-notice${тело ? '' : ' is-plain'}">
     <summary><span class="tavern-seal" aria-hidden="true">${ЗНАКИ_ЛИСТКА[hudHashSeed(String(о.заголовок || '') + String(о.текст || '')) % ЗНАКИ_ЛИСТКА.length]}</span><span>${тег('small', о.рубрика)}
       ${тег('strong', о.заголовок || о.текст)}</span></summary>
     ${тело ? `<div class="tavern-notice-body">${тег('p', о.текст)}${тег('footer', о.контакт)}</div>` : ''}
   </details>`; }).join('')}</div></section></div>`;
 }
 
+// Длинный комментарий — сначала две строки, по нажатию весь (css: blockquote[data-clamp]).
+const ДЛИННЫЙ = 90;
+const длинный = (текст) => String(текст || '').trim().length > ДЛИННЫЙ ? ' wl-item" data-wl-item data-clamp role="button" tabindex="0" aria-expanded="false' : '';
+const стрелка = (текст) => String(текст || '').trim().length > ДЛИННЫЙ ? '<span class="wl-chev" aria-hidden="true"></span>' : '';
+
 function телоСтарины(блок, список) {
   switch (блок) {
     // Вести с задержкой (render/medieval-life.js): с.весть — откуда и какой давности, с.bare — текст без приписки.
-    case 'news': return список.map((с, i) => { const тело = с.весть ? с.bare : с.body; return `<article class="m-proclamation">${тег('h4', с.title)}${с.весть || ''}${есть(тело) ? `<p class="${i === 0 && /^\p{L}/u.test(тело.trim()) ? 'm-drop' : ''}">${т(тело)}</p>` : ''}</article>`; }).join('');
-    case 'factions': return `<div class="m-banners">${список.map((ф, i) => `<article class="m-banner">
+    case 'news': return список.map((с, i) => { const тело = с.весть ? с.bare : с.body; const абзац = есть(тело) ? `<p class="${i === 0 && /^\p{L}/u.test(тело.trim()) ? 'm-drop' : ''}">${т(тело)}</p>` : ''; return `<article class="m-proclamation${пункт(абзац)}">${тег('h4', с.title)}${с.весть || ''}${подробно(абзац)}</article>`; }).join('');
+    case 'factions': return `<div class="m-banners">${список.map((ф, i) => `<article class="m-banner${пункт(есть(ф.почему))}">
       <div class="w-armorial" aria-hidden="true"><i></i>${знак(['⚜︎', '✿', '◆'][i % 3], 'm-mark m-shield')}</div>
-      <div class="w-faction-copy">${тег('h4', ф.кто)}${пилюля(ф.как, тонРепутации(ф.число))}${тег('p', ф.почему)}
+      <div class="w-faction-copy">${тег('h4', ф.кто)}${пилюля(ф.как, тонРепутации(ф.число))}
       ${ф.число === null || ф.число === undefined ? '' : `<div class="w-reputation${ф.число < 0 ? ' is-negative' : ''}">
         <div class="w-balance" aria-hidden="true"><i style="--score-size:${Math.min(100, Math.abs(ф.число)) / 2}%"></i></div>
-        <strong class="m-score" aria-label="Репутация ${ф.число}">${ф.число > 0 ? '+' : ''}${ф.число}</strong></div>`}</div></article>`).join('')}</div>`;
-    case 'meanwhile': return список.map(е => `<article class="m-scene">${ткацкий}
-      <div>${тег('h4', е.имя)}${тег('small', е.где, 'm-where')}${сБуквицей(е.текст)}
-        <dl>${строкаЗнания('Знает', е.знает)}${строкаЗнания('Не знает', е.неЗнает)}${строкаЗнания('Догадывается', е.догадки)}</dl></div></article>`).join('');
-    case 'city': return список.map(е => `<article class="m-decree"><i class="w-pin" aria-hidden="true"></i><div>${тег('h4', е.подпись)}${тег('p', е.текст)}</div></article>`).join('');
-    case 'comments': return список.map(к => `<blockquote class="m-voice">${тег('p', к.text)}${тег('cite', к.name)}</blockquote>`).join('');
-    case 'events': return список.map((е, i) => `<article class="m-pennant">${знак(['⚑', '♪', '❦'][i % 3], 'm-mark')}<div>${тег('h4', е.название)}${тег('small', е.где, 'm-where')}</div></article>`).join('');
+        <strong class="m-score" aria-label="Репутация ${ф.число}">${ф.число > 0 ? '+' : ''}${ф.число}</strong></div>`}${подробно(тег('p', ф.почему))}</div></article>`).join('')}</div>`;
+    case 'meanwhile': return список.map(е => { const знания = строкаЗнания('Знает', е.знает) + строкаЗнания('Не знает', е.неЗнает) + строкаЗнания('Догадывается', е.догадки); const тело = сБуквицей(е.текст) + (знания ? `<dl>${знания}</dl>` : ''); return `<article class="m-scene${пункт(тело)}">${ткацкий}
+      <div>${тег('h4', е.имя)}${тег('small', е.где, 'm-where')}${подробно(тело)}</div></article>`; }).join('');
+    case 'city': return список.map(е => `<article class="m-decree${пункт(есть(е.текст))}"><i class="w-pin" aria-hidden="true"></i><div>${тег('h4', е.подпись)}${подробно(тег('p', е.текст))}</div></article>`).join('');
+    case 'comments': return список.map(к => `<blockquote class="m-voice${длинный(к.text)}">${тег('p', к.text)}${тег('cite', к.name)}${стрелка(к.text)}</blockquote>`).join('');
+    case 'events': return список.map((е, i) => `<article class="m-pennant${пункт(есть(е.где))}">${знак(['⚑', '♪', '❦'][i % 3], 'm-mark')}<div>${тег('h4', е.название)}${подробно(тег('small', е.где, 'm-where'))}</div></article>`).join('');
     default: return '';
   }
 }
 
 function телоЧар(блок, список) {
   switch (блок) {
-    case 'news': return список.map(с => `<article>${тег('h4', с.title)}${с.весть || ''}${тег('p', с.весть ? с.bare : с.body)}</article>`).join('');
-    case 'factions': return список.map(ф => `<article>${ф.число === null || ф.число === undefined ? '' : `<strong class="${ф.число < 0 ? 'is-negative' : ''}">${ф.число}</strong>`}${тег('h4', ф.кто)}${пилюля(ф.как, тонРепутации(ф.число))}${тег('p', ф.почему)}</article>`).join('');
-    case 'meanwhile': return список.map(е => `<article>${тег('h4', е.имя)}${тег('small', е.где, 'm-where')}${тег('p', е.текст)}${[['Знает', е.знает], ['Не знает', е.неЗнает], ['Догадывается', е.догадки]].filter(([, v]) => есть(v)).map(([к, v]) => `<p class="m-know">${пилюля(к, ТОН_ЗНАНИЯ[к], 'b')} ${т(v)}</p>`).join('')}</article>`).join('');
-    case 'city': return список.map(е => `<article>${тег('h4', е.подпись)}${тег('p', е.текст)}</article>`).join('');
-    case 'comments': return список.map(к => `<blockquote>${тег('p', к.text)}${тег('cite', к.name)}</blockquote>`).join('');
-    case 'events': return список.map(е => `<article>${тег('h4', е.название)}${тег('small', е.где, 'm-where')}</article>`).join('');
+    case 'news': return список.map(с => { const тело = тег('p', с.весть ? с.bare : с.body); return `<article class="${пункт(тело).trim()}">${тег('h4', с.title)}${с.весть || ''}${подробно(тело)}</article>`; }).join('');
+    case 'factions': return список.map(ф => `<article class="${пункт(есть(ф.почему)).trim()}">${ф.число === null || ф.число === undefined ? '' : `<strong class="${ф.число < 0 ? 'is-negative' : ''}">${ф.число}</strong>`}${тег('h4', ф.кто)}${пилюля(ф.как, тонРепутации(ф.число))}${подробно(тег('p', ф.почему))}</article>`).join('');
+    case 'meanwhile': return список.map(е => { const тело = тег('p', е.текст) + [['Знает', е.знает], ['Не знает', е.неЗнает], ['Догадывается', е.догадки]].filter(([, v]) => есть(v)).map(([к, v]) => `<p class="m-know">${пилюля(к, ТОН_ЗНАНИЯ[к], 'b')} ${т(v)}</p>`).join(''); return `<article class="${пункт(тело).trim()}">${тег('h4', е.имя)}${тег('small', е.где, 'm-where')}${подробно(тело)}</article>`; }).join('');
+    case 'city': return список.map(е => `<article class="${пункт(есть(е.текст)).trim()}">${тег('h4', е.подпись)}${подробно(тег('p', е.текст))}</article>`).join('');
+    case 'comments': return список.map(к => `<blockquote class="${длинный(к.text).trim()}">${тег('p', к.text)}${тег('cite', к.name)}${стрелка(к.text)}</blockquote>`).join('');
+    case 'events': return список.map(е => `<article class="${пункт(есть(е.где)).trim()}">${тег('h4', е.название)}${подробно(тег('small', е.где, 'm-where'))}</article>`).join('');
     default: return '';
   }
 }

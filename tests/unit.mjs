@@ -4309,7 +4309,14 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     проверить('разбор: брак и законность — поля карточки', д.characters[0]['Брак'] === 'помолвлена с Томасом' && д.characters[0]['Законность'] === 'бастард, признана отцом');
     проверить('разбор: грамота, письмо в пути и груз коня', д.satchel.documents[0].here === 'no' && д.letters[0].eta === 'через 3 дня' && д.companions[0].extra.some(x => x.key === 'Груз' && x.value === 'два тюка'));
     const html = МЖ.блокиЭпохи(д);
-    проверить('карточки «Мира»: честь, запасы, суд; вестей, грамот и брака там нет', html.includes('🛡️ Честь') && html.includes('Овёс') && html.includes('⚖️ Суд и закон') && html.includes('is-bad') && !html.includes('Вести издалёка') && !html.includes('Охранная') && !html.includes('Брак'), html.slice(0, 600));
+    проверить('карточки «Мира»: честь, запасы, суд; вестей, грамот и брака там нет', html.includes('🛡️ Честь') && html.includes('Овёс') && html.includes('⚖️ Суд и закон') && !html.includes('Вести издалёка') && !html.includes('Охранная') && !html.includes('Брак'), html.slice(0, 600));
+    // Виды (render/world-life-views.js): по умолчанию — новый, «Как было» — прежняя карточка.
+    проверить('виды: честь — гербовник, суд — весы, ордалия ещё не приговор', html.includes('data-wl-block="hon"') && html.includes('wl-arms') && html.includes('wl-court') && html.includes('class="summoned wl-item"') && html.includes('Предписание') && !html.includes('Решение суда'));
+    Н.honourView = 'voices'; Н.lawView = 'tally';
+    { const в = МЖ.блокиЭпохи(д); проверить('виды: хор свидетелей и зарубки тяжбы', в.includes('wl-voices') && в.includes('О ком говорят') && в.includes('Агата') && в.includes('wl-tally') && в.includes('data-final="false"')); }
+    Н.honourView = 'classic'; Н.lawView = 'classic';
+    { const в = МЖ.блокиЭпохи(д); проверить('виды: «Как было» — прежние карточки', !в.includes('hud-wl') && в.includes('hud-mlf-s-hon') && в.includes('is-bad')); }
+    delete Н.honourView; delete Н.lawView;
     проверить('карточки: выключенная часть не показывается (колдовство)', !html.includes('Обвинение в колдовстве'));
     проверить('карточки: классы разделов не совпадают с классами внутри (капля гумора)', !/hud-world-section[^"]*\bhud-mlf-hum\b/.test(html));
     {
@@ -4500,6 +4507,66 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
       && css.replace(/\/\*[\s\S]*?\*\//g, '').replace(/@keyframes[^{]+\{(?:[^{}]*\{[^{}]*\})*[^{}]*\}/g, '').split('\n').filter(l => /\{/.test(l) && !/^\s*@/.test(l)).every(l => /^\s*(?:@media[^{]*\{\s*)?(?:\.hud-mv|:root:is|\.hud-os-card\.fx-live \.hud-mv|\.hud-os-card (?:\.wax-|details\.(?:wax|hud)-letter))/.test(l)));
     проверить('стили старины подключены только в средневековье', fs.readFileSync(path.join(КОРЕНЬ, 'css/all.css'), 'utf8').includes('medieval-views.css') && /\['medieval-views', \(s\) => s\.era === 'medieval' \|\| s\.era === 'fantasy-medieval'\]/.test(fs.readFileSync(path.join(КОРЕНЬ, 'css-loader.js'), 'utf8')));
   } finally { Object.assign(Ст.settings, было); for (const [к, v] of Object.entries(было)) if (v === undefined) delete Ст.settings[к]; }
+}
+
+группа('Виды средневековых блоков Мира: место, честь, вера, домочадцы, суд');
+{
+  const Ст = await модуль('settings.js'), V = await модуль('render/views.js'), WL = await модуль('render/world-life-views.js'), Лк = await модуль('customize-links.js');
+  const было = Ст.settings.era;
+  try {
+    Ст.settings.era = 'medieval';
+    const место = { места: [{ имя: 'Ольховый Брод', id: 'p1' }], правила: [
+      { где: 'Ворота', текст: 'Ворота <запирают> на закате', когда: 'ночью', кого: 'Все', иначе: 'Ночуют за стеной', сейчас: false },
+      { где: 'Мост', текст: 'Два медяка за воз', когда: 'сб', кого: 'Возчики', иначе: '', сейчас: true }],
+      власть: [{ кто: 'Староста', области: 'Стража · Жалобы', заметка: '' }], кнопки: '<div class="wl-foot"></div>' };
+    const честь = [{ среда: 'Цех', кому: 'Марта', суждение: 'держит слово', почему: 'вернула муку', тон: 'good' }, { среда: 'Двор', кому: 'Марта', суждение: 'сомневаются', почему: '', тон: 'bad' }];
+    const вера = [{ что: 'Личная вера', кто: 'Марта', состояние: 'верна обету', почему: 'свеча' }, { что: 'Обвинение в колдовстве', кто: 'Агата', состояние: 'подозрение', почему: 'огонёк', ступень: 1, ступени: ['шёпот', 'подозрение', 'обвинение', 'суд'] }];
+    const люди = [{ кто: 'Ульяна', роль: 'ключница', верность: 92, верностьТекст: '92', занят: 'считает мешки' }, { кто: 'Хью', роль: 'stable boy', верность: null, верностьТекст: 'ненадёжен', занят: '' }];
+    const суд = [{ кто: 'Мирон', обвинение: 'перенёс межу', стадия: 'приговор', судья: 'община', итог: 'вернуть камень', решено: true }];
+    const наборы = { place: [место, ['atlas', 'bell']], hon: [честь, ['arms', 'voices']], fth: [вера, ['glass', 'wax']], hh: [люди, ['keys', 'house']], law: [суд, ['court', 'tally']] };
+    const сбои = [];
+    for (const [блок, [данные, виды]] of Object.entries(наборы)) for (const вид of виды) {
+      const h = WL.видЖизни(блок, вид, данные, блок === 'place' ? '' : '🛡️ Блок');
+      if (!h.includes(`data-wl-block="${блок}"`) || !h.includes(`wl-${вид}`) || !h.includes('hud-mv hud-wl') || /undefined|NaN|\[object Object\]/.test(h)) сбои.push(блок + ':' + вид);
+    }
+    проверить('все десять видов собираются в обёртке .hud-mv (прозрачный лист с размытием)', !сбои.length, сбои.join(', '));
+    const план = WL.видЖизни('place', 'atlas', место);
+    проверить('план: текст экранирован, выбрана запись, что действует сейчас', план.includes('&lt;запирают&gt;') && /data-wl-record="1"(?![^>]*hidden)/.test(план) && /data-wl-record="0"[^>]*hidden/.test(план) && план.includes('aria-pressed="true" aria-label="Мост"'));
+    проверить('колокол: на листках — что действует сейчас, остальное под «Другие правила»', (() => { const к = WL.видЖизни('place', 'bell', место); return к.indexOf('Два медяка') < к.indexOf('Другие правила · 1') && к.indexOf('Другие правила · 1') < к.indexOf('запирают'); })());
+    проверить('у карты и витражей свои id: на странице и карточка, и пример', (() => { const a = WL.видЖизни('place', 'atlas', место).match(/clipPath id="([^"]+)"/)[1], b = WL.видЖизни('place', 'atlas', место).match(/clipPath id="([^"]+)"/)[1]; return a !== b; })());
+    проверить('вера: ступень обвинения отмечена, прошлые ступени — тоже', WL.видЖизни('fth', 'glass', вера, '⛪ Вера').includes('<i class="past"></i><i class="now"></i>'));
+    проверить('усадьба: комната по должности, и по-английски тоже; верность словом без числа', (() => { const у = WL.видЖизни('hh', 'house', люди, '🏠'); return у.includes('data-room="keys"') && у.includes('data-room="groom"') && у.includes('Верность · ненадёжен') && у.includes('Верность · 92 из 100'); })());
+    проверить('кратко: подробности свёрнуты и раскрываются нажатием у всех видов', Object.entries(наборы).every(([блок, [данные, виды]]) => виды.every(вид => { const h = WL.видЖизни(блок, вид, данные, 'x'); return /data-wl-item role="button" tabindex="0" aria-expanded="false"/.test(h) && h.includes('<div class="wl-more"><div class="wl-more-in">') || h.includes('class="wl-more"'); })));
+    проверить('кратко: причина чести, занятие и решение суда — в свёрнутом', (() => { const г = WL.видЖизни('hon', 'arms', честь, 'x'), к = WL.видЖизни('hh', 'keys', люди, 'x'), с = WL.видЖизни('law', 'court', суд, 'x'); const в = (h, s) => { const i = h.indexOf(s), м = h.lastIndexOf('wl-more-in', i); return i > 0 && м > 0 && h.indexOf('</div></div><span class="wl-chev"', м) > i; }; return в(г, 'вернула муку') && в(к, 'считает мешки') && в(с, 'вернуть камень') && !в(г, 'держит слово'); })());
+    проверить('кратко: без подробностей запись не нажимается', !WL.видЖизни('fth', 'wax', [{ что: 'Личная вера', кто: 'Марта', состояние: 'верна', почему: '' }], 'x').includes('data-wl-item'));
+    const стилиКратко = fs.readFileSync(path.join(КОРЕНЬ, 'css/world-life-views.css'), 'utf8');
+    проверить('кратко: раскрытие и сворачивание плавные (сетка 0fr → 1fr), без движения — сразу', стилиКратко.includes('grid-template-rows: 0fr') && стилиКратко.includes('grid-template-rows .36s') && /prefers-reduced-motion: reduce[^}]*{[^}]*transition: none/.test(стилиКратко));
+    {
+      // Остальные виды старины во вкладке «Мир» — тоже кратко, с тем же раскрытием.
+      const MV = await модуль('render/medieval-views.js');
+      const указ = MV.видМираСтарины('city', 'medieval', [{ подпись: 'Указ', текст: 'Ворота на закате' }], 'Доска');
+      const вести = MV.видМираСтарины('news', 'medieval', [{ title: 'Мост', body: 'Дозор расчистил настил' }], 'Вести');
+      const пересуды = MV.видМираСтарины('comments', 'medieval', [{ text: 'Х'.repeat(120), name: 'Берта' }, { text: 'коротко', name: 'Ян' }], 'Пересуды');
+      const доска = MV.видМираСтарины('ads', 'tavern', [{ рубрика: 'Найм', заголовок: 'Нужен писарь', текст: 'Платим медью', контакт: 'у моста' }], 'Доска');
+      проверить('старые виды Мира: подробности указа и вести — в свёрнутом, заголовок виден', указ.includes('data-wl-item') && /wl-more-in">[^]*Ворота на закате/.test(указ) && вести.indexOf('Мост') < вести.indexOf('wl-more') && /wl-more-in">[^]*Дозор/.test(вести));
+      проверить('пересуды: длинный — две строки и раскрытие, короткий — как был', (пересуды.match(/data-clamp/g) || []).length === 1 && !/data-wl-item[^>]*>\s*<p>коротко/.test(пересуды));
+      проверить('доска трактира: сначала все листки свёрнуты', доска.includes('tavern-notice') && !/<details[^>]* open/.test(доска));
+    }
+    проверить('плашки праздников и подготовки — с теми же отступами, что карточка поворота', /\.hud-holprep \{[^}]*margin: 0 12px 8px/.test(fs.readFileSync(path.join(КОРЕНЬ, 'css/story-layers.css'), 'utf8')) && /\.hud-twist \{[^}]*margin: 10px 12px 4px/.test(fs.readFileSync(path.join(КОРЕНЬ, 'css/extras.css'), 'utf8')));
+    проверить('пустые данные — без вида (прежняя карточка решает сама)', WL.видЖизни('hon', 'arms', [], 'x') === '' && WL.видЖизни('place', 'atlas', { места: [] }) === '' && !WL.естьВидЖизни('hon', 'classic'));
+    const б = (к) => V.ВИДЫ_БЛОКОВ.find(x => x.ключ === к);
+    проверить('по умолчанию — новый вид, «Как было» остаётся', ['placeRulesView', 'honourView', 'faithView', 'householdView', 'lawView'].every(к => б(к) && б(к).старина && V.видБлока(к) !== 'classic' && 'classic' in б(к).виды));
+    Ст.settings.era = 'modern';
+    проверить('в современности блоков нет и в Кастомизации', !V.блокДоступен(б('honourView')));
+    const карта = Лк.КАРТА.map(([с, к]) => [с, к.join()]);
+    проверить('Кастомизация: нажатие на вид и на прежнюю карточку ведёт к виду блока', [['place', 'placeRulesView', '.hud-plc'], ['hon', 'honourView', '.hud-mlf-s-hon'], ['fth', 'faithView', '.hud-mlf-s-fth'], ['hh', 'householdView', '.hud-mlf-s-hh'], ['law', 'lawView', '.hud-mlf-s-law']]
+      .every(([бл, к, стар]) => карта.some(([с, кк]) => кк === к && с.includes(`[data-wl-block="${бл}"]`) && с.includes(стар))));
+    const css = fs.readFileSync(path.join(КОРЕНЬ, 'css/world-life-views.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+    проверить('стили: всё под .hud-mv, анимации с приставкой wl-, наведение только мышью, фон с размытием', css.split('\n').filter(l => /^\s*[.:][^{]*\{/.test(l)).every(l => /^\s*(?:\.hud-mv|:root:is\([^)]*\) \.hud-mv|\.hud-wl-section)/.test(l))
+      && [...css.matchAll(/@keyframes ([\w-]+)/g)].every(м => м[1].startsWith('wl-')) && [...css.matchAll(/animation:\s*([\w-]+)/g)].every(м => м[1].startsWith('wl-') || м[1] === 'none')
+      && !css.replace(/@media[^{]*\(hover: hover\) and \(pointer: fine\)[^{]*\{[\s\S]*?\n\}/, '').includes(':hover') && css.includes('backdrop-filter: var(--blur)') && css.includes('--ground: var(--vellum)'));
+    проверить('стили подключены в средневековье и на стендах', fs.readFileSync(path.join(КОРЕНЬ, 'css/all.css'), 'utf8').includes('world-life-views.css') && fs.readFileSync(path.join(КОРЕНЬ, 'css-loader.js'), 'utf8').includes("'world-life-views'"));
+  } finally { Ст.settings.era = было; if (было === undefined) delete Ст.settings.era; }
 }
 
 группа('Гайд и пояснения');

@@ -7,14 +7,14 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.72';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.72';
-import { namesLikelySame } from '../names.js?v=23.89.72';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.72';
-import { settings } from '../settings.js?v=23.89.72';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.72';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.72';
-import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.89.72';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.73';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.73';
+import { namesLikelySame } from '../names.js?v=23.89.73';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.73';
+import { settings } from '../settings.js?v=23.89.73';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.73';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.73';
+import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.89.73';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -120,6 +120,12 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'eventsView', группа: 'Мир', поле: 'Афиша', виды: { classic: 'Билеты', column: 'Афишная тумба', marquee: 'Вывеска', vinyl: 'Пластинки', medieval: 'Ярмарочные хоругви', enchanted: 'Бал светляков' }, эпохи: ЭПОХИ_МИРА },
   { ключ: 'adsView', группа: 'Мир', поле: 'Доска объявлений', виды: { classic: 'Неон', tearoff: 'Отрывные листки', classified: 'Газета', pager: 'Пейджер', tavern: 'Доска трактира' }, эпохи: { tavern: 'старина' } },
   { ключ: 'commentsView', группа: 'Мир', поле: 'Комментарии Сети', виды: { classic: 'Лента', stream: 'Стрим-чат', forum: 'Форум', threads: 'Ветка', medieval: 'Пересуды у очага', enchanted: 'Колодец эха' }, эпохи: ЭПОХИ_МИРА },
+  // Средневековые блоки Мира (render/world-life-views.js): только в старине, первым — новый вид.
+  { ключ: 'placeRulesView', группа: 'Мир', поле: 'Правила места', виды: { atlas: 'План слободы', bell: 'Колокол глашатая', classic: 'Как было' }, старина: true, новый: true },
+  { ключ: 'honourView', группа: 'Мир', поле: 'Честь', виды: { arms: 'Гербовник общин', voices: 'Хор свидетелей', classic: 'Как было' }, старина: true, новый: true },
+  { ключ: 'faithView', группа: 'Мир', поле: 'Вера', виды: { glass: 'Окна часовни', wax: 'Огонь бдения', classic: 'Как было' }, старина: true, новый: true },
+  { ключ: 'householdView', группа: 'Мир', поле: 'Домочадцы', виды: { keys: 'Связка ключницы', house: 'Разрез усадьбы', classic: 'Как было' }, старина: true, новый: true },
+  { ключ: 'lawView', группа: 'Мир', поле: 'Суд и закон', виды: { court: 'Весы суда', tally: 'Зарубки тяжбы', classic: 'Как было' }, старина: true, новый: true },
 ];
 
 // Вид выбирается в своей эпохе: средневековые — в старине, чародейские — при

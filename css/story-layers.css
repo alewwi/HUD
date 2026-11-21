@@ -306,10 +306,11 @@
 @media (min-width: 601px) { @container hud (max-width: 470px) { .hud-holgen-row { grid-template-columns: minmax(0, 1fr); } } }
 /* cq ↑ */
 
-/* Плашка над вкладками: праздник мира скоро, начать подготовку? */
+/* Плашка над вкладками: праздник мира скоро, начать подготовку? По бокам — те же 12px,
+   что у карточки поворота (.hud-twist): во всю ширину плашка упиралась в рамку темы. */
 .hud-holprep {
   --hp: var(--hud-accent, #c59bff);
-  margin: 0 0 8px; padding: 9px 12px 10px 14px; border-radius: 14px;
+  margin: 0 12px 8px; padding: 9px 12px 10px 14px; border-radius: 14px;
   border: 1px solid color-mix(in srgb, var(--hp) 40%, transparent);
   background: radial-gradient(130% 160% at 0 0, color-mix(in srgb, var(--hp) 18%, transparent), transparent 62%), var(--hud-card-inner-bg, rgba(0, 0, 0, .26));
   box-shadow: inset 3px 0 0 var(--hp);
