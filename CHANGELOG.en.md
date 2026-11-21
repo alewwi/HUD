@@ -4,6 +4,16 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.80 — 2026-11-21
+
+### Fixed
+- **The owner's name on the Casket lid is readable** on light themes too: solid and dark, no transparency; on dark themes it is light, like the title.
+- **Mounts and pack animals get tiles.** In the "Card" view a companion's load, stamina, fodder, tack, stabling and wound are tiles with icons, like condition and diet (the wound has a red edge); in "Classic" they get their own icons instead of a dot.
+- **Delayed news in every news view.** In "Front page", "On air" and "Radio" how old the news is, where it came from and who brought it are no longer glued to the article as plain words: they get their own line with the pill, as in "Feed".
+- **The trust stage in the lanterns** (the "Traffic light" view in the medieval era) takes the full width: in the lantern column its name was cut to "KIND…".
+- **A child's legitimacy in the "Crown" family tree** is a third line on the name plate instead of pale gold on the trunk.
+- **Compact health view:** the recovery percentage is no longer clipped by the bar and no longer looks struck through; it is in the bar's tooltip.
+
 ## 23.89.79 — 2026-11-21
 
 ### Fixed

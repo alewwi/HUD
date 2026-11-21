@@ -904,6 +904,9 @@
   border: 1px solid var(--f-inset-line) !important; box-shadow: inset 3px 0 0 var(--t-acc) !important; }
 .hud-hv-compact .hud-ill-row, .hud-hv-compact .hud-mark-rows { font-size: .9em; }
 .hud-hv-compact .hud-ill-meter { height: 5px; }
+/* Число процентов в полоске 5px срезалось и выглядело зачёркнутым — в компактном виде
+   его нет, процент — в подсказке полоски. */
+.hud-hv-compact .hud-ill-meter small { display: none; }
 .hud-hv-compact .hud-ill-meter > i { background: linear-gradient(90deg, color-mix(in srgb, var(--t-acc) 50%, transparent), var(--t-acc)) !important; box-shadow: 0 0 6px var(--t-acc); }
 
 /* Аптечка: фраза о самочувствии снаружи; карточки — в закрытом кейсе с

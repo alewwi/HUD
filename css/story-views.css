@@ -1311,6 +1311,9 @@
 :root.hud-scheme-light .hud-ft-crown :is(.trunk, .root) { stroke: #7a4e2a; } :root.hud-scheme-light .hud-ft-crown :is(.bough) { stroke: #8a5a32; } :root.hud-scheme-light .hud-ft-crown .node { fill: #8a5a32; }
 :root.hud-scheme-light .hud-ft-crown .plate { fill: rgba(255, 252, 244, .95); stroke: rgba(150, 110, 40, .6); }
 :root.hud-scheme-light .hud-ft-crown .nm { fill: #2a1d10; } :root.hud-scheme-light .hud-ft-crown .rl { fill: #4a5a3a; }
+/* Законность ребёнка — на табличке плода, цветом подписи. */
+.hud-ft-crown text.hud-fam-legit { fill: #e3c98c; font: italic 8.5px Georgia, serif; }
+:root.hud-scheme-light .hud-ft-crown text.hud-fam-legit { fill: #6a4a12; }
 :root.hud-scheme-light .hud-ft-crown .kin rect { fill: rgba(255, 255, 255, .94); stroke: #4a8a46; } :root.hud-scheme-light .hud-ft-crown .kin text { fill: #24461f; }
 :root.hud-scheme-light .hud-ft-crown .vow { stroke: #b88a2a; } :root.hud-scheme-light .hud-ft-crown .fly { fill: #fff2a0; }
 

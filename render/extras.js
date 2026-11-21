@@ -4,12 +4,12 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.89.79';
-import { решениеПоПодписи, подписьСна } from '../disputes.js?v=23.89.79';
-import { settings } from '../settings.js?v=23.89.79';
-import { аватаркаПоИмени } from './views.js?v=23.89.79';
-import { магияВМире } from '../era.js?v=23.89.79';
-import { реальныйПортрет } from './pet-real.js?v=23.89.79';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.89.80';
+import { решениеПоПодписи, подписьСна } from '../disputes.js?v=23.89.80';
+import { settings } from '../settings.js?v=23.89.80';
+import { аватаркаПоИмени } from './views.js?v=23.89.80';
+import { магияВМире } from '../era.js?v=23.89.80';
+import { реальныйПортрет } from './pet-real.js?v=23.89.80';
 
 // Умения спутника — не больше четырёх: модель копит их ходами, и в карточке
 // выстраивалась стена пилюль. Короткие (до шести слов) — вперёд, в порядке
@@ -262,8 +262,28 @@ export function карточкаПоворота(value) {
 const И = {
   cond: 'M3 12h4l2-5 4 10 2-5h6', food: 'M5 13h14a7 7 0 0 1-14 0Z M8 9c0-2 2-2 2-4M12 9c0-2 2-2 2-4', note: 'M12 7v5l3 2 M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0',
   bolt: 'M13 3 5 13.5h6L10 21l8-10.5h-6Z', drop: 'M12 3.5s6 6.4 6 10.5a6 6 0 0 1-12 0c0-4.1 6-10.5 6-10.5Z', smile: 'M3 12a9 9 0 1 0 18 0a9 9 0 1 0-18 0 M8 15c1.5-1.5 6.5-1.5 8 0 M9 9.5h.01 M15 9.5h.01',
-  heart: 'M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20Z', wish: 'M12 3.5l1.9 5.1 5.4.4-4.1 3.5 1.3 5.3L12 15l-4.5 2.8 1.3-5.3-4.1-3.5 5.4-.4Z', candy: 'M8.1 8.1a5.5 5.5 0 0 1 7.8 7.8a5.5 5.5 0 0 1-7.8-7.8Z M8.1 8.1 3 6.4 6.4 3Z M15.9 15.9 21 17.6 17.6 21Z M9.6 14.4c1.8-.4 4.4-3 4.8-4.8', cake: 'M4 21h16 M5.5 21v-7.5h13V21 M5.5 16.5c2.2 1.6 4.4 1.6 6.5 0s4.3-1.6 6.5 0 M12 13.5V10 M12 7.6c-1 0-1.5-1-.8-2.1L12 4l.8 1.5c.7 1.1.2 2.1-.8 2.1Z', shield: 'M12 3.5 5 6v5.5c0 4.4 3 7.6 7 9 4-1.4 7-4.6 7-9V6Z M9 12l2.2 2.2L15.4 10', plug: 'M9 3v5M15 3v5M7 8h10v4a5 5 0 0 1-10 0Z M12 17v4', gear: 'M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2',
+  heart: 'M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20Z',
+  // Верховые и вьючные (medieval-life.js): рана, груз, силы, корм, сбруя, постой; прочее своё поле — ярлык.
+  wound: 'M4.6 14.6 14.6 4.6a3 3 0 0 1 4.2 4.2L8.8 18.8a3 3 0 0 1-4.2-4.2Z M10.2 10.2h.01 M12.6 9.6h.01 M9.6 12.6h.01',
+  load: 'M5.5 9h13l1 11h-15Z M9 9V7a3 3 0 0 1 6 0v2 M5.5 13h13',
+  stamina: 'M7 3h10M7 21h10M8 3c0 5 8 5 8 9s-8 4-8 9M16 3c0 5-8 5-8 9s8 4 8 9',
+  fodder: 'M12 21V9 M12 9c-2-1-3-3-3-5.5 2 .3 3 2.5 3 5.5Z M12 9c2-1 3-3 3-5.5-2 .3-3 2.5-3 5.5Z M12 14c-2.2-1-4-3-4-5.5 2.2.3 4 2.5 4 5.5Z M12 14c2.2-1 4-3 4-5.5-2.2.3-4 2.5-4 5.5Z',
+  tack: 'M7 4v7a5 5 0 0 0 10 0V4 M7 7.5h2.2 M14.8 7.5H17 M7.6 12.5h1.8 M14.6 12.5h1.8',
+  stable: 'M4 20v-9.5L12 4l8 6.5V20Z M9 20v-6h6v6 M9 14l6 6 M15 14l-6 6',
+  tag: 'M3.5 12V4.5H11L20 13.5 13.5 20Z M7.6 8.6h.01', wish: 'M12 3.5l1.9 5.1 5.4.4-4.1 3.5 1.3 5.3L12 15l-4.5 2.8 1.3-5.3-4.1-3.5 5.4-.4Z', candy: 'M8.1 8.1a5.5 5.5 0 0 1 7.8 7.8a5.5 5.5 0 0 1-7.8-7.8Z M8.1 8.1 3 6.4 6.4 3Z M15.9 15.9 21 17.6 17.6 21Z M9.6 14.4c1.8-.4 4.4-3 4.8-4.8', cake: 'M4 21h16 M5.5 21v-7.5h13V21 M5.5 16.5c2.2 1.6 4.4 1.6 6.5 0s4.3-1.6 6.5 0 M12 13.5V10 M12 7.6c-1 0-1.5-1-.8-2.1L12 4l.8 1.5c.7 1.1.2 2.1-.8 2.1Z', shield: 'M12 3.5 5 6v5.5c0 4.4 3 7.6 7 9 4-1.4 7-4.6 7-9V6Z M9 12l2.2 2.2L15.4 10', plug: 'M9 3v5M15 3v5M7 8h10v4a5 5 0 0 1-10 0Z M12 17v4', gear: 'M12 8a4 4 0 1 0 0 8a4 4 0 1 0 0-8 M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2',
 };
+/** Своё поле спутника (p.extra) → иконка, значок для прежнего вида и класс плитки.
+ *  Подписи верховых — из schema.js (ПОДПИСИ_ВЬЮЧНЫХ), по-английски — из перевода. */
+export function видПоляСпутника(ключ) {
+  const к = String(ключ || '').toLowerCase();
+  if (/ран|wound|injur/.test(к)) return { ик: 'wound', значок: '🩹', класс: ' is-wound' };
+  if (/груз|ноша|поклаж|load|cargo|pack/.test(к)) return { ик: 'load', значок: '📦', класс: ' is-load' };
+  if (/вынослив|сил[ыа]|stamina|endur|rest/.test(к)) return { ик: 'stamina', значок: '⏳', класс: ' is-stamina' };
+  if (/корм|овёс|овес|сено|fodder|feed|forage/.test(к)) return { ик: 'fodder', значок: '🌾', класс: ' is-fodder' };
+  if (/сбру|подков|седл|упряж|tack|harness|saddle|shoe/.test(к)) return { ик: 'tack', значок: '🧰', класс: ' is-tack' };
+  if (/постой|стойл|конюш|stable|stall|lodg/.test(к)) return { ик: 'stable', значок: '🏠', класс: ' is-stable' };
+  return { ик: 'tag', значок: '•', класс: '' };
+}
 const ик = (k, c = 'currentColor') => `<svg viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${И[k]}"/></svg>`;
 // Вид спутника: цвет, пиксельный спрайт и «механический» ли он.
 const СПРАЙТЫ = {
@@ -639,7 +659,8 @@ export function карточкаСпутника(p, значок, связь, с
     + шкалы
     + (плитки ? `<div class="hud-pet2-tiles">${плитки}</div>` : '')
     + (есть(p.note) ? `<div class="hud-pet2-now">${ик('note')}<span>Сейчас: ${escapeHtml(String(p.note))}</span></div>` : '')
-    + (Array.isArray(p.extra) && p.extra.length ? `<div class="hud-pet2-extra">${p.extra.map(д => `<span><b>${escapeHtml(д.key)}:</b> ${escapeHtml(String(д.value))}</span>`).join('')}</div>` : '')
+    // Свои поля (груз, силы, рана верхового…) — такими же плитками, как состояние и рацион.
+    + (Array.isArray(p.extra) && p.extra.length ? `<div class="hud-pet2-tiles is-extra">${p.extra.map(д => { const в = видПоляСпутника(д.key); return плитка(в.ик, escapeHtml(д.key), д.value, ' is-own' + в.класс); }).join('')}</div>` : '')
     + (умения.length ? `<div class="hud-pet2-skills">${умения.map(у => `<span>${escapeHtml(у)}</span>`).join('')}</div>` : '')
     + тропа + `</div>`;
 }

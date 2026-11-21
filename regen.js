@@ -5,14 +5,14 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.79';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.79';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.79';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.79';
-import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.79';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.79';
-import { генерацияТаверны } from './utils.js?v=23.89.79';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.79';
+import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.80';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.80';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.80';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.80';
+import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.80';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.80';
+import { генерацияТаверны } from './utils.js?v=23.89.80';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.80';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.

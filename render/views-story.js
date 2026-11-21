@@ -17,11 +17,11 @@
 // Конечный вид рисуется сразу: анимации HUD держит на паузе, пока на вид не
 // навели мышь или не нажали (css/views.css), — петли и на паузе законченны.
 
-import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.79';
-import { лицоЧеловека as лицо } from './views.js?v=23.89.79';
-import { normalizeDiaryMood } from './diary.js?v=23.89.79';
-import { relationVisualMeta, classifyRelationVisual, parseRelationList } from './relations-graph.js?v=23.89.79';
-import { namesLikelySame } from '../names.js?v=23.89.79';
+import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.80';
+import { лицоЧеловека as лицо } from './views.js?v=23.89.80';
+import { normalizeDiaryMood } from './diary.js?v=23.89.80';
+import { relationVisualMeta, classifyRelationVisual, parseRelationList } from './relations-graph.js?v=23.89.80';
+import { namesLikelySame } from '../names.js?v=23.89.80';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const ф = (n) => Number(n).toFixed(1);
@@ -645,8 +645,8 @@ function древоКрона(д, р) {
     }
     // Плоды — сверху вниз: младшие первыми.
     const плоды = [...место.values()].sort((a, b) => a.y - b.y || a.x - b.x).map((м, i) => {
-      const ч = м.ч, нм = ч.неизвестно ? 'неизвестно' : обрез(имя(ч.имя), 15), роль = обрез(ч.роль, 20);
-      const ш = Math.max(нм.length * 6.6, роль.length * 5.2) + 18;
+      const ч = м.ч, нм = ч.неизвестно ? 'неизвестно' : обрез(имя(ч.имя), 15), роль = обрез(ч.роль, 20), зак = ч.законность ? обрез(ч.законность, 24) : '';
+      const ш = Math.max(нм.length * 6.6, роль.length * 5.2, зак.length * 4.7) + 18;
       const клип = `${id}-p${i}`;
       return `<g class="fruit${родЧеловека(ч)}"${человекАтр(ч.id)} transform="translate(${ф(м.x)} ${ф(м.y)})"><g class="sway" style="--sw:${(случай() * 2.4 + 3.4).toFixed(2)}s;--d:${(-случай() * 3).toFixed(2)}s">`
         + `<title${ч.неизвестно ? '' : ' data-i18n-skip'}>${э(ч.неизвестно ? 'неизвестно' : имя(ч.имя))}</title><circle class="halo" r="33"/>`
@@ -655,10 +655,11 @@ function древоКрона(д, р) {
         + (ч.адрес ? `<clipPath id="${клип}"><circle r="22.5"/></clipPath><image href="${э(ч.адрес)}" x="-22.5" y="-22.5" width="45" height="45" clip-path="url(#${клип})" preserveAspectRatio="xMidYMid slice"/>` : `<text class="ini" data-i18n-skip y="5">${э(ч.инициалы || '?')}</text>`)
         // Блик — только на кружке с инициалами: на фото он ложился пятном.
         + (ч.адрес ? '' : `<path class="gloss" d="M-14-9A16 16 0 0 1-3-17"/>`)
-        + `<rect class="plate" x="${ф(-ш / 2)}" y="31" width="${ф(ш)}" height="${роль ? 32 : 20}" rx="7"/>`
+        + `<rect class="plate" x="${ф(-ш / 2)}" y="31" width="${ф(ш)}" height="${(роль ? 32 : 20) + (зак ? 12 : 0)}" rx="7"/>`
         + `<text class="nm" y="45"${ч.неизвестно ? '' : ' data-i18n-skip'}>${э(нм)}</text>${роль ? `<text class="rl" data-i18n-skip y="57">${э(роль)}</text>` : ''}`
-        // Законность ребёнка (render/medieval-life.js) — помаркой под табличкой.
-        + (ч.законность ? `<text class="hud-fam-legit" data-i18n-skip y="${роль ? 74 : 62}" text-anchor="middle">${э(обрез(ч.законность, 22))}</text>` : '') + `</g></g>`;
+        // Законность ребёнка (render/medieval-life.js) — третьей строкой на той же табличке:
+        // под табличкой она висела на стволе бледным золотом и не читалась.
+        + (зак ? `<text class="hud-fam-legit" data-i18n-skip y="${роль ? 69 : 57}" text-anchor="middle">${э(зак)}</text>` : '') + `</g></g>`;
     }).join('');
     const звёзды = Array.from({ length: 14 }, (_, k) => `<circle class="star" style="--d:${(-случай() * 4).toFixed(2)}s" cx="${ф(случай() * W)}" cy="${ф(случай() * H * .45)}" r="${(случай() * 1 + .5).toFixed(2)}"/>`).join('');
     const светлячки = Array.from({ length: 7 }, (_, k) => `<circle class="fly" style="--d:${(-k * 1.3).toFixed(1)}s;--fx:${ф((случай() - .5) * 40)}px;--fy:${ф(-10 - случай() * 30)}px" cx="${ф(30 + случай() * (W - 60))}" cy="${ф(40 + случай() * (H - 140))}" r="1.8"/>`).join('');

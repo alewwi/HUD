@@ -6,27 +6,27 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.79';
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.89.79';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.89.79';
-import { buildRelGraphHTML, hudHasRelations, данныеОтношений } from './relations-graph.js?v=23.89.79';
-import { видТаймлайна, видЭмоций, видГрафа, видДрева } from './views-story.js?v=23.89.79';
-import { отложитьРисунок } from './lazy-svg.js?v=23.89.79';
-import { длинныйСписок } from './long-list.js?v=23.89.79';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.89.79';
-import { общиеМеста } from './route-places.js?v=23.89.79';
-import { статусРужья } from '../codes.js?v=23.89.79';
-import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.89.79';
-import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.89.79';
-import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.89.79';
-import { дм } from './conception.js?v=23.89.79';
-import { settings } from '../settings.js?v=23.89.79';
-import { статусОбещания } from '../hud-expand.js?v=23.89.79';
-import { getAvatarUrl } from '../avatars.js?v=23.89.79';
-import { видПриглашений, видОбещаний, видТемВременем } from './views-plus.js?v=23.89.79';
-import { видМираСтарины } from './medieval-views.js?v=23.89.79';
-import { namesLikelySame } from '../names.js?v=23.89.79';
-import { полеВкл } from '../deep-fields.js?v=23.89.79';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.80';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.89.80';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.89.80';
+import { buildRelGraphHTML, hudHasRelations, данныеОтношений } from './relations-graph.js?v=23.89.80';
+import { видТаймлайна, видЭмоций, видГрафа, видДрева } from './views-story.js?v=23.89.80';
+import { отложитьРисунок } from './lazy-svg.js?v=23.89.80';
+import { длинныйСписок } from './long-list.js?v=23.89.80';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.89.80';
+import { общиеМеста } from './route-places.js?v=23.89.80';
+import { статусРужья } from '../codes.js?v=23.89.80';
+import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.89.80';
+import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.89.80';
+import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.89.80';
+import { дм } from './conception.js?v=23.89.80';
+import { settings } from '../settings.js?v=23.89.80';
+import { статусОбещания } from '../hud-expand.js?v=23.89.80';
+import { getAvatarUrl } from '../avatars.js?v=23.89.80';
+import { видПриглашений, видОбещаний, видТемВременем } from './views-plus.js?v=23.89.80';
+import { видМираСтарины } from './medieval-views.js?v=23.89.80';
+import { namesLikelySame } from '../names.js?v=23.89.80';
+import { полеВкл } from '../deep-fields.js?v=23.89.80';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.

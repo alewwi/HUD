@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.79**:
+The latest version is **23.89.80**:
 
+- The new medieval parts in every block view: the owner's name on the Casket lid is readable, mounts and pack animals get tiles, delayed news has its own line in any news view, the trust stage in the lanterns and legitimacy in the "Crown" tree are no longer cut off.
 - In the chapel windows and on the key rack the last card stretches to the end of the row, with no empty grey cell.
 - Charter texts in the Casket read as separate sentences; in the medieval sample Mark's wound shows its danger and the illness with its humour.
 - Tabs scroll with the mouse wheel on PC: left and right over the tab strip, as before below it.

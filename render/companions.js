@@ -4,10 +4,10 @@
 // каждого своё настроение, состояние, рацион и привязанность к хозяину.
 // Вкладка появляется, только когда в HUD есть хоть один спутник.
 
-import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.89.79';
-import { видБлока, видПривязанности } from './views.js?v=23.89.79';
-import { карточкаСпутника, тамагочи, лучшиеУмения } from './extras.js?v=23.89.79';
-import { внешностьСпутника } from './pet-looks.js?v=23.89.79';
+import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.89.80';
+import { видБлока, видПривязанности } from './views.js?v=23.89.80';
+import { карточкаСпутника, тамагочи, лучшиеУмения, видПоляСпутника } from './extras.js?v=23.89.80';
+import { внешностьСпутника } from './pet-looks.js?v=23.89.80';
 
 // Значок по виду. Частное раньше общего: «ворон-фамильяр» — птица, а не дух.
 const ВИДЫ = [
@@ -81,7 +81,7 @@ export function buildCompanionsHTML(list, uid, isChecked, extra = {}) {
       + строка('🩺', 'Состояние', p.condition)
       + строка('🍖', 'Рацион', p.diet)
       + строка('📝', 'Сейчас', p.note)
-      + (Array.isArray(p.extra) ? p.extra.map(д => строка('•', ПОДПИСИ_ПОЛЕЙ[String(д.key).toLowerCase()] || д.key, д.value)).join('') : '')
+      + (Array.isArray(p.extra) ? p.extra.map(д => строка(видПоляСпутника(д.key).значок, ПОДПИСИ_ПОЛЕЙ[String(д.key).toLowerCase()] || д.key, д.value)).join('') : '')
       + (умения ? `<div class="hud-pet-skills">${умения}</div>` : '')
       + `</div>`;
   }).join('');

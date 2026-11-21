@@ -14,10 +14,10 @@
 // пустить эфир, оторвать листок, поставить галочку, лайкнуть. Отметки живут
 // в памяти страницы (как голоса в новостях) и переживают перерисовку карточки.
 
-import { escapeHtml, hudHashSeed } from '../utils.js?v=23.89.79';
-import { ико, ИКОНКИ } from './view-icons.js?v=23.89.79';
-import { знакЗодиака } from '../i18n.js?v=23.89.79';
-import { видМираСтарины } from './medieval-views.js?v=23.89.79';
+import { escapeHtml, hudHashSeed } from '../utils.js?v=23.89.80';
+import { ико, ИКОНКИ } from './view-icons.js?v=23.89.80';
+import { знакЗодиака } from '../i18n.js?v=23.89.80';
+import { видМираСтарины } from './medieval-views.js?v=23.89.80';
 // Заголовок без значка и разметки — для видов старины.
 const безЗначка = (з) => String(з || '').replace(/<[^>]*>/g, '').replace(/^[^\p{L}]+/u, '').trim();
 const старинный = (вид) => вид === 'medieval' || вид === 'enchanted';
@@ -43,7 +43,9 @@ function кнопка(действие, к = '', нажата) {
 const флажок = (действие, текст, доп = '') => { const к = ключ(действие, текст, доп); return { к, on: отмечено(к), attr: кнопка(действие, к, отмечено(к)), cls: отмечено(к) ? ' is-set' : '' }; };
 
 /* --- Главные новости --------------------------------------------------------
-   статьи: [{ title, body, votes: { up, comments } }] */
+   статьи: [{ title, body, bare, весть, votes: { up, comments } }]. Вести с задержкой
+   (средневековье, render/medieval-life.js): текст — bare, а давность, откуда и кто
+   принёс — своей строкой весть (плашка и подписи), как в «Ленте». */
 export function видНовостей(статьи, вид, заголовок) {
   if (!Array.isArray(статьи) || !статьи.length) return '';
   if (старинный(вид)) return видМираСтарины('news', вид, статьи, безЗначка(заголовок));
@@ -52,10 +54,10 @@ export function видНовостей(статьи, вид, заголовок)
     // Первая полоса: шапка газеты, главная статья с буквицей, остальные — колонками;
     // заметка в колонке свёрнута до четырёх строк, нажатие раскрывает.
     const номер = 100 + хэш(статьи.map(с => с.title).join('|')) % 900;
-    const статья = (с) => `<article class="story"${с.body ? кнопка('open') + ' aria-expanded="false"' : ''}><h4>${т(безКавычек(с.title))}</h4>${с.body ? `<p>${т(с.body)}</p><span class="more" aria-hidden="true">читать дальше</span>` : ''}</article>`;
+    const статья = (с) => `<article class="story"${с.body ? кнопка('open') + ' aria-expanded="false"' : ''}><h4>${т(безКавычек(с.title))}</h4>${с.body ? `<p>${т(с.bare ?? с.body)}</p>${с.весть || ''}<span class="more" aria-hidden="true">читать дальше</span>` : ''}</article>`;
     return секция('news', заголовок, корень('news', вид,
       `<header class="mast"><small>Городской выпуск · №${номер}</small><b>Вечерний вестник</b><span class="rule" aria-hidden="true"><i>Цена 5 коп.</i><i>Срочно в номер</i></span></header>`
-      + `<article class="lead"><h4>${т(безКавычек(первая.title))}</h4>${первая.body ? `<p>${т(первая.body)}</p>` : ''}</article>`
+      + `<article class="lead"><h4>${т(безКавычек(первая.title))}</h4>${первая.body ? `<p>${т(первая.bare ?? первая.body)}</p>${первая.весть || ''}` : ''}</article>`
       + (прочие.length ? `<div class="cols">${прочие.map(статья).join('')}</div>` : '')));
   }
   if (вид === 'tv') {
@@ -64,7 +66,7 @@ export function видНовостей(статьи, вид, заголовок)
       `<div class="screen"><span class="live"><i></i>В эфире</span><span class="bug">${ико('antenna')}</span>`
       + `<span class="beams" aria-hidden="true"></span><span class="skyline" aria-hidden="true"></span><span class="scan" aria-hidden="true"></span>`
       + `<div class="lower"><span class="tag">Сюжет 01</span><b>${т(безКавычек(первая.title))}</b></div></div>`
-      + `<ol class="rundown">${статьи.map((с, i) => `<li class="${i ? '' : 'is-now'}"${кнопка('air')} data-n="${String(i + 1).padStart(2, '0')}" data-title="${т(безКавычек(с.title))}"><em>${String(i + 1).padStart(2, '0')}</em><div><b>${т(безКавычек(с.title))}</b>${с.body ? `<p>${т(с.body)}</p>` : ''}</div><i class="onair" aria-hidden="true">в эфире</i></li>`).join('')}</ol>`));
+      + `<ol class="rundown">${статьи.map((с, i) => `<li class="${i ? '' : 'is-now'}"${кнопка('air')} data-n="${String(i + 1).padStart(2, '0')}" data-title="${т(безКавычек(с.title))}"><em>${String(i + 1).padStart(2, '0')}</em><div><b>${т(безКавычек(с.title))}</b>${с.body ? `<p>${т(с.bare ?? с.body)}</p>${с.весть || ''}` : ''}</div><i class="onair" aria-hidden="true">в эфире</i></li>`).join('')}</ol>`));
   }
   if (вид === 'radio') {
     // Приёмник: шкала частот; нажатие на станцию крутит ручку и переводит стрелку.
@@ -76,7 +78,7 @@ export function видНовостей(статьи, вид, заголовок)
       + станции.map((с, i) => `<i class="mark${i ? '' : ' is-on'}" style="--x:${где(с.мгц)}%" aria-hidden="true"></i>`).join('')
       + `<i class="needle" style="--x:${где(станции[0].мгц)}%" aria-hidden="true"></i><span class="glow" aria-hidden="true"></span></div>`
       + `<div class="panel"><span class="grille" aria-hidden="true"></span><span class="lamp" aria-hidden="true"></span><span class="knob" aria-hidden="true"></span><span class="knob is-vol" aria-hidden="true"></span></div></div>`
-      + `<ul class="waves">${станции.map((с, i) => `<li class="${i ? '' : 'is-on'}"${кнопка('tune')} data-i="${i}" data-x="${где(с.мгц)}"><span class="mhz">${с.мгц.toFixed(1).replace('.', ',')}<small>FM</small></span><div><b>${т(безКавычек(с.title))}</b>${с.body ? `<p>${т(с.body)}</p>` : ''}</div></li>`).join('')}</ul>`));
+      + `<ul class="waves">${станции.map((с, i) => `<li class="${i ? '' : 'is-on'}"${кнопка('tune')} data-i="${i}" data-x="${где(с.мгц)}"><span class="mhz">${с.мгц.toFixed(1).replace('.', ',')}<small>FM</small></span><div><b>${т(безКавычек(с.title))}</b>${с.body ? `<p>${т(с.bare ?? с.body)}</p>${с.весть || ''}` : ''}</div></li>`).join('')}</ul>`));
   }
   return '';
 }

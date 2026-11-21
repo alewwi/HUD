@@ -5,14 +5,14 @@
 // одного из двойни, кубик исхода угрозы и осмотры. Логика и запись —
 // render/conception.js, клики ловит index.js. Оформление — css/misc.css.
 
-import { escapeHtml } from '../utils.js?v=23.89.79';
-import { settings } from '../settings.js?v=23.89.79';
-import { полеВкл } from '../deep-fields.js?v=23.89.79';
-import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.89.79';
-import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.89.79';
-import { подождатьДо, ДНЕЙ_ОСЛОЖНЕНИЕ } from './rest-hint.js?v=23.89.79';
-import { видБлока } from './views.js?v=23.89.79';
-import { видПотери } from './views-plus.js?v=23.89.79';
+import { escapeHtml } from '../utils.js?v=23.89.80';
+import { settings } from '../settings.js?v=23.89.80';
+import { полеВкл } from '../deep-fields.js?v=23.89.80';
+import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.89.80';
+import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.89.80';
+import { подождатьДо, ДНЕЙ_ОСЛОЖНЕНИЕ } from './rest-hint.js?v=23.89.80';
+import { видБлока } from './views.js?v=23.89.80';
+import { видПотери } from './views-plus.js?v=23.89.80';
 
 const ДЕНЬ = 864e5;
 const Р = 25, ДЛИНА = 2 * Math.PI * Р;

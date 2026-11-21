@@ -8,12 +8,12 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.89.79';
-import { settings } from '../settings.js?v=23.89.79';
-import { namesLikelySame } from '../names.js?v=23.89.79';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.79';
-import { запущенноеУ, срокиНитей, разобратьНить, добавитьПодсказку, отметкаПоследствия, отметитьПоследствие } from '../turn-notes.js?v=23.89.79';
-import { раскрывашка } from './fold.js?v=23.89.79';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.89.80';
+import { settings } from '../settings.js?v=23.89.80';
+import { namesLikelySame } from '../names.js?v=23.89.80';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.80';
+import { запущенноеУ, срокиНитей, разобратьНить, добавитьПодсказку, отметкаПоследствия, отметитьПоследствие } from '../turn-notes.js?v=23.89.80';
+import { раскрывашка } from './fold.js?v=23.89.80';
 
 const ДЕНЬ = 864e5;
 // Пороги: «накопленное», а не плохой час.

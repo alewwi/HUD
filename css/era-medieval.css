@@ -90,6 +90,9 @@
 .era-lamp .p { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; }
 .era-lamp .p.sheet { background: radial-gradient(70px 60px at 30px 50%, color-mix(in oklab, var(--e-gold) calc(var(--v) * .45%), transparent), transparent), var(--e-tex-noise), var(--e-sheet); }
 .era-lamp svg { width: 40px; height: 64px; }
+/* Ступень доверия с замком (render/trust-stages.js) — во всю ширину фонаря: в колонке
+   фонаря (40px) имя ступени обрезалось до «РОДН…». */
+.era-lamp .p > .hud-tst { grid-column: 1 / -1; justify-self: start; margin-top: -4px; }
 .era-lamp .fl { transform-box: fill-box; transform-origin: 50% 100%; animation: era-flick 1.9s ease-in-out infinite alternate; }
 .era-lamp .who { display: block; overflow-wrap: normal; font-family: var(--fh); font-size: 15px; line-height: 1.15; }
 .era-lamp .lab { display: block; font-family: var(--hud-font-main, Georgia, serif); font-style: italic; font-size: 12.5px; color: var(--ink-soft); }
@@ -248,7 +251,11 @@
 .hud-cask.era-skin .hud-cask-lid b { font-family: var(--fh); font-size: 17px; letter-spacing: .16em; text-transform: uppercase; color: var(--hud-text) !important; text-shadow: 0 1px 0 color-mix(in oklab, var(--e-cwood) 60%, transparent); }
 /* На тёмных темах заголовок крышки светлее: цвет текста темы бывает средним (голубоватым, серым). */
 :root:not(.hud-scheme-light) .hud-cask.era-skin .hud-cask-lid b { color: color-mix(in oklab, var(--hud-text, #e8dcc8) 55%, #fff) !important; }
-.hud-cask.era-skin .hud-cask-lid small { font-family: var(--fd); font-style: italic; color: color-mix(in oklab, var(--hud-text) 70%, transparent) !important; }
+/* Имя владельца шкатулки: было 70% цвета текста да ещё .75 прозрачности (и бледность
+   голого <small> от Таверны) — на светлой теме почти пропадало. Теперь плотное и без
+   полупрозрачности; на тёмных темах — светлое, как заголовок. */
+.hud-cask.era-skin .hud-cask-lid small { font-family: var(--fd); font-style: italic; font-weight: 600; opacity: 1 !important; color: color-mix(in oklab, var(--hud-text) 92%, transparent) !important; }
+:root:not(.hud-scheme-light) .hud-cask.era-skin .hud-cask-lid small { color: color-mix(in oklab, var(--hud-text, #e8dcc8) 70%, #fff) !important; }
 .hud-cask.era-skin .hud-cask-lock { width: 18px !important; height: 24px !important; border-radius: 9px 9px 4px 4px !important; border: 0 !important;
   background: radial-gradient(3px 3px at 50% 40%, #1b1208 90%, transparent), linear-gradient(#1b1208, #1b1208) 50% 58% / 2px 7px no-repeat, var(--e-brass) !important;
   box-shadow: 0 1px 2px rgba(0,0,0,.5), inset 0 0 0 1px color-mix(in oklab, var(--e-gold-lo) 80%, #000) !important; }
