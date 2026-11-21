@@ -16,29 +16,29 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.76';
-import { уверены } from './confirm-erase.js?v=23.89.76';
-import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.76';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.89.76';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.76';
-import { прикрытьСырой } from './raw-guard.js?v=23.89.76';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.76';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.76';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.76';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.76';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.76';
-import { полныйПорядок } from './tabs-order.js?v=23.89.76';
-import { getWorldVotes } from './render/world.js?v=23.89.76';
-import { действиеМира } from './render/world-views.js?v=23.89.76';
-import { действиеМузыки } from './render/music.js?v=23.89.76';
-import { раскрытьПорцию } from './render/long-list.js?v=23.89.76';
-import { прогретьИсторию } from './render/carryover.js?v=23.89.76';
-import { подключитьПалитру } from './color-picker.js?v=23.89.76';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.76';
-import { замер } from './utils.js?v=23.89.76';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.76';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.76';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.76';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.77';
+import { уверены } from './confirm-erase.js?v=23.89.77';
+import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.77';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.89.77';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.77';
+import { прикрытьСырой } from './raw-guard.js?v=23.89.77';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.77';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.77';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.77';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.77';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.77';
+import { полныйПорядок } from './tabs-order.js?v=23.89.77';
+import { getWorldVotes } from './render/world.js?v=23.89.77';
+import { действиеМира } from './render/world-views.js?v=23.89.77';
+import { действиеМузыки } from './render/music.js?v=23.89.77';
+import { раскрытьПорцию } from './render/long-list.js?v=23.89.77';
+import { прогретьИсторию } from './render/carryover.js?v=23.89.77';
+import { подключитьПалитру } from './color-picker.js?v=23.89.77';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.77';
+import { замер } from './utils.js?v=23.89.77';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.77';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.77';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.77';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -2393,6 +2393,36 @@ document.addEventListener('click', (e) => {
   const полоса = e.target.closest && e.target.closest('.hud-tabs-header');
   if (полоса && полоса.__hudБезКлика && Date.now() - полоса.__hudБезКлика < 400) { e.preventDefault(); e.stopPropagation(); полоса.__hudБезКлика = 0; }
 }, true);
+
+// --- Колесо мыши над полосой вкладок (ПК) ------------------------------------
+// Полоса вкладок листается вбок, а у мыши колесо только вверх-вниз: над
+// вкладками оно листало чат. Теперь над полосой колесо листает вкладки вправо-
+// влево, ниже полосы всё как было. Тачпад (сдвиг вбок) листает сам, Ctrl+колесо
+// — масштаб браузера. Полоса без переполнения колесо не трогает. Обработчик
+// вешается на полосу при первом наведении мыши: на document непассивное колесо
+// тормозило бы прокрутку всей страницы.
+function колесоВкладок(ev) {
+  const полоса = ev.currentTarget;
+  if (ev.ctrlKey || Math.abs(ev.deltaX) > Math.abs(ev.deltaY)) return;
+  const запас = полоса.scrollWidth - полоса.clientWidth;
+  if (запас <= 1) return;
+  let сдвиг = ev.deltaY * (ev.deltaMode === 1 ? 32 : ev.deltaMode === 2 ? полоса.clientWidth : 1);
+  if (!сдвиг) return;
+  ev.preventDefault();
+  // Цель копится, пока плавная прокрутка ещё едет: быстрые щелчки колеса не теряются.
+  const сейчас = performance.now();
+  const откуда = полоса.__hudЦельВкладок !== undefined && сейчас - (полоса.__hudКолесоВремя || 0) < 300 ? полоса.__hudЦельВкладок : полоса.scrollLeft;
+  const цель = Math.max(0, Math.min(запас, откуда + сдвиг));
+  полоса.__hudЦельВкладок = цель; полоса.__hudКолесоВремя = сейчас;
+  полоса.scrollTo({ left: цель, behavior: 'smooth' });
+}
+document.addEventListener('pointerover', (e) => {
+  if (e.pointerType !== 'mouse') return;
+  const полоса = e.target.closest && e.target.closest('.hud-tabs-header');
+  if (!полоса || полоса.__hudКолесо) return;
+  полоса.__hudКолесо = true;
+  полоса.addEventListener('wheel', колесоВкладок, { passive: false });
+}, { passive: true });
 
 // --- Свои статы: перестановка долгим нажатием (custom-stats.js) -------------
 // Зажал блок стата — он приподнимается и едет за пальцем между строками

@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.77 — 2026-11-21
+
+### Fixed
+- **Tabs scroll with the mouse wheel on PC.** Over the tab strip the wheel scrolls the tabs left and right (smoothly, quick notches are not lost); below the strip it scrolls as before. A touchpad's sideways swipe scrolls by itself, Ctrl+wheel is still browser zoom; if all tabs fit, the wheel leaves the strip alone.
+
 ## 23.89.76 — 2026-11-21
 
 ### Changed

@@ -13,11 +13,11 @@
 // Пополняется сама: при открытии чата — фоном, по кусочку, все HUD, которых в
 // летописи ещё нет; после каждого ответа, свайпа и правки — последние ходы.
 
-import { прочитатьЛетопись, дописатьЛетопись, выжимкаHUD, ключСообщения, КЛЮЧ_ЛЕТОПИСИ } from './chronicle.js?v=23.89.76';
-import { extractHudBlock } from './hud-block.js?v=23.89.76';
-import { развернутьHUD } from './offload.js?v=23.89.76';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.76';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.76';
+import { прочитатьЛетопись, дописатьЛетопись, выжимкаHUD, ключСообщения, КЛЮЧ_ЛЕТОПИСИ } from './chronicle.js?v=23.89.77';
+import { extractHudBlock } from './hud-block.js?v=23.89.77';
+import { развернутьHUD } from './offload.js?v=23.89.77';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.77';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.77';
 
 const кэш = new Map();   // имя файла → { хранилище: { [КЛЮЧ_ЛЕТОПИСИ]: … }, карта, загрузка, таймер }
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };
