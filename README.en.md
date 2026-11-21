@@ -98,8 +98,10 @@ A separate tab for everyone the model described in the turn:
 
 - **Look and state** — clothing, appearance, role, body, physiology, health, inventory, place.
 - **Inner life** — mood, thoughts, goals, schedule, fears, lines, hidden subtext, "expectation vs reality", the key point of the turn, flag monitor, jealousy, conflict depth, exposure risk.
-- **Relationships and trust** — toward each person on a 0–100 scale; trust shifts are visible from turn to turn.
+- **Relationships and trust** — toward each person on a −100 to 100 scale; trust shifts are visible from turn to turn.
+- **Trust stages** — the scale is split into stages from "Sworn enemies" to "Kindred": the stage name and a little ladder next to each person, in every trust view, with hostility below zero. Trust does not rise above the open stage until you press "Allow"; the lock fixes trust and the stage, and the model no longer changes them. Your own names and thresholds are in the settings.
 - **Relationship scars** — the model briefly writes why trust moved. A deep wound or a drop of 15 or more leaves a scar: the character remembers the hurt until trust returns. You can remove a scar with its cross, after an "Are you sure?" question: the model stops being reminded, and only a new fall in trust can bring it back. Reminders about scars and the neglected state go out once every three replies, and at once if something changes. After a big shift a character stays under the impression for a few turns, and if someone is named a rival, their gain costs the player.
+- **"Did anyone notice" dice** — under "Social exposure", a button: did anyone nearby notice the mask slipping. Until you press it, the dice is not rolled and nobody knows anything; the result stays under a haze, can be flipped for each person or cancelled, and the model learns it in the next reply.
 - **Body state** — energy, alertness, satiety, stress, sleep and plans for tomorrow.
 - **Weight and height** — a line on the card: weight, height, BMI and change. The model writes them once, then HUD asks to update them weekly in story time. If someone should not be counted, remove them in Daily life.
 - **Neglected state** — a plate when a person goes several days with almost no food, water or sleep. The model shows it in the story and in time records it as an illness, and undernourishment lowers the chance of conception and disturbs the cycle.
@@ -564,7 +566,7 @@ Settings are grouped — expand the one you need. Below is the essential part of
 **🧩 HUD blocks** — what goes into the card at all. Every block you turn off disappears both from the screen and from the model's instruction, so it saves tokens.
 - *Era, technology and magic* — the era "modern" (phone and intercepts) or "medieval" (casket and overheard talk); the level of technology; magic — none, hidden or open (fantasy), spells or innate powers; mana, abilities, backlash, spells, body and power. Phone apps and casket sections are turned on one by one.
 - *Memory and plot* — timeline, secrets, routes; Chekhov's guns; plot twist cards; the family tree and how many HUD messages to scan for it.
-- *Characters* — the player block, "What they think of you", companions.
+- *Characters* — the player block, "What they think of you", companions, trust stages (with your permission or by themselves, own stages), the "Did anyone notice" dice.
 - *Body and health* — illnesses and injuries, body state (energy, sleep, stress), the cycle, pregnancy, birth and the "Nursery". The number and sex of babies can go to the model as a hidden fact or not at all.
   Each new feature has its own checkbox here:
   - for the screen: question badges, one-time nudges, intimacy reminders;
@@ -659,6 +661,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 The latest version is **23.89.75**:
 
+- Trust stages: a −100 to 100 scale, stages from "Sworn enemies" to "Kindred" in every trust view, hostility below zero, a ceiling at the open stage with an "Allow" button, a lock that fixes trust for the model, your own stages in the settings.
+- "Did anyone notice" secret roll under "Social exposure": the dice is rolled only by the button, the result stays under a haze, it can be flipped or cancelled, and the model learns it in the next reply.
+- Taps in a card no longer shift the scroll; HUD regeneration leaves other extensions' widgets alone; place rules are no longer cut short.
 - "Manor cross-section" knows more posts in Russian and English, in any case and number; an unknown post gets the "Common room".
 - The Customization sample: factions and reputation are invented — its own player and character instead of names from the chat, more factions and shifts since the last turn; medieval and fantasy eras get factions of their own.
 - Views for the medieval World blocks: "Town plan" and "Crier's bell" for place rules, "Roll of guild arms" and "Chorus of witnesses" for honour, "Chapel windows" and "Vigil flame" for faith, "Housekeeper's keys" and "Manor cross-section" for the household, "Scales of the court" and "Tally of the suit" for courts, transparent and blurred like the rest. Every medieval World view shows a short entry first, and the details open and close smoothly on tap. Holiday and preparation cards are as wide as the twist card.
