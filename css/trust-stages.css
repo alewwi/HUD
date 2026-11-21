@@ -1,0 +1,132 @@
+/* TavernOS HUD — ступени доверия (render/trust-stages.js) и вражда в видах доверия.
+   Плашка ступени живёт внутри карточки каждого вида: лесенка, имя ступени,
+   «Разрешить» и замок. Цвет — от акцента вида (--v-acc) или ступени полоски
+   (--уровень), вражда — тёмно-красная во всех видах. */
+
+.hud-tst {
+  --tst-acc: var(--v-acc, var(--уровень, var(--hud-accent, #c9a0ff)));
+  display: flex; align-items: center; flex-wrap: wrap; gap: 5px 7px; min-width: 0;
+  margin-top: 6px; font-size: .74em; line-height: 1.25;
+}
+.hud-tst.is-neg { --tst-acc: #d4525f; }
+.hud-tst-steps { flex: none; display: inline-flex; align-items: flex-end; gap: 1.5px; height: 12px; }
+.hud-tst-steps > i {
+  width: 4px; height: var(--h, 50%); border-radius: 1.5px 1.5px .5px .5px; box-sizing: border-box;
+  background: color-mix(in srgb, currentColor 16%, transparent);
+}
+.hud-tst-steps > i.neg { background: color-mix(in srgb, #d4525f 18%, transparent); }
+.hud-tst-steps > i.pos.on { background: var(--tst-acc); }
+.hud-tst-steps > i.neg.on { background: #c8414f; }
+.hud-tst-steps > i.cur { box-shadow: 0 0 6px color-mix(in srgb, var(--tst-acc) 70%, transparent); outline: 1px solid color-mix(in srgb, var(--tst-acc) 50%, var(--ink-hi, #fff)); outline-offset: .5px; }
+/* Выше открытой ступени — пунктир: туда пока нельзя. */
+.hud-tst-steps > i.shut { background: transparent; border: 1px dashed color-mix(in srgb, currentColor 34%, transparent); }
+.hud-tst-name {
+  min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  font-weight: 700; letter-spacing: .05em; text-transform: uppercase; font-size: .92em;
+  color: color-mix(in srgb, var(--tst-acc) 50%, var(--ink-hi, #fff));
+}
+.hud-tst-lock, .hud-tst-up {
+  -webkit-appearance: none; appearance: none; font: inherit; cursor: pointer; margin: 0;
+  display: inline-flex; align-items: center; justify-content: center; gap: 4px;
+  color: inherit; background: color-mix(in srgb, var(--tst-acc) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--tst-acc) 32%, transparent);
+}
+.hud-tst-lock { flex: none; width: 21px; height: 21px; padding: 0; border-radius: 50%; margin-left: auto; opacity: .7; }
+.hud-tst-lock .hud-v-ico, .hud-tst-up .hud-v-ico { width: 12px; height: 12px; }
+.hud-tst-lock.is-on {
+  opacity: 1; color: #2a1d08;
+  background: radial-gradient(circle at 35% 30%, #fff1c4, #e3b34e 55%, #a8741e);
+  border-color: color-mix(in srgb, #e3b34e 70%, #000); box-shadow: 0 0 8px rgba(227,179,78,.55);
+}
+.hud-tst-lock.is-on .hud-v-ico { stroke: currentColor; }
+.hud-tst-up {
+  min-width: 0; max-width: 100%; padding: 2px 8px 2px 6px; border-radius: 99px; border-style: dashed;
+  font-weight: 700; color: color-mix(in srgb, var(--tst-acc) 55%, var(--ink-hi, #fff));
+  box-shadow: 0 0 10px -2px color-mix(in srgb, var(--tst-acc) 60%, transparent);
+}
+.hud-tst-up span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-tst-lock:hover { opacity: 1; background: color-mix(in srgb, var(--tst-acc) 20%, transparent); }
+  .hud-tst-lock.is-on:hover { background: radial-gradient(circle at 35% 30%, #fff6d8, #ebbf5e 55%, #b07c22); }
+  .hud-tst-up:hover { background: color-mix(in srgb, var(--tst-acc) 22%, transparent); border-style: solid; }
+  .hud-tst-up:hover .hud-v-ico { animation: hud-tst-climb .9s ease-in-out infinite; }
+}
+@keyframes hud-tst-climb { 50% { transform: translate(1px, -1.5px); } }
+.hud-tst.is-locked .hud-tst-name::after { content: ' ·'; opacity: .5; }
+.hud-tst.is-compact { justify-content: center; gap: 4px 5px; }
+.hud-tst.is-compact .hud-tst-lock { margin-left: 0; }
+
+/* --- Полоски (прежний вид) --- */
+.hud-trustmap .hud-zone.has-stage { row-gap: 2px; }
+.hud-trustmap .hud-zone .hud-tst { grid-column: 1 / -1; margin-top: 2px; }
+.hud-zone.is-neg { --уровень: #c8414f; }
+.hud-zone.is-neg .hud-zone-bar > i {
+  background: repeating-linear-gradient(-45deg, #c8414f 0 4px, #8a2431 4px 7px);
+  box-shadow: 0 0 8px rgba(200,65,79,.45);
+}
+.hud-zone.is-neg .hud-zone-val { color: color-mix(in srgb, #e0606e 75%, var(--ink-hi, #fff)); }
+.hud-row[class*=" kind-"] .hud-zone.is-neg { --уровень: #c8414f; }
+
+/* --- Вражда во всех видах: акцент вида становится тёмно-красным --- */
+.hud-v-trust .is-neg { --v-acc: #c2414f; --v-glow: rgba(194,65,79,.5); --f-ink: color-mix(in srgb, #e0606e 60%, var(--ink-hi, #fff)); }
+/* Сердца: ряд разбитых. */
+.hud-v-hearts.is-broken svg .bg { fill: color-mix(in srgb, currentColor 7%, transparent); }
+.hud-v-hearts.is-broken svg.is-full .bg { fill: #7d1f2c; }
+.hud-v-hearts.is-broken svg.is-full { filter: drop-shadow(0 0 3px rgba(194,65,79,.55)); }
+.hud-v-hearts.is-broken .crack { fill: none; stroke: rgba(10,0,2,.7); stroke-width: 1.2; stroke-linejoin: round; }
+.hud-v-heartcard.is-neg .hud-v-bigheart svg { filter: drop-shadow(0 3px 6px rgba(194,65,79,.5)); }
+/* Щит: алый, скрещённые мечи вместо креста. */
+.hud-v-shield.is-neg .emblem { stroke: rgba(255,235,235,.7); stroke-width: 1.8; }
+.hud-v-shield.is-neg .rim { stroke: color-mix(in srgb, #c2414f 60%, #2b0a0f); }
+/* Кольцо: бежит в обратную сторону. */
+.hud-v-ringcard.is-neg .hud-v-ring {
+  background: conic-gradient(from 0deg, color-mix(in srgb, currentColor 10%, transparent) 0 calc((100 - var(--p, 0)) * 1%), color-mix(in srgb, var(--v-acc) 55%, #000) 0, var(--v-acc));
+}
+/* Светофор: красный и рамка тревоги. */
+.hud-v-trust.is-traffic .hud-v-card.is-neg { box-shadow: inset 0 0 0 1px rgba(239,90,110,.4), 0 0 14px -6px rgba(239,90,110,.7); }
+.hud-v-trust.is-traffic .hud-v-card { flex-wrap: wrap; }
+.hud-v-trust.is-traffic .hud-v-card > .hud-tst { flex-basis: 100%; }
+/* Щит и кольцо — плашка по центру под числом. */
+.hud-v-shield > .hud-tst, .hud-v-ringcard > .hud-tst { margin-top: 2px; }
+/* Сердца — плашка под рядом сердец, с тем же отступом. */
+.hud-v-heartcard > .hud-tst { margin-left: 37px; }
+/* Спектр со знаком: слева вражда, ноль посередине. */
+.hud-v-trust.is-signed .hud-v-spectrum-track {
+  background: linear-gradient(90deg, #7d1f2c, #c2414f 22%, color-mix(in srgb, var(--v-acc) 20%, #2a2530) 50%, color-mix(in srgb, var(--v-acc) 60%, #3a3040) 75%, color-mix(in srgb, var(--v-acc) 60%, #fff));
+}
+.hud-v-spectrum-track > s.zero { width: 2px; top: -6px; bottom: -6px; background: color-mix(in srgb, var(--ink-hi, #fff) 60%, transparent); }
+.hud-v-spot.is-neg > b { background: rgba(194,65,79,.3); border-color: rgba(224,96,110,.45); }
+.hud-v-spot.is-neg .hud-v-face { box-shadow: 0 0 0 3px var(--hud-card-inner-bg, #1b1620), 0 0 12px rgba(194,65,79,.7); }
+/* Орбиты: внешняя — враги. */
+.hud-v-orbits .orbit.is-neg { stroke: rgba(224,96,110,.6); }
+.hud-v-orbits .who.is-neg .hud-v-sface .ring { stroke: #e0606e; }
+.hud-v-orbits .who.is-neg .who-t { fill: color-mix(in srgb, #e0606e 70%, var(--ink-hi, #fff)); }
+/* Сводные виды: плашки списком. */
+.hud-tst-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 6px; margin-top: 8px; }
+.hud-tst-row {
+  display: flex; align-items: center; gap: 7px; min-width: 0; padding: 4px 8px; border-radius: 10px;
+  background: color-mix(in srgb, var(--v-acc, var(--hud-accent)) 7%, transparent); border: 1px solid var(--v-line, rgba(255,255,255,.1));
+}
+.hud-tst-row > .hud-v-face { width: 22px; height: 22px; font-size: .6em; flex: none; }
+.hud-tst-row > b { flex: none; font-size: .82em; max-width: 34%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-tst-row > .hud-tst { flex: 1; margin: 0; justify-content: flex-end; }
+
+/* Эпохи: фонари и сферы переносят плашку из исходной карточки. */
+.era-lamp .p > .hud-tst, .fx .orb > .hud-tst, .gr-lanterns .gr-lan > .hud-tst { justify-content: center; margin-top: 3px; }
+.era-lamp .p.is-neg svg, .fx .orb.is-neg svg, .gr-lanterns .gr-lan.is-neg svg { filter: grayscale(.4) sepia(.5) hue-rotate(-30deg) saturate(1.6) brightness(.8); }
+
+/* Настройки: свои ступени. */
+.hud-tst-set { margin: 2px 0 6px 22px; display: grid; gap: 4px; }
+.hud-tst-set[hidden] { display: none; }
+.hud-tst-set-edit > summary { cursor: pointer; font-size: .92em; }
+.hud-tst-set-rows { display: grid; gap: 4px; margin: 6px 0; }
+.hud-tst-set-row { display: grid; grid-template-columns: 58px minmax(0, 1fr) auto; gap: 6px; align-items: center; }
+.hud-tst-set-row .hud-set-num { width: 100%; box-sizing: border-box; }
+.hud-tst-set-name { min-width: 0; background: rgba(0,0,0,.3); border: 1px solid var(--hud-border); color: inherit; padding: 2px 6px; border-radius: 4px; }
+.hud-tst-set-row .menu_button { margin: 0; padding: 2px 8px; min-width: 0; }
+.hud-tst-set-btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-tst-set-btns .menu_button { margin: 0; }
+
+/* «Что о тебе думают»: вражда — штрихованная алая полоска, подпись — ступень. */
+.hud-perc.is-neg .hud-perc-trust > i > i { background: repeating-linear-gradient(-45deg, #c8414f 0 4px, #8a2431 4px 7px); }
+.hud-perc.is-neg .hud-perc-trust em { color: color-mix(in srgb, #e0606e 75%, var(--ink-hi, #fff)); }

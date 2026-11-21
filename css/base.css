@@ -224,6 +224,7 @@
 
 .hud-os-wrapper { max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.6s cubic-bezier(0, 1, 0, 1), opacity 0.4s ease; }
 .hud-toggle-input:checked ~ .hud-os-wrapper { max-height: 5000px; opacity: 1; transition: max-height 1s ease-in-out, opacity 0.6s ease; } 
+.hud-os-card.hud-restoring-view .hud-os-wrapper { transition: none !important; }
 
 /* =========================================
    УВЕДОМЛЕНИЯ (TOASTS)
