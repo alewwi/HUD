@@ -1055,7 +1055,7 @@ settings.tempoView = 'xray';
     проверить('реген: роли user/assistant — без «model» по имени модели', !рег.includes("'model'") && !рег.includes('isGeminiBackend'));
     проверить('реген: Text Completion — через generateRaw, профиль — до проверки Custom', рег.includes("основнойAPI !== 'openai'") && рег.includes('генерацияТаверны(stContext, { prompt: freshMessages') && рег.includes('!черезПрофиль && !черезТаверну && hudSource'));
     проверить('реген: из клона — без tools и JSON-схемы', рег.includes("['tools', 'tool_choice', 'json_schema', 'n', 'logprobs']"));
-    проверить('реген: сменился свайп или чат — HUD не вставляем, текст сообщения — свежий', рег.includes('targetMessage.swipe_id !== свайпВНачале') && рег.includes('oldText = заменитьHudБлоки(основа.текстСообщенияЧата(targetMessage)'));
+    проверить('реген: сменился свайп или чат — HUD не вставляем, текст сообщения — свежий', рег.includes('targetMessage.swipe_id !== свайпВНачале') && рег.includes('ключЧата() !== чатВНачале') && рег.includes('const текущийТекст = основа.текстСообщенияЧата(targetMessage);') && рег.includes('заменитьHudБлоки(текущийТекст,'));
     // Живая проверка (GLM, DeepSeek через роутер): пустой ответ приходит как «""»,
     // а рассуждающая модель тратит весь лимит до HUD.
     const обрыв = (c, f = 'length') => ({ choices: [{ finish_reason: f, message: { content: c, reasoning: '…' } }] });

@@ -103,7 +103,7 @@ export function местаАдреса(адрес, места = местаЧат
 const ДНИ = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 const ДНИ_RU = { вс: 'sun', пн: 'mon', вт: 'tue', ср: 'wed', чт: 'thu', пт: 'fri', сб: 'sat' };
 const СФЕРЫ = ['land', 'bridge', 'toll', 'market', 'court', 'guards', 'complaints', 'church', 'crossing', 'other'];
-const строка = (v, n) => String(v ?? '').replace(/\s+/g, ' ').trim().slice(0, n);
+const строка = v => String(v ?? '').replace(/\s+/g, ' ').trim();
 function когдаИз(v) {
   const s = String(v ?? '').trim().toLowerCase();
   if (!s || /^(?:always|всегда|any|anytime)$/.test(s)) return 'always';
@@ -124,18 +124,18 @@ function днейИз(v) {
   return out.length === 7 ? [] : out;
 }
 export function нормализоватьПравило(з) {
-  if (!з || typeof з !== 'object') { const т = строка(з, 160); return т ? { текст: т, когда: 'always', когдаСлово: '', дни: [], кого: '', где: '', иначе: '' } : null; }
-  const текст = строка(з.rule ?? з.text ?? з.правило, 160);
+  if (!з || typeof з !== 'object') { const т = строка(з); return т ? { текст: т, когда: 'always', когдаСлово: '', дни: [], кого: '', где: '', иначе: '' } : null; }
+  const текст = строка(з.rule ?? з.text ?? з.правило);
   if (!текст) return null;
-  return { текст, когда: когдаИз(з.when ?? з.time), когдаСлово: строка(з.when_text ?? з.whenText, 40), дни: днейИз(з.days), кого: строка(з.who, 50), где: строка(з.where, 50), иначе: строка(з.if_broken ?? з.ifBroken ?? з.penalty, 90) };
+  return { текст, когда: когдаИз(з.when ?? з.time), когдаСлово: строка(з.when_text ?? з.whenText), дни: днейИз(з.days), кого: строка(з.who), где: строка(з.where), иначе: строка(з.if_broken ?? з.ifBroken ?? з.penalty) };
 }
 export function нормализоватьВласть(з) {
   if (!з || typeof з !== 'object') return null;
-  const кто = строка(з.holder ?? з.who ?? з.кто, 70);
+  const кто = строка(з.holder ?? з.who ?? з.кто);
   const сфера = String(з.area ?? '').trim().toLowerCase();
-  const подпись = строка(з.label ?? з.area_name ?? з.what, 40);
+  const подпись = строка(з.label ?? з.area_name ?? з.what);
   if (!кто || (!подпись && !СФЕРЫ.includes(сфера))) return null;
-  return { сфера: СФЕРЫ.includes(сфера) ? сфера : 'other', подпись, кто, заметка: строка(з.note, 90) };
+  return { сфера: СФЕРЫ.includes(сфера) ? сфера : 'other', подпись, кто, заметка: строка(з.note) };
 }
 /** Ответ модели → { правила, власть } или null. Терпит ```json, рассуждения и висячие запятые. */
 export function разобратьМесто(ответ) {

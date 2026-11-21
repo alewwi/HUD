@@ -15,8 +15,23 @@ import { генерацияТаверны } from './utils.js?v=23.89.75';
 import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.75';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
-// buildHudLoreContext, getMessageUpdateFunction, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
+// buildHudLoreContext, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
 let основа = null;
+// Обновляем только HUD: разметка истории может содержать живые виджеты других расширений.
+export function показатьБлок(id, блок) {
+  const mes = document.querySelector(`#chat .mes[mesid="${id}"]`);
+  const текст = mes?.querySelector('.mes_text');
+  if (!текст) return;
+  const источник = document.createTextNode(блок);
+  const карточка = текст.querySelector('.hud-os-card, .hud-evicted, .hud-missing-placeholder');
+  if (карточка) карточка.replaceWith(источник);
+  else текст.appendChild(источник);
+  delete mes.__hudRenderSig;
+  delete mes.__hudLiveKey;
+  mes.__hudLiveCard = null;
+  основа.safeProcessMessage(mes);
+}
+
 export function подключить(связь) { основа = связь; }
 
 // --- Подключение для прямого запроса -------------------------------------------
@@ -220,7 +235,6 @@ export async function handleHudRegenButton(regenBtn) {
 
       try {
           const mesId = mesEl.getAttribute('mesid');
-          const textElement = mesEl.querySelector('.mes_text');
           
           let stContext = null;
           if (typeof window.SillyTavern !== 'undefined' && typeof window.SillyTavern.getContext === 'function') {
@@ -259,16 +273,6 @@ export async function handleHudRegenButton(regenBtn) {
           const ключЧата = () => { try { return String(stContext?.getCurrentChatId?.() ?? ''); } catch (_) { return ''; } };
           const чатВНачале = ключЧата();
           const свайпВНачале = targetMessage.swipe_id;
-
-          let oldText = '';
-          if (targetMessage) {
-              if (targetMessage.swipes && targetMessage.swipe_id !== undefined && targetMessage.swipes[targetMessage.swipe_id]) {
-                  oldText = targetMessage.swipes[targetMessage.swipe_id];
-              } else {
-                  oldText = targetMessage.mes || '';
-              }
-          }
-          oldText = заменитьHudБлоки(oldText, '').trim();
 
           // Для старых сообщений в текущей вкладке может не существовать lastTavernRequest.
           // В таком случае берём живые настройки Chat Completion из ST вместо обращения
@@ -663,12 +667,7 @@ export async function handleHudRegenButton(regenBtn) {
             if (!новый) throw new Error('HUD сообщения не разобрался — телефон не вставлен');
             основа.запомнитьВерсиюHUD(targetMessage, прежний, 'до перегенерации телефона');
             основа.updateMessageDataForCurrentSwipe(targetMessage, основа.replaceHudBlockInText(текст, новый));
-            const обновить = основа.getMessageUpdateFunction(stContext);
-            if (обновить) await Promise.resolve(обновить(mesIdNum, targetMessage, { rerenderMessage: true }));
-            requestAnimationFrame(() => requestAnimationFrame(() => {
-              const fresh = document.querySelector(`.mes[mesid="${mesId}"]`) || mesEl;
-              if (fresh && fresh.isConnected) основа.safeProcessMessage(fresh);
-            }));
+            показатьБлок(mesIdNum, новый);
             if (loadingToast) { loadingToast.classList.add('hide'); setTimeout(() => loadingToast.remove(), 400); }
             основа.showHudToast('success', 'Телефон обновлён', 'Телефон вшит в HUD, остальное не тронуто. Прежний телефон — в «↶» на карточке.');
             const сохранить = (stContext && typeof stContext.saveChatConditional === 'function') ? stContext.saveChatConditional.bind(stContext)
@@ -698,10 +697,13 @@ export async function handleHudRegenButton(regenBtn) {
               throw new Error('пока HUD генерировался, сообщение сменилось: другой свайп, другой чат или его удалили — HUD не вставлен');
           }
           // Текст — нынешний: правка сообщения за время ожидания не теряется.
-          oldText = заменитьHudБлоки(основа.текстСообщенияЧата(targetMessage), '').trim();
+          const текущийТекст = основа.текстСообщенияЧата(targetMessage);
           // «nc», мир раз в день, память обновлениями — в полный HUD (hud-expand.js).
           newHudText = основа.развернутьКраткоеВБлоке(newHudText, mesIdNum);
-          let updatedFullText = основа.replaceHudBlockInText(oldText, newHudText);
+          const блоки = hudБлоки(текущийТекст);
+          const updatedFullText = блоки.length
+            ? заменитьHudБлоки(текущийТекст, (_, i) => i === блоки.length - 1 ? newHudText : '')
+            : основа.replaceHudBlockInText(текущийТекст, newHudText);
 
           // Прошлый HUD не теряется: он уходит в версии этого свайпа, и его
           // можно вернуть кнопкой «↶» на карточке.
@@ -715,31 +717,7 @@ export async function handleHudRegenButton(regenBtn) {
               (typeof window.saveChatConditional === 'function') ? window.saveChatConditional :
               (typeof window.saveChat === 'function') ? window.saveChat : null;
 
-          const updateFn = основа.getMessageUpdateFunction(stContext);
-
-          if (updateFn) {
-              await Promise.resolve(updateFn(mesIdNum, targetMessage, { rerenderMessage: true }));
-          } else {
-              // Сырой ответ модели в innerHTML не кладём: в нём может быть
-              // любая разметка. Форматирует ST (markdown + свой санитайзер),
-              // а без него — просто текст.
-              const формат = stContext && typeof stContext.messageFormatting === 'function'
-                ? stContext.messageFormatting(updatedFullText, targetMessage.name, !!targetMessage.is_system, !!targetMessage.is_user, mesIdNum)
-                : null;
-              if (typeof формат === 'string') textElement.innerHTML = формат;
-              else textElement.textContent = updatedFullText;
-          }
-
-          // После штатного обновления ST повторно обрабатываем только HUD.
-          // Сам message DOM SillyTavern не пересоздаём.
-          requestAnimationFrame(() => {
-              requestAnimationFrame(() => {
-                  const freshMesEl = document.querySelector(`.mes[mesid="${mesId}"]`) || mesEl;
-                  if (freshMesEl && freshMesEl.isConnected) {
-                      основа.safeProcessMessage(freshMesEl);
-                  }
-              });
-          });
+          показатьБлок(mesIdNum, newHudText);
 
           if (loadingToast) {
               loadingToast.classList.add('hide');

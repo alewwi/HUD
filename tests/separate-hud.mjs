@@ -31,5 +31,24 @@ for (const ф of ['regen.js', 'render/music.js', 'render/assistant.js']) {
   проверить(`${ф}: профиль Text Completion — с шаблоном instruct`, /includeInstruct: true/.test(код(ф)) && !/includeInstruct: false/.test(код(ф)));
 }
 
+// Два обновления в одном посте: соседняя плашка сохраняет объект и обработчик.
+const { подключить, показатьБлок } = await import('../regen.js');
+const плашка = new EventTarget();
+let нажатия = 0;
+плашка.addEventListener('click', () => нажатия++);
+const узлы = [плашка];
+const текст = { querySelector: () => узлы[1], appendChild: узел => узлы.push(узел) };
+const сообщение = { querySelector: () => текст };
+globalThis.document = { querySelector: () => сообщение, createTextNode: textContent => ({ textContent }) };
+const получено = [];
+подключить({ safeProcessMessage: () => {
+  получено.push(узлы[1].textContent);
+  узлы[1] = { replaceWith: новый => { узлы[1] = новый; } };
+} });
+показатьБлок(0, '[HUD]первый[/HUD]');
+показатьБлок(0, '[HUD]второй[/HUD]');
+узлы[0].dispatchEvent(new Event('click'));
+проверить('создание и замена HUD сохраняют чужую плашку и её обработчик', узлы.length === 2 && узлы[0] === плашка && нажатия === 1 && получено.join(' ') === '[HUD]первый[/HUD] [HUD]второй[/HUD]');
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалов}`);
 process.exitCode = провалов ? 1 : 0;

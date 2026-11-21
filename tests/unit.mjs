@@ -4441,6 +4441,9 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     // Ярмарки, правила места, святцы, знак рода.
     const HL = await модуль('render/holiday-lore.js');
     const PL = await модуль('render/place-lore.js');
+    const фраза = 'Подробность местного обычая '.repeat(8) + 'до последнего слова.';
+    const место = PL.разобратьМесто(JSON.stringify({ rules: [{ rule: фраза, if_broken: фраза }], power: [{ label: фраза, holder: фраза, note: фраза }] }));
+    проверить('длинные строки правил и власти доходят до конца', [место.правила[0].текст, место.правила[0].иначе, место.власть[0].подпись, место.власть[0].кто, место.власть[0].заметка].every(s => s === фраза));
     const AL = await модуль('render/almanac.js');
     const ГР = await модуль('render/heraldry.js');
     Н.enableFairs = false; Н.placeLore = false; Н.medievalAlmanac = false; Н.heraldry = false;
