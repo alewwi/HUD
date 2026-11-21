@@ -63,7 +63,7 @@ export const ПРИМЕР_HUD = {
       NG: 'Pain: panic fear; Threesome: doesn\'t share',
       NT: 'Rushing: loses the mood at once; Dirty words: make her laugh',
       Mrk: 'Hickey: left side of the neck — turning purple, aching | 5d; Finger marks: thighs — red spots | 1d',
-      Tr: 'Artyom Wolf: 90; Anna Grey: 85; Mark Grey: 55; Eleanor Grey: 40',
+      Tr: 'Artyom Wolf: 90; Anna Grey: 85; Mark Grey: 55; Eleanor Grey: 52',
       Fr: 'Mark will come over to sort it out: high; In the morning it will all turn out to be a mistake: moderate',
     },
     {
@@ -136,7 +136,7 @@ export const ПРИМЕР_HUD = {
       NG: 'Rudeness to his wife: never',
       NT: 'Work talk in bed: kills it at once',
       Mrk: 'Scratches: shoulder — two pink lines | 1d; Split skin: knuckles of the right hand — punched a wall, dried blood | 3d',
-      Tr: 'Anna Grey: 95; Lilian Grey: 70 (hid Artyom from him); Eleanor Grey: 60 (!read his letters without asking); Artyom Wolf: 30',
+      Tr: 'Anna Grey: 95; Lilian Grey: 70 (hid Artyom from him); Eleanor Grey: 60 (!read his letters without asking); Artyom Wolf: -35',
       Fr: 'Something happened to my sister: moderate',
     },
     {

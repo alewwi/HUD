@@ -90,6 +90,7 @@ function свеча(v, имя, сост, красная) {
 // Кованый фонарь: чем больше доверия, тем ярче огонь.
 function фонарь(имя, лаб, v) {
   const gg = id('lg'), gf = id('lf'), gi = id('li');
+  const показ = Math.max(-100, Math.min(100, v));
   v = Math.max(0, Math.min(100, v));
   const k = v / 100;
   return `<div class="p sheet" style="--v:${v}"><svg viewBox="0 0 40 64" aria-hidden="true"><defs>`
@@ -103,7 +104,7 @@ function фонарь(имя, лаб, v) {
     + `<rect x="18.6" y="42" width="2.8" height="5" style="fill:color-mix(in oklab, var(--parch) 70%, #fff)"/>`
     + `<path d="M9.5 18h21v31h-21zM16.5 18v31M23.5 18v31M9.5 33.5h21" fill="none" style="stroke:var(--e-iron)" stroke-width="1.3"/>`
     + `<path d="M7 49h26l-3 5H10z" fill="url(#${gi})"/><path d="M12 54v3M28 54v3" style="stroke:var(--e-iron)" stroke-width="1.8" stroke-linecap="round"/>`
-    + `</svg><div><span class="who">${escapeHtml(имя)}</span><span class="lab">${escapeHtml(лаб)}</span></div><b class="num">${v}<span>из ста</span></b></div>`;
+    + `</svg><div><span class="who">${escapeHtml(имя)}</span><span class="lab">${escapeHtml(лаб)}</span></div><b class="num">${показ}<span>из ста</span></b></div>`;
 }
 
 function колокол() {
@@ -174,7 +175,13 @@ function реплики(ln) {
 
 // Доверие: фонари вместо светофора.
 function доверие(tr) {
-  return блок('era era-lamp', [...tr.querySelectorAll('.hud-v-card')].map(c => фонарь(текст(c.querySelector('.hud-v-traffic-text b')), текст(c.querySelector('.hud-v-traffic-text small')), parseInt(текст(c.querySelector('.hud-v-num')), 10) || 0)).join(''));
+  // Ступень доверия и замок (render/trust-stages.js) переезжают в фонарь как есть; вражда — фонарь гаснет.
+  return блок('era era-lamp', [...tr.querySelectorAll('.hud-v-card')].map(c => {
+    const v = parseInt(текст(c.querySelector('.hud-v-num')), 10) || 0;
+    const ф = фонарь(текст(c.querySelector('.hud-v-traffic-text b')), текст(c.querySelector('.hud-v-traffic-text small')), v);
+    const плашка = c.querySelector('.hud-tst')?.outerHTML || '';
+    return (v < 0 ? ф.replace('class="p sheet"', 'class="p sheet is-neg"') : ф).replace(/<\/div>\s*$/, плашка + '</div>');
+  }).join(''));
 }
 
 // Статус: лента с восковой печатью вместо неоновых трубок.

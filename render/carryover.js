@@ -26,6 +26,9 @@ import { звонкиИзЧатов, записьЗдоровья, склеит�
 import { readParsed, writeParsed } from '../store.js?v=23.89.75';
 import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.89.75';
 import { ключСлуха } from './rumor-times.js?v=23.89.75';
+import { применитьСтупени, ступениВкл } from './trust-stages.js?v=23.89.75';
+import { getSafeUserName } from '../utils.js?v=23.89.75';
+import { полеВкл } from '../deep-fields.js?v=23.89.75';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -981,36 +984,57 @@ const ГЛУБИНА_ДОВЕРИЯ = 30;
 const разобратьДоверие = (v) => {
   const о = {};
   текст(Array.isArray(v) ? v.join('; ') : v).split(/[;\n]/).forEach(ч => {
-    const m = ч.match(/^\s*([^:：]{1,40})[:：]\s*(-?\d{1,3})/);
+    const m = ч.replace(/[−–—]/g, '-').match(/^\s*([^:：]{1,60})[:：]\s*(-?\d{1,3})/);
     if (m) о[ключ(m[1])] = { имя: m[1].trim(), v: +m[2], ...разобратьПричину(ч) };
   });
   return о;
 };
 export function сдвигиДоверия(data, messageElement) {
-  if (!data || !Array.isArray(data.characters) || !data.characters.length) return data;
+  if (!data || typeof data !== 'object') return data;
   const индекс = Number(messageElement && messageElement.getAttribute('mesid'));
-  if (!Number.isInteger(индекс) || индекс <= 0) return data;
+  if (!Number.isInteger(индекс) || индекс < 0) return data;
   let chat = null;
   try {
     const ctx = window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext();
     chat = ctx && Array.isArray(ctx.chat) ? ctx.chat : (Array.isArray(window.chat) ? window.chat : null);
   } catch (_) { chat = Array.isArray(window.chat) ? window.chat : null; }
   if (!chat) return data;
+  // Ступени доверия (render/trust-stages.js): потолок открытой ступени и
+  // замок игрока — до сдвигов, чтобы стрелки и шрамы считались по тому же
+  // числу, что на экране. Новые пары заводит только самый свежий ход с HUD.
+  let последний = true;
+  if (ступениВкл()) for (let j = индекс + 1; j < chat.length; j++) { const х = разобратьХод(chat[j]); if (х && Array.isArray(х.characters) && х.characters.length) { последний = false; break; } }
+  const копияКарточки = о => Object.defineProperties({}, Object.getOwnPropertyDescriptors(о));
+  const поСтупеням = (о, имя, путь) => {
+    if (!ступениВкл() || !о || !имя || !полеВкл(settings, путь)) return о;
+    const { значение, сведения } = применитьСтупени(имя, о['Доверие'], индекс, { последний });
+    if (!сведения) return о;
+    const копия = копияКарточки(о);
+    копия['Доверие'] = значение;
+    Object.defineProperty(копия, '__ступениДоверия', { value: сведения, configurable: true });
+    return копия;
+  };
+  const люди = Array.isArray(data.characters) ? data.characters : [];
+  const ступенчатые = люди.map(c => поСтупеням(c, c?.['Имя'], 'cs.Tr'));
+  const игрок = поСтупеням(data.user, getSafeUserName(), 'us.Tr');
+  const сСтупенями = ступенчатые.some((c, i) => c !== люди[i]) || игрок !== data.user ? { ...data, characters: ступенчатые, user: игрок } : data;
+  if (!ступенчатые.length || индекс <= 0) return сСтупенями;
   // Прошлые ходы с HUD, от ближнего к дальнему.
   const прошлые = [];
   for (let j = Math.min(индекс, chat.length) - 1; j >= 0 && прошлые.length < ГЛУБИНА_ДОВЕРИЯ; j--) {
     const ход = разобратьХод(chat[j]);
-    if (ход && Array.isArray(ход.characters) && ход.characters.length) прошлые.push(ход);
+    if (ход && Array.isArray(ход.characters) && ход.characters.length) прошлые.push({ ход, j });
   }
-  if (!прошлые.length) return data;
+  if (!прошлые.length) return сСтупенями;
   let были = false;
-  const characters = data.characters.map(c => {
+  const characters = ступенчатые.map(c => {
     const сейчас = разобратьДоверие(c && c['Доверие']);
     if (!Object.keys(сейчас).length) return c;
     const имя = текст(c['Имя']);
-    const история = прошлые.map(ход => {
+    const история = прошлые.map(({ ход, j }) => {
       const з = ход.characters.find(x => namesLikelySame(текст(x && x['Имя']), имя));
-      return з ? разобратьДоверие(з['Доверие']) : null;
+      if (!з) return null;
+      return разобратьДоверие(ступениВкл() ? применитьСтупени(имя, з['Доверие'], j).значение : з['Доверие']);
     });
     const сдвиги = {};
     for (const [к, { имя: кто, v, почему, рана }] of Object.entries(сейчас)) {
@@ -1030,11 +1054,9 @@ export function сдвигиДоверия(data, messageElement) {
     }
     if (!Object.keys(сдвиги).length) return c;
     были = true;
-    const копия = { ...c };
-    Object.defineProperty(копия, '__сдвигиДоверия', { value: сдвиги, enumerable: false, configurable: true });
-    if (c && c.__датаСцены !== undefined) Object.defineProperty(копия, '__датаСцены', { value: c.__датаСцены, enumerable: false, configurable: true, writable: true });
-    if (c && c.__деньСюжета !== undefined) Object.defineProperty(копия, '__деньСюжета', { value: c.__деньСюжета, enumerable: false, configurable: true, writable: true });
+    const копия = копияКарточки(c);
+    Object.defineProperty(копия, '__сдвигиДоверия', { value: сдвиги, configurable: true });
     return копия;
   });
-  return были ? { ...data, characters } : data;
+  return были ? { ...сСтупенями, characters } : сСтупенями;
 }

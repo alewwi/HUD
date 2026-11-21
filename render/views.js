@@ -15,6 +15,7 @@ import { settings } from '../settings.js?v=23.89.75';
 import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.75';
 import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.75';
 import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.89.75';
+import { плашкаСтупени, сведенияДля, ступениВкл, словоСтупени } from './trust-stages.js?v=23.89.75';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -208,13 +209,16 @@ function сердцаСосуды(v, id, всего = 5) {
 
 function разобратьДоверие(value) {
   // «Остин Ларош, Дарен Ларош: 40» — у каждого своя карточка с тем же числом.
-  return пары(value).flatMap(п => (именаГруппы(п.имя) || [п.имя]).map(кто => ({ кто, v: Number.isFinite(число(п.текст)) ? огр(число(п.текст), 0, 100) : null, сырое: п.текст })));
+  // Со ступенями шкала −100…100: ниже нуля — вражда.
+  const низ = ступениВкл() ? -100 : 0;
+  return пары(value).flatMap(п => (именаГруппы(п.имя) || [п.имя]).map(кто => { const n = число(String(п.текст).replace(/[−–—]/g, '-')); return { кто, v: Number.isFinite(n) ? огр(n, низ, 100) : null, сырое: п.текст }; }));
 }
-const словоДоверия = (v) => v >= 80 ? 'открыт' : v >= 60 ? 'доверяет' : v >= 40 ? 'насторожен' : v >= 20 ? 'закрыт' : 'глухо закрыт';
-const ступень = (v) => v >= 66 ? 'is-high' : v >= 33 ? 'is-mid' : 'is-low';
+const словоДоверия = (v) => ступениВкл() ? словоСтупени(v) : v >= 80 ? 'открыт' : v >= 60 ? 'доверяет' : v >= 40 ? 'насторожен' : v >= 20 ? 'закрыт' : 'глухо закрыт';
+const ступень = (v) => v < 0 ? 'is-neg' : v >= 66 ? 'is-high' : v >= 33 ? 'is-mid' : 'is-low';
 
 // Сердца: пустой контур и поверх — заливка, обрезанная по доле.
 const СЕРДЦЕ = 'M12 21s-8.2-5-8.2-11.1A4.8 4.8 0 0 1 12 7a4.8 4.8 0 0 1 8.2 2.9C20.2 16 12 21 12 21Z';
+const ТРЕЩИНА = 'M12 7.4 10.6 11l2.4 2-1.6 3.6';
 function сердца(v, всего = 5) {
   const шаг = 100 / всего;
   return `<span class="hud-v-hearts" aria-hidden="true">${Array.from({ length: всего }, (_, i) => {
@@ -222,66 +226,86 @@ function сердца(v, всего = 5) {
     return `<svg viewBox="0 0 24 24" style="--i:${i}" class="${f >= 1 ? 'is-full' : f > 0 ? 'is-part' : ''}"><path class="bg" d="${СЕРДЦЕ}"/><path class="fg" d="${СЕРДЦЕ}" style="clip-path:inset(0 ${((1 - f) * 100).toFixed(0)}% 0 0)"/></svg>`;
   }).join('')}</span>`;
 }
+// Вражда: разбитые сердца — сколько двадцаток ниже нуля, столько и треснуло.
+function разбитыеСердца(v, всего = 5) {
+  const n = Math.ceil(-v / (100 / всего));
+  return `<span class="hud-v-hearts is-glass is-broken" aria-hidden="true">${Array.from({ length: всего }, (_, i) => `<svg viewBox="0 0 24 24" style="--i:${i}" class="${i < n ? 'is-full' : ''}"><path class="bg" d="${СЕРДЦЕ}"/><path class="rim" d="${СЕРДЦЕ}"/>${i < n ? `<path class="crack" d="${ТРЕЩИНА}"/>` : ''}</svg>`).join('')}</span>`;
+}
 
-export function видДоверия(value, вид) {
+export function видДоверия(value, вид, сведения = null) {
   const люди = разобратьДоверие(value);
   if (!люди.length) return '';
   const счёт = люди.filter(ч => ч.v !== null);
+  // Ступень, замок и «разрешить» — плашкой в карточке человека (render/trust-stages.js).
+  const пл = (ч, компактно = false) => плашкаСтупени(сведенияДля(сведения, ч.кто), { компактно });
   const карточки = (класс, тело) => `<div class="hud-v hud-v-trust ${класс}">${люди.map(ч => ч.v === null
     ? `<div class="hud-v-card"><div class="hud-v-who-line">${лицо(ч.кто)}<b>${escapeHtml(ч.кто)}</b></div><small>${escapeHtml(ч.сырое)}</small></div>`
     : тело(ч)).join('')}</div>`;
+  // Сводные виды (спектр, орбиты): плашки списком под рисунком.
+  const списокСтупеней = () => {
+    const строки = счёт.map(ч => { const п = пл(ч, true); return п ? `<span class="hud-tst-row">${лицо(ч.кто)}<b>${escapeHtml(первое(ч.кто))}</b>${п}</span>` : ''; }).join('');
+    return строки ? `<div class="hud-tst-list">${строки}</div>` : '';
+  };
+  const вражда = ступениВкл() && счёт.some(ч => ч.v < 0);
   if (вид === 'hearts') {
     // Сердца: стеклянные, наливаются снизу, как сосуд; большое сердце справа
-    // держит число. На пике — искры, на «глухо закрыт» сердце трескается.
+    // держит число. На пике — искры, на «глухо закрыт» сердце трескается,
+    // во вражде — ряд разбитых.
     return карточки('is-hearts', ч => {
       const id = новыйId('ht');
-      return `<div class="hud-v-card hud-v-heartcard ${ступень(ч.v)}" style="${тон(ч.кто)}" title="${escapeHtml(ч.кто)}: ${Math.round(ч.v)} из 100 — ${словоДоверия(ч.v)}">`
+      return `<div class="hud-v-card hud-v-heartcard ${ступень(ч.v)}" style="${тон(ч.кто)}" title="${escapeHtml(ч.кто)}: ${Math.round(ч.v)} — ${escapeHtml(словоДоверия(ч.v))}">`
         + `<i class="hud-v-heart-mark" aria-hidden="true"></i>`
-        + `<div class="hud-v-who-line">${лицо(ч.кто)}<span class="hud-v-who-text"><b>${escapeHtml(ч.кто)}</b><small>${словоДоверия(ч.v)}</small></span>`
-        + `<span class="hud-v-bigheart" aria-hidden="true"><svg viewBox="0 0 24 24"><defs><linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="b0"/><stop offset="1" class="b1"/></linearGradient></defs><path class="bh" fill="url(#${id}b)" d="${СЕРДЦЕ}"/>${ч.v < 20 ? '<path class="crack" d="M12 7.4 10.6 11l2.4 2-1.6 3.6"/>' : ''}<path class="gl" d="M7.2 9.6a2.8 2.8 0 0 1 3-2"/></svg><em>${Math.round(ч.v)}</em></span></div>`
-        + сердцаСосуды(ч.v, id) + (ч.v >= 85 ? '<i class="hud-v-sparks" aria-hidden="true"><s></s><s></s><s></s></i>' : '') + `</div>`;
+        + `<div class="hud-v-who-line">${лицо(ч.кто)}<span class="hud-v-who-text"><b>${escapeHtml(ч.кто)}</b><small>${escapeHtml(словоДоверия(ч.v))}</small></span>`
+        + `<span class="hud-v-bigheart" aria-hidden="true"><svg viewBox="0 0 24 24"><defs><linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="b0"/><stop offset="1" class="b1"/></linearGradient></defs><path class="bh" fill="url(#${id}b)" d="${СЕРДЦЕ}"/>${ч.v < 20 ? `<path class="crack" d="${ТРЕЩИНА}"/>` : ''}<path class="gl" d="M7.2 9.6a2.8 2.8 0 0 1 3-2"/></svg><em>${Math.round(ч.v)}</em></span></div>`
+        + (ч.v < 0 ? разбитыеСердца(ч.v) : сердцаСосуды(ч.v, id)) + (ч.v >= 85 ? '<i class="hud-v-sparks" aria-hidden="true"><s></s><s></s><s></s></i>' : '') + пл(ч) + `</div>`;
     });
   }
   if (вид === 'shield') {
     // Щит тем плотнее, чем меньше доверия: «открыт» — пустой контур,
-    // «глухо закрыт» — залит доверху.
+    // «глухо закрыт» — залит доверху. Вражда — щит алый, на нём скрещённые мечи.
     return карточки('is-shield', ч => {
-      const id = новыйId('sh'), f = (100 - ч.v) / 100, верх = 4 + (1 - f) * 44;
+      const id = новыйId('sh'), f = ч.v < 0 ? 1 : (100 - ч.v) / 100, верх = 4 + (1 - f) * 44;
       const щит = 'M24 3 41 9v14c0 12-7.6 20.4-17 24C14.6 43.4 7 35 7 23V9Z';
-      return `<div class="hud-v-card hud-v-shield ${ступень(ч.v)}" title="${escapeHtml(ч.кто)}: доверие ${Math.round(ч.v)} — ${словоДоверия(ч.v)}">`
+      const герб = ч.v < 0 ? 'M17.5 17.5l13 13M30.5 17.5l-13 13M16 21l4.5-4.5M27.5 16.5 32 21M16 27l4.5 4.5M32 27l-4.5 4.5' : 'M24 16v14M17 23h14';
+      return `<div class="hud-v-card hud-v-shield ${ступень(ч.v)}" title="${escapeHtml(ч.кто)}: доверие ${Math.round(ч.v)} — ${escapeHtml(словоДоверия(ч.v))}">`
         + `<svg viewBox="0 0 48 50" aria-hidden="true"><defs><clipPath id="${id}c"><path d="${щит}"/></clipPath><linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" class="s0"/><stop offset="1" class="s1"/></linearGradient></defs>`
         + `<path class="back" d="${щит}"/><g clip-path="url(#${id}c)"><rect class="fill" x="0" y="${верх.toFixed(1)}" width="48" height="50" fill="url(#${id}g)"/><path class="sheen" d="M7 9 24 3v44C14.6 43.4 7 35 7 23Z"/></g>`
-        + `<path class="rim" d="${щит}"/><path class="emblem" d="M24 16v14M17 23h14"/></svg>`
-        + `<b>${escapeHtml(первое(ч.кто))}</b><span class="hud-v-tag">${словоДоверия(ч.v)}</span><em class="hud-v-num is-small">${Math.round(ч.v)}</em></div>`;
+        + `<path class="rim" d="${щит}"/><path class="emblem" d="${герб}"/></svg>`
+        + `<b>${escapeHtml(первое(ч.кто))}</b><span class="hud-v-tag">${escapeHtml(словоДоверия(ч.v))}</span><em class="hud-v-num is-small">${Math.round(ч.v)}</em>${пл(ч, true)}</div>`;
     });
   }
   if (вид === 'ring') {
-    return карточки('is-ring', ч => `<div class="hud-v-card hud-v-ringcard ${ступень(ч.v)}" title="${escapeHtml(ч.кто)}: ${Math.round(ч.v)} из 100">`
-      + `<i class="hud-v-ring" style="--p:${ч.v.toFixed(0)};${тон(ч.кто)}" aria-hidden="true">${лицо(ч.кто, 'hud-v-ring-face')}</i>`
-      + `<b>${escapeHtml(первое(ч.кто))}</b><em class="hud-v-num">${Math.round(ч.v)}</em></div>`);
+    // Вражда — алое кольцо, бежит в обратную сторону.
+    return карточки('is-ring', ч => `<div class="hud-v-card hud-v-ringcard ${ступень(ч.v)}" title="${escapeHtml(ч.кто)}: ${Math.round(ч.v)} — ${escapeHtml(словоДоверия(ч.v))}">`
+      + `<i class="hud-v-ring" style="--p:${Math.abs(ч.v).toFixed(0)};${тон(ч.кто)}" aria-hidden="true">${лицо(ч.кто, 'hud-v-ring-face')}</i>`
+      + `<b>${escapeHtml(первое(ч.кто))}</b><em class="hud-v-num">${Math.round(ч.v)}</em>${пл(ч, true)}</div>`);
   }
   if (вид === 'traffic') {
     const зона = (v) => v >= 66 ? 2 : v >= 33 ? 1 : 0;
-    const слово = ['не доверяет', 'присматривается', 'доверяет'];
-    return карточки('is-traffic', ч => `<div class="hud-v-card" title="${escapeHtml(ч.кто)}: ${Math.round(ч.v)} из 100">`
+    const слово = (v) => ступениВкл() ? словоСтупени(v) : ['не доверяет', 'присматривается', 'доверяет'][зона(v)];
+    return карточки('is-traffic', ч => `<div class="hud-v-card${ч.v < 0 ? ' is-neg' : ''}" title="${escapeHtml(ч.кто)}: ${Math.round(ч.v)} — ${escapeHtml(слово(ч.v))}">`
       + `<span class="hud-v-lights" aria-hidden="true">${[2, 1, 0].map(i => `<i class="l${i}${i === зона(ч.v) ? ' is-on' : ''}"></i>`).join('')}</span>`
-      + `<div class="hud-v-traffic-text"><b>${escapeHtml(ч.кто)}</b><small class="z${зона(ч.v)}">${слово[зона(ч.v)]}</small></div><em class="hud-v-num">${Math.round(ч.v)}</em></div>`);
+      + `<div class="hud-v-traffic-text"><b>${escapeHtml(ч.кто)}</b><small class="z${зона(ч.v)}">${escapeHtml(слово(ч.v))}</small></div><em class="hud-v-num">${Math.round(ч.v)}</em>${пл(ч, true)}</div>`);
   }
   if (вид === 'spectrum' && счёт.length) {
     // Одна шкала на всех: люди — кружками с инициалами, подписи через одну
     // сверху и снизу, чтобы соседние имена не налезали друг на друга.
+    // Есть вражда — шкала от −100: ноль посередине, слева враги.
+    const x = (v) => вражда ? (v + 100) / 2 : v;
     const по = счёт.slice().sort((a, b) => a.v - b.v);
-    return `<div class="hud-v hud-v-trust is-spectrum"><div class="hud-v-spectrum"><i class="hud-v-spectrum-track" aria-hidden="true">${[25, 50, 75].map(x => `<s style="left:${x}%"></s>`).join('')}</i>`
-      + по.map((ч, i) => `<span class="hud-v-spot${i % 2 ? ' is-down' : ''}" style="--x:${ч.v.toFixed(1)}%" title="${escapeHtml(ч.кто)}: ${Math.round(ч.v)}">${лицо(ч.кто)}<b>${escapeHtml(первое(ч.кто))} · ${Math.round(ч.v)}</b></span>`).join('')
-      + `</div><div class="hud-v-spectrum-scale" aria-hidden="true"><span>${ико('lock')} не доверяет</span><span>доверяет ${ико('unlock')}</span></div></div>`;
+    return `<div class="hud-v hud-v-trust is-spectrum${вражда ? ' is-signed' : ''}"><div class="hud-v-spectrum"><i class="hud-v-spectrum-track" aria-hidden="true">${[25, 50, 75].map(п => `<s style="left:${п}%"${вражда && п === 50 ? ' class="zero"' : ''}></s>`).join('')}</i>`
+      + по.map((ч, i) => `<span class="hud-v-spot${i % 2 ? ' is-down' : ''}${ч.v < 0 ? ' is-neg' : ''}" style="--x:${x(ч.v).toFixed(1)}%" title="${escapeHtml(ч.кто)}: ${Math.round(ч.v)} — ${escapeHtml(словоДоверия(ч.v))}">${лицо(ч.кто)}<b>${escapeHtml(первое(ч.кто))} · ${Math.round(ч.v)}</b></span>`).join('')
+      + `</div><div class="hud-v-spectrum-scale" aria-hidden="true"><span>${вражда ? `${ико('swords')} враждует` : `${ико('lock')} не доверяет`}</span><span>доверяет ${ико('unlock')}</span></div>${списокСтупеней()}</div>`;
   }
   if (вид === 'orbit' && счёт.length) {
     // Орбиты вокруг сердца: чем больше доверия, тем ближе к центру. Три
     // эллипса — «свои», «настороже», «чужие»; люди — лицами на орбитах.
+    // Есть вражда — четвёртая, внешняя орбита «враги».
     const W = 320, H = 186, cx = 160, cy = 88;
-    const rOf = (v) => 20 + (100 - v) / 100 * 62;
+    const rOf = (v) => вражда ? 18 + (100 - v) / 200 * 74 : 20 + (100 - v) / 100 * 62;
     const по = счёт.slice().sort((a, b) => b.v - a.v);
-    const орбиты = [[88, 'свои'], [50, 'настороже'], [12, 'чужие']].map(([v, имя]) => { const r = rOf(v); return `<ellipse class="orbit" cx="${cx}" cy="${cy}" rx="${(r * 1.7).toFixed(1)}" ry="${(r * .82).toFixed(1)}"/><text class="orbit-t" x="${cx}" y="${(cy - r * .82 - 2.5).toFixed(1)}">${имя}</text>`; }).join('');
+    const круги = вражда ? [[88, 'свои'], [45, 'настороже'], [0, 'чужие'], [-60, 'враги']] : [[88, 'свои'], [50, 'настороже'], [12, 'чужие']];
+    const орбиты = круги.map(([v, имя]) => { const r = rOf(v); return `<ellipse class="orbit${v < 0 ? ' is-neg' : ''}" cx="${cx}" cy="${cy}" rx="${(r * 1.7).toFixed(1)}" ry="${(r * .82).toFixed(1)}"/><text class="orbit-t" x="${cx}" y="${(cy - r * .82 - 2.5).toFixed(1)}">${имя}</text>`; }).join('');
     const лица = по.map((ч, i) => {
       const r = rOf(ч.v), a = Math.PI * .22 + i * 2 * Math.PI / по.length + (i % 2) * .35;
       const x = cx + r * 1.7 * Math.cos(a), y = cy + r * .82 * Math.sin(a);
@@ -291,7 +315,7 @@ export function видДоверия(value, вид) {
     return `<div class="hud-v hud-v-trust is-orbit"><svg class="hud-v-orbits" viewBox="0 0 ${W} ${H}" role="img" aria-label="Доверие: ${escapeHtml(по.map(ч => ч.кто + ' — ' + Math.round(ч.v)).join('; '))}">`
       + `<defs><radialGradient id="${id}"><stop offset="0" class="c0"/><stop offset=".45" class="c1"/><stop offset="1" class="c2"/></radialGradient></defs>`
       + `<circle class="sun-glow" cx="${cx}" cy="${cy}" r="26" fill="url(#${id})"/>${орбиты}`
-      + `<g class="sun"><circle cx="${cx}" cy="${cy}" r="9"/><path transform="translate(${cx - 6} ${cy - 6.4}) scale(.5)" d="${СЕРДЦЕ}"/></g>${лица}</svg></div>`;
+      + `<g class="sun"><circle cx="${cx}" cy="${cy}" r="9"/><path transform="translate(${cx - 6} ${cy - 6.4}) scale(.5)" d="${СЕРДЦЕ}"/></g>${лица}</svg>${списокСтупеней()}</div>`;
   }
   return '';
 }

@@ -191,7 +191,8 @@ import { эпоха, явнаяМагия, приземлённое, эпоха�
       const v = огр(parseInt(текст(c.querySelector('.hud-v-num')), 10) || 0, 0, 100), k = v / 100;
       const зона = v >= 66 ? 2 : v >= 33 ? 1 : 0, цв = ['#ff6b8a', '#ffc65c', '#6ff0d0'][зона];
       const g = id('ob'), gn = id('on'), gm = id('om');
-      return `<div class="orb" style="--c:${цв};--k:${р(k)}"><svg viewBox="0 0 44 54" aria-hidden="true"><defs>`
+      const неg = (parseInt(текст(c.querySelector('.hud-v-num')), 10) || 0) < 0 ? ' is-neg' : '';
+      return `<div class="orb${неg}" style="--c:${цв};--k:${р(k)}"><svg viewBox="0 0 44 54" aria-hidden="true"><defs>`
         + `<radialGradient id="${g}" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".9"/><stop offset=".25" style="stop-color:color-mix(in oklab, ${цв} 60%, #fff)" stop-opacity="${р(.35 + k * .5)}"/><stop offset=".7" stop-color="${цв}" stop-opacity="${р(.18 + k * .5)}"/><stop offset="1" style="stop-color:var(--fx-arc-lo)" stop-opacity=".9"/></radialGradient>`
         + `<radialGradient id="${gn}" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="${цв}" stop-opacity="${р(.25 + k * .45)}"/><stop offset="1" stop-color="${цв}" stop-opacity="0"/></radialGradient>`
         + `<linearGradient id="${gm}" x1="0" x2="1"><stop offset="0" style="stop-color:var(--fx-metal-lo)"/><stop offset=".45" style="stop-color:var(--fx-metal-hi)"/><stop offset="1" style="stop-color:var(--fx-metal-lo)"/></linearGradient></defs>`
@@ -199,7 +200,7 @@ import { эпоха, явнаяМагия, приземлённое, эпоха�
         + `<circle cx="22" cy="21" r="16" fill="url(#${g})"/><path class="mist" d="M10 25c4-5 9 2 13-2s7-6 11-1M12 18c3-3 6 0 9-2" style="stroke:color-mix(in oklab, ${цв} 50%, #fff)"/>`
         + `<circle cx="22" cy="21" r="16" class="rim"/><ellipse cx="16" cy="14" rx="5" ry="3" fill="#fff" opacity=".35" transform="rotate(-30 16 14)"/>`
         + `<path d="M8 36Q22 42 36 36L33 44Q22 48 11 44Z" fill="url(#${gm})"/><path d="M9 33L11 38M35 33L33 38M22 37V40" class="claw"/><path d="M12 47h20l2 4H10Z" fill="url(#${gm})"/></svg>`
-        + `<div class="tx"><b>${esc(текст(c.querySelector('.hud-v-traffic-text b')))}</b><small>${esc(текст(c.querySelector('.hud-v-traffic-text small')))}</small></div><em>${v}</em></div>`;
+        + `<div class="tx"><b>${esc(текст(c.querySelector('.hud-v-traffic-text b')))}</b><small>${esc(текст(c.querySelector('.hud-v-traffic-text small')))}</small></div><em>${parseInt(текст(c.querySelector('.hud-v-num')), 10) < 0 ? parseInt(текст(c.querySelector('.hud-v-num')), 10) : v}</em>${c.querySelector('.hud-tst')?.outerHTML || ''}</div>`;
     }).join('');
     return блок('fx fx-orbs', html);
   }
@@ -587,13 +588,13 @@ import { эпоха, явнаяМагия, приземлённое, эпоха�
     const html = [...tr.querySelectorAll('.hud-v-card')].map((c) => {
       const v = огр(parseInt(текст(c.querySelector('.hud-v-num')), 10) || 0, 0, 100), k = v / 100;
       const g = id('pl');
-      return `<div class="gr-lan" style="--k:${р(k)}"><svg viewBox="0 0 40 60" aria-hidden="true"><defs><radialGradient id="${g}" cx="50%" cy="55%" r="60%"><stop offset="0" stop-color="#fff4d0" stop-opacity="${р(.3 + k * .7)}"/><stop offset=".6" style="stop-color:var(--gr-paper)" stop-opacity="${р(.55 + k * .4)}"/><stop offset="1" style="stop-color:color-mix(in oklab, var(--gr-paper) 55%, #000)"/></radialGradient></defs>`
+      return `<div class="gr-lan${(parseInt(текст(c.querySelector('.hud-v-num')), 10) || 0) < 0 ? ' is-neg' : ''}" style="--k:${р(k)}"><svg viewBox="0 0 40 60" aria-hidden="true"><defs><radialGradient id="${g}" cx="50%" cy="55%" r="60%"><stop offset="0" stop-color="#fff4d0" stop-opacity="${р(.3 + k * .7)}"/><stop offset=".6" style="stop-color:var(--gr-paper)" stop-opacity="${р(.55 + k * .4)}"/><stop offset="1" style="stop-color:color-mix(in oklab, var(--gr-paper) 55%, #000)"/></radialGradient></defs>`
         + `<circle cx="20" cy="27" r="${р(14 + k * 8)}" class="glow" style="opacity:${р(.15 + k * .55)}"/>`
         + `<path d="M20 2v5" class="cord"/><rect x="13" y="7" width="14" height="3.4" rx="1" class="cap"/>`
         + `<path d="M13 10.4C4 14 4 38 13 42h14c9-4 9-28 0-31.6Z" fill="url(#${g})"/>`
         + `<path d="M17 10.6c-4 5-4 26 0 31.2M23 10.6c4 5 4 26 0 31.2M9 18h22M7.4 26h25.2M9 34h22" class="rib"/>`
         + `<rect x="13" y="42" width="14" height="3.4" rx="1" class="cap"/><path d="M20 45.4v4M18 49.4h4l-.6 8h-2.8z" class="tassel"/></svg>`
-        + `<div class="tx"><b>${esc(текст(c.querySelector('.hud-v-traffic-text b')))}</b><small>${esc(текст(c.querySelector('.hud-v-traffic-text small')))}</small></div><em>${v}</em></div>`;
+        + `<div class="tx"><b>${esc(текст(c.querySelector('.hud-v-traffic-text b')))}</b><small>${esc(текст(c.querySelector('.hud-v-traffic-text small')))}</small></div><em>${parseInt(текст(c.querySelector('.hud-v-num')), 10) < 0 ? parseInt(текст(c.querySelector('.hud-v-num')), 10) : v}</em>${c.querySelector('.hud-tst')?.outerHTML || ''}</div>`;
     }).join('');
     return блок('fx gr gr-lanterns', html);
   }

@@ -187,7 +187,9 @@ export function вкладкаРужей(отчёт, поиск) {
 // Доверие пары: график сдвигов и за что. Копится в чате (turn-notes.js).
 function графикДоверия(записи) {
   const точки = [записи[0].было, ...записи.map(з => з.стало)];
-  const x = (i) => (i / Math.max(1, точки.length - 1) * 200).toFixed(1), y = (v) => (40 - Math.max(0, Math.min(100, v)) * .38).toFixed(1);
+  const минимум = точки.some(т => т < 0) ? -100 : 0;
+  const x = i => (i / Math.max(1, точки.length - 1) * 200).toFixed(1);
+  const y = v => (40 - 38 * (Math.max(минимум, Math.min(100, v)) - минимум) / (100 - минимум)).toFixed(1);
   return `<svg class="hud-arc-trust" viewBox="0 0 200 42" preserveAspectRatio="none" aria-hidden="true"><path d="M${точки.map((v, i) => `${x(i)} ${y(v)}`).join('L')}"/></svg>`;
 }
 function поворотыДоверия(поиск) {

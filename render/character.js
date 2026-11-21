@@ -47,6 +47,8 @@ import { карточкиПари } from './bets.js?v=23.89.75';
 import { отложитьРисунок } from './lazy-svg.js?v=23.89.75';
 import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.89.75';
 import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.89.75';
+import { плашкаСтупени, сведенияДля, ступениВкл, словоСтупени } from './trust-stages.js?v=23.89.75';
+import { блокКубика } from './notice-dice.js?v=23.89.75';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела', 'способности', 'чары'];
@@ -65,7 +67,7 @@ const FIELD_ORDER = ['Имя', 'Возраст', 'Одежда', 'Бельё', '
 // Доверие: то же устройство, что у карты тела, но шкала 0-100 и свой цвет.
 // Доверие и отношение — разные вещи: любить и не доверять можно одновременно,
 // поэтому шкала отдельная, а не строка внутри «Отношений».
-function buildTrustMap(value) {
+function buildTrustMap(value, сведения = null) {
   // «Остин Ларош, Дарен Ларош: 40» — полоска у каждого.
   const куски = разбитьСписок(value).flatMap(к => { const m = к.match(/^\s*([^:]+):\s*(.+)$/); const г = m && именаГруппы(m[1].trim()); return г ? г.map(и => и + ': ' + m[2]) : [к]; });
   return куски.map(кусок => {
@@ -73,16 +75,20 @@ function buildTrustMap(value) {
     if (!m) return кусок.trim() ? `<span class="hud-zone"><b>${escapeHtml(кусок.trim())}</b></span>` : '';
     const кто = m[1].trim();
     const сырое = m[2].trim();
-    const число = parseFloat(сырое.replace(',', '.'));
+    const число = parseFloat(сырое.replace(',', '.').replace(/[−–—]/g, '-'));
     if (!Number.isFinite(число)) return `<span class="hud-zone"><b>${escapeHtml(кто)}</b><em>${escapeHtml(сырое)}</em></span>`;
-    const доля = Math.max(0, Math.min(100, число));
+    // Ступени доверия: шкала −100…100. Отрицательное — та же полоска, но
+    // вражды: тёмно-красная, со штриховкой, длиной по модулю.
+    const враг = число < 0 && ступениВкл();
+    const доля = враг ? Math.min(100, -число) : Math.max(0, Math.min(100, число));
     // Низкое доверие красим тревожно, высокое — спокойно: цвет несёт смысл,
     // иначе шкала читается только по длине полоски.
-    const уровень = доля >= 66 ? 'is-high' : (доля >= 33 ? 'is-mid' : 'is-low');
-    return `<span class="hud-zone ${уровень}" title="${escapeHtml(кто)}: ${escapeHtml(сырое)}">`
+    const уровень = враг ? 'is-neg' : доля >= 66 ? 'is-high' : (доля >= 33 ? 'is-mid' : 'is-low');
+    const плашка = плашкаСтупени(сведенияДля(сведения, кто));
+    return `<span class="hud-zone ${уровень}${плашка ? ' has-stage' : ''}" title="${escapeHtml(кто)}: ${escapeHtml(сырое)}">`
       + `<b class="hud-zone-name">${escapeHtml(кто)}</b>`
       + `<i class="hud-zone-bar"><i style="width:${доля}%"></i></i>`
-      + `<em class="hud-zone-val">${Math.round(доля)}</em></span>`;
+      + `<em class="hud-zone-val">${Math.round(враг ? число : доля)}</em>${плашка}</span>`;
   }).filter(Boolean).join('');
 }
 
@@ -1124,8 +1130,9 @@ export function buildPerceptionHTML(characters) {
     if (!c || typeof c !== 'object' || !c['Имя']) return null;
     const отношение = parseRelationList(flattenFieldValue(c['Отношения'])).find(r => namesLikelySame(r.target, игрок));
     const запись = parseRelationList(flattenFieldValue(c['Доверие'])).find(r => namesLikelySame(r.target, игрок));
-    const число = запись ? parseFloat(String(запись.rel).replace(',', '.')) : NaN;
-    const доверие = Number.isFinite(число) ? Math.max(0, Math.min(100, число)) : null;
+    const число = запись ? parseFloat(String(запись.rel).replace(',', '.').replace(/[−–—]/g, '-')) : NaN;
+    // Ступени доверия: ниже нуля — вражда (render/trust-stages.js).
+    const доверие = Number.isFinite(число) ? Math.max(ступениВкл() ? -100 : 0, Math.min(100, число)) : null;
     if (!отношение && доверие === null) return null;
     return { имя: String(c['Имя']), текст: отношение ? отношение.rel : '', доверие };
   }).filter(Boolean);
@@ -1133,14 +1140,14 @@ export function buildPerceptionHTML(characters) {
   const список = карточки.map(к => {
     const адрес = лицоСобеседника(к.имя);
     const буквы = инициалыИмени(к.имя);
-    const уровень = к.доверие === null ? '' : к.доверие >= 66 ? ' is-high' : к.доверие >= 33 ? ' is-mid' : ' is-low';
+    const уровень = к.доверие === null ? '' : к.доверие < 0 ? ' is-neg' : к.доверие >= 66 ? ' is-high' : к.доверие >= 33 ? ' is-mid' : ' is-low';
     const картинка = адрес
       ? `<img src="${escapeHtml(String(адрес)).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.parentNode.classList.remove('has-img');this.remove()">`
       : '';
     return `<div class="hud-perc${уровень}">`
       + `<i class="hud-perc-face${адрес ? ' has-img' : ''}" aria-hidden="true">${escapeHtml(буквы)}${картинка}</i>`
       + `<div class="hud-perc-body"><b>${escapeHtml(к.имя)}</b>${к.текст ? `<p>${applyTooltips(к.текст)}</p>` : ''}`
-      + (к.доверие !== null ? `<div class="hud-perc-trust" title="Доверие ${Math.round(к.доверие)} из 100"><span>доверие</span><i><i style="width:${к.доверие}%"></i></i><em>${Math.round(к.доверие)}</em></div>` : '')
+      + (к.доверие !== null ? `<div class="hud-perc-trust" title="Доверие ${Math.round(к.доверие)} из 100${ступениВкл() ? ' — ' + escapeHtml(словоСтупени(к.доверие)) : ''}"><span>${ступениВкл() ? escapeHtml(словоСтупени(к.доверие)) : 'доверие'}</span><i><i style="width:${Math.abs(к.доверие)}%"></i></i><em>${Math.round(к.доверие)}</em></div>` : '')
       + `</div></div>`;
   }).join('');
   return `<div class="hud-row full-width hud-perception kind-bonds f-perception"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>👁</span></i> Что о тебе думают:</span><div class="hud-perc-list">${список}</div></div>`;
@@ -1410,8 +1417,11 @@ export function buildUserHTML(userData, uid, isChecked, characters, свои = [
   // рисует их сборщик карточки персонажа, перед близостью игрока.
   const своиМетки = new Set(order.map(к => mapKey(к).toLowerCase()));
   const прочие = { 'Имя': personaName };
+  for (const ключ of ['__ход', '__рядом', '__ступениДоверия']) {
+    if (userData[ключ] !== undefined) Object.defineProperty(прочие, ключ, { value: userData[ключ] });
+  }
   for (const [k, v] of Object.entries(userData)) {
-    if (k.startsWith('__')) { прочие[k] = v; continue; }
+    if (k.startsWith('__')) { if (!(k in прочие)) прочие[k] = v; continue; }
     if (k === 'Cst' || k === 'Имя' || order.includes(k) || своиМетки.has(k.toLowerCase())) continue;
     прочие[k] = v;
   }
@@ -1565,9 +1575,12 @@ export function строкиКарточки(charData, charName, uid, свои =
   // Следы на теле отслеживаются и после акта: строку проверяем, даже если
   // модель в этом ходу их не упомянула, — активные найдутся в прошлых ходах.
   const неЗнает = секретыНеЗнает(charData);
-  const поляКарточки = (игрок || 'Следы на теле' in charData) && !неЗнает ? charData
+  let поляКарточки = (игрок || 'Следы на теле' in charData) && !неЗнает ? charData
     : { ...charData, ...(игрок || 'Следы на теле' in charData ? {} : { 'Следы на теле': '' }), ...(неЗнает ? { 'Не знает': неЗнает } : {}) };
   let телоПоказано = false;
+  const маска = 'Социальное разоблачение';
+  const кубик = полеВкл(settings, игрок ? 'us.Eo' : 'cs.Eo') ? блокКубика(charData, flattenFieldValue(charData[маска]), charName) : '';
+  if (кубик && !(маска in поляКарточки)) поляКарточки = { ...поляКарточки, [маска]: '' };
   // Строки полей помечаются data-k, свои статы встают после своего поля.
   const раскладка = раскладкаСтатов(свои);
   html += раскладка.после('^');
@@ -1592,7 +1605,7 @@ export function строкиКарточки(charData, charName, uid, свои =
     // значение; ...», а модель нередко отдаёт ту же структуру объектом.
     // Разворачиваем сразу, чтобы ниже по коду везде была строка.
     const value = снятьЗаглушки(flattenFieldValue(rawValue));
-    if ((!value || value.toLowerCase() === 'empty' || value.toLowerCase() === 'none') && lowerKey !== 'следы на теле') continue;
+    if ((!value || value.toLowerCase() === 'empty' || value.toLowerCase() === 'none') && lowerKey !== 'следы на теле' && !(key === маска && кубик)) continue;
     let rowClass = FULL_WIDTH_KEYS.some(k => lowerKey.includes(k)) ? 'hud-row full-width' : 'hud-row';
     if (DRAMA_KEYS.some(k => lowerKey.includes(k))) rowClass += ' drama-alert';
     if (вне && вне.поля.includes(key)) rowClass += ' is-past';
@@ -1656,7 +1669,7 @@ export function строкиКарточки(charData, charName, uid, свои =
       // Подтекст спрятан под «водой»: открывается нажатием (events.js, .hud-veil).
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-deep is-closed" role="button" tabindex="0" aria-expanded="false"><i class="hud-deep-caust"></i><i class="hud-deep-b" style="left:10%;top:70%;width:10px;height:10px"></i><i class="hud-deep-b" style="left:84%;top:30%;width:8px;height:8px"></i><i class="hud-deep-b" style="left:60%;top:82%;width:6px;height:6px"></i><p>${applyTooltips(value)}</p><span class="hud-veil"><svg viewBox="0 0 34 34" aria-hidden="true"><circle class="r" cx="17" cy="17" r="5"/><circle class="r" cx="17" cy="17" r="10" opacity=".6"/><circle class="r" cx="17" cy="17" r="15" opacity=".3"/></svg><span>Нажми, чтобы заглянуть глубже</span></span></div></div>`;
     } else if (lowerKey === 'доверие') {
-      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${ростДоверия(сдвиги)}${видДоверия(доверияБезПричин(value), видБлока('trustView')) || `<div class="hud-bodymap hud-trustmap">${buildTrustMap(доверияБезПричин(value))}</div>`}${строкаСдвигов}${шрамыДоверия(charName, value, сдвиги)}</div>`;
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${ростДоверия(сдвиги)}${видДоверия(доверияБезПричин(value), видБлока('trustView'), charData.__ступениДоверия) || `<div class="hud-bodymap hud-trustmap">${buildTrustMap(доверияБезПричин(value), charData.__ступениДоверия)}</div>`}${строкаСдвигов}${шрамыДоверия(charName, value, сдвиги)}</div>`;
     } else if (lowerKey === 'страхи') {
       const страхи = страхиБезГолойСилы(value);
       if (страхи) html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видСтрахов(страхи, видБлока('fearsView')) || `<div class="hud-fears">${buildFears(страхи)}</div>`}</div>`;
@@ -1724,8 +1737,10 @@ export function строкиКарточки(charData, charName, uid, свои =
       // Отказы рисуются тем же видом, что кинки и фетиши, но перечёркнутым.
       const иначе = видВлечений(value, видБлока('kinkView'), lowerKey === 'никогда не сделает' ? 'never' : lowerKey === 'не возбуждает' ? 'noturn' : '');
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${иначе || `<div class="hud-vertical-container">${buildPillList(value, pillClass, true)}</div>`}</div>`;
-    } else if (lowerKey === 'социальное разоблачение' && видРазоблачения(value, видБлока('exposureView'))) {
-      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видРазоблачения(value, видБлока('exposureView'))}</div>`;
+    } else if (lowerKey === 'социальное разоблачение') {
+      // Тайный бросок «Заметили ли» (render/notice-dice.js) — под маской, в той же строке.
+      const вид = пустоеПоле(value) ? '' : видРазоблачения(value, видБлока('exposureView')) || значениеПоля(lowerKey, value, valueClass);
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${вид}${кубик}</div>`;
     } else if (lowerKey === 'расписание') {
       // Когда — отдельной колонкой. Промт разрешает и часы («14:30 - встреча»),
       // и день или часть дня («пятница 10:00 - сдача», «суббота - сборка»):
