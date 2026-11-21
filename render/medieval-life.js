@@ -16,17 +16,17 @@
 //   · запасы «хватит до…» (ep.sup);
 //   · вера: личная (ep.fth), дела Церкви (ep.ch), обвинение в колдовстве (ep.wt);
 //   · брак и законность детей (ep.mar, ep.leg);
-//   · гуморы (ep.hum); опасность ран — в «Болезнях и травмах» (dng, trn) и у спутников (inj);
+//   · гумор (hum) и опасность ран (dng, trn) — в «Болезнях и травмах», рана спутника — inj;
 //   · домочадцы (ep.hh);
 //   · суд, клятва и ордалия (ep.law).
 // Всё «ep» — строки «часть | часть | …»; неизменную часть модель пишет «nc»
 // (hud-expand.js разворачивает из прошлого хода). Показ — карточки во вкладке
 // «Мир» (блокиЭпохи), промт — промптЭпохи и поля к грамотам, письмам, спутникам.
 
-import { settings } from '../settings.js?v=23.89.71';
-import { старина, магияСкрыта, заклинанияВМире, дарыВМире } from '../era.js?v=23.89.71';
-import { escapeHtml } from '../utils.js?v=23.89.71';
-import { английский } from '../i18n.js?v=23.89.71';
+import { settings } from '../settings.js?v=23.89.72';
+import { старина, магияСкрыта, заклинанияВМире, дарыВМире } from '../era.js?v=23.89.72';
+import { escapeHtml } from '../utils.js?v=23.89.72';
+import { английский } from '../i18n.js?v=23.89.72';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -35,7 +35,6 @@ const объект = (v) => v !== null && typeof v === 'object' && !Array.isArra
 export const ЧАСТИ_ЭПОХИ = [
   ['hon', 'medHonour'], ['sup', 'medSupplies'],
   ['fth', 'medFaithPersonal'], ['ch', 'medChurch'], ['wt', 'medWitch'],
-  ['hum', 'medHumours'],
   ['hh', 'medHousehold'], ['law', 'medLaw'],
 ];
 const ВЕРА = new Set(['medFaithPersonal', 'medChurch', 'medWitch']);
@@ -51,6 +50,8 @@ export const письмаВПутиВкл = () => старина() && settings.m
 export const бракВкл = () => старина() && settings.medMarriage === true;
 // Раны без антисептиков: опасность и срок — в «Болезнях и травмах» людей и в карточке спутника.
 export const раныВкл = () => старина() && settings.medWounds === true;
+// Гуморы: у болезни в «Болезнях и травмах» — какой гумор в избытке (метка hum).
+export const гуморыВкл = () => старина() && settings.medHumours === true;
 // Вести с задержкой: строки новостей мира (wd.nws) получают откуда, когда и кто принёс.
 export const вестиВНовостяхВкл = () => старина() && !!settings.enableWorld && settings.medNews === true;
 /** Честь — к кому: та же цель, что у фракций (настройка «Фракции»). */
@@ -95,7 +96,6 @@ export function промптЭпохи({ кому = '{{user}}' } = {}) {
     ch: `"ch": ["[what: excommunication | interdict | church court | penance | tithe | pilgrimage vow] | [whom or where it touches] | [where it stands now]", "the Church as a power: only what is really happening in the story; an excommunicated person is shunned, an interdict silences church bells and sacraments in a whole place"]`,
     ...(вераМираНастройка() === 'old' ? { ch: `"ch": ["[what: a priest's curse | outlawry | sanctuary at a shrine | a broken oath to the gods | an offering owed] | [whom or where it touches] | [where it stands now]", "the priests of the old gods as a power: only what is really happening in the story; the cursed and the outlawed are shunned, a shrine can shelter even a killer"]` } : {}),
     wt: `"wt": ["[who is suspected] | [whisper | suspicion | accusation | trial] | [why: what people saw or think they saw]", "accusations of ${колдовство}; it grows or dies through the story, never out of nowhere"]`,
-    hum: `"hum": ["[name] | [humour in excess: blood | phlegm | yellow bile | black bile] | [signs] | [the physician's remedy: bleeding, a diet, a purge, rest]", "the physician's view of the sick or troubled — people here believe health is the balance of four humours; only those who are ill or out of sorts"]`,
     hh: `"hh": ["[name] | [role: servant, squire, maid, groom, cook, steward] | [loyalty 0-100] | [what they are doing now]", "the household of ${кому}: servants see and hear everything, gossip, steal or stay loyal; loyalty moves through how they are treated"]`,
     law: `"law": ["[who] | [charge] | [stage: accused | summoned | fine | trial | oath | ordeal | trial by combat | verdict] | [who judges] | [outcome or penalty, when known]", "the law of the age: the judge is whoever holds the court in this place — a lord, a town, the Church; oaths with oath-helpers, ordeal by fire or water and trial by combat are real — a trial by combat is fought out in the scene like any fight; one row per open case"]`,
   };
@@ -115,12 +115,13 @@ export function промптБрака(кто = 'char') {
   return `${отступ}"Mrg": "[marriage, ONLY if married, betrothed or living as a couple: with whom; stage — betrothed / dowry agreed / banns read / wed in church / living unwed (a union without the rite is no marriage in law or Church); dowry or what stands in the way]",${отступ}${законность},`;
 }
 /** Поля грамоты (в объект "doc" шкатулки). */
-/** Дописка к формату Ill: опасность раны и когда скажется ('' — выключено). */
+/** Дописка к формату Ill: опасность раны и когда скажется, гумор болезни ('' — всё выключено). */
 export function промптРан() {
-  return раныВкл() ? '; dng: ONLY for a wound — its danger with no antiseptics: festering, fever, gangrene or none yet; trn: when that danger will show or turn — a clean cut can still fester in days, a dirty one turns to fever or gangrene' : '';
+  return (раныВкл() ? '; dng: ONLY for a wound — its danger with no antiseptics: festering, fever, gangrene or none yet; trn: when that danger will show or turn — a clean cut can still fester in days, a dirty one turns to fever or gangrene' : '')
+    + (гуморыВкл() ? "; hum: ONLY for an illness or a sick temper — the humour in excess as a physician of the age sees it: blood, phlegm, yellow bile or black bile; the physician's remedy (bleeding, a diet, a purge, rest) goes to trt" : '');
 }
-/** Короткие коды для игрока: «nm; sg; …» + dng; trn. */
-export const кодыРан = () => (раныВкл() ? '; dng; trn' : '');
+/** Короткие коды для игрока: «nm; sg; …» + dng; trn; hum. */
+export const кодыРан = () => (раныВкл() ? '; dng; trn' : '') + (гуморыВкл() ? '; hum' : '');
 /** Поле раны у спутника. */
 export function промптРаныСпутника() {
   return раныВкл() ? `, "inj": "[ONLY if wounded: the wound — its danger with no antiseptics (festering, fever, gangrene, none yet) — when it will show or turn]"` : '';
@@ -161,11 +162,14 @@ export function почиститьСнимок(к) {
   if (!письмаВПутиВкл() && Array.isArray(к.lt)) к.lt.forEach(п => { if (объект(п)) delete п.eta; });
   if (!бракВкл()) [...(Array.isArray(к.cs) ? к.cs : []), к.us, ...(Array.isArray(к.bb) ? к.bb : [])].forEach(ч => { if (объект(ч)) { delete ч.Mrg; delete ч.Lgt; } });
   // Раны выключены — из «Болезней и травм» уходят dng и trn, у спутников — inj.
-  if (!раныВкл()) {
-    const безОпасности = (s) => (typeof s === 'string' ? s.split('|').map(г => г.split(';').filter(ч => !/^\s*(?:dng|trn)\s*:/i.test(ч)).join(';')).join('|') : s);
-    [...(Array.isArray(к.cs) ? к.cs : []), к.us, ...(Array.isArray(к.bb) ? к.bb : [])].forEach(ч => { if (объект(ч) && ч.Ill !== undefined) ч.Ill = безОпасности(ч.Ill); });
-    if (Array.isArray(к.pet)) к.pet.forEach(п => { if (объект(п)) delete п.inj; });
+  // Гуморы выключены — уходит hum.
+  const лишниеМетки = [...(раныВкл() ? [] : ['dng', 'trn']), ...(гуморыВкл() ? [] : ['hum'])];
+  if (лишниеМетки.length) {
+    const rx = new RegExp(String.raw`^\s*(?:${лишниеМетки.join('|')})\s*:`, 'i');
+    const безЛишнего = (s) => (typeof s === 'string' ? s.split('|').map(г => г.split(';').filter(ч => !rx.test(ч)).join(';')).join('|') : s);
+    [...(Array.isArray(к.cs) ? к.cs : []), к.us, ...(Array.isArray(к.bb) ? к.bb : [])].forEach(ч => { if (объект(ч) && ч.Ill !== undefined) ч.Ill = безЛишнего(ч.Ill); });
   }
+  if (!раныВкл() && Array.isArray(к.pet)) к.pet.forEach(п => { if (объект(п)) delete п.inj; });
   const р = вьючные();
   if (р !== 'full' && Array.isArray(к.pet)) к.pet.forEach(п => { if (объект(п)) ['fod', 'tck', 'stb', ...(р === 'off' ? ['ld', 'rst'] : [])].forEach(k => delete п[k]); });
 }
@@ -291,12 +295,11 @@ function блокВеры(fth, ch, wt) {
 
 // Гуморы: цвет и слово по жидкости.
 const ГУМОРЫ = [['blood', /кров|сангв|blood|sangu/, 'кровь', '#c4504a'], ['phlegm', /флегм|слиз|phlegm/, 'флегма', '#78a9c4'], ['yellow', /жёлт|желт|холер|yellow|chol/, 'жёлтая желчь', '#d6ae3e'], ['black', /чёрн|черн|меланх|black|melanch/, 'чёрная желчь', '#6f5b86']];
-function блокЛекаря(hum) {
-  return (hum || []).map(([кто, жидкость, признаки, средство]) => {
-    const г = ГУМОРЫ.find(([, rx]) => rx.test(нрм(жидкость)));
-    return `<div class="hud-mlf-row"><div class="hud-mlf-top"><b>${э(кто)}</b>${жидкость ? `<span class="hud-mlf-hum" style="--hum:${г ? г[3] : '#9a8a70'}">${э(жидкость)}</span>` : ''}</div>`
-      + (признаки ? `<div class="hud-mlf-say">${э(признаки)}</div>` : '') + мета(средство && `лекарь: ${э(средство)}`) + `</div>`;
-  }).join('');
+/** Капля гумора для карточки болезни ('' — гуморы выключены или гумора нет). */
+export function каплаГумора(жидкость) {
+  if (!гуморыВкл() || !String(жидкость || '').trim()) return '';
+  const г = ГУМОРЫ.find(([, rx]) => rx.test(нрм(жидкость)));
+  return `<span class="hud-mlf-hum hud-ill-hum" style="--hum:${г ? г[3] : '#9a8a70'}" title="Гумор">${э(жидкость)}</span>`;
 }
 
 function блокДомочадцев(р) {
@@ -328,7 +331,6 @@ export function блокиЭпохи(data) {
   if (есть('hon')) out.push(раздел('hon', '🛡️ Честь', блокЧести(е.hon)));
   if (есть('sup')) out.push(раздел('sup', '🧺 Запасы', блокЗапасов(е.sup)));
   if (есть('fth') || есть('ch') || есть('wt')) out.push(раздел('fth', вера === 'old' ? '🔥 Вера' : '⛪ Вера', блокВеры(есть('fth') && е.fth, есть('ch') && е.ch, есть('wt') && е.wt)));
-  if (есть('hum')) out.push(раздел('hum', '🩺 Лекарь', блокЛекаря(е.hum)));
   if (есть('hh')) out.push(раздел('hh', '🏠 Домочадцы', блокДомочадцев(е.hh)));
   if (есть('law')) out.push(раздел('law', '⚖️ Суд и закон', блокСуда(е.law)));
   return out.join('');

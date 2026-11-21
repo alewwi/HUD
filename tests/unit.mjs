@@ -4275,8 +4275,8 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     Object.assign(Н, { medHonour: true, medNews: true, medCharters: true, medSupplies: true, medFaith: true, medFaithPersonal: true, medChurch: true, medWitch: false, medMarriage: true, medHumours: true, medWounds: true, medHousehold: true, medLaw: true, medMounts: 'light', medFaithWorld: 'orthodox' });
     const вкл = Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true });
     const ep = вкл.slice(вкл.indexOf('"ep": {'), вкл.indexOf('\n }', вкл.indexOf('"ep": {')));
-    проверить('включённые части — в "ep", выключенная (колдовство) — нет, брака в "ep" нет', ['"hon":', '"sup":', '"fth":', '"ch":', '"hum":', '"hh":', '"law":'].every(к => ep.includes(к)) && !ep.includes('"wt":') && !ep.includes('"nw":') && !ep.includes('"mar":') && !ep.includes('"leg":') && !ep.includes('"wnd":'), ep.slice(0, 300));
-    проверить('раны — в формате «Болезней и травм» (dng, trn) и у спутников (inj), не в "ep"', вкл.includes('; dng: ONLY for a wound') && вкл.includes("trt; zn; dng; trn'") && вкл.includes('"inj": "[ONLY if wounded'));
+    проверить('включённые части — в "ep", выключенная (колдовство) — нет, брака в "ep" нет', ['"hon":', '"sup":', '"fth":', '"ch":', '"hh":', '"law":'].every(к => ep.includes(к)) && !ep.includes('"hum":') && вкл.includes('; hum: ONLY for an illness') && вкл.includes("dng; trn; hum'") && !ep.includes('"wt":') && !ep.includes('"nw":') && !ep.includes('"mar":') && !ep.includes('"leg":') && !ep.includes('"wnd":'), ep.slice(0, 300));
+    проверить('раны — в формате «Болезней и травм» (dng, trn) и у спутников (inj), не в "ep"', вкл.includes('; dng: ONLY for a wound') && вкл.includes("trt; zn; dng; trn; hum'") && вкл.includes('"inj": "[ONLY if wounded'));
     проверить('"ep": неизменное — "nc", вера мира — православная, варианты в колонке через «/»', ep.includes('written just "nc"') && ep.includes('Orthodox Church') && ep.includes('accused / summoned'));
     проверить('вести — в строке новостей: откуда, когда, кто принёс', вкл.includes('"nws": ["[headline] | [what the news says, 2-3 sentences] | [where from: here for local news'));
     проверить('грамоты, письма в пути и лёгкий режим животных — свои поля', вкл.includes('"hr": "[here: yes | no | doubtful') && вкл.includes('"eta": "[ONLY while in transit') && вкл.includes('"ld":') && !вкл.includes('"stb":'));
@@ -4313,22 +4313,23 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     проверить('карточки: выключенная часть не показывается (колдовство)', !html.includes('Обвинение в колдовстве'));
     проверить('карточки: классы разделов не совпадают с классами внутри (капля гумора)', !/hud-world-section[^"]*\bhud-mlf-hum\b/.test(html));
     {
-      const р = Sch.normalizeJSONData(P.parseHUDComplex(hud({ sc: { T: '10:00', Dt: '20.05.1347' }, cs: [{ N: 'Агата', Ill: 'nm: порез на ладони; sg: fresh; rc: 20%; trt: тряпица; dng: гангрена; trn: через два дня | nm: простуда; sg: healing' }],
+      const р = Sch.normalizeJSONData(P.parseHUDComplex(hud({ sc: { T: '10:00', Dt: '20.05.1347' }, cs: [{ N: 'Агата', Ill: 'nm: порез на ладони; sg: fresh; rc: 20%; trt: тряпица; dng: гангрена; trn: через два дня | nm: простуда; sg: healing; trt: кровопускание; hum: флегма' }],
         ep: { hum: ['Агата | жёлтая желчь | вспыльчива | кровопускание'], wnd: ['Агата | порез | нагноение | —'] }, pet: [{ n: 'Гнедко', sp: 'конь', inj: 'стёртая холка — может загноиться — через день' }] })));
       const { строкиКарточки } = await модуль('render/character.js');
       const карта = строкиКарточки(р.characters[0], 'Агата', 'c1');
       const мирЛекаря = МЖ.блокиЭпохи(р);
       проверить('раны: опасность и срок — внутри карточки болезни, отдельного блока ран в «Мире» нет',
         /hud-ill-danger is-bad[^>]*>гангрена</.test(карта) && карта.includes('через два дня') && (карта.match(/hud-ill-danger/g) || []).length === 1
-        && мирЛекаря.includes('🩺 Лекарь') && !мирЛекаря.includes('Лекарь и раны') && !мирЛекаря.includes('порез'), карта.slice(карта.indexOf('hud-ill'), карта.indexOf('hud-ill') + 500));
+        && !мирЛекаря.includes('Лекарь') && !мирЛекаря.includes('порез') && !мирЛекаря.includes('кровопускание')
+        && /hud-mlf-hum hud-ill-hum" style="--hum:#78a9c4"[^>]*>флегма</.test(карта) && (карта.match(/hud-ill-hum/g) || []).length === 1, карта.slice(карта.indexOf('hud-ill'), карта.indexOf('hud-ill') + 500));
       проверить('раны: у спутника — строка «Рана»', р.companions[0].extra.some(x => x.key === 'Рана' && x.value.includes('стёртая холка')));
-      Н.medWounds = false;
+      Н.medWounds = false; Н.medHumours = false;
       const безРан = строкиКарточки(р.characters[0], 'Агата', 'c1');
-      const сн = { cs: [{ N: 'А', Ill: 'nm: порез; sg: fresh; dng: гангрена; trn: завтра | nm: простуда' }], pet: [{ n: 'Г', inj: 'x' }] };
+      const сн = { cs: [{ N: 'А', Ill: 'nm: порез; sg: fresh; dng: гангрена; trn: завтра | nm: простуда; hum: флегма' }], pet: [{ n: 'Г', inj: 'x' }] };
       МЖ.почиститьСнимок(сн);
       проверить('раны выключены: карточка как в современности, снимок без dng/trn/inj', !безРан.includes('hud-ill-danger') && !безРан.includes('через два дня') && безРан.includes('порез на ладони')
-        && !/dng|trn/.test(сн.cs[0].Ill) && сн.cs[0].Ill.includes('порез') && сн.cs[0].Ill.includes('простуда') && !('inj' in сн.pet[0]), сн.cs[0].Ill);
-      Н.medWounds = true;
+        && !/dng|trn|hum/.test(сн.cs[0].Ill) && !безРан.includes('hud-ill-hum') && сн.cs[0].Ill.includes('порез') && сн.cs[0].Ill.includes('простуда') && !('inj' in сн.pet[0]), сн.cs[0].Ill);
+      Н.medWounds = true; Н.medHumours = true;
     }
     {
       // Карандаш: новые блоки находятся по тексту и правятся своими формами.
@@ -4355,7 +4356,7 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
         фЧесть.пункт.вид === 'части' && фЧесть.пункт.подписи[2] === 'Суждение' && фВесть.пункт.подписи.length === 5 && фВесть.пункт.подписи[4] === 'Кто принёс'
         && фБолезнь.вид === 'метки' && фБолезнь.известные.some(([к]) => к === 'dng') && фБолезнь.известные.some(([к]) => к === 'trn')
         && БЕ.подписьКлюча(['pet', конь, 'inj']) === 'Рана' && БЕ.подписьКлюча(['pet', конь, 'ld']) === 'Груз' && БЕ.подписьКлюча(['sm', 'doc', грамота, 'hr']) === 'Действует здесь'
-        && БЕ.подписьКлюча(['lt', 0, 'eta']) === 'Дойдёт' && БЕ.подписьКлюча(['cs', марк, 'Mrg']) === 'Брак' && БЕ.подписьКлюча(['ep', 'hum']) === 'Гуморы');
+        && БЕ.подписьКлюча(['lt', 0, 'eta']) === 'Дойдёт' && БЕ.подписьКлюча(['cs', марк, 'Mrg']) === 'Брак' && фБолезнь.известные.some(([к]) => к === 'hum'));
       // Правка доходит до показа.
       const пары = БЕ.разобратьМетки(х.cs[марк].Ill, фБолезнь.известные).map(п => (п.код === 'dng' ? { ...п, значение: 'гангрена' } : п));
       БЕ.положить(х, ['cs', марк, 'Ill'], БЕ.собратьМетки(пары));

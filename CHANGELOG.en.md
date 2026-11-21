@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.72 — 2026-11-20
+
+### Fixed
+- **Humours live inside Illnesses and injuries, like a wound's danger.** The separate "Physician" card in the World tab is gone: an illness in the character card shows a drop in its humour's colour (blood, phlegm, yellow or black bile), and the physician's remedy goes to the treatment. Same toggle ("🩺 Humours"), and it no longer needs the World tab. The Customization sample and ✎ editing show the humour on an illness.
+
 ## 23.89.71 — 2026-11-20
 
 ### Changed

@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.89.71';
-import { mapKey } from './utils.js?v=23.89.71';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.71';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.71';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.71';
+import { settings } from './settings.js?v=23.89.72';
+import { mapKey } from './utils.js?v=23.89.72';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.72';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.72';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.72';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -465,7 +465,7 @@ export function normalizeJSONData(parsed) {
   const epochParsed = (() => {
     const e = (parsed.epoch && typeof parsed.epoch === 'object' && !Array.isArray(parsed.epoch)) ? parsed.epoch : {};
     const out = {};
-    for (const k of ['hon', 'sup', 'fth', 'ch', 'wt', 'hum', 'hh', 'law']) {
+    for (const k of ['hon', 'sup', 'fth', 'ch', 'wt', 'hh', 'law']) {
       const v = e[k];
       const rows = (Array.isArray(v) ? v : typeof v === 'string' ? [v] : [])
         .map(x => (x && typeof x === 'object' ? Object.values(x).map(toStr).join(' | ') : toStr(x)).trim())
