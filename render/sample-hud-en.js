@@ -468,10 +468,16 @@ export const ПРИМЕР_HUD = {
       'libra | don\'t trust rumors | unlucky', 'scorpio | the secret will come out | even', 'sagittarius | the road will be easy | lucky',
       'capricorn | work will take the evening | unlucky', 'aquarius | luck in an unexpected place | lucky', 'pisces | listen to your dreams | even',
     ],
+    // Sample factions: towards the character (Lilian) and the sample player (Sasha, ПРИМЕР_ФРАКЦИЙ) — no real names from the chat.
     rep: [
       'The «Binding» café | Lilian Grey | 70 | one of us | a regular, the barista remembers her order',
+      'The city library | Lilian Grey | 55 | value her | restored the atlas for the old maps exhibition',
       'The neighbours on Garden Street | Lilian Grey | 35 | like her | helped a neighbour carry shopping up to the fifth floor',
       'The workshop\'s clients | Lilian Grey | -25 | displeased | the atlas restoration ran a week over the deadline',
+      'The library book club | Sasha | 60 | one of us | leads the Thursday discussions, brings biscuits',
+      'The «Binding» café | Sasha | 20 | a familiar face | drops in on Fridays for the jazz',
+      'The jazz night musicians | Sasha | 10 | sizing them up | asked for help with a poster',
+      'The Forest Street housing office | Sasha | -40 | on their list | the hot water complaints reached the director',
     ],
     fate: ['Today the stars are on the side of those who dare first.'],
     eco: ['Dollar | 1.00 | +0.4', 'Bread | 3.50 $ | got pricier', 'Average salary | 4 200 $ | no change'],
@@ -556,6 +562,95 @@ export const ПРИМЕР_СЕМЬИ = () => ({
 
 /** Sample chat data (sample-meta.js): a world feast with «How it is marked», fairs,
  *  a fair preparation (two steps done), local rules and power. New every time. */
+// Sample factions (index.js, блокФракций): an invented player, the sample character and a past turn for the shifts.
+export const ПРИМЕР_ФРАКЦИЙ = {
+  игрок: 'Sasha', персонаж: 'Lilian Grey',
+  // Factions of their own in other eras: medieval, fantasy medieval, modern fantasy.
+  эпохи: {
+    "medieval": {
+      "строки": [
+        "Saint Martin's abbey | Lilian Grey | 65 | favour her | bound the psalter almost for nothing",
+        "The neighbours on Garden Street | Lilian Grey | 35 | like her | helped a widow carry firewood up to the attic",
+        "The booksellers' guild | Lilian Grey | 15 | jealous | took the abbey's order over the senior masters",
+        "Count Lorne's men | Lilian Grey | -25 | look askance | her letter of safe conduct has no force here",
+        "The «Lame Goose» inn | Sasha | 40 | one of the table | pays ahead and keeps the peace",
+        "The fair traders | Sasha | 20 | know the face | haggles fairly, but long",
+        "Saint Martin's parish | Sasha | 5 | sizing them up | seldom at mass",
+        "The town watch | Sasha | -30 | on their list | seen by the well after the evening bell"
+      ],
+      "прошлое": [
+        {
+          "дата": "Monday, 14.10.2024",
+          "строки": [
+            "Saint Martin's abbey | Lilian Grey | 50 | know her | takes books in for repair",
+            "The neighbours on Garden Street | Lilian Grey | 35 | like her | greets everyone",
+            "The booksellers' guild | Lilian Grey | 30 | put up with her | works quietly",
+            "The «Lame Goose» inn | Sasha | 40 | one of the table | pays ahead and keeps the peace",
+            "The town watch | Sasha | -10 | look askance | a stranger in town"
+          ]
+        }
+      ]
+    },
+    "fantasy-medieval": {
+      "строки": [
+        "The guild of spell-binders | Lilian Grey | 60 | value her | sewed a ward rune into a grimoire without a single spark",
+        "Saint Martin's abbey | Lilian Grey | 45 | favour her | bound the psalter almost for nothing",
+        "The neighbours on Garden Street | Lilian Grey | 30 | like her | charmed away a neighbour's toothache",
+        "The witch hunters | Lilian Grey | -35 | suspect her | books glow in the workshop windows at night",
+        "The «Lame Goose» inn | Sasha | 40 | one of the table | pays ahead and keeps the peace",
+        "The order of forest wardens | Sasha | 25 | trust them | knows the paths through the Black Wood",
+        "The town watch | Sasha | 10 | sizing them up | carries a blade with someone else's mark",
+        "The marsh coven | Sasha | -20 | displeased | herbs went missing from their grove after a visit"
+      ],
+      "прошлое": [
+        {
+          "дата": "Monday, 14.10.2024",
+          "строки": [
+            "The guild of spell-binders | Lilian Grey | 45 | know her | mends old spellbooks",
+            "Saint Martin's abbey | Lilian Grey | 45 | favour her | bound the psalter almost for nothing",
+            "The witch hunters | Lilian Grey | -10 | have heard of her | whispers about her at the market",
+            "The «Lame Goose» inn | Sasha | 40 | one of the table | pays ahead and keeps the peace",
+            "The marsh coven | Sasha | 0 | don't notice | a stranger"
+          ]
+        }
+      ]
+    },
+    "fantasy-modern": {
+      "строки": [
+        "The «Binding» café | Lilian Grey | 70 | one of us | the witch barista brews her tea against the evil eye",
+        "The Garden Street coven | Lilian Grey | 50 | value her | mends their old grimoires",
+        "The city library | Lilian Grey | 40 | trust her | opened the closed stacks with the living maps to her",
+        "The magic oversight office | Lilian Grey | -25 | on their list | the atlas with living maps is unregistered",
+        "The night market by the bridge | Sasha | 35 | know the face | buys amulets without haggling",
+        "The «Binding» café | Sasha | 20 | a familiar face | drops in on Fridays for the jazz",
+        "The magic oversight office | Sasha | 5 | sizing them up | a witness in the case of a botched ritual",
+        "The Forest Street pack | Sasha | -30 | wary | smells of someone else's magic"
+      ],
+      "прошлое": [
+        {
+          "дата": "Monday, 14.10.2024",
+          "строки": [
+            "The «Binding» café | Lilian Grey | 70 | one of us | a regular",
+            "The Garden Street coven | Lilian Grey | 35 | know her | brought them a book to mend",
+            "The magic oversight office | Lilian Grey | 0 | don't know her | —",
+            "The night market by the bridge | Sasha | 35 | know the face | buys amulets without haggling",
+            "The Forest Street pack | Sasha | -10 | sniffing | a new smell in the area"
+          ]
+        }
+      ]
+    }
+  },
+  прошлое: [{ дата: 'Monday, 14.10.2024', строки: [
+    'The «Binding» café | Lilian Grey | 70 | one of us | a regular',
+    'The city library | Lilian Grey | 40 | know her | brought books in for repair',
+    'The neighbours on Garden Street | Lilian Grey | 35 | like her | greets everyone',
+    'The workshop\'s clients | Lilian Grey | 0 | waiting | the atlas is in work',
+    'The library book club | Sasha | 50 | one of us | comes to the meetings',
+    'The «Binding» café | Sasha | 20 | a familiar face | drops in on Fridays for the jazz',
+    'The Forest Street housing office | Sasha | -15 | annoyed | the first hot water complaint',
+  ] }],
+};
+
 export const ПРИМЕР_МЕТА = () => ({
   tavernosHudHolidays: {
     список: [{ id: 'sample-sheaf', имя: 'Feast of the Last Sheaf', дата: '22.10', о: 'the last sheaf is carried through the town to the cathedral, bread from the new grain is baked at the gates', ежегодно: true }],

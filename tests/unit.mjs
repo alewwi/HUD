@@ -4715,6 +4715,36 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   } finally { задатьПримерСемьи(null); }
 }
 
+группа('Пример: фракции со своими выдуманными именами');
+{
+  const Ст = await модуль('settings.js');
+  const { блокФракций } = await модуль('render/factions.js');
+  const было = Ст.settings.factions;
+  try {
+    for (const язык of ['render/sample-hud.js', 'render/sample-hud-en.js']) {
+      const м = await модуль(язык);
+      const ф = м.ПРИМЕР_ФРАКЦИЙ, строки = м.ПРИМЕР_HUD.wd.rep;
+      const кому = (с) => String(с).split('|')[1].trim();
+      проверить(`${язык}: каждая строка фракций — к игроку или персонажу примера, есть и те и другие`, строки.every(с => [ф.игрок, ф.персонаж].includes(кому(с))) && строки.some(с => кому(с) === ф.игрок) && строки.some(с => кому(с) === ф.персонаж) && строки.length >= 8);
+      Ст.settings.factions = 'both';
+      const html = блокФракций(строки, { игрок: ф.игрок, персонаж: ф.персонаж, uid: 't', история: [...ф.прошлое, { дата: '17.10.2024', строки }] });
+      проверить(`${язык}: в «обоих» вкладки подписаны именами примера и видны сдвиги с прошлого хода`, html.includes('· ' + ф.игрок + '<') && html.includes('· ' + ф.персонаж + '<') && /hud-rep-(?:shift|delta|move|trend)|[+−-]\d+/.test(html), html.slice(0, 400));
+    }
+    for (const язык of ['render/sample-hud.js', 'render/sample-hud-en.js']) {
+      const ф = (await модуль(язык)).ПРИМЕР_ФРАКЦИЙ;
+      const эпохи = ['medieval', 'fantasy-medieval', 'fantasy-modern'];
+      проверить(`${язык}: у средневековья, фэнтези-средневековья и современного фэнтези — свои фракции с прошлым ходом, имена примера`, эпохи.every(э => {
+        const в = ф.эпохи[э]; const кому = (с) => String(с).split('|')[1].trim();
+        return в && в.строки.length >= 8 && в.строки.every(с => [ф.игрок, ф.персонаж].includes(кому(с))) && в.строки.some(с => кому(с) === ф.игрок) && в.прошлое[0].строки.length;
+      }) && !ф.эпохи.medieval.строки.some(с => /кофейн|джаз|компани|библиотек|café|jazz|office|library/i.test(с)));
+    }
+    проверить('пример: фракции эпохи подставляются по settings.era', fs.readFileSync(path.join(КОРЕНЬ, 'customize.js'), 'utf8').includes('ф.эпохи[settings.era]'));
+    const код = fs.readFileSync(path.join(КОРЕНЬ, 'index.js'), 'utf8');
+    проверить('пример не берёт игрока и персонажа из чата для фракций', /data\.__фракцииПримера \? \{ \.\.\.data\.__фракцииПримера, uid \}/.test(код) && fs.readFileSync(path.join(КОРЕНЬ, 'customize.js'), 'utf8').includes("'__фракцииПримера'"));
+  } finally { Ст.settings.factions = было; }
+}
+
+// ---------------------------------------------------------------------------
 группа('правка блоков без кода (block-edit.js)');
 {
   const БЕ = await модуль('block-edit.js');

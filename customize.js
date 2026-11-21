@@ -5,21 +5,21 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.73';
-import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.73';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.73';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.73';
-import { ВИДЫ_БЛОКОВ, видБлока, доступныеВиды, блокДоступен } from './render/views.js?v=23.89.73';
-import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху } from './era.js?v=23.89.73';
-import { порядокГрупп } from './tabs-order.js?v=23.89.73';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.73';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.73';
-import { hudБлоки } from './hud-block.js?v=23.89.73';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.73';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.73';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.73';
-import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.73';
-import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.73';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.74';
+import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.74';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.74';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.74';
+import { ВИДЫ_БЛОКОВ, видБлока, доступныеВиды, блокДоступен } from './render/views.js?v=23.89.74';
+import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху } from './era.js?v=23.89.74';
+import { порядокГрупп } from './tabs-order.js?v=23.89.74';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.74';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.74';
+import { hudБлоки } from './hud-block.js?v=23.89.74';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.74';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.74';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.74';
+import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.74';
+import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.74';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 // Язык из таблицы переводчика: английский пример с переведёнными кусками
 // (render/sample-translate.js), пересобирается при смене языка или файла.
@@ -32,16 +32,16 @@ const пример = () => {
   return примерТаблицы;
 };
 const текстПримера = (s) => (ключЯзыкаТаблицы() ? отобразитьСтроку(s, (к) => строкаТаблицы(к) || к) : s);
-import { задатьПримерСемьи } from './render/conception.js?v=23.89.73';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.73';
-import { задатьПримерМета } from './sample-meta.js?v=23.89.73';
-import { вьючные, вестиВНовостяхВкл, раныВкл } from './render/medieval-life.js?v=23.89.73';
-import { привязатьИсторию } from './render/intimacy.js?v=23.89.73';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.73';
-import { собратьРисунок } from './render/lazy-svg.js?v=23.89.73';
-import { attachHelpMarks } from './help.js?v=23.89.73';
-import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.73';
-import { подключитьЛёгкостьОкна } from './customize-easy.js?v=23.89.73';
+import { задатьПримерСемьи } from './render/conception.js?v=23.89.74';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.74';
+import { задатьПримерМета } from './sample-meta.js?v=23.89.74';
+import { вьючные, вестиВНовостяхВкл, раныВкл } from './render/medieval-life.js?v=23.89.74';
+import { привязатьИсторию } from './render/intimacy.js?v=23.89.74';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.74';
+import { собратьРисунок } from './render/lazy-svg.js?v=23.89.74';
+import { attachHelpMarks } from './help.js?v=23.89.74';
+import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.74';
+import { подключитьЛёгкостьОкна } from './customize-easy.js?v=23.89.74';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -506,6 +506,21 @@ function источникиПросмотра() {
   const сПлашкой = (данные) => {
     if (!данные) return данные;
     Object.defineProperty(данные, '__пример', { value: true, configurable: true });
+    // Фракции примера — со своими выдуманными именами и прошлым ходом, а не с игроком
+    // и персонажем из чата; строки — к кому велит настройка «Фракции».
+    const ф = пример().ПРИМЕР_ФРАКЦИЙ;
+    if (ф && данные.world && Array.isArray(данные.world.reputation)) {
+      // Своя эпоха — свои фракции (средневековье, фэнтези), современность — строки примера.
+      const эп = ф.эпохи && ф.эпохи[settings.era];
+      if (эп) данные.world.reputation = [...эп.строки];
+      const режим = settings.factions || 'user';
+      const кому = (с) => String(с).split('|')[1]?.trim();
+      const нужна = (с) => режим === 'both' || кому(с) === (режим === 'char' ? ф.персонаж : ф.игрок);
+      данные.world.reputation = данные.world.reputation.filter(нужна);
+      const дата = String((данные.scene && данные.scene['Дата']) || '');
+      Object.defineProperty(данные, '__фракцииПримера', { value: { игрок: ф.игрок, персонаж: ф.персонаж,
+        история: [...(эп ? эп.прошлое : ф.прошлое).map(х => ({ дата: х.дата, строки: х.строки.filter(нужна) })), { дата, строки: данные.world.reputation }] }, configurable: true });
+    }
     // Конь примера (render/medieval-life.js): груз и силы — в лёгком режиме, корм, сбруя и постой — в расширенном.
     const р = вьючные(), лишнее = [...(р === 'off' ? ['Груз', 'Выносливость', 'Корм', 'Сбруя', 'Постой'] : р === 'light' ? ['Корм', 'Сбруя', 'Постой'] : []), ...(раныВкл() ? [] : ['Рана'])];
     if (лишнее.length) (данные.companions || []).forEach(п => { if (п && Array.isArray(п.extra)) п.extra = п.extra.filter(д => !лишнее.includes(д.key)); });

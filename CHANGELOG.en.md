@@ -4,6 +4,12 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.74 — 2026-11-21
+
+### Fixed
+- **Factions and reputation in the Customization sample are invented.** Before, the sample labelled the tabs with the player's and the character's names from your chat and counted reputation shifts from its past turns. Now the sample has its own player (Sasha) and character (Lilian Grey), eight factions towards both and a past turn of its own, so the "▲ +15" arrows show. The rows follow the Factions setting: towards the player, the character or both.
+- **Each era has factions of its own in the sample.** Medieval: the abbey, the booksellers' guild, the count's men, the «Lame Goose» inn, the fair and the watch; fantasy medieval: the guild of spell-binders, witch hunters, the order of forest wardens and the marsh coven; modern fantasy: the Garden Street coven, the magic oversight office, the night market and the Forest Street pack.
+
 ## 23.89.73 — 2026-11-21
 
 ### Added
