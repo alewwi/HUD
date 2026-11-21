@@ -3676,6 +3676,12 @@ const акцентДляТекста = () => текстНаКарточке(sett
     if (hudNotice === 'roll') {
       let рядом = [];
       try { рядом = JSON.parse(near || '[]'); } catch (_) { рядом = []; }
+      const свидетель = кнопка.closest('.hud-ntc')?.querySelector('.hud-ntc-witness');
+      if (свидетель) {
+        const имя = свидетель.value.trim();
+        if (!имя || namesLikelySame(имя, who)) { свидетель.focus(); return; }
+        рядом = [{ имя }];
+      }
       вышло = бросить(who, ход, { маска: mask, рядом, стрессЧел: stress === '' || stress === undefined ? null : Number(stress) });
     } else if (hudNotice === 'open') вышло = открыть(who, ход);
     else if (hudNotice === 'flip') вышло = перевернуть(who, ход, name);
@@ -6105,10 +6111,16 @@ const акцентДляТекста = () => текстНаКарточке(sett
     if (!ctx || !Array.isArray(ctx.chat) || !обновить || !mes.isConnected) return;
     const id = Number(mes.getAttribute('mesid'));
     if (!Number.isInteger(id) || !ctx.chat[id]) return;
-    try { обновить(id, ctx.chat[id]); } catch (_) { return; /* сообщение уже ушло из чата */ }
-    // Сразу, в той же задаче: иначе между текстом Таверны и карточкой успевал
-    // проскочить кадр с голым кодом.
-    safeProcessMessage(mes);
+    // Пока ST вынимает карточку, сообщение на миг сжимается до текста.
+    // Сохраняем его место в ленте до первой раскладки готовой карточки.
+    const прежняяВысота = mes.style.minHeight;
+    mes.style.minHeight = mes.offsetHeight + 'px';
+    try {
+      обновить(id, ctx.chat[id]);
+      safeProcessMessage(mes);
+    } finally {
+      requestAnimationFrame(() => { mes.style.minHeight = прежняяВысота; });
+    }
   }
   // «Назревает»: решили в одной вкладке — пересобираем карточку, чтобы то же
   // ружьё ушло из вкладок других людей и значки пересчитались (render/consequences.js).
@@ -6146,7 +6158,20 @@ const акцентДляТекста = () => текстНаКарточке(sett
       if (рядом[i] || !отложеннаяПерерисовка) перерисоватьСообщение(mes);
       else отложеннаяПерерисовка.observe(mes);
     });
-    if (лента && сверху !== undefined) лента.scrollTop = сверху;
+    if (лента && сверху !== undefined) {
+      лента.scrollTop = сверху;
+      const отмена = new AbortController();
+      лента.__hudScrollRestore?.abort();
+      лента.__hudScrollRestore = отмена;
+      for (const событие of ['wheel', 'touchstart', 'pointerdown', 'keydown']) {
+        лента.addEventListener(событие, () => отмена.abort(), { once: true, passive: true, signal: отмена.signal });
+      }
+      // После замены сообщения Таверна и браузер ещё уточняют высоту ленты.
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        if (!отмена.signal.aborted) лента.scrollTop = сверху;
+        отмена.abort();
+      }));
+    }
   }
 
 

@@ -17,8 +17,7 @@
 // В следующий ход модель получает итог скрытым фактом: кто заметил и кто нет.
 //
 // Хранилище — метаданные чата (tavernosHudNotice), бросок привязан к ходу
-// (mesid) и человеку. Кнопка есть только у последнего хода с HUD: бросать за
-// прошлое поздно, а прошлые броски видны как были.
+// (mesid), свайпу и человеку. Бросок из старой сцены тоже идёт в ближайший ответ.
 
 import { settings } from '../settings.js?v=23.89.75';
 import { namesLikelySame } from '../names.js?v=23.89.75';
@@ -54,7 +53,8 @@ function свайпХода(ход) {
   const м = контекст()?.chat?.[ход];
   return м && Number.isInteger(м.swipe_id) ? м.swipe_id : 0;
 }
-const найти = (х, кто, ход) => х ? х.броски.find(б => б.ход === ход && (б.свайп ?? 0) === свайпХода(ход) && namesLikelySame(б.кто, кто)) || null : null;
+const тотЖеХод = (б, м) => (б.свайп ?? 0) === (м?.swipe_id ?? 0) && (!б.датаХода || б.датаХода === м?.send_date);
+const найти = (х, кто, ход) => х ? х.броски.find(б => б.ход === ход && тотЖеХод(б, пример ? null : контекст()?.chat?.[ход]) && namesLikelySame(б.кто, кто)) || null : null;
 /** Кого игрок убрал из «рядом» до броска: его здесь нет. */
 function исключены(кто, ход) {
   const х = хранилище();
@@ -111,14 +111,11 @@ export function шансЗаметить({ процент = null, стрессЧ
 
 // Свайп или редактирование меняют HUD даже при прежней длине чата.
 const естьHUD = м => естьЗаглушкаHUD(м.mes) || !!extractHudBlock(String(м.mes || ''));
-function последнийХодСHUD() {
-  const ctx = контекст();
-  const чат = ctx && Array.isArray(ctx.chat) ? ctx.chat : null;
-  if (!чат) return -1;
-  for (let j = чат.length - 1; j >= 0; j--) {
+function последнийОтвет(чат = контекст()?.chat || [], до = чат.length) {
+  for (let j = Math.min(до, чат.length) - 1; j >= 0; j--) {
     const м = чат[j];
     if (!м || м.is_user || м.is_system) continue;
-    if (естьHUD(м)) return j;
+    return j;
   }
   return -1;
 }
@@ -131,7 +128,8 @@ function последнийХодСHUD() {
  */
 export function бросить(кто, ход, { маска, рядом = [], стрессЧел = null } = {}) {
   const х = хранилище();
-  if (!кубикВкл() || !х || !кто || !Array.isArray(рядом) || !рядом.length || (!пример && ход !== последнийХодСHUD())) return false;
+  const сообщение = контекст()?.chat?.[ход];
+  if (!кубикВкл() || !х || !кто || !Array.isArray(рядом) || !рядом.length || (!пример && (!сообщение || сообщение.is_user || сообщение.is_system || !естьHUD(сообщение)))) return false;
   if (найти(х, кто, ход)) return false;
   const м = разобратьМаску(маска) || { процент: null };
   const набл = рядом.map(р => {
@@ -139,7 +137,7 @@ export function бросить(кто, ход, { маска, рядом = [], с
     const бросок = 1 + Math.floor(Math.random() * 100);
     return { имя: р.имя, шанс, бросок, заметил: бросок <= шанс };
   });
-  х.броски.push({ кто, ход, свайп: свайпХода(ход), признак: м.текст || (стрессЧел >= 80 ? 'visible signs of stress' : ''), набл, судьба: {}, открыто: false });
+  х.броски.push({ кто, ход, после: последнийОтвет(), датаХода: сообщение?.send_date, свайп: свайпХода(ход), признак: м.текст || (стрессЧел >= 80 ? 'visible signs of stress' : ''), набл, судьба: {}, открыто: false });
   // Хвост: старые броски не нужны больше двух десятков.
   if (х.броски.length > 40) х.броски.splice(0, х.броски.length - 40);
   сохранить();
@@ -151,6 +149,7 @@ export function перевернуть(кто, ход, имя) {
   const н = б && б.набл.find(x => namesLikelySame(x.имя, имя));
   if (!н) return false;
   const сейчас = итог(б, н);
+  б.после = последнийОтвет();
   if (сейчас === н.заметил) б.судьба[н.имя] = !н.заметил; else delete б.судьба[н.имя];
   сохранить();
   return true;
@@ -177,27 +176,22 @@ const итог = (б, н) => Object.prototype.hasOwnProperty.call(б.судьб�
 // --- Модели ---------------------------------------------------------------------
 
 /**
- * Строки «THIS TURN»: итог бросков последнего хода с HUD перед ответом.
+ * Строки «THIS TURN» для ближайшего ответа после броска или смены исхода.
  * чат и цель — как у заметок хода (turn-notes.js).
  */
 export function заметкиКубика(чат, цель) {
   if (!кубикВкл() || !Array.isArray(чат)) return [];
   const х = хранилище();
   if (!х || !х.броски.length) return [];
-  let ход = -1;
-  for (let j = Math.min(цель, чат.length) - 1; j >= 0; j--) {
-    const м = чат[j];
-    if (!м || м.is_user || м.is_system) continue;
-    if (естьHUD(м)) ход = j;
-    break; // Результат нужен только для первого ответа после броска.
-  }
+  const ход = последнийОтвет(чат, цель);
   if (ход < 0) return [];
-  return х.броски.filter(б => б.ход === ход && (б.свайп ?? 0) === свайпХода(ход)).map(б => {
+  return х.броски.filter(б => (б.после ?? б.ход) === ход && б.ход <= ход && чат[б.ход] && тотЖеХод(б, чат[б.ход])).map(б => {
     const да = б.набл.filter(н => итог(б, н)).map(н => н.имя), нет = б.набл.filter(н => !итог(б, н)).map(н => н.имя);
     const части = [];
-    if (да.length) части.push(`${да.join(', ')} noticed what slipped through ${б.кто}'s mask (see ${б.кто}'s Eo) — it did not escape them; let them react in their own way and time, now or later, without stating it outright unless it fits`);
-    if (нет.length) части.push(`${нет.join(', ')} noticed nothing`);
-    return `Hidden check, rolled by the player — never mention dice or a check: ${части.join('; ')}.${б.признак ? ' Sign: ' + б.признак + '.' : ''}`;
+    if (да.length) части.push(`${да.join(', ')} noticed what slipped through ${б.кто}'s mask. Let them react in their own way and time, now or later`);
+    if (нет.length) части.push(`${нет.join(', ')} noticed nothing unusual about ${б.кто}`);
+    const когда = б.ход === ход ? '' : ` In the earlier scene (message #${б.ход}).`;
+    return `Hidden check, rolled by the player — never mention dice or a check:${когда} ${части.join('; ')}.${б.признак ? ' Sign: ' + б.признак + '.' : ''}`;
   });
 }
 
@@ -229,13 +223,12 @@ export function блокКубика(данные, значение, имя) {
   const блок = `${атр} data-notice-context="${контекстБлока}"`;
   const игрок = getSafeUserName();
   if (!б) {
-    if (данные.__вне || (!пример && ход !== последнийХодСHUD())) return '';
     const рядом = (Array.isArray(данные.__рядом) ? данные.__рядом : []).filter(р => р && р.имя && !namesLikelySame(р.имя, имя));
-    if (!рядом.length) return '';
+    const свидетель = рядом.length ? '' : '<input class="hud-ntc-witness text_pole" type="text" maxlength="60" required placeholder="Кто был рядом?" aria-label="Кто был рядом?">';
     const искл = исключены(имя, ход);
     const список = JSON.stringify(рядом.filter(р => !искл.some(и => namesLikelySame(и, р.имя))).map(р => ({ имя: р.имя, доверие: р.доверие ?? null })));
     const ст = стресс(данные);
-    return `<div class="hud-ntc is-idle" ${блок}><button type="button" class="hud-ntc-roll" data-hud-notice="roll" ${список === '[]' ? 'disabled' : ''} ${атр} data-near="${escapeHtml(список)}" data-mask="${escapeHtml(String(значение ?? ''))}" data-stress="${Number.isFinite(ст) ? ст : ''}" title="Бросить кубик: заметил ли кто-нибудь, что маска соскользнула. Пока не нажмёте — никто ничего не знает">`
+    return `<div class="hud-ntc is-idle" ${блок}>${свидетель}<button type="button" class="hud-ntc-roll" data-hud-notice="roll" ${рядом.length && список === '[]' ? 'disabled' : ''} ${атр} data-near="${escapeHtml(список)}" data-mask="${escapeHtml(String(значение ?? ''))}" data-stress="${Number.isFinite(ст) ? ст : ''}" title="Бросить кубик: заметил ли кто-нибудь, что маска соскользнула. Пока не нажмёте — никто ничего не знает">`
       + `${ико('dice')}<span>Заметил ли кто-нибудь?</span></button>`
       + `<span class="hud-ntc-who" aria-label="Кубик за тех, кто рядом">${рядом.map(р => { const вне = искл.some(и => namesLikelySame(и, р.имя)); return `<button type="button" class="hud-ntc-chip${вне ? ' is-out' : ''}" data-hud-notice="skip" ${атр} data-name="${escapeHtml(р.имя)}" aria-pressed="${вне ? 'false' : 'true'}" title="${вне ? 'Не рядом — кубик за него не бросается. Нажмите, чтобы вернуть' : 'Рядом — кубик бросается и за него. Нажмите, если его здесь нет'}">${лицо(р.имя, namesLikelySame(р.имя, игрок))}<b>${escapeHtml(имяБезПриставки(р.имя).split(/\s+/)[0])}</b></button>`; }).join('')}</span></div>`;
   }
@@ -247,7 +240,7 @@ export function блокКубика(данные, значение, имя) {
       + `<button type="button" class="hud-ntc-flip" data-hud-notice="flip" ${атр} data-name="${escapeHtml(н.имя)}" title="${да ? 'Сделать: не заметил' : 'Сделать: заметил'}" aria-label="${да ? 'Сделать: не заметил' : 'Сделать: заметил'}">⇄</button></li>`;
   }).join('') : '';
   const сколько = б.набл.filter(н => итог(б, н)).length;
-  const последний = пример || ход === последнийХодСHUD();
+  const последний = пример || (б.после ?? б.ход) === последнийОтвет();
   return `<div class="hud-ntc is-rolled${б.открыто ? ' is-open' : ''}" ${блок}>`
     + `<div class="hud-ntc-head">${ико('dice')}<b>Кубик брошен</b><small>${б.открыто ? (сколько ? `заметили: ${сколько} из ${б.набл.length}` : 'никто не заметил') : 'итог под дымкой'}</small></div>`
     + `<div class="hud-ntc-body"><ul class="hud-ntc-list">${строки}</ul>`

@@ -39,6 +39,7 @@ export const СЛОВАРЬ_EN = {
   "Заметил ли кто-нибудь?": "Did anyone notice?",
   "Бросить кубик: заметил ли кто-нибудь, что маска соскользнула. Пока не нажмёте — никто ничего не знает": "Roll the dice: did anyone notice the mask slipping. Until you press it, nobody knows anything",
   "Кубик за тех, кто рядом": "Dice for those nearby",
+  "Кто был рядом?": "Who was there?",
   "Не рядом — кубик за него не бросается. Нажмите, чтобы вернуть": "Away — excluded from the roll. Click to include again",
   "Рядом — кубик бросается и за него. Нажмите, если его здесь нет": "Present — included in the roll. Click if absent",
   "Разрешить следующую ступень?": "Allow the next stage?",

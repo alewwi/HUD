@@ -32,6 +32,7 @@ Restore the default stages,,Вернуть заводские ступени,tex
 Did anyone notice?,,Заметил ли кто-нибудь?,text,
 "Roll the dice: did anyone notice the mask slipping. Until you press it, nobody knows anything",,"Бросить кубик: заметил ли кто-нибудь, что маска соскользнула. Пока не нажмёте — никто ничего не знает",text,
 Dice for those nearby,,"Кубик за тех, кто рядом",text,
+Who was there?,,Кто был рядом?,text,
 Away — excluded from the roll. Click to include again,,"Не рядом — кубик за него не бросается. Нажмите, чтобы вернуть",text,
 Present — included in the roll. Click if absent,,"Рядом — кубик бросается и за него. Нажмите, если его здесь нет",text,
 Allow the next stage?,,Разрешить следующую ступень?,text,
