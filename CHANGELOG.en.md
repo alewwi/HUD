@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.85 — 2026-11-22
+
+### Fixed
+- **The "Avatars in chats on narrow screens" checkboxes now agree in both places.** When the setting was changed in the extension panel, an open phone Settings app kept showing the old state, and the next tap there wrote it back. Now any change, in the panel or in the phone, shows in both places at once. Checked in a live SillyTavern: group chats, private chats and intercepts follow their checkboxes, and the choice survives a reload.
+
 ## 23.89.84 — 2026-11-22
 
 ### Added

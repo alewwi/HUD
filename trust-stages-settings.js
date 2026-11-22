@@ -10,9 +10,9 @@
 // с какого числа начинается и как называется. Свои ступени HUD помнит в
 // настройках (trustStageList), модель получает их списком в описании Tr.
 
-import { settings } from './settings.js?v=23.89.84';
-import { escapeHtml } from './utils.js?v=23.89.84';
-import { ступени, СТУПЕНИ_ПО_УМОЛЧАНИЮ, имяВРедакторе } from './render/trust-stages.js?v=23.89.84';
+import { settings } from './settings.js?v=23.89.85';
+import { escapeHtml } from './utils.js?v=23.89.85';
+import { ступени, СТУПЕНИ_ПО_УМОЛЧАНИЮ, имяВРедакторе } from './render/trust-stages.js?v=23.89.85';
 
 const строка = (с) => `<div class="hud-tst-set-row"><input type="number" class="hud-set-num hud-tst-set-min" min="-100" max="100" step="1" value="${с.min}" aria-label="С какого числа"><input type="text" class="hud-set-text hud-tst-set-name" maxlength="40" value="${escapeHtml(с.name)}" placeholder="Название ступени" aria-label="Название ступени"><button type="button" class="hud-tst-set-del menu_button" title="Убрать ступень" aria-label="Убрать ступень">×</button></div>`;
 

@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.84**:
+The latest version is **23.89.85**:
 
+- The chat avatar checkboxes in the panel and in the phone Settings no longer drift apart.
 - The phone setting "Avatars in chats on narrow screens": on or off everywhere, and while on — checkboxes for group chats, private chats and intercepts.
 - "How much you roleplay" gets streaks and day details on tap: models, tokens, wait time; "Does not know" no longer shows a card prefix instead of the name; phone group chats show avatars again and keep their own name.
 - "How much you roleplay" in the archive statistics: generations per day — your messages and character replies, swipes, separate HUD and everything together, with bars by day.

@@ -220,6 +220,20 @@ const кс = fs.readFileSync(ROOT + 'css/compact.css', 'utf8');
   settings.phoneChatAvatars = false; ПС.применитьВидТелефона(корень);
   const выкл = классы.size;
   проверить('аватарки в чатах: галочки дают классы, общий выключатель снимает все', всё === 'hud-msgava-group,hud-msgava-intercept,hud-msgava-private' && безЛичных === 'hud-msgava-group,hud-msgava-intercept' && выкл === 0, [всё, безЛичных, выкл].join(' | '));
+  // Две копии галочек (панель и «Настройки» телефона) встают по settings.
+  const эл = (о) => ({ checked: true, hidden: false, ...о });
+  const копии = { '#hud-phone-chat-avatars, [data-pset-ava="phoneChatAvatars"]': [эл(), эл()], '[data-pset-ava-where], .hud-phone-ava-where': [эл(), эл()] };
+  for (const [к] of ПС.ГАЛКИ_АВАТАРОК) копии[`[data-phone-ava-key="${к}"], [data-pset-ava="${к}"]`] = [эл(), эл()];
+  const былDoc = globalThis.document.querySelectorAll;
+  globalThis.document.querySelectorAll = (sel) => копии[sel] || [];
+  settings.phoneChatAvatars = false; settings.phoneChatAvatarsPrivate = false;
+  ПС.отразитьАватарки();
+  globalThis.document.querySelectorAll = былDoc;
+  const к = (sel) => копии[sel].map(x => x.checked);
+  проверить('аватарки в чатах: обе копии галочек встают по настройке', к('#hud-phone-chat-avatars, [data-pset-ava="phoneChatAvatars"]').every(x => !x)
+    && копии['[data-pset-ava-where], .hud-phone-ava-where'].every(x => x.hidden)
+    && к('[data-phone-ava-key="phoneChatAvatarsPrivate"], [data-pset-ava="phoneChatAvatarsPrivate"]').every(x => !x)
+    && к('[data-phone-ava-key="phoneChatAvatarsGroup"], [data-pset-ava="phoneChatAvatarsGroup"]').every(x => x));
   ключи.forEach((к, i) => { settings[к] = было[i]; });
   const разметка = ПС.разметкаНастроек();
   проверить('аватарки в чатах: в «Настройках» телефона общая галочка и три подпункта', разметка.includes('data-pset-ava="phoneChatAvatars"') && (разметка.match(/data-pset-ava-where/g) || []).length === 3);

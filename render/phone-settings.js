@@ -11,9 +11,9 @@
 // Разметку «Настроек» собираем при открытии приложения: так значения всегда
 // свежие, а каждая карточка с телефоном не тащит сотню полей.
 
-import { settings, унаследованноеТелефоном } from '../settings.js?v=23.89.84';
-import { escapeHtml, hudHashSeed } from '../utils.js?v=23.89.84';
-import { ВИДЫ_БЛОКОВ } from './views.js?v=23.89.84';
+import { settings, унаследованноеТелефоном } from '../settings.js?v=23.89.85';
+import { escapeHtml, hudHashSeed } from '../utils.js?v=23.89.85';
+import { ВИДЫ_БЛОКОВ } from './views.js?v=23.89.85';
 
 let сохранить = () => {}, применить = () => {}, перерисовать = () => {};
 export function подключитьТелефонные(связь) {
@@ -98,7 +98,7 @@ export function наполнитьНастройки(вид) {
   if (!место) return;
   место.innerHTML = разметкаНастроек();
   // Список шрифтов живёт в Кастомизации, а её модуль грузится по требованию.
-  import('../customize.js?v=23.89.84').then(м => {
+  import('../customize.js?v=23.89.85').then(м => {
     const поле = место.querySelector('[data-pset-fonts]');
     if (поле) { const с = значения(); поле.innerHTML = м.makeFontOptions(с.phoneFont); }
   }).catch(() => {});
@@ -125,19 +125,23 @@ export function изменениеНастроек(e) {
   if (цель.dataset.psetRedraw) { записать(цель.dataset.psetRedraw, цель.value); return true; }
   // Аватарки в чатах — классы на корне: применяем сразу, перерисовка не нужна.
   if (цель.dataset.psetAva) {
-    const ключ = цель.dataset.psetAva;
-    settings[ключ] = цель.checked;
-    сохранить(); применить();
-    if (typeof document !== 'undefined') {
-      if (ключ === 'phoneChatAvatars') {
-        document.querySelectorAll('[data-pset-ava-where], .hud-phone-ava-where').forEach(x => { x.hidden = !цель.checked; });
-        const панель = document.getElementById('hud-phone-chat-avatars'); if (панель && панель !== цель) панель.checked = цель.checked;
-      }
-      document.querySelectorAll(`[data-phone-ava-key="${ключ}"], [data-pset-ava="${ключ}"]`).forEach(x => { if (x !== цель) x.checked = цель.checked; });
-    }
+    settings[цель.dataset.psetAva] = цель.checked;
+    сохранить(); применить(); отразитьАватарки();
     return true;
   }
   return false;
+}
+
+// Галочки аватарок живут в двух местах — в панели расширения и в «Настройках»
+// телефона (а телефонов на странице может быть несколько). После любой правки
+// все копии встают по settings: иначе открытый телефон показывал старое и
+// следующим нажатием записывал его обратно.
+export function отразитьАватарки() {
+  if (typeof document === 'undefined') return;
+  const есть = settings.phoneChatAvatars !== false;
+  document.querySelectorAll('#hud-phone-chat-avatars, [data-pset-ava="phoneChatAvatars"]').forEach(x => { x.checked = есть; });
+  document.querySelectorAll('[data-pset-ava-where], .hud-phone-ava-where').forEach(x => { x.hidden = !есть; });
+  for (const [ключ] of ГАЛКИ_АВАТАРОК) document.querySelectorAll(`[data-phone-ava-key="${ключ}"], [data-pset-ava="${ключ}"]`).forEach(x => { x.checked = settings[ключ] !== false; });
 }
 
 // --- Кнопки аппарата ----------------------------------------------------------

@@ -19,12 +19,12 @@
 // Хранилище — метаданные чата (tavernosHudNotice), бросок привязан к ходу
 // (mesid), свайпу и человеку. Бросок из старой сцены тоже идёт в ближайший ответ.
 
-import { settings } from '../settings.js?v=23.89.84';
-import { namesLikelySame } from '../names.js?v=23.89.84';
-import { escapeHtml, flattenFieldValue, getSafeUserName, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.89.84';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.84';
-import { extractHudBlock, естьЗаглушкаHUD } from '../hud-block.js?v=23.89.84';
-import { ико } from './view-icons.js?v=23.89.84';
+import { settings } from '../settings.js?v=23.89.85';
+import { namesLikelySame } from '../names.js?v=23.89.85';
+import { escapeHtml, flattenFieldValue, getSafeUserName, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.89.85';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.85';
+import { extractHudBlock, естьЗаглушкаHUD } from '../hud-block.js?v=23.89.85';
+import { ико } from './view-icons.js?v=23.89.85';
 
 const КЛЮЧ = 'tavernosHudNotice';
 export const кубикВкл = () => settings.noticeDice !== false;
