@@ -20,22 +20,22 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.83';
-import { английский } from './i18n.js?v=23.89.83';
-import { flattenFieldValue } from './utils.js?v=23.89.83';
-import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.89.83';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.83';
-import { статусОбещания } from './hud-expand.js?v=23.89.83';
-import { полеВкл } from './deep-fields.js?v=23.89.83';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.83';
-import { namesLikelySame } from './names.js?v=23.89.83';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.83';
-import { праздникиГода } from './render/holidays.js?v=23.89.83';
-import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.83';
-import { заметкаМеста } from './render/place-lore.js?v=23.89.83';
-import { заметкаПоста } from './render/almanac.js?v=23.89.83';
-import { заметкаСил } from './render/powers.js?v=23.89.83';
-import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.83';
+import { settings } from './settings.js?v=23.89.84';
+import { английский } from './i18n.js?v=23.89.84';
+import { flattenFieldValue } from './utils.js?v=23.89.84';
+import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.89.84';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.84';
+import { статусОбещания } from './hud-expand.js?v=23.89.84';
+import { полеВкл } from './deep-fields.js?v=23.89.84';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.84';
+import { namesLikelySame } from './names.js?v=23.89.84';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.84';
+import { праздникиГода } from './render/holidays.js?v=23.89.84';
+import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.84';
+import { заметкаМеста } from './render/place-lore.js?v=23.89.84';
+import { заметкаПоста } from './render/almanac.js?v=23.89.84';
+import { заметкаСил } from './render/powers.js?v=23.89.84';
+import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.84';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;

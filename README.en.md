@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.83**:
+The latest version is **23.89.84**:
 
+- The phone setting "Avatars in chats on narrow screens": on or off everywhere, and while on — checkboxes for group chats, private chats and intercepts.
 - "How much you roleplay" gets streaks and day details on tap: models, tokens, wait time; "Does not know" no longer shows a card prefix instead of the name; phone group chats show avatars again and keep their own name.
 - "How much you roleplay" in the archive statistics: generations per day — your messages and character replies, swipes, separate HUD and everything together, with bars by day.
 - The new medieval World views use the same lettering as the rest of the medieval look: Georgia, Cormorant and small caps; in the "Manor cross-section" necks go evenly under the collar and the maid's cap sits straight.

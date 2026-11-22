@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.84 — 2026-11-22
+
+### Added
+- **The "Avatars in chats on narrow screens" setting.** In the phone settings — in the extension panel next to the phone screens and in the Settings app inside the phone. On — the other people's faces show next to incoming messages on a phone and in a narrow chat column; off — nowhere, the name is written above the bubble. While it is on, three checkboxes choose where: in group chats, in private chats, in intercepts. Everything is on by default. It applies at once, without redrawing the cards. On a wide screen avatars always stay.
+
 ## 23.89.83 — 2026-11-22
 
 ### Added

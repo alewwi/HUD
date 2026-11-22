@@ -250,6 +250,9 @@ b.hud-rumor-author { font-weight: 700; }
 .hud-pset-field > span { flex: none; min-width: 34px; font-size: 10.5px; text-align: right; opacity: .7; }
 .hud-pset-row.is-check { justify-content: flex-start; flex-wrap: nowrap; cursor: pointer; }
 .hud-pset-row.is-check input { flex: none; margin: 0; accent-color: var(--hud-phone-accent, #de859f); }
+/* Где показывать аватарки — подпункты общей галочки, скрыты, пока она выключена. */
+.hud-pset-row.hud-pset-sub { padding-left: 22px; }
+.hud-pset-row[hidden] { display: none; }
 
 /* --- Фон отдельного чата --------------------------------------------------- */
 [data-phone-view="messages"] .hud-phone-subbody { position: relative; }

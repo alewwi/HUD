@@ -27,7 +27,7 @@ let всего = 0, провалов = 0;
 const проверить = (что, ок, подробно = '') => { всего++; if (!ок) { провалов++; console.log('✗', что, подробно ? '— ' + String(подробно).slice(0, 300) : ''); } else console.log('✓', что); };
 const равны = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
-const { settings } = await м('settings.js');
+const { settings, defaultSettings: S0 } = await м('settings.js');
 const P = await м('prompt.js');
 P.подключить({ сверитьРоды() {}, последнийСнимокОбъект: () => ({}), последнийHUDКакЕсть: () => null });
 const C = await м('compact-fields.js');
@@ -200,9 +200,32 @@ const сд = fs.readFileSync(ROOT + 'settings-deep.js', 'utf8');
 проверить('«Глубокая настройка» размеров: «Сохранить» и «По умолчанию»', /id="hud-sizes-save"[^>]*>Сохранить/.test(сд) && /id="hud-sizes-default"[^>]*>По умолчанию/.test(сд));
 
 const кс = fs.readFileSync(ROOT + 'css/compact.css', 'utf8');
-проверить('узкий телефон: в групповой переписке аватарки входящих видны, в личной скрыты',
-  (кс.match(/\.hud-phone-chat-area\.is-group \.hud-msg-wrapper\.incoming \.hud-msg-avatar \{ display: flex; \}/g) || []).length === 2
-  && fs.readFileSync(ROOT + 'render/messenger.js', 'utf8').includes("hud-phone-chat-area${isGroupChat ? ' is-group' : ''}"));
+проверить('узкий телефон: аватарки входящих — по классам настройки, в группах, личных и перехватах отдельно',
+  (кс.match(/:root\.hud-msgava-group \.hud-os-card \.hud-phone-chat-area\.is-group /g) || []).length === 2
+  && (кс.match(/:root\.hud-msgava-private \.hud-os-card \.hud-phone-chat-area:not\(\.is-group\):not\(\.is-intercept\) /g) || []).length === 2
+  && (кс.match(/:root\.hud-msgava-intercept \.hud-os-card \.hud-phone-chat-area\.is-intercept /g) || []).length === 2
+  && fs.readFileSync(ROOT + 'render/messenger.js', 'utf8').includes("hud-phone-chat-area${isGroupChat ? ' is-group' : ''}")
+  && fs.readFileSync(ROOT + 'render/intercepts.js', 'utf8').includes('<div class="hud-phone-chat-area is-intercept">'));
+{
+  const ПС = await м('render/phone-settings.js');
+  const классы = new Set();
+  const корень = { dataset: {}, classList: { toggle: (к, да) => (да ? классы.add(к) : классы.delete(к)) } };
+  const ключи = ['phoneChatAvatars', 'phoneChatAvatarsGroup', 'phoneChatAvatarsPrivate', 'phoneChatAvatarsIntercepts'];
+  const было = ключи.map(к => settings[к]);
+  проверить('аватарки в чатах: по умолчанию включены везде', ключи.every(к => S0[к] === true));
+  ПС.применитьВидТелефона(корень);
+  const всё = [...классы].sort().join();
+  settings.phoneChatAvatarsPrivate = false; ПС.применитьВидТелефона(корень);
+  const безЛичных = [...классы].sort().join();
+  settings.phoneChatAvatars = false; ПС.применитьВидТелефона(корень);
+  const выкл = классы.size;
+  проверить('аватарки в чатах: галочки дают классы, общий выключатель снимает все', всё === 'hud-msgava-group,hud-msgava-intercept,hud-msgava-private' && безЛичных === 'hud-msgava-group,hud-msgava-intercept' && выкл === 0, [всё, безЛичных, выкл].join(' | '));
+  ключи.forEach((к, i) => { settings[к] = было[i]; });
+  const разметка = ПС.разметкаНастроек();
+  проверить('аватарки в чатах: в «Настройках» телефона общая галочка и три подпункта', разметка.includes('data-pset-ava="phoneChatAvatars"') && (разметка.match(/data-pset-ava-where/g) || []).length === 3);
+  const панель = fs.readFileSync(ROOT + 'settings-ui.js', 'utf8');
+  проверить('аватарки в чатах: в панели расширения общая галочка и подпункты, применяются без перерисовки', панель.includes("галка('hud-phone-chat-avatars'") && панель.includes('data-phone-ava-key') && /settings\[e\.target\.dataset\.phoneAvaKey\] = e\.target\.checked;\s*основа\.saveSettings\(\); основа\.applyThemeColors\(\);/.test(панель));
+}
 
 console.log(`\nпроверок: ${всего}, провалов: ${провалов}`);
 process.exitCode = провалов ? 1 : 0;

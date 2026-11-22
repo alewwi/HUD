@@ -1164,6 +1164,8 @@
   display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 118px), 1fr)); gap: 4px 12px;
   margin: 2px 0 4px; padding-left: 4px; min-width: 0;
 }
+.hud-set-apps[hidden] { display: none; }
+.hud-set-apps.hud-phone-ava-where { padding-left: 24px; }
 .hud-set-apps label {
   display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; cursor: pointer; font-size: 12.5px;
 }

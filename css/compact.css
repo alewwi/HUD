@@ -137,11 +137,13 @@
      исходящие уже и прижаты вправо: видно, кто пишет, а кому. */
   .hud-os-card .hud-msg-wrapper { max-width: 82%; gap: 5px; }
   .hud-os-card .hud-msg-wrapper.outgoing { max-width: 74%; }
-  /* Аватарка входящих держала пустую колонку у каждого пузыря (видна только
-     у последнего в серии) — имя и так подписано над пузырём. В группе пишут
-     несколько человек: там лицо остаётся, по нему видно, кто это. */
+  /* Аватарки входящих на узком экране — настройка телефона «Аватарки в чатах
+     на узких экранах» и где: в групповых, в личных, в перехватах (классы на
+     корне, render/phone-settings.js). Выключено — имя подписано над пузырём. */
   .hud-os-card .hud-msg-wrapper.incoming .hud-msg-avatar { display: none; }
-  .hud-os-card .hud-phone-chat-area.is-group .hud-msg-wrapper.incoming .hud-msg-avatar { display: flex; }
+  :root.hud-msgava-group .hud-os-card .hud-phone-chat-area.is-group .hud-msg-wrapper.incoming .hud-msg-avatar,
+  :root.hud-msgava-private .hud-os-card .hud-phone-chat-area:not(.is-group):not(.is-intercept) .hud-msg-wrapper.incoming .hud-msg-avatar,
+  :root.hud-msgava-intercept .hud-os-card .hud-phone-chat-area.is-intercept .hud-msg-wrapper.incoming .hud-msg-avatar { display: flex; }
   .hud-os-card .hud-phone-chat-area { padding-left: 8px; padding-right: 8px; }
   /* Визитки отношений: лицо слева отнимало 52px из ~170, и «настороженность»
      рвалась. Лицо — в строку с именем, текст — под ними во всю ширину. */
@@ -311,11 +313,13 @@
      исходящие уже и прижаты вправо: видно, кто пишет, а кому. */
   .hud-os-card .hud-msg-wrapper { max-width: 82%; gap: 5px; }
   .hud-os-card .hud-msg-wrapper.outgoing { max-width: 74%; }
-  /* Аватарка входящих держала пустую колонку у каждого пузыря (видна только
-     у последнего в серии) — имя и так подписано над пузырём. В группе пишут
-     несколько человек: там лицо остаётся, по нему видно, кто это. */
+  /* Аватарки входящих на узком экране — настройка телефона «Аватарки в чатах
+     на узких экранах» и где: в групповых, в личных, в перехватах (классы на
+     корне, render/phone-settings.js). Выключено — имя подписано над пузырём. */
   .hud-os-card .hud-msg-wrapper.incoming .hud-msg-avatar { display: none; }
-  .hud-os-card .hud-phone-chat-area.is-group .hud-msg-wrapper.incoming .hud-msg-avatar { display: flex; }
+  :root.hud-msgava-group .hud-os-card .hud-phone-chat-area.is-group .hud-msg-wrapper.incoming .hud-msg-avatar,
+  :root.hud-msgava-private .hud-os-card .hud-phone-chat-area:not(.is-group):not(.is-intercept) .hud-msg-wrapper.incoming .hud-msg-avatar,
+  :root.hud-msgava-intercept .hud-os-card .hud-phone-chat-area.is-intercept .hud-msg-wrapper.incoming .hud-msg-avatar { display: flex; }
   .hud-os-card .hud-phone-chat-area { padding-left: 8px; padding-right: 8px; }
   /* Визитки отношений: лицо слева отнимало 52px из ~170, и «настороженность»
      рвалась. Лицо — в строку с именем, текст — под ними во всю ширину. */

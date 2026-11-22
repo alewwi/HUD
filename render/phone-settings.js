@@ -11,9 +11,9 @@
 // Разметку «Настроек» собираем при открытии приложения: так значения всегда
 // свежие, а каждая карточка с телефоном не тащит сотню полей.
 
-import { settings, унаследованноеТелефоном } from '../settings.js?v=23.89.83';
-import { escapeHtml, hudHashSeed } from '../utils.js?v=23.89.83';
-import { ВИДЫ_БЛОКОВ } from './views.js?v=23.89.83';
+import { settings, унаследованноеТелефоном } from '../settings.js?v=23.89.84';
+import { escapeHtml, hudHashSeed } from '../utils.js?v=23.89.84';
+import { ВИДЫ_БЛОКОВ } from './views.js?v=23.89.84';
 
 let сохранить = () => {}, применить = () => {}, перерисовать = () => {};
 export function подключитьТелефонные(связь) {
@@ -39,7 +39,17 @@ export function применитьВидТелефона(root) {
   root.dataset.hudPhoneCracks = из(ТРЕЩИНЫ, 'phoneCracks');
   root.dataset.hudPhoneNotif = из(СТИЛИ_УВЕДОМЛЕНИЙ, 'phoneNotifStyle');
   root.dataset.hudPhoneClock = из(ЧАСЫ_БЛОКИРОВКИ, 'phoneLockClock');
+  // Аватарки в чатах на узком экране (css/compact.css): общий выключатель и где.
+  if (root.classList) {
+    const есть = settings.phoneChatAvatars !== false;
+    for (const [ключ, класс] of АВАТАРКИ_ЧАТОВ) root.classList.toggle(класс, есть && settings[ключ] !== false);
+  }
 }
+// Ключ настройки → класс на корне страницы.
+export const АВАТАРКИ_ЧАТОВ = [['phoneChatAvatarsGroup', 'hud-msgava-group'], ['phoneChatAvatarsPrivate', 'hud-msgava-private'], ['phoneChatAvatarsIntercepts', 'hud-msgava-intercept']];
+export const ГАЛКИ_АВАТАРОК = [['phoneChatAvatarsGroup', 'В групповых', 'Лица у входящих в групповых переписках: по ним видно, кто из участников пишет'],
+  ['phoneChatAvatarsPrivate', 'В личных чатах', 'Лицо собеседника у входящих в личной переписке'],
+  ['phoneChatAvatarsIntercepts', 'В перехватах', 'Лица у сообщений в перехваченных чужих переписках']];
 
 // --- Приложение «Настройки» ---------------------------------------------------
 const значения = () => (settings.phoneThemeAuto !== false ? { ...settings, ...унаследованноеТелефоном() } : settings);
@@ -73,7 +83,9 @@ export function разметкаНастроек() {
   const пузыри = строка('Входящие', цвет('msgInBg', с) + ползунок('msgInAlpha', 0, 100, с, '%'))
     + строка('Исходящие: начало', цвет('msgOutStart', с))
     + строка('Исходящие: конец', цвет('msgOutEnd', с) + ползунок('msgOutAlpha', 0, 100, с, '%'))
-    + строка('Скругление пузырей', ползунок('phoneBubbleRadius', 2, 24, с));
+    + строка('Скругление пузырей', ползунок('phoneBubbleRadius', 2, 24, с))
+    + `<label class="hud-pset-row is-check"><input type="checkbox" data-pset-ava="phoneChatAvatars"${settings.phoneChatAvatars !== false ? ' checked' : ''}><span>Аватарки в чатах на узких экранах</span></label>`
+    + ГАЛКИ_АВАТАРОК.map(([к, п]) => `<label class="hud-pset-row is-check hud-pset-sub" data-pset-ava-where${settings.phoneChatAvatars !== false ? '' : ' hidden'}><input type="checkbox" data-pset-ava="${к}"${settings[к] !== false ? ' checked' : ''}><span>${п}</span></label>`).join('');
   const значки = строка('Иконки приложений', `<select data-pset-redraw="phoneIconsView">${Object.entries(виды).map(([к, п]) => `<option value="${к}"${(settings.phoneIconsView || 'auto') === к ? ' selected' : ''}>${escapeHtml(п)}</option>`).join('')}</select>`);
   const галка = (ключ, подпись) => `<label class="hud-pset-row is-check"><input type="checkbox" data-pset-app="${ключ}"${settings[ключ] !== false ? ' checked' : ''}><span>${подпись}</span></label>`;
   const приложения = ПРИЛОЖЕНИЯ_ТЕЛЕФОНА.map(([к, п]) => галка(к, п)).join('');
@@ -86,7 +98,7 @@ export function наполнитьНастройки(вид) {
   if (!место) return;
   место.innerHTML = разметкаНастроек();
   // Список шрифтов живёт в Кастомизации, а её модуль грузится по требованию.
-  import('../customize.js?v=23.89.83').then(м => {
+  import('../customize.js?v=23.89.84').then(м => {
     const поле = место.querySelector('[data-pset-fonts]');
     if (поле) { const с = значения(); поле.innerHTML = м.makeFontOptions(с.phoneFont); }
   }).catch(() => {});
@@ -111,6 +123,20 @@ export function изменениеНастроек(e) {
   if (!цель || !цель.dataset) return false;
   if (цель.dataset.psetApp) { записать(цель.dataset.psetApp, цель.checked); return true; }
   if (цель.dataset.psetRedraw) { записать(цель.dataset.psetRedraw, цель.value); return true; }
+  // Аватарки в чатах — классы на корне: применяем сразу, перерисовка не нужна.
+  if (цель.dataset.psetAva) {
+    const ключ = цель.dataset.psetAva;
+    settings[ключ] = цель.checked;
+    сохранить(); применить();
+    if (typeof document !== 'undefined') {
+      if (ключ === 'phoneChatAvatars') {
+        document.querySelectorAll('[data-pset-ava-where], .hud-phone-ava-where').forEach(x => { x.hidden = !цель.checked; });
+        const панель = document.getElementById('hud-phone-chat-avatars'); if (панель && панель !== цель) панель.checked = цель.checked;
+      }
+      document.querySelectorAll(`[data-phone-ava-key="${ключ}"], [data-pset-ava="${ключ}"]`).forEach(x => { if (x !== цель) x.checked = цель.checked; });
+    }
+    return true;
+  }
   return false;
 }
 

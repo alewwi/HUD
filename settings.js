@@ -622,6 +622,9 @@ export const defaultSettings = {
   glowMobile: 'frame',
   // Свечение внутри эмулятора телефона: on или off.
   phoneGlow: 'on',
+  // Аватарки у входящих сообщений на узкой карточке: общий выключатель и где
+  // именно — в групповых, в личных чатах, в перехватах. На широкой — всегда.
+  phoneChatAvatars: true, phoneChatAvatarsGroup: true, phoneChatAvatarsPrivate: true, phoneChatAvatarsIntercepts: true,
 
   cardBgStart: '#0f0f14', cardBgEnd: '#0f0f14', cardBgAlpha: 15,
   infoBlockBgStart: '#000000', infoBlockBgEnd: '#000000', infoBlockBgAlpha: 15,

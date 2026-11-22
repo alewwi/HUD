@@ -38,7 +38,7 @@
 // мир современный, но люди пишут друг другу письма (письма вместо телефона или
 // вместе с ним).
 
-import { settings } from './settings.js?v=23.89.83';
+import { settings } from './settings.js?v=23.89.84';
 
 export const ЭПОХИ = ['modern', 'fantasy-modern', 'medieval', 'fantasy-medieval'];
 export const МАГИЯ = ['high', 'grounded'];
