@@ -21,10 +21,10 @@
 // — Цена блока: сколько токенов он добавляет к инструкции HUD.
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { settings, defaultSettings } from './settings.js?v=23.89.82';
-import { escapeHtml } from './utils.js?v=23.89.82';
-import { оценкаТокенов, коротко } from './token-budget.js?v=23.89.82';
-import { т } from './i18n.js?v=23.89.82';
+import { settings, defaultSettings } from './settings.js?v=23.89.83';
+import { escapeHtml } from './utils.js?v=23.89.83';
+import { оценкаТокенов, коротко } from './token-budget.js?v=23.89.83';
+import { т } from './i18n.js?v=23.89.83';
 
 // --- Сколько HUD ---------------------------------------------------------------
 // [ключ, поле в панели, лёгкий, обычный]. Полный — заводские значения.

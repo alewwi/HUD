@@ -6,14 +6,15 @@
 // прежний, его рисуют сами блоки; здесь только новые. Данные те же —
 // модель ничего нового не пишет. Оформление — css/views-plus.css.
 
-import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени } from '../utils.js?v=23.89.82';
-import { лицоЧеловека as лицо } from './views.js?v=23.89.82';
-import { ико } from './view-icons.js?v=23.89.82';
+import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяДляВкладки } from '../utils.js?v=23.89.83';
+import { лицоЧеловека as лицо } from './views.js?v=23.89.83';
+import { ико } from './view-icons.js?v=23.89.83';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
 const ф = (n) => Number(n).toFixed(1);
-const первое = (имя) => String(имя || '').trim().split(/\s+/)[0];
+// Имя карточки бывает с приставкой («THE LANTERNS  Имя») — берём само имя.
+const первое = (имя) => имяДляВкладки(имя);
 // Псевдослучайное, но одинаковое каждый ход: трещины, швы, наклон.
 const сид = (s, i = 0) => { let h = hudHashSeed(String(s) + '#' + i) >>> 0; return () => { h = (Math.imul(h, 1103515245) + 12345) >>> 0; return (h >>> 8) / 16777216; }; };
 

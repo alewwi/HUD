@@ -4,6 +4,16 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.83 — 2026-11-22
+
+### Added
+- **Streaks and day details in "How much you roleplay".** Under the card's tiles are streaks: how many days in a row you are playing now (today can still be ahead, so a streak holds from yesterday) and the best streak with its dates. Each day in the bars now opens with a tap: how many of your messages, replies, swipes and HUDs there were, from what time to what time you played, which models replied, which characters replied (when there are several), how many tokens the replies had and how long a reply took on average. SillyTavern keeps the model, tokens and generation time on every swipe, so the details show for older days too.
+
+### Fixed
+- **Avatars in phone group chats.** On a narrow card the faces next to incoming messages were hidden in every conversation. They stay hidden in private chats, but in a group they are back, so you can see who is writing.
+- **The group name in the phone.** When a group name matched the card prefix (the group "The Lanterns", the card "THE LANTERNS  Name") and the prefix was among the character's avatar names, the phone took the group for the character itself and named it with a list of participants. Now the prefix in avatar name lists is ignored, and the group keeps its name.
+- **The character's name in "Does not know".** When a card name starts with a capitalised prefix ("THE LANTERNS  Name"), the "Redacted", "Blind spot" and "Puzzle" views showed the prefix's first word instead of the name — "THE can't see". Now they show the name itself. The same is fixed for the vertical name in the header and the signature under quotes.
+
 ## 23.89.82 — 2026-11-22
 
 ### Added

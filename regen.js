@@ -5,15 +5,15 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.82';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.82';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.82';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.82';
-import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.82';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.82';
-import { генерацияТаверны } from './utils.js?v=23.89.82';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.82';
-import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.89.82';
+import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.83';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.83';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.83';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.83';
+import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.83';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.83';
+import { генерацияТаверны } from './utils.js?v=23.89.83';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.83';
+import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.89.83';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.

@@ -1606,9 +1606,22 @@
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) { .hud-gens .hud-arc-tiles.has-hud .hud-arc-tile:last-child { grid-column: 1 / -1; } } }
 /* cq ↑ */
-.hud-gens .hud-arc-tile:last-child { border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent); background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 12%, transparent); }
-.hud-gens-days { display: flex; flex-direction: column; gap: 4px; }
-.hud-gens-day { display: grid; grid-template-columns: 4.6em minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 11.5px; }
+.hud-gens .hud-arc-tiles:not(.hud-gens-streaks) .hud-arc-tile:last-child { border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent); background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 12%, transparent); }
+.hud-gens .hud-dash-sub small { text-transform: none; letter-spacing: 0; opacity: .8; }
+.hud-gens-days { display: flex; flex-direction: column; gap: 2px; }
+/* День — <details>: строка с полосой раскрывается в подробности. */
+.hud-gens-day { border-radius: 6px; }
+.hud-gens-day > summary { display: grid; grid-template-columns: 4.6em minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 11.5px; padding: 2px 4px; border-radius: 6px; cursor: pointer; list-style: none; }
+.hud-gens-day > summary::-webkit-details-marker { display: none; }
+.hud-gens-day > summary:focus-visible { outline: 2px solid var(--hud-accent, #8c5ad2); outline-offset: 1px; }
+@media (hover: hover) and (pointer: fine) { .hud-gens-day > summary:hover { background: color-mix(in srgb, currentColor 6%, transparent); } }
+.hud-gens-day[open] { background: color-mix(in srgb, currentColor 5%, transparent); margin: 3px 0; }
+.hud-gens-day[open] .hud-gens-date { opacity: 1; font-weight: 700; }
+.hud-gens-more { padding: 4px 8px 8px; display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; }
+.hud-gens-more .hud-dash-legend { margin: 0 0 2px; }
+.hud-gens-line { display: grid; grid-template-columns: minmax(0, 8.5em) minmax(0, 1fr); gap: 8px; }
+.hud-gens-line label { opacity: .6; }
+.hud-gens-line span { min-width: 0; overflow-wrap: anywhere; }
 .hud-gens-date { white-space: nowrap; opacity: .75; font-variant-numeric: tabular-nums; }
 .hud-gens-track { display: flex; gap: 1px; height: 9px; border-radius: 4px; overflow: hidden; background: color-mix(in srgb, currentColor 9%, transparent); }
 .hud-gens-track i { display: block; height: 100%; min-width: 2px; }

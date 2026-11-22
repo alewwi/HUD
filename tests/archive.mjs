@@ -142,7 +142,8 @@ const A = await модуль('render/archive.js');
   const html = A.карточкаГенераций({ dashboard: { activity: а } });
   const подписи = [...html.matchAll(/<span>([^<]+)<\/span>/g)].map(m => m[1]).filter(x => /в день$/.test(x));
   проверить('карточка: сначала игрок и персонажи, потом свайпы, HUD, всё вместе', подписи.join('|') === 'ваших сообщений в день|ответов персонажей в день|свайпов в день|HUD отдельно в день|всего генераций в день', подписи.join('|'));
-  проверить('карточка: по дням — новые сверху, легенда с HUD', html.indexOf('21 нояб') < html.indexOf('20 нояб') && /<\/i>HUD<\/span>/.test(html), html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 400));
+  const поДням = html.slice(html.indexOf('hud-gens-days'));
+  проверить('карточка: по дням — новые сверху, легенда с HUD', поДням.indexOf('21 нояб') < поДням.indexOf('20 нояб') && /<\/i>HUD<\/span>/.test(html), html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 400));
   const безHUD = A.карточкаГенераций({ dashboard: { activity: { ...а, hudSeparate: false, totals: { ...а.totals, hud: 0 } } } });
   проверить('карточка: HUD не отдельно и не перегенерировался — его строки нет', !/HUD отдельно в день/.test(безHUD) && !/<\/i>HUD<\/span>/.test(безHUD));
   проверить('вкладка «Статистика» показывает карточку', fs.readFileSync(path.join(КОРЕНЬ, 'render/archive.js'), 'utf8').includes('${карточкаГенераций(отчёт)}'));
@@ -153,6 +154,51 @@ const A = await модуль('render/archive.js');
   for (let i = 0; i < 60; i++) R.отметитьГенерациюHUD(m, i);
   проверить('метка генерации HUD — не больше 50 на свайп', m.extra.hud_gens.length === S.ГЕНЕРАЦИЙ_HUD_НА_СВАЙП && m.extra.hud_gens[49] === 59);
   проверить('регенерация ставит метку после вставки HUD', /updateMessageDataForCurrentSwipe\(targetMessage, updatedFullText\);\n\s+отметитьГенерациюHUD\(targetMessage\);/.test(fs.readFileSync(path.join(КОРЕНЬ, 'regen.js'), 'utf8')));
+
+  // Серии: 3 дня подряд неделю назад — лучшая, вчера и сегодня — текущая.
+  const деньНазад = (n, час = 20) => { const d = new Date(); d.setDate(d.getDate() - n); d.setHours(час, 0, 0, 0); return d.getTime(); };
+  const с = S.createActivity();
+  [10, 9, 8, 1, 0].forEach(n => с.add({ is_user: true, send_date: деньНазад(n) }, null, 1));
+  const сер = с.finish().streaks;
+  проверить('серии: текущая — вчера и сегодня, лучшая — три дня подряд', сер.current === 2 && сер.best.len === 3 && сер.last.len === 2, JSON.stringify(сер));
+  const с2 = S.createActivity();
+  [5, 4].forEach(n => с2.add({ is_user: true, send_date: деньНазад(n) }, null, 1));
+  проверить('серии: позавчера не играли — текущей нет, последняя видна', с2.finish().streaks.current === 0 && с2.finish().streaks.last.len === 2);
+
+  // Детали дня: модель, кто отвечал, токены и ожидание — из полей Таверны у свайпа.
+  const ч = new Date(2026, 10, 20, 21, 0);
+  const iso = (мин, сек = 0) => new Date(ч.getTime() + мин * 60000 + сек * 1000).toISOString();
+  const д = S.createActivity();
+  д.add({ is_user: true, send_date: ч.getTime() }, null, 1);
+  д.add({ is_user: false, name: 'Дамиан', send_date: ч.getTime() + 120000, swipe_id: 1, mes: 'б', swipes: ['а', 'б'], gen_started: iso(2), gen_finished: iso(2, 30), extra: { model: 'model-b', token_count: 300 },
+    swipe_info: [{ send_date: ч.getTime() + 60000, gen_started: iso(1), gen_finished: iso(1, 10), extra: { model: 'model-a', token_count: 100 } }, { send_date: ч.getTime() + 120000 }] }, null, 2);
+  д.add({ is_user: false, name: 'Ада', send_date: ч.getTime() + 180000, mes: 'в', gen_started: iso(3), gen_finished: iso(3, 20), extra: { model: 'model-b', token_count: 200 } }, null, 3);
+  const дд = д.finish().recent[0];
+  проверить('детали дня: модели, кто отвечал, токены, среднее ожидание, время игры', дд.models.map(m => m.name + m.count).join() === 'model-b2,model-a1' && дд.speakers.length === 2 && дд.tokens === 600 && дд.avgWaitSec === 20
+    && new Date(дд.first).getMinutes() === 0 && new Date(дд.last).getMinutes() === 3, JSON.stringify(дд));
+  const сДеталями = A.карточкаГенераций({ dashboard: { activity: { ...а, streaks: сер, recent: [{ ...дд }] } } });
+  проверить('карточка: день раскрывается — модели, отвечали, токены, ожидание', /<details class="hud-gens-day"><summary/.test(сДеталями) && /Модели<\/label><span>model-b ×2, model-a ×1/.test(сДеталями)
+    && /Отвечали<\/label>/.test(сДеталями) && /600 · ≈ 200 на ответ/.test(сДеталями) && /20 с в среднем/.test(сДеталями) && /Играли<\/label><span>21:00–21:03/.test(сДеталями), сДеталями.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(-500));
+  проверить('карточка: серии — сейчас и лучшая', /дня подряд сейчас/.test(сДеталями) && /дня — лучшая серия/.test(сДеталями));
+}
+
+// --- Имя карточки с приставкой в видах «Не знает» -------------------------------
+{
+  const V = await модуль('render/views-plus.js');
+  const имя = 'THE LANTERNS  Damian Hartley';
+  const виды = ['redacted', 'blindspot', 'puzzle'].map(вид => V.видНеЗнает('кто украл ключ; где письмо', имя, вид));
+  // Название группы совпадает с приставкой карточки: в списке аватарок она
+  // не делает группу персонажем, и чат телефона остаётся с названием.
+  const { settings: Н } = await модуль('settings.js');
+  const N = await модуль('names.js');
+  const M = await модуль('render/messenger.js');
+  const было = Н.avatarCharNames;
+  Н.avatarCharNames = 'THE LANTERNS Damian Hartley, Damian Hartley, Дамиан Хартли';
+  const чатыТел = { 'The Lanterns': { owner: имя, participants: имя + '; Nolan Reyes; Ivy Moss', messages: ['Ivy Moss -> The Lanterns: в библиотеке в семь | 21:35 | Read', 'Nolan Reyes -> The Lanterns: буду | 21:40 | Read'] } };
+  const заголовки = [...M.buildMessengerHTML(чатыТел, 'u1', имя, '').matchAll(/class="hud-phone-name">([^<]*)/g)].map(m => m[1].replace(/​/g, '').trim());
+  проверить('приставка карточки в списке аватарок: группа «The Lanterns» — не персонаж, чат с названием', !N.namesLikelySame('The Lanterns', имя) && N.namesLikelySame('Damian', имя) && заголовки.join() === 'The Lanterns', заголовки.join());
+  Н.avatarCharNames = было;
+  проверить('«Не знает»: имя без приставки карточки во всех трёх видах', виды.every(h => /<b>Damian<\/b> не (знает|видит)/.test(h) && !/<b>THE<\/b>/.test(h)), виды.map(h => (h.match(/<b>[^<]*<\/b> не \S+/) || [''])[0]).join(' | '));
 }
 
 // --- Окно: обработчики и стили на месте ---------------------------------------

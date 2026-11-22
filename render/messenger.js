@@ -6,14 +6,14 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.89.82';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.82';
-import { G_ICONS } from './icons.js?v=23.89.82';
-import { собратьЛенту } from './msg-feed.js?v=23.89.82';
-import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.89.82';
-import { безШапокСообщения, заКадромHTML, начинаетсяСТега } from './msg-parts.js?v=23.89.82';
-import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.89.82';
-import { namesLikelySame } from '../names.js?v=23.89.82';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.89.83';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.83';
+import { G_ICONS } from './icons.js?v=23.89.83';
+import { собратьЛенту } from './msg-feed.js?v=23.89.83';
+import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.89.83';
+import { безШапокСообщения, заКадромHTML, начинаетсяСТега } from './msg-parts.js?v=23.89.83';
+import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.89.83';
+import { namesLikelySame } from '../names.js?v=23.89.83';
 
 export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, контакты = null) {
   обновитьФоныЧатов();
@@ -133,7 +133,7 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
 
     chatBodies += `<div class="hud-phone-subbody" id="subchat-${uid}-${idx}" data-chat-key="${escapeHtml(rawChatName)}"${isGroup ? ' data-chat-group="1"' : ''}>
       <div class="hud-phone-header"><span class="hud-phone-back">⟨</span><div class="hud-phone-title-group" ${chatObj.participants ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(displayChatName))} ${chatObj.participants ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${строкаВСети}${личность ? ложноеИмяHTML(личность) : ''}${chatObj.participants ? `<div class="hud-phone-participants-list">${G_ICONS.people} Участники: ${escapeHtml(chatObj.participants)}</div>` : ''}</div><span class="hud-phone-options" data-chat-bg="${ключФона}" role="button" tabindex="0" aria-label="Фон этого чата" title="Фон этого чата">⋮</span></div>
-      <div class="hud-phone-chat-area" data-bgk="${ключФона}">`;
+      <div class="hud-phone-chat-area${isGroupChat ? ' is-group' : ''}" data-bgk="${ключФона}">`;
 		
     // Сообщения, разделители дней и черновик — общая лента (msg-feed.js):
     // ровно то же самое рисуют перехваты.

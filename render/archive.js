@@ -6,19 +6,19 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.82';
-import { английский } from '../i18n.js?v=23.89.82';
-import { settings } from '../settings.js?v=23.89.82';
-import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.82';
-import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.82';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.82';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.82';
-import { ссылкиТрека } from './music.js?v=23.89.82';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.82';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.82';
-import { ико } from './view-icons.js?v=23.89.82';
-import { namesLikelySame } from '../names.js?v=23.89.82';
-import { старина, стариннаяЗабота } from '../era.js?v=23.89.82';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.83';
+import { английский } from '../i18n.js?v=23.89.83';
+import { settings } from '../settings.js?v=23.89.83';
+import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.83';
+import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.83';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.83';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.83';
+import { ссылкиТрека } from './music.js?v=23.89.83';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.83';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.83';
+import { ико } from './view-icons.js?v=23.89.83';
+import { namesLikelySame } from '../names.js?v=23.89.83';
+import { старина, стариннаяЗабота } from '../era.js?v=23.89.83';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).
@@ -504,6 +504,7 @@ function деньКоротко(ключ) {
   const дата = new Date(г, м - 1, д);
   return isNaN(дата) ? ключ : дата.toLocaleDateString(английский() ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short' });
 }
+const часМинуты = (t) => { const d = new Date(t); return isNaN(d) ? '—' : String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
 export function карточкаГенераций(отчёт) {
   const а = отчёт && отчёт.dashboard && отчёт.dashboard.activity;
   if (!а) return '';
@@ -521,13 +522,33 @@ export function карточкаГенераций(отчёт) {
   ].join('');
   const виды = [['user', 'вы'], ['ai', 'персонажи'], ['swipes', 'свайпы'], ...(сHUD ? [['hud', 'HUD']] : [])];
   const максимум = Math.max(1, ...а.recent.map(д => виды.reduce((s, [в]) => s + д[в], 0)));
+  // День раскрывается нажатием (<details>): сколько чего, когда играли,
+  // модели, кто отвечал, токены ответов и ожидание.
   const дни = а.recent.slice().reverse().map(д => {
     const сумма = виды.reduce((s, [в]) => s + д[в], 0);
     const подсказка = `${деньКоротко(д.day)}: ` + виды.map(([в, имя]) => `${имя} ${д[в]}`).join(' · ');
-    return `<div class="hud-gens-day" title="${escapeHtml(подсказка)}"><span class="hud-gens-date">${escapeHtml(деньКоротко(д.day))}</span>`
+    const ответов = д.ai + д.swipes;
+    const строки = [
+      [Number.isFinite(д.first) && Number.isFinite(д.last) ? 'Играли' : '', `${часМинуты(д.first)}–${часМинуты(д.last)}`],
+      [д.models && д.models.length ? 'Модели' : '', (д.models || []).map(m => `${m.name} ×${m.count}`).join(', ')],
+      [д.speakers && д.speakers.length > 1 ? 'Отвечали' : '', (д.speakers || []).map(m => `${имяБезПриставки(m.name)} ×${m.count}`).join(', ')],
+      [д.tokens ? 'Токенов в ответах' : '', `${число(д.tokens)}${ответов ? ` · ≈ ${число(Math.round(д.tokens / ответов))} на ответ` : ''}`],
+      [д.avgWaitSec !== null && д.avgWaitSec !== undefined ? 'Ждали ответа' : '', д.avgWaitSec >= 90 ? `≈ ${число(Math.round(д.avgWaitSec / 60))} мин в среднем` : `${число(д.avgWaitSec)} с в среднем`],
+    ].filter(([подпись]) => подпись);
+    const состав = виды.map(([в, имя]) => `<span><i style="background:${ЦВЕТА_ГЕНЕРАЦИЙ[в]}"></i>${escapeHtml(имя)} ${число(д[в])}</span>`).join('');
+    return `<details class="hud-gens-day"><summary title="${escapeHtml(подсказка)}"><span class="hud-gens-date">${escapeHtml(деньКоротко(д.day))}</span>`
       + `<span class="hud-gens-track">${виды.filter(([в]) => д[в]).map(([в]) => `<i style="width:${(д[в] / максимум * 100).toFixed(2)}%;background:${ЦВЕТА_ГЕНЕРАЦИЙ[в]}"></i>`).join('')}</span>`
-      + `<span class="hud-gens-val">${число(сумма)}</span></div>`;
+      + `<span class="hud-gens-val">${число(сумма)}</span></summary>`
+      + `<div class="hud-gens-more"><div class="hud-dash-legend">${состав}</div>`
+      + строки.map(([подпись, значение]) => `<div class="hud-gens-line"><label>${escapeHtml(подпись)}</label><span>${escapeHtml(значение)}</span></div>`).join('')
+      + `</div></details>`;
   }).join('');
+  const с = а.streaks;
+  const серии = с && а.days ? `<div class="hud-dash-sub">Серии</div><div class="hud-arc-tiles hud-gens-streaks">`
+    + плитка(число(с.current), `${склон(с.current, 'день', 'дня', 'дней')} подряд сейчас`,
+      с.current ? (с.last ? `с ${деньКоротко(с.last.from)}` : '') : (с.last ? `последняя — ${число(с.last.len)} ${склон(с.last.len, 'день', 'дня', 'дней')}, до ${деньКоротко(с.last.to)}` : ''))
+    + (с.best ? плитка(число(с.best.len), `${склон(с.best.len, 'день', 'дня', 'дней')} — лучшая серия`, с.best.len > 1 ? `${деньКоротко(с.best.from)} — ${деньКоротко(с.best.to)}` : деньКоротко(с.best.from)) : '')
+    + `</div>` : '';
   const легенда = `<div class="hud-dash-legend">${виды.map(([в, имя]) => `<span><i style="background:${ЦВЕТА_ГЕНЕРАЦИЙ[в]}"></i>${escapeHtml(имя)}</span>`).join('')}</div>`;
   const пояснения = [
     а.days ? `В день — среднее по дням, когда вы играли: ${число(а.days)} ${склон(а.days, 'день', 'дня', 'дней')}${а.span && а.span > а.days ? ` из ${число(а.span)} по календарю` : ''}.` : 'Дат отправки нет — только итоги.',
@@ -538,7 +559,8 @@ export function карточкаГенераций(отчёт) {
   ].filter(Boolean).map(x => `<span>${escapeHtml(x)}</span>`).join(' ');
   return `<div class="hud-arc-card hud-gens"><div class="hud-arc-card-head"><i class="hud-arc-medal">${значок('chart')}</i><b>Сколько вы ролите</b></div>`
     + `<div class="hud-arc-tiles${сHUD ? ' has-hud' : ''}">${плитки}</div>`
-    + (дни ? `<div class="hud-dash-sub">По дням</div><div class="hud-gens-days">${дни}</div>${легенда}` : '')
+    + серии
+    + (дни ? `<div class="hud-dash-sub">По дням <small>— нажмите на день, чтобы раскрыть</small></div><div class="hud-gens-days">${дни}</div>${легенда}` : '')
     + `<div class="hud-dash-foot">${пояснения}</div></div>`;
 }
 

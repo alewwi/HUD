@@ -9,9 +9,9 @@
 // Текст сообщения здесь только считается, на экран не выводится, поэтому
 // разметку режем регуляркой — DOM на тысячу сообщений не нужен.
 
-import { hudFilled } from './utils.js?v=23.89.82';
+import { hudFilled } from './utils.js?v=23.89.83';
 
-import { заменитьHudБлоки, hudБлоки } from './hud-block.js?v=23.89.82';
+import { заменитьHudБлоки, hudБлоки } from './hud-block.js?v=23.89.83';
 
 // Служебные вставки других расширений и размышления модели — не проза.
 const СЛУЖЕБНОЕ = /<(think|thinking|plan|comics|img|script|style|details|summary)\b[^>]*>[\s\S]*?<\/\1>/gi;
@@ -101,13 +101,22 @@ export function createActivity({ hudSeparate = false } = {}) {
   const дни = new Map();
   let примерно = 0, точно = 0;
 
-  const учесть = (вид, когда) => {
+  // подробно — для деталей дня: модель, кто ответил, токены ответа, ожидание.
+  const учесть = (вид, когда, подробно = null) => {
     всего[вид]++;
     if (когда === null || !Number.isFinite(когда)) { безДаты[вид]++; return; }
     const к = ключДня(когда);
     let д = дни.get(к);
-    if (!д) { д = { day: к, user: 0, ai: 0, swipes: 0, hud: 0 }; дни.set(к, д); }
+    if (!д) { д = { day: к, user: 0, ai: 0, swipes: 0, hud: 0, модели: new Map(), герои: new Map(), токены: 0, ждали: 0, замеров: 0, с: когда, по: когда }; дни.set(к, д); }
     д[вид]++;
+    if (когда < д.с) д.с = когда;
+    if (когда > д.по) д.по = когда;
+    if (!подробно) return;
+    const { модель, герой, токены, ждал } = подробно;
+    if (модель) д.модели.set(модель, (д.модели.get(модель) || 0) + 1);
+    if (герой) д.герои.set(герой, (д.герои.get(герой) || 0) + 1);
+    if (токены > 0) д.токены += токены;
+    if (ждал > 0) { д.ждали += ждал; д.замеров++; }
   };
 
   function hudСвайпа(extra, текст, естьHUD, когдаСвайпа) {
@@ -141,10 +150,18 @@ export function createActivity({ hudSeparate = false } = {}) {
       const и = инфо[k] && typeof инфо[k] === 'object' ? инфо[k] : null;
       const свой = и ? времяОтправки(и.send_date) : null;
       const когда = свой !== null ? свой : когдаСообщения;
-      учесть(k === 0 ? 'ai' : 'swipes', когда);
       // У текущего свайпа extra живёт в самом сообщении (Таверна переносит его
       // в swipe_info при смене свайпа).
       const extra = k === текущий ? (mes.extra || (и && и.extra)) : (и && и.extra);
+      // Таверна сама пишет у свайпа модель, токены ответа и время генерации.
+      const источник = k === текущий && mes.gen_started ? mes : и;
+      const ждал = источник ? Date.parse(источник.gen_finished) - Date.parse(источник.gen_started) : NaN;
+      учесть(k === 0 ? 'ai' : 'swipes', когда, {
+        модель: extra && typeof extra.model === 'string' ? extra.model.trim().slice(0, 80) : '',
+        герой: String(mes.name || '').trim().slice(0, 80),
+        токены: Number(extra && extra.token_count) || 0,
+        ждал: Number.isFinite(ждал) && ждал > 0 && ждал < 3600000 ? ждал : 0,
+      });
       hudСвайпа(extra, k === текущий ? mes.mes : текст, k === текущий && !!data, когда);
     });
   }
@@ -161,6 +178,27 @@ export function createActivity({ hudSeparate = false } = {}) {
     const итого = { ...всего, all: ВИДЫ.reduce((s, в) => s + всего[в], 0) };
     const размах = n ? Math.round((new Date(список[n - 1].day) - new Date(список[0].day)) / 86400000) + 1 : null;
     const пик = список.reduce((л, д) => (!л || д.all > л.all ? д : л), null);
+
+    // Серии: дни игры подряд по календарю. Текущая — та, что кончается
+    // сегодня или вчера (сегодня можно ещё не успеть сыграть).
+    const номерДня = (ключ) => { const [г, м, д] = ключ.split('-').map(Number); return Math.round(Date.UTC(г, м - 1, д) / 86400000); };
+    let лучшая = null, серия = null;
+    for (const д of список) {
+      const н = номерДня(д.day);
+      if (серия && н === серия.н + 1) { серия.len++; серия.to = д.day; серия.н = н; } else серия = { len: 1, from: д.day, to: д.day, н };
+      if (!лучшая || серия.len > лучшая.len) лучшая = { ...серия };
+    }
+    const сегодня = номерДня(ключДня(Date.now()));
+    const текущая = серия && сегодня - серия.н <= 1 ? серия.len : 0;
+    const наружу = (s) => (s ? { len: s.len, from: s.from, to: s.to } : null);
+
+    const топДня = (карта, n = 4) => [...карта.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, n).map(([name, count]) => ({ name, count }));
+    const день = (д) => ({
+      day: д.day, user: д.user, ai: д.ai, swipes: д.swipes, hud: д.hud, all: д.all,
+      first: д.с, last: д.по,
+      models: топДня(д.модели), speakers: топДня(д.герои),
+      tokens: д.токены, avgWaitSec: д.замеров ? Math.round(д.ждали / д.замеров / 100) / 10 : null,
+    });
     return {
       hudSeparate: !!hudSeparate,
       totals: итого,
@@ -169,7 +207,8 @@ export function createActivity({ hudSeparate = false } = {}) {
       perDay: вДень,
       busiest: пик ? { day: пик.day, all: пик.all } : null,
       hudExact: точно, hudApprox: примерно,
-      recent: список.slice(-14),
+      streaks: { current: текущая, best: наружу(лучшая), last: наружу(серия) },
+      recent: список.slice(-14).map(день),
     };
   }
 

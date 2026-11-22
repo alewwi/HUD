@@ -10,7 +10,7 @@
 // "Майкл Смит", "Michael Smith" и т.п. Граф сначала собирает все реальные
 // имена, затем пытается сопоставить каждую ссылку с уже существующим узлом,
 // и только после этого создаёт новый узел.
-import { settings } from './settings.js?v=23.89.82';
+import { settings } from './settings.js?v=23.89.83';
 
 export function normalizeNameText(name) {
   return String(name ?? '')
@@ -126,7 +126,10 @@ function группыАватарок() {
   if (подпись !== подписьСписков) {
     подписьСписков = подпись;
     спискиАватарок = сырые
-      .map(строка => String(строка || '').split(/[,;\n]/).map(н => normalizeNameText(н).toLowerCase()).filter(Boolean))
+      // Приставку карточки («THE LANTERNS Damian») снимаем и здесь: иначе
+      // по первому слову «the» с персонажем сходилось название группы
+      // «The Lanterns», и групповой чат в телефоне назывался списком участников.
+      .map(строка => String(строка || '').split(/[,;\n]/).map(н => normalizeNameText(безПриставки(н)).toLowerCase()).filter(Boolean))
       .filter(список => список.length > 0);
     // Списки поменялись — прежние ответы «один ли это человек» уже неверны.
     памятьСравнений.clear();

@@ -199,5 +199,10 @@ const су = fs.readFileSync(ROOT + 'settings-ui.js', 'utf8');
 const сд = fs.readFileSync(ROOT + 'settings-deep.js', 'utf8');
 проверить('«Глубокая настройка» размеров: «Сохранить» и «По умолчанию»', /id="hud-sizes-save"[^>]*>Сохранить/.test(сд) && /id="hud-sizes-default"[^>]*>По умолчанию/.test(сд));
 
+const кс = fs.readFileSync(ROOT + 'css/compact.css', 'utf8');
+проверить('узкий телефон: в групповой переписке аватарки входящих видны, в личной скрыты',
+  (кс.match(/\.hud-phone-chat-area\.is-group \.hud-msg-wrapper\.incoming \.hud-msg-avatar \{ display: flex; \}/g) || []).length === 2
+  && fs.readFileSync(ROOT + 'render/messenger.js', 'utf8').includes("hud-phone-chat-area${isGroupChat ? ' is-group' : ''}"));
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалов}`);
 process.exitCode = провалов ? 1 : 0;
