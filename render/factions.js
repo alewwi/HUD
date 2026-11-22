@@ -9,12 +9,12 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.85';
-import { settings } from '../settings.js?v=23.89.85';
-import { namesLikelySame } from '../names.js?v=23.89.85';
-import { раскрывашка } from './fold.js?v=23.89.85';
-import { видМираСтарины } from './medieval-views.js?v=23.89.85';
-import { видБлока } from './views.js?v=23.89.85';
+import { escapeHtml } from '../utils.js?v=23.89.86';
+import { settings } from '../settings.js?v=23.89.86';
+import { namesLikelySame } from '../names.js?v=23.89.86';
+import { раскрывашка } from './fold.js?v=23.89.86';
+import { видМираСтарины } from './medieval-views.js?v=23.89.86';
+import { видБлока } from './views.js?v=23.89.86';
 
 /** «Гильдия | Лилиан | 80 | уважают | за что» → { кто, к, число, как, почему }. */
 export function разобратьФракцию(строка) {
@@ -63,6 +63,34 @@ export function сдвигиФракций(история, игрок, перс�
   return сдвиги;
 }
 
+/* «Как менялось»: весь путь числа (+90 → +95 → +97) и последние три сдвига
+   с датой и причиной. Общий для всех видов: раньше список был только у «Щитов»,
+   а «Зал совета» и «Оранжерея» показывали лишь последний шаг. */
+const сЗнаком = (n) => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n);
+export function путьФракции(сдвиги) {
+  if (!Array.isArray(сдвиги) || !сдвиги.length) return '';
+  return [сдвиги[0].было, ...сдвиги.map(с => с.стало)].map(сЗнаком).join(' → ');
+}
+function списокСдвигов(сдвиги) {
+  if (!Array.isArray(сдвиги) || !сдвиги.length) return '';
+  return '<ul>' + сдвиги.slice(-3).reverse().map(с => {
+    const d = с.стало - с.было;
+    return `<li class="${d > 0 ? 'up' : 'down'}"><b>${d > 0 ? '▲ +' : '▼ '}${d}</b>${с.дата ? ` <small>${escapeHtml(с.дата)}</small>` : ''}${с.почему ? ` <span>${escapeHtml(с.почему)}</span>` : ''}</li>`;
+  }).join('') + '</ul>';
+}
+/** Блок «Как менялось» для подробностей плашки: путь и последние сдвиги. */
+export function какМенялось(сдвиги) {
+  const путь = путьФракции(сдвиги);
+  return путь ? `<div class="hud-rep-shifts"><small>Как менялось</small><p class="path">${путь}</p>${списокСдвигов(сдвиги)}</div>` : '';
+}
+// Свёрнутая строка для легенды «Зала совета» и полки «Оранжереи»: путь виден
+// сразу, даты и причины — по нажатию.
+function свёрнутаяИстория(сдвиги) {
+  const путь = путьФракции(сдвиги);
+  if (!путь) return '';
+  return раскрывашка('hud-rep-hist', `<small>Как менялось</small><span class="path">${путь}</span>`, списокСдвигов(сдвиги));
+}
+
 const тон = (n) => (n === null ? 'is-none' : n >= 40 ? 'is-good' : n > 10 ? 'is-warm' : n >= -10 ? 'is-even' : n > -40 ? 'is-cold' : 'is-bad');
 const ЩИТ = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8 4.5 5.6v5.6c0 4.8 3.2 8.7 7.5 10 4.3-1.3 7.5-5.2 7.5-10V5.6z"/><path d="M12 7v9M8.5 11.5h7"/></svg>';
 
@@ -79,7 +107,7 @@ function карточка(ф, сдвиги) {
     + `${ф.как ? `<em class="att">${escapeHtml(ф.как)}</em>` : ''}${шаг ? `<small class="step ${шаг > 0 ? 'up' : 'down'}">${шаг > 0 ? '▲ +' : '▼ '}${шаг}</small>` : ''}</span>`
     + `${n === null ? '' : `<span class="num">${n > 0 ? '+' : ''}${n}</span>`}${полоса}`;
   const подробно = (ф.почему ? `<p class="why"><small>За что</small><span>${escapeHtml(ф.почему)}</span></p>` : '')
-    + (последние.length ? `<div class="hud-rep-shifts"><small>Как менялось</small><ul>${последние.map(с => { const d = с.стало - с.было; return `<li class="${d > 0 ? 'up' : 'down'}"><b>${d > 0 ? '▲ +' : '▼ '}${d}</b>${с.дата ? ` <small>${escapeHtml(с.дата)}</small>` : ''}${с.почему ? ` <span>${escapeHtml(с.почему)}</span>` : ''}</li>`; }).join('')}</ul></div>` : '');
+    + какМенялось(сдвиги);
   return раскрывашка(`hud-rep-card ${тон(n)}`, голова, подробно);
 }
 
@@ -128,7 +156,7 @@ function залСовета(список, uid, цель, имяЦели) {
   const легенда = список.map((п, i) => {
     const ф = п.ф, шаг = шагСдвига(п.сдвиги);
     return `<li class="${тон(ф.число)}"><i class="no">${i + 1}</i><span class="t"><b>${escapeHtml(ф.кто)}</b>${ф.как ? `<em>${escapeHtml(ф.как)}</em>` : ''}${чипСдвига(шаг)}</span>`
-      + `${ф.число === null ? '' : `<span class="n">${ф.число > 0 ? '+' : ''}${ф.число}</span>`}${ф.почему ? `<small class="why">${escapeHtml(ф.почему)}</small>` : ''}</li>`;
+      + `${ф.число === null ? '' : `<span class="n">${ф.число > 0 ? '+' : ''}${ф.число}</span>`}${ф.почему ? `<small class="why">${escapeHtml(ф.почему)}</small>` : ''}${свёрнутаяИстория(п.сдвиги)}</li>`;
   }).join('');
   return `<div class="hud-rep-council">${svg}<ol class="hud-rep-legend">${легенда}</ol></div>`;
 }
@@ -172,7 +200,7 @@ function оранжерея(список) {
     const ф = п.ф, кл = тон(ф.число), шаг = шагСдвига(п.сдвиги);
     return `<li class="hud-rep-plant ${кл}"><span class="spot">${растение(ф.число, кл)}</span>`
       + `<span class="t"><b>${escapeHtml(ф.кто)}</b>${ф.как ? `<em>${escapeHtml(ф.как)}</em>` : ''}${чипСдвига(шаг)}</span>`
-      + `${ф.почему ? `<small class="why">${escapeHtml(ф.почему)}</small>` : ''}</li>`;
+      + `${ф.почему ? `<small class="why">${escapeHtml(ф.почему)}</small>` : ''}${свёрнутаяИстория(п.сдвиги)}</li>`;
   }).join('')}</ul></div>`;
 }
 
@@ -200,7 +228,9 @@ export function блокФракций(строки, { игрок = '', перс
   // игроку и к персонажу — одним списком, сильные стороны сверху.
   const видСтарины = видБлока('factionsView');
   if (видСтарины === 'medieval' || видСтарины === 'enchanted') {
-    const лист = видМираСтарины('factions', видСтарины, [...фракции].sort((а, б) => (б.число ?? -999) - (а.число ?? -999)), 'Фракции и репутация');
+    // «Как менялось» — в подробности плашки, как у остальных видов.
+    const сИсторией = фракции.map(ф => ({ ...ф, история: какМенялось(сдвиги.get(цельСтроки(ф, игрок, персонаж, режим) + '|' + ключ(ф))) }));
+    const лист = видМираСтарины('factions', видСтарины, сИсторией.sort((а, б) => (б.число ?? -999) - (а.число ?? -999)), 'Фракции и репутация');
     if (лист) return лист;
   }
   const группа = (цель) => видГруппы(фракции.filter(ф => цельСтроки(ф, игрок, персонаж, режим) === цель)

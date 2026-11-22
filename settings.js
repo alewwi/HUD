@@ -201,6 +201,14 @@ export const defaultSettings = {
   placeLoreReminder: true,
   holidayProfileId: '',
   holidayCount: 0,
+  // Лимит ответа у окон: «Праздники мира» (и ярмарки), «Как празднуют»,
+  // подготовка, правила места. Поле «Токенов на ответ» в самом окне.
+  holidayGenMaxTokens: 3000,
+  holidayDayMaxTokens: 3000,
+  holidayPrepMaxTokens: 3000,
+  placeGenMaxTokens: 3000,
+  // «Запомнить в лорбук» → «Написать моделью»; 0 — длина ответа из Таверны.
+  loreGenMaxTokens: 0,
   // Пожелание к генерации праздников мира: «праздники, связанные с семьёй» (render/holiday-gen.js).
   holidayWish: '',
   holidayLorebooks: [],
@@ -584,6 +592,8 @@ export const defaultSettings = {
   // (часто локальная), HUD — другая. Включается вместо autoInject.
   hudSeparate: false,
   hudMaxTokens: 8192,
+  // Лимит ответа на перегенерацию одного телефона (📱 ↻); 0 — длина ответа из Таверны.
+  phoneMaxTokens: 8192,
   // Сколько минут ждать ответа на создание/перегенерацию HUD; 0 — без предела.
   hudRegenTimeout: 6,
   hudLorebooks: [],

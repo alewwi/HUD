@@ -11,12 +11,12 @@
 // флаг window.__tavernOSHudSkipInject: без него перехват запросов в index.js
 // вшил бы в вопрос HUD-инструкцию, и модель ответила бы HUD-блоком.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.85';
-import { settings } from '../settings.js?v=23.89.85';
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.85';
-import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.89.85';
-import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.89.85';
-import { английский, т } from '../i18n.js?v=23.89.85';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны, длинаОтветаТаверны } from '../utils.js?v=23.89.86';
+import { settings } from '../settings.js?v=23.89.86';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.86';
+import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.89.86';
+import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.89.86';
+import { английский, т } from '../i18n.js?v=23.89.86';
 
 const ЖДЁМ_МС = 180000;
 
@@ -183,17 +183,24 @@ export function разметкаОтвета(текст) {
 const вАбзацы = (s) => escapeHtml(s).replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
 
 // Запрос: выбранный профиль подключения или текущая модель чата.
+// Лимит ответа ассистента: настройка и поле 📏 в окне; от 256 до 16000.
+// 0 — длина ответа из настроек Таверны, ни разу не задан — 1500.
+export const лимитАссистента = (v = settings.assistantMaxTokens) => {
+  if (v === undefined || v === null) return 1500;
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) && n > 0 ? Math.max(256, Math.min(16000, n)) : 0;
+};
 async function отправить(ctx, systemPrompt, prompt, профили, signal) {
   const профиль = String(settings.assistantProfileId || '');
-  const токены = Math.max(256, Math.min(16000, parseInt(settings.assistantMaxTokens, 10) || 1500));
+  const токены = лимитАссистента();
   const служба = ctx.ConnectionManagerRequestService;
   if (профиль && служба && typeof служба.sendRequest === 'function') {
     const есть = (typeof профили === 'function' ? профили() : []).some(p => String(p.id) === профиль);
     if (!есть) throw new Error('профиль подключения из настроек ассистента не найден — выберите другой');
-    return служба.sendRequest(профиль, [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }], токены,
+    return служба.sendRequest(профиль, [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }], токены || длинаОтветаТаверны(ctx) || 1500,
       { stream: false, extractData: true, includePreset: false, includeInstruct: true, signal });
   }
-  return генерацияТаверны(ctx, { prompt, systemPrompt, responseLength: токены, signal });
+  return генерацияТаверны(ctx, { prompt, systemPrompt, responseLength: токены || null, signal });
 }
 
 let окноОткрыто = false;
@@ -230,6 +237,7 @@ export function openAssistantDialog({ mesId = null, лорбуки = null, со�
       <div class="hud-modal-body">
         <div class="hud-ask-ctx" role="group" aria-label="Что увидит ассистент">
           <label class="hud-ask-num" title="Сколько последних сообщений чата прочитает ассистент">💬 <input type="number" min="0" max="60" value="${Math.max(0, Math.min(60, Number(settings.assistantContextMessages ?? 12)))}"> сообщ.</label>
+          <label class="hud-ask-num hud-ask-tok" title="Сколько токенов ассистент может потратить на ответ. Думающим моделям нужен запас: рассуждения тоже в счёт. 0 — длина ответа из настроек Таверны.">📏 <input type="number" min="0" max="16000" step="256" inputmode="numeric" value="${лимитАссистента()}"> ток. <small class="hud-ask-max">0 — как в Таверне · максимум 16000</small></label>
           ${переключатели.map(([ключ, подпись, пояснение]) => `<button type="button" class="hud-ask-toggle" data-key="${ключ}" aria-pressed="${settings[ключ] !== false}" title="${escapeHtml(пояснение)}">${подпись}</button>`).join('')}
           <span class="hud-ask-info" title="${escapeHtml(книги.length ? 'Лорбуки: ' + книги.join(', ') : 'Лорбуки выбираются в настройках расширения: «Помощники» → «Ассистент»')}">📚 ${книги.length || 'нет'}</span>
           <span class="hud-ask-info" title="Профиль подключения выбирается в настройках расширения">🧠 ${escapeHtml(профильИмя)}</span>
@@ -269,7 +277,13 @@ export function openAssistantDialog({ mesId = null, лорбуки = null, со�
     b.setAttribute('aria-pressed', String(settings[ключ] !== false));
     запомнить();
   }));
-  $('.hud-ask-num input').addEventListener('change', (e) => {
+  $('.hud-ask-tok input').addEventListener('change', (e) => {
+    const v = лимитАссистента(e.target.value);
+    e.target.value = v; settings.assistantMaxTokens = v; запомнить();
+    // Поле в настройках расширения — то же значение.
+    const вНастройках = document.getElementById('hud-ask-tokens'); if (вНастройках) вНастройках.value = v;
+  });
+  $('.hud-ask-num:not(.hud-ask-tok) input').addEventListener('change', (e) => {
     let v = parseInt(e.target.value, 10);
     if (!Number.isFinite(v) || v < 0) v = 0; if (v > 60) v = 60;
     e.target.value = v; settings.assistantContextMessages = v; запомнить();

@@ -15,14 +15,14 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.85';
-import { settings } from '../settings.js?v=23.89.85';
-import { т } from '../i18n.js?v=23.89.85';
-import { текстБезHUD } from '../hud-block.js?v=23.89.85';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.85';
-import { связьПраздников, деталиПраздника, сохранитьДеталиПраздника, деталиСтрокой, забытьДеталиПраздника, ключПраздника } from './holiday-lore.js?v=23.89.85';
-import { отправить, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили } from './holiday-gen.js?v=23.89.85';
-import { добавитьПодсказку, подсказки } from '../turn-notes.js?v=23.89.85';
+import { escapeHtml } from '../utils.js?v=23.89.86';
+import { settings } from '../settings.js?v=23.89.86';
+import { т } from '../i18n.js?v=23.89.86';
+import { текстБезHUD } from '../hud-block.js?v=23.89.86';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.86';
+import { связьПраздников, деталиПраздника, сохранитьДеталиПраздника, деталиСтрокой, забытьДеталиПраздника, ключПраздника } from './holiday-lore.js?v=23.89.86';
+import { отправить, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили, полеТокенов, токеныОкна, подключитьТокены, причинаОшибки } from './holiday-gen.js?v=23.89.86';
+import { добавитьПодсказку, подсказки } from '../turn-notes.js?v=23.89.86';
 
 const СООБЩЕНИЙ_ПО_УМОЛЧАНИЮ = 6;
 const СИМВОЛОВ_СООБЩЕНИЯ = 1500;
@@ -160,8 +160,9 @@ async function собратьОкно({ имя = '', модели = '', о = '',
             : `<p class="hud-holgen-note">${э('Лорбуков нет — возьмутся остальные источники.')}</p>`}</div>
           <p class="hud-holgen-note hud-holday-nosrc"${ИСТОЧНИКИ.some(источник) ? ' hidden' : ''}>${э('Без источников модель придумает по названию и описанию праздника.')}</p>
         </div>
-        <label class="hud-holgen-field"><span class="hud-holgen-lbl">${э('Профиль подключения')}</span>
+        <div class="hud-holgen-row"><label class="hud-holgen-field"><span class="hud-holgen-lbl">${э('Профиль подключения')}</span>
           ${рядПрофиля()}</label>
+          ${полеТокенов('holidayDayMaxTokens')}</div>
         <div class="hud-holgen-actions">
           <button type="button" class="hud-holgen-run hud-holday-run"></button>
           <button type="button" class="hud-holday-tell" hidden title="${э('Суть и детали уйдут модели в следующем ответе. В сам день праздника они уходят и так.')}">💬 ${э('Рассказать модели')}</button>
@@ -209,6 +210,7 @@ async function собратьОкно({ имя = '', модели = '', о = '',
   });
   окно.querySelector('.hud-holday-count').addEventListener('change', (e) => { const n = parseInt(e.target.value, 10); settings.holidayChatCount = n > 0 ? Math.min(30, n) : СООБЩЕНИЙ_ПО_УМОЛЧАНИЮ; e.target.value = сколькоСообщений(); сохранитьНастройки(); });
   отписаться = подключитьПрофили(окно, статус, сохранитьНастройки);
+  подключитьТокены(окно, 'holidayDayMaxTokens', сохранитьНастройки);
 
   рассказать.addEventListener('click', () => {
     if (предпросмотр) { статус.textContent = т('Это предпросмотр: отсюда модели ничего не отправляется.'); return; }
@@ -259,7 +261,7 @@ async function собратьОкно({ имя = '', модели = '', о = '',
       безHud = true;
       let таймер = 0;
       const raw = await Promise.race([
-        отправить(ctx2, system, user, signal),
+        отправить(ctx2, system, user, signal, токеныОкна(окно, 'holidayDayMaxTokens', сохранитьНастройки)),
         new Promise((_, reject) => { таймер = setTimeout(() => { reject(new Error(т('модель молчит слишком долго'))); отмена?.abort(); }, ЖДЁМ_МС); }),
         new Promise((_, reject) => signal.addEventListener('abort', () => reject(signal.reason), { once: true })),
       ]).finally(() => clearTimeout(таймер));
@@ -271,7 +273,7 @@ async function собратьОкно({ имя = '', модели = '', о = '',
       статус.textContent = '';
       try { связьПраздников().перерисовать?.(); } catch (_) { /* карточки обновятся со следующим ходом */ }
     } catch (e) {
-      статус.textContent = e && e.name === 'AbortError' ? т('Отменено') : т('Не получилось') + ': ' + (e && e.message ? e.message : e);
+      статус.textContent = e && e.name === 'AbortError' ? т('Отменено') : т('Не получилось') + ': ' + причинаОшибки(e);
       if (!(e && e.name === 'AbortError')) console.warn('[TavernOS HUD] Как празднуют:', e);
     } finally {
       // Ошибка или «Остановить» — прежние детали остаются: окно не теряет то,

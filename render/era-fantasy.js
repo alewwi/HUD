@@ -19,7 +19,7 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { эпоха, явнаяМагия, приземлённое, эпохаОблика, магияОблика, блокПодМагию } from '../era.js?v=23.89.85';
+import { эпоха, явнаяМагия, приземлённое, эпохаОблика, магияОблика, блокПодМагию } from '../era.js?v=23.89.86';
 
   let счёт = 0;
   const id = (п) => `fx-${п}-${(++счёт).toString(36)}`;

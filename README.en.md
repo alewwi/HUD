@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.85**:
+The latest version is **23.89.86**:
 
+- A token limit for every HUD generation: a field in the holiday, fair, "How it's celebrated", preparation, place-rules, lorebook and Assistant windows, a separate limit for the phone; 0 means the response length from Tavern, the maximum is shown under the field. A clear hint when a reply runs out of tokens. "How it changed" for factions in every view, sleep in plain words ("4 h, bed at 01:00"), no horoscope gap with "World once a day", swipes no longer show as extra turns in the chronicle.
 - The chat avatar checkboxes in the panel and in the phone Settings no longer drift apart.
 - The phone setting "Avatars in chats on narrow screens": on or off everywhere, and while on — checkboxes for group chats, private chats and intercepts.
 - "How much you roleplay" gets streaks and day details on tap: models, tokens, wait time; "Does not know" no longer shows a card prefix instead of the name; phone group chats show avatars again and keep their own name.

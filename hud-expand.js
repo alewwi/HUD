@@ -17,8 +17,8 @@
 // в кодах (hud-snapshot.js, HUDвКодах).
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { namesLikelySame } from './names.js?v=23.89.85';
-import { блокКакБыл } from './hud-block.js?v=23.89.85';
+import { namesLikelySame } from './names.js?v=23.89.86';
+import { блокКакБыл } from './hud-block.js?v=23.89.86';
 
 export const NC = /^\s*(?:nc|n\/c|no change|unchanged)\s*\.?\s*$/i;
 export const ПОЛЯ_NC = ['Ap', 'C', 'Kn', 'Ft', 'NG', 'SxL'];

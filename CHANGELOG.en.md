@@ -4,6 +4,24 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.86 — 2026-11-22
+
+### Added
+- **A token limit for every HUD generation.** The old fixed 3000 was often too little for thinking models; now you set the number yourself:
+  - **"World holidays"** (and fairs), **"How it's celebrated"**, **holiday preparation**, **"Rules and power of the place"** — a "Reply tokens" field in the window itself, each window its own. 3000 by default, as before.
+  - **"Save to Lorebook" → "Write with the model"** — a "Model reply tokens" field in the window.
+  - **Assistant** — a 📏 field right in the question window, the same value as in the settings.
+  - **Phone** — its own "📱 Phone token limit" under "HUD regeneration": the phone's ↻ no longer uses the whole HUD's limit. 8192 by default.
+  - **0 everywhere means the response length from Tavern's settings** (Max Response Length for Chat Completion), including the HUD, music and requests through a separate connection profile.
+  - **Under every field — what 0 means and how much you can enter:** windows and music up to 65536, Assistant up to 16000, HUD and phone up to 131072. Below 256 is raised to 256 (2048 for music).
+- **"How it changed" for factions in every view.** The number's path (+90 → +95 → +97) and the last three shifts with date and reason were only in "Shields". Now they are in "Council hall" and "Greenhouse" too (the path shows at once, dates and reasons on tap), and in the medieval and enchanted views, in the plate's details.
+
+### Fixed
+- **A reply that ran out of tokens — the window says what to do.** It used to say "Did not work: No message generated" or "nothing found in the right shape". Now it says "the model returned nothing — it probably ran out of tokens (how many there were)" or "the reply was cut off at the token limit", and suggests raising the limit; reasoning counts too. The same in the lorebook window. For the phone, a cut-off reply suggests raising the "Phone token limit", not the HUD one.
+- **Last night's sleep in plain words.** The model writes it in short English units ("4 h, 01:00; 3 nights: 13 h"), and that is how it showed. Now the Russian interface shows "4 ч, отбой в 01:00; за 3 ночи — 13 ч" and the English one "4 h, bed at 01:00". The model's own words ("went to bed at 03:20") are left alone. Daily life and the phone take the bedtime from "4 h, 01:00", and the "⚠ after 4 h of sleep?" warning is translated in English mode.
+- **A missing horoscope no longer counts as a gap with "World once a day".** The model writes it only in the first HUD of a new day, and the completeness check asked for it every turn for nothing.
+- **The chronicle and chat summaries without earlier versions of replies.** Swipes and regenerations left the old version of a reply in the chronicle, and it showed up as an extra turn with events that never happened in the story. Such versions are now recognised by the message's swipes and by time and are not counted as turns.
+
 ## 23.89.85 — 2026-11-22
 
 ### Fixed

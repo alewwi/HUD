@@ -218,6 +218,7 @@
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-conseq-item.is-open { background: rgba(240, 170, 60, .12); }
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-rep-card .bar .mid { background: rgba(0, 0, 0, .35); }
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-rep-shifts li { background: rgba(0, 0, 0, .05); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-rep-card .hud-rep-shifts .path { color: color-mix(in srgb, var(--rep) 72%, #000); }
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-arc-heat td.is-tense { box-shadow: inset 0 0 0 2px #c0392b; }
 
 /* --- Праздники мира (render/holiday-gen.js, holiday-lore.js) --------------------
@@ -258,6 +259,9 @@
 .hud-holgen-book small { margin-left: auto; flex: none; font-size: 10.5px; opacity: .55; }
 .hud-holgen-note { margin: 0; font-size: 12px; opacity: .6; }
 .hud-holgen-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+/* Профиль, токены и «сколько» — в ряд: профилю шире, числам поуже. */
+.hud-holgen-tokens-max { margin-top: 3px; font-size: 11px; line-height: 1.3; opacity: .72; }
+.hud-holgen-row:where(.is-3) { grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); }
 .hud-holgen-field { display: flex; flex-direction: column; min-width: 0; }
 .hud-holgen-field :is(select, input, textarea) {
   width: 100%; box-sizing: border-box; padding: 6px 9px; border-radius: 9px; font: inherit; font-size: 12.5px; color: inherit;
@@ -439,6 +443,26 @@
 .hud-rep-legend .t em { font-style: normal; font-size: 10.5px; padding: 0 7px; border-radius: 999px; background: color-mix(in srgb, var(--rep) 24%, transparent); }
 .hud-rep-legend .n { grid-area: n; align-self: start; font-size: 14px; font-weight: 800; font-variant-numeric: tabular-nums; color: color-mix(in srgb, var(--rep) 75%, #fff); }
 .hud-rep-legend .why { grid-area: why; font-size: 11px; line-height: 1.35; opacity: .78; }
+/* «Как менялось» в «Зале совета» и «Оранжерее»: путь числа виден сразу,
+   даты и причины — по нажатию (render/fold.js). */
+.hud-rep-legend > li { grid-template-areas: "no t n" "no why why" "no hist hist"; }
+.hud-rep-legend .hud-rep-hist { grid-area: hist; }
+.hud-rep-hist { width: 100%; min-width: 0; margin-top: 2px; }
+.hud-rep-hist > .hud-fold-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "lbl lbl" "path chev"; gap: 1px 7px; padding: 4px 0 1px; text-align: left;
+  border-top: 1px dashed color-mix(in srgb, var(--rep, currentColor) 35%, transparent); }
+.hud-rep-hist > .hud-fold-head small { grid-area: lbl; font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; white-space: nowrap; opacity: .6; }
+.hud-rep-plant .hud-rep-hist > .hud-fold-head small { font-size: 8.5px; letter-spacing: .02em; }
+.hud-rep-hist > .hud-fold-head .path { grid-area: path; }
+.hud-rep-hist .path, .hud-rep-shifts .path { min-width: 0; font-size: 11px; font-weight: 700; font-variant-numeric: tabular-nums; overflow-wrap: break-word; color: color-mix(in srgb, var(--rep, currentColor) 70%, #fff); }
+.hud-rep-shifts .path { margin: 3px 0 0; }
+.hud-rep-hist .hud-fold-chev { grid-area: chev; align-self: center; margin-left: 0; width: 14px; height: 14px; color: var(--rep, currentColor); }
+.hud-rep-hist ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 11px; text-align: left; }
+/* Строки внутри — не места легенды: правила .hud-rep-legend li их не касаются. */
+.hud-rep-legend .hud-rep-hist li, .hud-rep-hist li { display: block; padding: 3px 7px; border-radius: 7px; background: rgba(127, 127, 127, .12); box-shadow: none; }
+.hud-rep-hist li b { font-variant-numeric: tabular-nums; }
+.hud-rep-hist li.up b { color: #6fd895; } .hud-rep-hist li.down b { color: #ff7a6e; }
+.hud-rep-hist li small { opacity: .6; }
+.hud-rep-plant .hud-rep-hist { justify-self: stretch; }
 
 /* --- Оранжерея: растения на полке теплицы -------------------------------- */
 .hud-rep-greenhouse { position: relative; padding: 14px 10px 10px; border-radius: 16px; overflow: hidden; container-type: inline-size;

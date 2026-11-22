@@ -1688,6 +1688,8 @@
 .hud-set-check { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-wrap: wrap; }
 .hud-set-check[hidden] { display: none; }
 .hud-set-num { background: rgba(0,0,0,.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px; }
+/* Подпись у лимита токенов: что значит 0 и сколько можно вписать. */
+.hud-set-max { margin-left: 4px; font-size: 11px; opacity: .65; white-space: nowrap; }
 
 /* Галочка и подпись в одну строку: без обёртки подпись на узкой панели
    уезжала целиком на следующую строку, а галочка оставалась одна. */
@@ -1923,6 +1925,8 @@
   background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 20%, transparent);
 }
 .hud-ask-info { opacity: .8; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-ask-num.hud-ask-tok input { width: 58px; }
+.hud-ask-max { font-size: 10.5px; opacity: .65; }
 .hud-ask-num input {
   width: 42px; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.15); color: inherit;
   border-radius: 4px; padding: 0 3px; font-size: 11.5px;

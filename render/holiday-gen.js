@@ -12,13 +12,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.85';
-import { settings } from '../settings.js?v=23.89.85';
-import { старина, заклинанияВМире, дарыВМире, магияСкрыта, магияВМире, технологии } from '../era.js?v=23.89.85';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.85';
-import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.85';
-import { праздникиГода } from './holidays.js?v=23.89.85';
-import { т, английский, языкЗначенийМодели } from '../i18n.js?v=23.89.85';
+import { escapeHtml, генерацияТаверны, длинаОтветаТаверны } from '../utils.js?v=23.89.86';
+import { settings } from '../settings.js?v=23.89.86';
+import { старина, заклинанияВМире, дарыВМире, магияСкрыта, магияВМире, технологии } from '../era.js?v=23.89.86';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.86';
+import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.86';
+import { праздникиГода } from './holidays.js?v=23.89.86';
+import { т, английский, языкЗначенийМодели } from '../i18n.js?v=23.89.86';
 
 export const ЖДЁМ_МС = 180000;
 export const ЛОР_СИМВОЛОВ = 40000;
@@ -140,16 +140,95 @@ export function подключитьПрофили(окно, статус, со�
   return следитьЗаПрофилями(select, сказать);
 }
 
-export async function отправить(ctx, system, user, signal) {
+// Лимит ответа — у каждого окна свой (праздники и ярмарки, «Как празднуют»,
+// подготовка, правила места): думающим моделям 3000 бывает мало, а короткому
+// ответу хватает и меньше. 0 или пусто — длина ответа из настроек Таверны.
+export const ТОКЕНОВ_УМОЛЧ = 3000, ТОКЕНОВ_МИН = 256, ТОКЕНОВ_МАКС = 65536;
+/** Число из поля или настройки: 0 и пусто — «как в Таверне» (0), иначе от 256 до максимума. */
+export function числоТокенов(v, макс = ТОКЕНОВ_МАКС) {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) && n > 0 ? Math.max(ТОКЕНОВ_МИН, Math.min(макс, n)) : 0;
+}
+/** Лимит окна из настроек: ни разу не задан — умолчание окна. */
+export function лимитТокенов(ключ, умолч = ТОКЕНОВ_УМОЛЧ) {
+  return settings[ключ] === undefined || settings[ключ] === null ? умолч : числоТокенов(settings[ключ]);
+}
+/** Подпись под полем лимита: что значит 0 и сколько можно вписать. */
+export const подписьМаксимума = (макс) => т('0 — как в Таверне · максимум') + ' ' + макс;
+/** Поле «Токенов на ответ» для окна; значение — в settings[ключ]. */
+export const полеТокенов = (ключ, умолч = ТОКЕНОВ_УМОЛЧ) => `<label class="hud-holgen-field hud-holgen-tokens-field"><span class="hud-holgen-lbl">${escapeHtml(т('Токенов на ответ'))}</span>`
+  + `<input type="number" class="hud-holgen-tokens" data-key="${escapeHtml(ключ)}" min="0" max="${ТОКЕНОВ_МАКС}" step="256" inputmode="numeric" value="${лимитТокенов(ключ, умолч)}"`
+  + ` title="${escapeHtml(т('Сколько токенов модель может потратить на ответ. Думающим моделям нужен запас: рассуждения тоже в счёт. 0 — длина ответа из настроек Таверны.'))}">`
+  + `<small class="hud-holgen-tokens-max">${escapeHtml(подписьМаксимума(ТОКЕНОВ_МАКС))}</small></label>`;
+/** Взять лимит из поля окна (его могли поправить и сразу нажать «Сгенерировать») и запомнить. */
+export function токеныОкна(окно, ключ, сохранить = сохранитьНастройки, умолч = ТОКЕНОВ_УМОЛЧ) {
+  const поле = окно && окно.querySelector(`.hud-holgen-tokens[data-key="${ключ}"]`);
+  if (!поле) return лимитТокенов(ключ, умолч);
+  const лимит = числоТокенов(поле.value);
+  поле.value = String(лимит);
+  if (settings[ключ] !== лимит) { settings[ключ] = лимит; сохранить(); }
+  return лимит;
+}
+/** Поле токенов: правка сразу пишется в настройки, числом в пределах. */
+export function подключитьТокены(окно, ключ, сохранить = сохранитьНастройки, умолч = ТОКЕНОВ_УМОЛЧ) {
+  окно?.querySelector(`.hud-holgen-tokens[data-key="${ключ}"]`)?.addEventListener('change', () => токеныОкна(окно, ключ, сохранить, умолч));
+}
+
+// Последний ответ: пустой или оборванный (скобки JSON не закрыты) — почти
+// всегда не хватило токенов, особенно думающей модели. Окна дописывают это в
+// ошибку (причинаОшибки), иначе игрок видит «No message generated» или «не
+// нашлось в нужном виде» и не знает, что поднять.
+let последний = null;
+export function обрезанJSON(текст) {
+  const s = String(текст || '');
+  const начало = s.search(/[[{]/);
+  if (начало < 0) return false;
+  let глубина = 0, вСтроке = false, экран = false;
+  for (let i = начало; i < s.length; i++) {
+    const ч = s[i];
+    if (вСтроке) { if (экран) экран = false; else if (ч === '\\') экран = true; else if (ч === '"') вСтроке = false; continue; }
+    if (ч === '"') вСтроке = true;
+    else if (ч === '[' || ч === '{') глубина++;
+    else if ((ч === ']' || ч === '}') && глубина > 0) глубина--;
+  }
+  return глубина > 0;
+}
+export function причинаОшибки(e) {
+  const текст = e && e.message ? e.message : String(e ?? '');
+  if (!последний) return текст;
+  const { лимит, фактически } = последний;
+  const сколько = фактически ? ` (${фактически}${лимит ? '' : ' — ' + т('как в Таверне')}). ` : '. ';
+  const совет = лимит ? т('Рассуждения тоже в счёт: поднимите «Токенов на ответ».') : т('Рассуждения тоже в счёт: задайте «Токенов на ответ» или поднимите длину ответа в Таверне.');
+  if (последний.пусто || /No message generated/i.test(текст)) return т('модель ничего не вернула — похоже, не хватило токенов') + сколько + совет;
+  if (последний.обрыв) return текст + ' — ' + т('ответ оборвался на лимите токенов') + сколько + (лимит ? т('Поднимите «Токенов на ответ».') : т('Задайте «Токенов на ответ» или поднимите длину ответа в Таверне.'));
+  return текст;
+}
+
+/** Запрос окна. токены: 0 — длина ответа из настроек Таверны. */
+export async function отправить(ctx, system, user, signal, токены = ТОКЕНОВ_УМОЛЧ) {
+  const лимит = числоТокенов(токены);
+  const отметка = { лимит, фактически: лимит || длинаОтветаТаверны(ctx), пусто: false, обрыв: false };
+  последний = отметка;
+  return Promise.resolve(запрос(ctx, system, user, signal, лимит)).then((raw) => {
+    const t = String(текстОтвета(raw) || '');
+    отметка.пусто = !t.trim();
+    отметка.обрыв = обрезанJSON(t);
+    return raw;
+  }, (e) => {
+    if (/No message generated/i.test(e && e.message || '')) отметка.пусто = true;
+    throw e;
+  });
+}
+function запрос(ctx, system, user, signal, лимит) {
   const профиль = String(settings.holidayProfileId || '');
   const служба = ctx.ConnectionManagerRequestService;
   const профили = (() => { try { return связьПраздников().профили?.() || []; } catch (_) { return []; } })();
   if (профиль && служба && typeof служба.sendRequest === 'function') {
     if (!профили.some(p => String(p.id) === профиль)) throw new Error(т('выбранный профиль подключения не найден — нажмите ↻ или выберите другой'));
-    return служба.sendRequest(профиль, [{ role: 'system', content: system }, { role: 'user', content: user }], 3000,
+    return служба.sendRequest(профиль, [{ role: 'system', content: system }, { role: 'user', content: user }], лимит || длинаОтветаТаверны(ctx) || ТОКЕНОВ_УМОЛЧ,
       { stream: false, extractData: true, includePreset: false, includeInstruct: true, signal });
   }
-  return генерацияТаверны(ctx, { prompt: user, systemPrompt: system, responseLength: 3000, signal });
+  return генерацияТаверны(ctx, { prompt: user, systemPrompt: system, responseLength: лимит || null, signal });
 }
 // Текст ответа: обычный или рассуждения, если модель ответила в них (GLM, DeepSeek).
 export function текстОтвета(raw) {
@@ -191,9 +270,10 @@ export async function открытьГенераторПраздников({ д�
             ? книги.map(к => `<label class="hud-holgen-book"><input type="checkbox" value="${escapeHtml(к)}"${выбраны.has(к) ? ' checked' : ''}><span>${escapeHtml(к)}</span>${свои.includes(к) ? '<small>этого чата</small>' : ''}</label>`).join('')
             : '<p class="hud-holgen-note">Лорбуков нет — возьмутся только персона и карточка.</p>'}</div>
         </div>
-        <div class="hud-holgen-row">
+        <div class="hud-holgen-row is-3">
           <label class="hud-holgen-field"><span class="hud-holgen-lbl">Профиль подключения</span>
             ${рядПрофиля()}</label>
+          ${полеТокенов('holidayGenMaxTokens')}
           <label class="hud-holgen-field"><span class="hud-holgen-lbl">Сколько праздников</span>
             <input type="number" class="hud-holgen-count" min="1" max="30" placeholder="сколько найдёт" value="${parseInt(settings.holidayCount, 10) > 0 ? parseInt(settings.holidayCount, 10) : ''}"></label>
         </div>
@@ -312,6 +392,7 @@ export async function открытьГенераторПраздников({ д�
     settings.holidayLorebooks = [...окно.querySelectorAll('.hud-holgen-book input:checked')].map(и => и.value); сохранитьНастройки();
   });
   отписаться = подключитьПрофили(окно, окно.querySelector('.hud-holgen-status'), сохранитьНастройки);
+  подключитьТокены(окно, 'holidayGenMaxTokens');
   окно.querySelector('.hud-holgen-count').addEventListener('change', (e) => { const n = parseInt(e.target.value, 10); settings.holidayCount = n > 0 ? Math.min(30, n) : 0; сохранитьНастройки(); });
   окно.querySelector('.hud-holgen-wish').addEventListener('change', (e) => { settings.holidayWish = String(e.target.value || '').trim().slice(0, 300); сохранитьНастройки(); });
 
@@ -350,7 +431,7 @@ export async function открытьГенераторПраздников({ д�
       безHud = true;
       let таймерОжидания = 0;
       const raw = await Promise.race([
-        отправить(ctx2, system, user, signal),
+        отправить(ctx2, system, user, signal, токеныОкна(окно, 'holidayGenMaxTokens')),
         new Promise((_, reject) => { таймерОжидания = setTimeout(() => { reject(new Error('модель молчит дольше ' + ЖДЁМ_МС / 1000 + ' с')); отмена?.abort(); }, ЖДЁМ_МС); }),
         new Promise((_, reject) => signal.addEventListener('abort', () => reject(signal.reason), { once: true })),
       ]).finally(() => clearTimeout(таймерОжидания));
@@ -360,7 +441,7 @@ export async function открытьГенераторПраздников({ д�
       статус.textContent = '';
       показатьНайдено();
     } catch (e) {
-      статус.textContent = e && e.name === 'AbortError' ? 'Отменено' : 'Не получилось: ' + (e && e.message ? e.message : e);
+      статус.textContent = e && e.name === 'AbortError' ? 'Отменено' : 'Не получилось: ' + причинаОшибки(e);
       if (!(e && e.name === 'AbortError')) console.warn('[TavernOS HUD] Праздники мира:', e);
     } finally {
       if (безHud) window.__tavernOSHudSkipInject = Math.max(0, (window.__tavernOSHudSkipInject || 1) - 1);

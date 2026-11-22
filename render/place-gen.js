@@ -12,14 +12,14 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.85';
-import { settings } from '../settings.js?v=23.89.85';
-import { т } from '../i18n.js?v=23.89.85';
-import { карточкаПерсонажа, персонаИгрока } from './assistant.js?v=23.89.85';
-import { связьПраздников } from './holiday-lore.js?v=23.89.85';
-import { отправить, текстОтвета, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили } from './holiday-gen.js?v=23.89.85';
-import { историяДляПраздника } from './holiday-day.js?v=23.89.85';
-import { частиАдреса, разобратьМесто, сохранитьМесто, местаЧата } from './place-lore.js?v=23.89.85';
+import { escapeHtml } from '../utils.js?v=23.89.86';
+import { settings } from '../settings.js?v=23.89.86';
+import { т } from '../i18n.js?v=23.89.86';
+import { карточкаПерсонажа, персонаИгрока } from './assistant.js?v=23.89.86';
+import { связьПраздников } from './holiday-lore.js?v=23.89.86';
+import { отправить, текстОтвета, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили, полеТокенов, токеныОкна, подключитьТокены, причинаОшибки } from './holiday-gen.js?v=23.89.86';
+import { историяДляПраздника } from './holiday-day.js?v=23.89.86';
+import { частиАдреса, разобратьМесто, сохранитьМесто, местаЧата } from './place-lore.js?v=23.89.86';
 
 function контекст() { try { return globalThis.SillyTavern?.getContext?.() || null; } catch (_) { return null; } }
 function сохранитьНастройки() { try { связьПраздников().сохранить?.(); } catch (_) { /* не критично */ } }
@@ -90,7 +90,7 @@ export async function открытьПравилаМеста({ адрес = '', 
           </div>
           ${книги.length ? `<details class="hud-prepgen-books"${источник('holidayUseLore') ? '' : ' hidden'}><summary class="hud-holgen-note">${п('Какие лорбуки')}</summary><div class="hud-holgen-books">${книги.map(к => `<label class="hud-holgen-book"><input type="checkbox" value="${escapeHtml(к)}"${выбраны.has(к) ? ' checked' : ''}><span>${escapeHtml(к)}</span>${свои.includes(к) ? `<small>${п('этого чата')}</small>` : ''}</label>`).join('')}</div></details>` : ''}
         </div>
-        <label class="hud-holgen-field"><span class="hud-holgen-lbl">${п('Профиль подключения')}</span>${рядПрофиля()}</label>
+        <div class="hud-holgen-row"><label class="hud-holgen-field"><span class="hud-holgen-lbl">${п('Профиль подключения')}</span>${рядПрофиля()}</label>${полеТокенов('placeGenMaxTokens')}</div>
         <label class="hud-holgen-field hud-holgen-wish-field"><span class="hud-holgen-lbl">${п('Пожелание')}</span>
           <textarea class="hud-holgen-wish hud-plcgen-wish" rows="2" maxlength="300" placeholder="${п('Например: город держит строгий епископ, а мост — гильдия')}"></textarea></label>
         <div class="hud-holgen-actions"><button type="button" class="hud-holgen-run">✨ ${п('Сгенерировать')}</button><span class="hud-holgen-status" aria-live="polite"></span></div>
@@ -152,6 +152,7 @@ export async function открытьПравилаМеста({ адрес = '', 
     settings.holidayLorebooks = [...окно.querySelectorAll('.hud-holgen-book input:checked')].map(и => и.value); сохранитьНастройки();
   });
   отписаться = подключитьПрофили(окно, статус, сохранитьНастройки);
+  подключитьТокены(окно, 'placeGenMaxTokens', сохранитьНастройки);
 
   кнопка.addEventListener('click', async () => {
     if (отмена) { отмена.abort(); return; }
@@ -189,7 +190,7 @@ export async function открытьПравилаМеста({ адрес = '', 
       безHud = true;
       let таймерОжидания = 0;
       const raw = await Promise.race([
-        отправить(ctx2, system, user, signal),
+        отправить(ctx2, system, user, signal, токеныОкна(окно, 'placeGenMaxTokens', сохранитьНастройки)),
         new Promise((_, reject) => { таймерОжидания = setTimeout(() => { reject(new Error(т('модель молчит дольше') + ' ' + ЖДЁМ_МС / 1000 + ' с')); отмена?.abort(); }, ЖДЁМ_МС); }),
         new Promise((_, reject) => signal.addEventListener('abort', () => reject(signal.reason), { once: true })),
       ]).finally(() => clearTimeout(таймерОжидания));
@@ -200,7 +201,7 @@ export async function открытьПравилаМеста({ адрес = '', 
       статус.textContent = '';
       показать();
     } catch (e) {
-      статус.textContent = e && e.name === 'AbortError' ? т('Отменено') : т('Не получилось:') + ' ' + (e && e.message ? e.message : e);
+      статус.textContent = e && e.name === 'AbortError' ? т('Отменено') : т('Не получилось:') + ' ' + причинаОшибки(e);
       if (!(e && e.name === 'AbortError')) console.warn('[TavernOS HUD] Правила места:', e);
     } finally {
       if (безHud) window.__tavernOSHudSkipInject = Math.max(0, (window.__tavernOSHudSkipInject || 1) - 1);

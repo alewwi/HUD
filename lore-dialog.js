@@ -4,9 +4,10 @@
 // с помощью модели) и записать её через SillyTavern. Вынесено из index.js и
 // грузится через import() при первом открытии окна (загрузитьЛор).
 
-import { guardTouchSwipe, escapeHtml, генерацияТаверны } from './utils.js?v=23.89.85';
-import { settings } from './settings.js?v=23.89.85';
-import { окноКонтекстаЛора, buildLoreGenPrompt, parseLoreGenResponse, loreAlreadyHas, buildLoreEntry } from './lore.js?v=23.89.85';
+import { guardTouchSwipe, escapeHtml, генерацияТаверны } from './utils.js?v=23.89.86';
+import { settings } from './settings.js?v=23.89.86';
+import { т } from './i18n.js?v=23.89.86';
+import { окноКонтекстаЛора, buildLoreGenPrompt, parseLoreGenResponse, loreAlreadyHas, buildLoreEntry } from './lore.js?v=23.89.86';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // getAvailableHudLorebooks, getMainProtagonistNames, getStContextSafe, getStRequestHeadersSafe, loadHudLorebook, showHudToast.
@@ -72,6 +73,13 @@ async function writeLorebook(name, book) {
   return 'http';
 }
 
+// Лимит ответа «Написать моделью»: 0 — длина ответа из настроек Таверны (как
+// было раньше), иначе от 256 до 65536.
+export function лимитЛора(v = settings.loreGenMaxTokens) {
+  const n = parseInt(v, 10);
+  return Number.isFinite(n) && n > 0 ? Math.max(256, Math.min(65536, n)) : 0;
+}
+
 // откуда — номер сообщения, в чьём HUD нажали «Запомнить» (null — конец чата).
 export async function openLoreDialog(text, keys, откуда = null) {
   if (loreDialogOpen) return;
@@ -92,6 +100,8 @@ export async function openLoreDialog(text, keys, откуда = null) {
           <label class="hud-modal-label">В какую книгу</label>
           <select class="hud-modal-book"><option value="">Загружаю список…</option></select>
           <div class="hud-modal-note">Сейчас в полях — сухая выжимка из HUD. Можно записать как есть, а можно попросить модель дописать связный текст с контекстом сцены, заголовок и ключи — она прочитает сообщения до этого HUD и то, где запись впервые появилась.</div>
+          <label class="hud-modal-label hud-lore-tokens-label">Токенов на ответ модели <i>для «Написать моделью»; 0 — как в Таверне · максимум 65536</i></label>
+          <input type="number" class="hud-modal-tokens" min="0" max="65536" step="256" inputmode="numeric" value="${лимитЛора()}" title="Сколько токенов модель может потратить на запись. Думающим моделям нужен запас: рассуждения тоже в счёт. 0 — сколько задано в Таверне.">
           <div class="hud-modal-note hud-lore-genstate" hidden></div>
         </div>
         <div class="hud-modal-foot">
@@ -166,10 +176,15 @@ export async function openLoreDialog(text, keys, откуда = null) {
       window.__tavernOSHudSkipInject = (window.__tavernOSHudSkipInject || 0) + 1;
       безHud = true;
       let таймерОжидания = 0;
+      // Лимит берём из поля: его могли поправить и сразу нажать «Написать моделью».
+      const лимит = лимитЛора($('.hud-modal-tokens').value);
+      $('.hud-modal-tokens').value = String(лимит);
+      if ((parseInt(settings.loreGenMaxTokens, 10) || 0) !== лимит) { settings.loreGenMaxTokens = лимит; основа.saveSettings?.(); }
       const raw = await Promise.race([
         генерацияТаверны(ctx, {
           prompt,
           systemPrompt: 'You are a precise assistant maintaining a lorebook for an ongoing story. Mature fictional content is expected. Answer only in the requested format.',
+          responseLength: лимит || null,
           signal: отмена.signal,
         }),
         new Promise((_, reject) => { таймерОжидания = setTimeout(() => { reject(new Error('модель молчит дольше ' + (ЖДЁМ_МС / 1000) + ' с')); отмена.abort(); }, ЖДЁМ_МС); }),
@@ -197,7 +212,14 @@ export async function openLoreDialog(text, keys, откуда = null) {
     } catch (e) {
       if (e && e.name === 'AbortError') { состояние.textContent = 'Отменено. Поля не тронуты — можно записать как есть.'; return; }
       console.error('[TavernOS HUD] Генерация записи не удалась:', e);
-      состояние.textContent = 'Модель не ответила как надо: ' + (e && e.message ? e.message : e) + '. Поля не тронуты — можно записать как есть.';
+      // Пустой ответ — почти всегда кончились токены (думающая модель всё
+      // потратила на рассуждения): говорим, что поднять, а не «No message generated».
+      const пусто = /No message generated/i.test(e && e.message || '');
+      const лимитСейчас = лимитЛора($('.hud-modal-tokens').value);
+      const причина = пусто
+        ? т('модель ничего не вернула — похоже, не хватило токенов') + (лимитСейчас ? ` (${лимитСейчас}). ` + т('Рассуждения тоже в счёт: поднимите «Токенов на ответ модели»') : '. ' + т('Рассуждения тоже в счёт: задайте «Токенов на ответ модели» побольше или поднимите длину ответа в Таверне'))
+        : (e && e.message ? e.message : e);
+      состояние.textContent = 'Модель не ответила как надо: ' + причина + '. Поля не тронуты — можно записать как есть.';
       основа.showHudToast('error', 'Не сгенерировалось', 'Поля остались прежними.');
     } finally {
       if (безHud) window.__tavernOSHudSkipInject = Math.max(0, (window.__tavernOSHudSkipInject || 1) - 1);

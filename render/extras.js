@@ -4,12 +4,13 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.89.85';
-import { решениеПоПодписи, подписьСна } from '../disputes.js?v=23.89.85';
-import { settings } from '../settings.js?v=23.89.85';
-import { аватаркаПоИмени } from './views.js?v=23.89.85';
-import { магияВМире } from '../era.js?v=23.89.85';
-import { реальныйПортрет } from './pet-real.js?v=23.89.85';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.89.86';
+import { решениеПоПодписи, подписьСна } from '../disputes.js?v=23.89.86';
+import { settings } from '../settings.js?v=23.89.86';
+import { аватаркаПоИмени } from './views.js?v=23.89.86';
+import { магияВМире } from '../era.js?v=23.89.86';
+import { кодЯзыка } from '../i18n.js?v=23.89.86';
+import { реальныйПортрет } from './pet-real.js?v=23.89.86';
 
 // Умения спутника — не больше четырёх: модель копит их ходами, и в карточке
 // выстраивалась стена пилюль. Короткие (до шести слов) — вперёд, в порядке
@@ -148,6 +149,31 @@ export function разобратьСостояниеТела(value) {
   if (часы !== null && часы <= 4 && !снято) for (const ш of шкалы) if ((ш.к === 'awake' || ш.к === 'energy') && ш.v >= 75) ш.спор = `после ${String(часы).replace('.', ',')} ч сна?`;
   return { шкалы, ...текст, часыСна: часы };
 }
+// Сон прошлой ночью — для показа. Промпт просит «часы, время отбоя» и после
+// нескольких плохих ночей подряд «сколько ночей: всего часов», единицы —
+// английские: «4 h, 01:00; 3 nights: 13 h». В русском интерфейсе это
+// «4 ч, отбой в 01:00; за 3 ночи — 13 ч», в английском — «4 h, bed at
+// 01:00; 3 nights: 13 h». Свои слова модели («легла в 03:20») не трогаем.
+const формаЧисла = (n, одна, две, пять) => { const к = Math.abs(Math.floor(n)) % 100, е = к % 10; return к > 10 && к < 20 ? пять : е === 1 ? одна : е >= 2 && е <= 4 ? две : пять; };
+const СЛОВА_СНА = [
+  [/(?:didn'?t sleep|no sleep|sleepless)/, 'без сна'], [/interrupted|broken/, 'прерывистый'], [/restless|fitful/, 'беспокойный'],
+  [/light/, 'чуткий'], [/deep|sound/, 'крепкий'], [/poor|bad/, 'плохой'], [/good/, 'хороший'], [/nightmares?/, 'кошмары'],
+];
+export function сонДляПоказа(т) {
+  let s = String(т || '').trim();
+  if (!s) return '';
+  const отбой = /(\d\s*(?:ч|мин|h|hours?|hrs?|min|mins|minutes?))\s*,\s*(\d{1,2}[:.]\d{2})(?!\s*[–—-]\s*\d)/iu;
+  if (кодЯзыка() === 'en') return s.replace(отбой, '$1, bed at $2');
+  // Язык из таблицы: значения модель пишет на нём — оставляем как есть.
+  if (кодЯзыка() !== 'ru') return s;
+  s = s.replace(/(\d+(?:[.,]\d+)?)\s*(?:hours?|hrs?|h)(?![\p{L}])/giu, (_, n) => n.replace('.', ',') + ' ч')
+    .replace(/(\d+)\s*(?:minutes?|mins?|min)(?![\p{L}])/giu, '$1 мин')
+    .replace(/(\d{1,2})\s*(nights?|days?)(?![\p{L}])\s*[:—–-]?\s*/giu, (_, n, что) => `за ${n} ${/^n/i.test(что) ? формаЧисла(+n, 'ночь', 'ночи', 'ночей') : формаЧисла(+n, 'день', 'дня', 'дней')} — `)
+    .replace(/(\d+)\s*(?:wakings?|wake-?ups?|awakenings?)(?![\p{L}])/giu, (_, n) => `${n} ${формаЧисла(+n, 'пробуждение', 'пробуждения', 'пробуждений')}`)
+    .replace(отбой, '$1, отбой в $2');
+  for (const [rx, слово] of СЛОВА_СНА) s = s.replace(new RegExp(`(?<![\\p{L}'])(?:${rx.source})(?![\\p{L}])`, 'giu'), слово);
+  return s;
+}
 let счёт = 0;
 const нид = (п) => `hud-bs-${п}-${(++счёт).toString(36)}`;
 const ЛУНА_СНА = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5Z" fill="#c9d6ff"/><circle cx="18" cy="5" r="1" fill="#fff"/><circle cx="21" cy="9" r=".7" fill="#fff"/></svg>';
@@ -174,6 +200,7 @@ function колба(s) {
 export function видСостоянияТела(value, вид) {
   const д = разобратьСостояниеТела(value);
   if (!д.шкалы.length && !д.сон && !д.дела) return '';
+  д.сон = сонДляПоказа(д.сон);
   const бок = (д.сон || д.дела) ? `<div class="hud-bs-side">${д.сон ? `<div class="hud-bs-sleep">${ЛУНА_СНА}<div><b>${escapeHtml(д.сон)}</b><small>сон прошлой ночью</small></div></div>` : ''}${д.дела ? `<div class="hud-bs-work">${escapeHtml(д.дела)}</div>` : ''}</div>` : '';
   const прочее = д.прочее.length ? `<p class="hud-bs-note">${escapeHtml(д.прочее.join('; '))}</p>` : '';
   if (вид === 'chips') {

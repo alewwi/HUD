@@ -1816,7 +1816,10 @@ settings.tempoView = 'xray';
   settings.musicMaxTokens = 900;
   const мин = M.лимитОтвета();
   delete settings.musicMaxTokens;
-  проверить('музыка: лимит ответа — не меньше 2048, по умолчанию 8192', мин === 2048 && M.лимитОтвета() === 8192 && S.defaultSettings.musicMaxTokens === 8192 && css('settings-ui.js').includes("число('hud-music-tokens', 2048, 65536"));
+  settings.musicMaxTokens = 0;
+  const ноль = M.лимитОтвета();
+  delete settings.musicMaxTokens;
+  проверить('музыка: лимит ответа — не меньше 2048, по умолчанию 8192, 0 — как в Таверне', мин === 2048 && ноль === 0 && M.лимитОтвета() === 8192 && S.defaultSettings.musicMaxTokens === 8192 && css('settings-ui.js').includes("число('hud-music-tokens', 0, 65536") && css('settings-ui.js').includes("полеЛимита('hud-music-tokens', 'musicMaxTokens', 2048, 65536)"));
   if (былЛимит !== undefined) settings.musicMaxTokens = былЛимит;
   // Оборванный ответ: целые треки спасаются.
   const оборван = M.разобратьОтвет('{"label":"бег по набережной","soundtrack":[{"artist":"The Prodigy","title":"Breathe","why":"рвёт с места"},{"artist":"Daft Punk","title":"Harder, Better, Faster, Stronger"},{"artist":"Mo');

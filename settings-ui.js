@@ -5,39 +5,39 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { показатьЧтоНового } from './whats-new.js?v=23.89.85';
-import { разметкаСтупеней, привязатьСтупени } from './trust-stages-settings.js?v=23.89.85';
-import { показатьГайд } from './guide.js?v=23.89.85';
-import { settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.85';
-import { старина, основаЭпохи, эпоха, отметитьЭпоху, фэнтези, магия, естьТелефоны, база, присутствиеМагии, магияВМире, видМагииВМире, технологии, собратьЭпоху, ПРИСУТСТВИЕ } from './era.js?v=23.89.85';
-import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.85';
-import { видБлока } from './render/views.js?v=23.89.85';
-import { ГАЛКИ_АВАТАРОК, отразитьАватарки } from './render/phone-settings.js?v=23.89.85';
-import { escapeHtml } from './utils.js?v=23.89.85';
-import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.85';
-import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.85';
-import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы, разметкаСжатия, разметкаРазмеров } from './settings-deep.js?v=23.89.85';
-import { убратьМетку } from './hud-erase.js?v=23.89.85';
-import { убратьЛетопись } from './chronicle-store.js?v=23.89.85';
-import { включитьПереводчик, т, английский, кодЯзыка, языкиМеню, файлПеревода, загрузитьФайлПеревода, убратьФайлПеревода } from './i18n.js?v=23.89.85';
+import { показатьЧтоНового } from './whats-new.js?v=23.89.86';
+import { разметкаСтупеней, привязатьСтупени } from './trust-stages-settings.js?v=23.89.86';
+import { показатьГайд } from './guide.js?v=23.89.86';
+import { settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.86';
+import { старина, основаЭпохи, эпоха, отметитьЭпоху, фэнтези, магия, естьТелефоны, база, присутствиеМагии, магияВМире, видМагииВМире, технологии, собратьЭпоху, ПРИСУТСТВИЕ } from './era.js?v=23.89.86';
+import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.86';
+import { видБлока } from './render/views.js?v=23.89.86';
+import { ГАЛКИ_АВАТАРОК, отразитьАватарки } from './render/phone-settings.js?v=23.89.86';
+import { escapeHtml } from './utils.js?v=23.89.86';
+import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.86';
+import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.86';
+import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы, разметкаСжатия, разметкаРазмеров } from './settings-deep.js?v=23.89.86';
+import { убратьМетку } from './hud-erase.js?v=23.89.86';
+import { убратьЛетопись } from './chronicle-store.js?v=23.89.86';
+import { включитьПереводчик, т, английский, кодЯзыка, языкиМеню, файлПеревода, загрузитьФайлПеревода, убратьФайлПеревода } from './i18n.js?v=23.89.86';
 
 // Пункты меню языка: русский, английский, собранные из таблиц и свой файл.
 const optionЯзыков = () => языкиМеню().map(я => `<option value="${escapeHtml(я.code)}" ${кодЯзыка() === я.code ? 'selected' : ''}>${escapeHtml(я.name)}</option>`).join('');
-import { уверены } from './confirm-erase.js?v=23.89.85';
-import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.85';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.85';
-import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.85';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.85';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.89.85';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.85';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.85';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.85';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.85';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.85';
-import { меткаШапки } from './render/topbar-icons.js?v=23.89.85';
-import { обновитьПереводКарточек } from './translate-guard.js?v=23.89.85';
-import { разметкаВидаЧатов, обновитьПанель as обновитьВидыЧатов } from './chat-looks.js?v=23.89.85';
-import { разметкаВерха, разметкаБыстрогоСтарта, подключитьЛёгкость } from './settings-easy.js?v=23.89.85';
+import { уверены } from './confirm-erase.js?v=23.89.86';
+import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.86';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.86';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.86';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.86';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.89.86';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.86';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.86';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.86';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.86';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.86';
+import { меткаШапки } from './render/topbar-icons.js?v=23.89.86';
+import { обновитьПереводКарточек } from './translate-guard.js?v=23.89.86';
+import { разметкаВидаЧатов, обновитьПанель as обновитьВидыЧатов } from './chat-looks.js?v=23.89.86';
+import { разметкаВерха, разметкаБыстрогоСтарта, подключитьЛёгкость } from './settings-easy.js?v=23.89.86';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, getStContextSafe, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -434,7 +434,8 @@ export function addSettingsUI() {
         `)}
 
         ${подгруппа('🔄 Перегенерация HUD', `
-          <label class="hud-set-check" title="Отдельный лимит токенов только для запроса создания/регенерации HUD. До 131072 — больше, чем умеет провайдер, он сам отклонит.">🧠 Лимит токенов HUD: ${число('hud-max-tokens', 256, HUD_MAX_TOKENS_CAP, settings.hudMaxTokens, 78)}</label>
+          <label class="hud-set-check" title="Отдельный лимит токенов только для запроса создания/регенерации HUD. До 131072 — больше, чем умеет провайдер, он сам отклонит. 0 — длина ответа из настроек Таверны.">🧠 Лимит токенов HUD: ${число('hud-max-tokens', 0, HUD_MAX_TOKENS_CAP, settings.hudMaxTokens ?? 8192, 78, 256)} <small class="hud-set-max">0 — как в Таверне · максимум 131072</small></label>
+          <label class="hud-set-check" title="Лимит ответа, когда перегенерируется только телефон (кнопка ↻ в строке состояния телефона). Телефону обычно хватает меньше, чем всему HUD. 0 — длина ответа из настроек Таверны.">📱 Лимит токенов телефона: ${число('hud-phone-max-tokens', 0, HUD_MAX_TOKENS_CAP, settings.phoneMaxTokens ?? 8192, 78, 256)} <small class="hud-set-max">0 — как в Таверне · максимум 131072</small></label>
           <label class="hud-set-check" title="Если провайдер молчит дольше — генерация HUD останавливается с понятной ошибкой, а не крутится бесконечно. Рассуждающим моделям нужно больше. 0 — ждать без предела.">⏱ Ждать ответа: ${число('hud-regen-timeout', 0, 60, settings.hudRegenTimeout ?? 6, 52)} мин</label>
           <label class="hud-set-check" title="Сколько последних сообщений отправлять модели при нажатии на 🔄 (регенерация HUD). 0 = отправлять всю историю чата до этого сообщения.">⚡ При регене HUD слать последние ${число('hud-regen-context', 0, 50, settings.regenContextMessages, 40)} сообщ.</label>
           ${галка('hud-separate', settings.hudSeparate && !settings.autoInject, '➕ HUD отдельным запросом после ответа', 'После каждого ответа персонажа HUD сам создаётся отдельным запросом — через профиль ниже, если он выбран, иначе основной моделью. Историю может вести одна модель (например, локальная), а HUD — другая. Вместо «HUD вместе с ответом персонажа»: включая одно, выключаете другое.')}
@@ -483,7 +484,7 @@ export function addSettingsUI() {
             <label class="hud-set-check" title="Через какой профиль подключения задавать вопросы. Можно взять модель подешевле, чем для самой истории.">🧠 Профиль:
               <select id="hud-ask-profile" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;"><option value="">Модель чата (текущее подключение)</option></select>
             </label>
-            <label class="hud-set-check" title="Сколько токенов ассистент может потратить на ответ. Думающим моделям нужен запас: часть лимита уходит на рассуждения, и ответ иначе обрывается.">📏 Лимит ответа: ${число('hud-ask-tokens', 256, 16000, settings.assistantMaxTokens ?? 1500, 70)} токенов</label>
+            <label class="hud-set-check" title="Сколько токенов ассистент может потратить на ответ. Думающим моделям нужен запас: часть лимита уходит на рассуждения, и ответ иначе обрывается. 0 — длина ответа из настроек Таверны.">📏 Лимит ответа: ${число('hud-ask-tokens', 0, 16000, settings.assistantMaxTokens ?? 1500, 70, 256)} токенов <small class="hud-set-max">0 — как в Таверне · максимум 16000</small></label>
             ${заметка('Системный промпт ассистента. Правьте под себя; кнопка ниже возвращает встроенный.')}
             <textarea id="hud-ask-system" rows="8" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:6px; border-radius:5px; font-size:12px; resize:vertical;">${escapeHtml(settings.assistantSystemPrompt || промптАссистента(английский()))}</textarea>
             <button type="button" id="hud-ask-system-reset" title="Вернуть встроенную инструкцию ассистента вместо своей" class="hud-theme-act" style="align-self:flex-start;">↺ Вернуть встроенный</button>
@@ -499,7 +500,7 @@ export function addSettingsUI() {
           </label>
           <label class="hud-set-check" title="Сколько секунд ждать ответа модели, прежде чем сдаться. Впишите любое число — 30, 300, 900; 0 — без таймера (отменить можно кнопкой в полосе).">⏱️ Ждать подборку: ${число('hud-music-timeout', 0, 3600, settings.musicTimeout ?? 120, 64)} сек.</label>
           ${заметка('Время ожидания — любое число секунд: меньше 120 — быстрее сдаваться, больше — дождаться медленной модели. 0 — ждать без таймера.')}
-          <label class="hud-set-check" title="Сколько токенов модель может потратить на ответ. Думающие модели тратят часть на рассуждения, и при малом лимите подборка обрывается и не разбирается. Не меньше 2048.">📏 Лимит ответа: ${число('hud-music-tokens', 2048, 65536, settings.musicMaxTokens ?? 8192, 76, 512)} токенов</label>
+          <label class="hud-set-check" title="Сколько токенов модель может потратить на ответ. Думающие модели тратят часть на рассуждения, и при малом лимите подборка обрывается и не разбирается. Не меньше 2048. 0 — длина ответа из настроек Таверны.">📏 Лимит ответа: ${число('hud-music-tokens', 0, 65536, settings.musicMaxTokens ?? 8192, 76, 512)} токенов <small class="hud-set-max">0 — как в Таверне · максимум 65536</small></label>
           <label class="hud-set-check" title="Что звучит в средневековом сеттинге">🗝️ Средневековье:
             <select id="hud-music-medieval" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;"><option value="period" ${settings.musicMedieval === 'period' ? 'selected' : ''}>Старинная музыка: лютня, менестрели</option><option value="score" ${settings.musicMedieval === 'score' ? 'selected' : ''}>Киношный саундтрек</option></select>
           </label>
@@ -781,7 +782,7 @@ export function addSettingsUI() {
     const новая = document.getElementById('hud-settings-wrapper');
     if (новая && родитель) { родитель.insertBefore(новая, сосед); новая.open = открыта; }
     основа.перерисоватьКарточкиЧата({ сохранитьВид: true });
-    import('./render/music.js?v=23.89.85').then(м => { м.сброситьФон(); м.обновитьСтрокуСцены(); м.обновитьВсеПолосы(); }).catch(() => {});
+    import('./render/music.js?v=23.89.86').then(м => { м.сброситьФон(); м.обновитьСтрокуСцены(); м.обновитьВсеПолосы(); }).catch(() => {});
     основа.showHudToast('success', 'Настройки загружены', 'Всё уже применилось.');
   });
 
@@ -1202,7 +1203,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.89.85');
+      const mod = await import('./render/archive.js?v=23.89.86');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -1283,11 +1284,16 @@ export function addSettingsUI() {
     settings.hudLorebooks = Array.from(e.target.selectedOptions).map(o => o.value);
     основа.saveSettings(); updateHudLorebookStatus();
   });
-  document.getElementById('hud-max-tokens').addEventListener('change', (e) => {
+  // Лимиты токенов: 0 или пусто — длина ответа из настроек Таверны, иначе от мин до макс.
+  const полеЛимита = (id, ключ, мин, макс) => document.getElementById(id)?.addEventListener('change', (e) => {
     let val = parseInt(e.target.value, 10);
-    if (isNaN(val) || val < 256) val = 256; if (val > HUD_MAX_TOKENS_CAP) val = HUD_MAX_TOKENS_CAP;
-    settings.hudMaxTokens = val; e.target.value = val; основа.saveSettings();
+    if (!Number.isFinite(val) || val <= 0) val = 0; else val = Math.max(мин, Math.min(макс, val));
+    settings[ключ] = val; e.target.value = val; основа.saveSettings();
   });
+  полеЛимита('hud-max-tokens', 'hudMaxTokens', 256, HUD_MAX_TOKENS_CAP);
+  полеЛимита('hud-phone-max-tokens', 'phoneMaxTokens', 256, HUD_MAX_TOKENS_CAP);
+  полеЛимита('hud-music-tokens', 'musicMaxTokens', 2048, 65536);
+  полеЛимита('hud-ask-tokens', 'assistantMaxTokens', 256, 16000);
   document.getElementById('hud-regen-timeout').addEventListener('change', (e) => {
     let val = parseInt(e.target.value, 10);
     if (isNaN(val) || val < 0) val = 0; if (val > 60) val = 60;
@@ -1438,15 +1444,10 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.89.85').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.89.86').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
-  document.getElementById('hud-music-tokens').addEventListener('change', (e) => {
-    let v = parseInt(e.target.value, 10);
-    if (!Number.isFinite(v)) v = 8192; v = Math.max(2048, Math.min(65536, v));
-    settings.musicMaxTokens = v; e.target.value = v; основа.saveSettings();
-  });
   document.getElementById('hud-music-timeout').addEventListener('change', (e) => {
     let v = parseInt(e.target.value, 10);
     if (!Number.isFinite(v) || v < 0) v = 0; if (v > 3600) v = 3600;
@@ -1468,20 +1469,20 @@ export function addSettingsUI() {
     ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.89.85').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.89.86').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('click', async () => {
       if ((settings[ключ] || []).length && !await уверены({ текст: ключ === 'musicLiked' ? 'Весь список понравившихся треков очистится.' : 'Весь список запрещённых треков очистится.', кнопка: 'Очистить' })) return;
       settings[ключ] = []; основа.saveSettings(); вкусМузыки();
-      import('./render/music.js?v=23.89.85').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      import('./render/music.js?v=23.89.86').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.85').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.86').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 
@@ -1492,7 +1493,7 @@ export function addSettingsUI() {
    ['hud-ask-persona', 'assistantIncludePersona'], ['hud-ask-lore-all', 'assistantLoreAll']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => { settings[ключ] = e.target.checked; основа.saveSettings(); });
   });
-  [['hud-ask-messages', 'assistantContextMessages', 0, 60], ['hud-ask-tokens', 'assistantMaxTokens', 256, 16000]].forEach(([id, ключ, мин, макс]) => {
+  [['hud-ask-messages', 'assistantContextMessages', 0, 60]].forEach(([id, ключ, мин, макс]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       let v = parseInt(e.target.value, 10);
       if (!Number.isFinite(v) || v < мин) v = мин; if (v > макс) v = макс;

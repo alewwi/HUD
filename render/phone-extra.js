@@ -9,19 +9,19 @@
 //   «Карты»   — сохранённые места на нарисованной схеме города.
 // Кроме «Здоровья» всё строится из того, что уже есть в HUD.
 
-import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.89.85';
-import { английский } from '../i18n.js?v=23.89.85';
-import { градусы, ДЛИТ } from '../units.js?v=23.89.85';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.85';
-import { G_ICONS } from './icons.js?v=23.89.85';
-import { parseCall, безШапокСообщения } from './msg-parts.js?v=23.89.85';
-import { контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.85';
-import { parseMsgParties } from './phone-common.js?v=23.89.85';
-import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.89.85';
-import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.89.85';
-import { namesLikelySame } from '../names.js?v=23.89.85';
-import { зоныКарты } from './intimacy.js?v=23.89.85';
-import { сводкаБолезней } from './character.js?v=23.89.85';
+import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.89.86';
+import { английский } from '../i18n.js?v=23.89.86';
+import { градусы, ДЛИТ } from '../units.js?v=23.89.86';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.86';
+import { G_ICONS } from './icons.js?v=23.89.86';
+import { parseCall, безШапокСообщения } from './msg-parts.js?v=23.89.86';
+import { контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.86';
+import { parseMsgParties } from './phone-common.js?v=23.89.86';
+import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.89.86';
+import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.89.86';
+import { namesLikelySame } from '../names.js?v=23.89.86';
+import { зоныКарты } from './intimacy.js?v=23.89.86';
+import { сводкаБолезней } from './character.js?v=23.89.86';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const пусто = (v) => !текст(v) || /^(empty|none|null|нет|пусто)$/i.test(текст(v));
@@ -306,7 +306,9 @@ function разобратьСон(s) {
   const ч = t.match(/(\d+(?:[.,]\d+)?)\s*(?:hours?|hrs?|h|час(?:а|ов)?|ч)(?![\p{L}])/iu), мм = t.match(/(\d+)\s*(?:minutes?|mins?|m|мин\p{L}*|м)(?![\p{L}])/iu);
   const мин = (ч ? parseFloat(ч[1].replace(',', '.')) * 60 : 0) + (мм ? +мм[1] : 0);
   // «4 ч 10 мин, легла в 03:20» (так пишет «Состояние тела») → 03:20–07:30.
-  const легла = t.match(/(?:лёг|лег|легл\p{L}*|уснул\p{L}*|в|went to bed at|fell asleep at|at)\s*(\d{1,2}[:.]\d{2})/iu);
+  // …и «4 h, 01:00» — так просит промпт: время отбоя сразу после часов, без слова.
+  const легла = t.match(/(?:лёг|лег|легл\p{L}*|уснул\p{L}*|в|went to bed at|fell asleep at|at)\s*(\d{1,2}[:.]\d{2})/iu)
+    || t.match(/(?<=\d\s*(?:ч|час\p{L}*|мин\p{L}*|h|hours?|hrs?|min|mins|minutes?)\s*,\s*)(\d{1,2}[:.]\d{2})(?!\s*[–—-]\s*\d)/iu);
   const с = легла && мин ? легла[1].replace('.', ':') : '';
   const до = с ? ЧЧММ(минутыИз(с) + мин) : '';
   const заметка = безСкобок(t.replace(ч ? ч[0] : '', '').replace(мм ? мм[0] : '', '').replace(легла && с ? легла[0] : '', '').replace(/^[\s,;.—-]+|[\s,;.]+$/g, ''));

@@ -5,15 +5,15 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.85';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.85';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.85';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.85';
-import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.85';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.85';
-import { генерацияТаверны } from './utils.js?v=23.89.85';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.85';
-import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.89.85';
+import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.86';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.86';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.86';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.86';
+import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.86';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.86';
+import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.89.86';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.86';
+import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.89.86';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -528,7 +528,12 @@ export async function handleHudRegenButton(regenBtn) {
 
       let aiText = '';
       let оборвался = false;
-      const hudMaxTokens = Math.max(256, Math.min(HUD_MAX_TOKENS_CAP, parseInt(settings.hudMaxTokens, 10) || 8192));
+      // Лимиты — Настройки → Перегенерация HUD; у телефона свой. 0 — длина
+      // ответа из настроек Таверны; ни разу не задан — 8192.
+      const лимитЗадан = телефон ? settings.phoneMaxTokens : settings.hudMaxTokens;
+      const лимитЧисло = parseInt(лимитЗадан, 10);
+      const лимитКакВТаверне = !(лимитЧисло > 0) && лимитЗадан !== undefined && лимитЗадан !== null && лимитЗадан !== '';
+      const hudMaxTokens = Math.max(256, Math.min(HUD_MAX_TOKENS_CAP, (лимитЧисло > 0 ? лимитЧисло : лимитКакВТаверне ? длинаОтветаТаверны(stContext) : 0) || 8192));
 
       // Тело переиспользуем от последнего рабочего запроса ST: провайдер-специфичные
       // поля (ключи, прокси, семплеры) нужны, иначе часть бэкендов отвергает запрос.
@@ -758,7 +763,12 @@ export async function handleHudRegenButton(regenBtn) {
           }
           if (вышлоВремя) основа.showHudToast('error', 'Нет ответа', `Провайдер не ответил за ${пределМин} мин — HUD не записан. Рассуждающие модели думают долго: увеличь «Ждать ответа» или уменьши «Лимит токенов HUD» (Как HUD получается → Перегенерация HUD).`);
           else if (отменено() || (err && err.name === 'AbortError')) основа.showHudToast('success', 'Отменено', телефон ? 'Генерация телефона остановлена, сообщение не изменилось.' : 'Генерация HUD остановлена, сообщение не изменилось.');
-          else основа.showHudToast('error', 'Ошибка', (телефон ? 'Не удалось обновить телефон: ' : 'Не удалось обновить HUD: ') + err.message);
+          else {
+            // У телефона свой лимит — и совет поднимать его, а не лимит HUD.
+            const свойЛимит = телефон;
+            const текстОшибки = свойЛимит ? String(err.message || '').replace(/«Лимит токенов HUD»/g, '«Лимит токенов телефона»').replace('лимит токенов HUD', 'лимит токенов телефона') : err.message;
+            основа.showHudToast('error', 'Ошибка', (телефон ? 'Не удалось обновить телефон: ' : 'Не удалось обновить HUD: ') + текстОшибки);
+          }
       } finally {
           if (таймерОжидания) clearTimeout(таймерОжидания);
           if (основа.генерацииHUD.get(ключГенерации) === отмена) основа.генерацииHUD.delete(ключГенерации);

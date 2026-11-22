@@ -16,9 +16,9 @@
 //  • не усиливать выключенное: пропуск снов при выключенных снах — решение
 //    человека, а не ошибка модели.
 
-import { settings } from './settings.js?v=23.89.85';
-import { extractHudBlock } from './hud-block.js?v=23.89.85';
-import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.89.85';
+import { settings } from './settings.js?v=23.89.86';
+import { extractHudBlock } from './hud-block.js?v=23.89.86';
+import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.89.86';
 
 const КЛЮЧ = 'tavernosHudFieldStats';
 const ОКНО = 50;
@@ -29,7 +29,8 @@ export const ПОЛЯ = {
   Th: { имя: 'мысли', модели: 'Th (thoughts)', вкл: () => true },
   Ex: { имя: 'ожидание и реальность', модели: 'Ex (expectation vs reality)', вкл: () => true },
   dy: { имя: 'дневник', модели: 'dy (diary)', вкл: () => !!settings.enableDiary },
-  zd: { имя: 'гороскоп', модели: 'wd.zd (horoscope)', вкл: () => !!settings.enableWorld && settings.enableHoroscope !== false },
+  // При «мире раз в день» гороскоп честно пропускают почти каждый ход — не пропуск.
+  zd: { имя: 'гороскоп', модели: 'wd.zd (horoscope)', вкл: () => !!settings.enableWorld && settings.enableHoroscope !== false && settings.hudWorldDaily === false },
 };
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);

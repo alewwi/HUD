@@ -211,5 +211,42 @@ const A = await модуль('render/archive.js');
   проверить('анализатор: новая версия отчёта — старый кэш пересчитается', H.ВЕРСИЯ_ОТЧЁТА >= 3);
 }
 
+// --- Летопись: прежние версии ответов не встают лишними ходами -----------------
+// Ключ летописи — время отправки. Свайп и перегенерация дают ответу новое, и
+// старая версия остаётся в летописи без сообщения. Вычищенное начало чата и
+// хвост после последнего сообщения — по-прежнему в архиве.
+{
+  const CH = await модуль('chronicle.js');
+  const ход = (t, место, тайна) => CH.выжимкаHUD({ scene: { 'Дата': '01.11.2024', 'Время': t }, user: { 'Место': место }, characters: [], memory: { secrets: [{ fact: тайна, status: 'hidden' }] } });
+  const Т = (м) => `2026-11-01T10:${String(м).padStart(2, '0')}:00.000Z`;
+  const мета = {};
+  CH.дописатьЛетопись(мета, new Map([
+    [Т(0), ход('09:00', 'Холл', 'вычищенное начало')],
+    [Т(10), ход('10:00', 'Сад', 'первая')],
+    [Т(14), ход('10:30', 'Пруд', 'перегенерированная версия')],
+    [Т(15), ход('10:30', 'Беседка', 'вторая')],
+    [Т(18), ход('11:05', 'Крыша', 'старая версия с игроком')],
+    [Т(21), ход('11:00', 'Кухня', 'прежний свайп')],
+    [Т(23), ход('11:00', 'Терраса', 'третья')],
+    [Т(40), ход('12:00', 'Подвал', 'хвост')],
+  ]), []);
+  const чат = [
+    { is_user: false, send_date: Т(10), mes: 'HUD вычищен' },
+    { is_user: true, send_date: Т(12), mes: '…' },
+    { is_user: false, send_date: Т(15), mes: 'HUD вычищен' },
+    { is_user: true, send_date: Т(20), mes: '…' },
+    { is_user: false, send_date: Т(23), mes: 'HUD вычищен', swipe_id: 1, swipes: ['a', 'b'], swipe_info: [{ send_date: Т(21) }, { send_date: Т(23) }] },
+  ];
+  const fetchБыл = globalThis.fetch;
+  globalThis.fetch = async (url, init) => (init && init.method === 'POST') ? { ok: true, json: async () => ({}) }
+    : String(url) === '/user/files/hud-chronicle-arc-replaced.json' ? { ok: true, json: async () => мета[CH.КЛЮЧ_ЛЕТОПИСИ] } : { ok: false, status: 404, json: async () => null };
+  контекст = { chat: чат, chatMetadata: { integrity: 'arc-replaced' }, name1: 'Мари', name2: 'Дамиан' };
+  const о = await H.analyzeChat(0, чат.length - 1);
+  globalThis.fetch = fetchБыл;
+  const тайны = о.secrets.map(s => s.fact);
+  проверить('летопись: прежний свайп, перегенерированный ответ и ход «позже следующего» — не в архиве', !тайны.includes('прежний свайп') && !тайны.includes('перегенерированная версия') && !тайны.includes('старая версия с игроком'), тайны.join(' | '));
+  проверить('летопись: вычищенное начало и хвост — в архиве, на своих местах', о.stats.fromChronicle === 3 && о.stats.chronicleOnly === 2 && о.locations.map(l => l.place).join('|') === 'Холл|Сад|Беседка|Терраса|Подвал', JSON.stringify([о.stats.chronicleOnly, о.locations.map(l => l.place)]));
+}
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалов}`);
 process.exitCode = провалов ? 1 : 0;

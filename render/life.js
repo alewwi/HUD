@@ -18,20 +18,20 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.85';
-import { спор, спрашивать, основыИгрока, подписьСна } from '../disputes.js?v=23.89.85';
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.85';
-import { settings } from '../settings.js?v=23.89.85';
-import { градусы } from '../units.js?v=23.89.85';
-import { разобратьХод } from './carryover.js?v=23.89.85';
-import { моментСцены } from './intimacy.js?v=23.89.85';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.85';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.85';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.85';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.85';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.85';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.85';
-import { английский } from '../i18n.js?v=23.89.85';
+import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.86';
+import { спор, спрашивать, основыИгрока, подписьСна } from '../disputes.js?v=23.89.86';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.86';
+import { settings } from '../settings.js?v=23.89.86';
+import { градусы } from '../units.js?v=23.89.86';
+import { разобратьХод } from './carryover.js?v=23.89.86';
+import { моментСцены } from './intimacy.js?v=23.89.86';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.86';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.86';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.86';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.86';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.86';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.86';
+import { английский } from '../i18n.js?v=23.89.86';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -273,7 +273,10 @@ export function сонИз(bs) {
   // Только «5 ночей: 9 ч» без прошлой ночи отдельно — прошлая ночь как средняя.
   if (часов === null && ночей >= 2 && всего !== null) часов = Math.round(всего / ночей * 10) / 10;
   if (часов === null || часов > 20) return null;
-  const легла = (s.match(/(?:лёг|лег|легл\p{L}*|в|went to bed at|bed at|asleep at|slept at|at)\s*(\d{1,2}[:.]\d{2})/iu) || (и ? [null, и[1] + ':' + и[2]] : []))[1] || '';
+  // «4 h, 01:00» — так просит промпт: время отбоя сразу после часов, без слова.
+  const легла = (s.match(/(?:лёг|лег|легл\p{L}*|в|went to bed at|bed at|asleep at|slept at|at)\s*(\d{1,2}[:.]\d{2})/iu)
+    || s.match(/\d\s*(?:ч|час\p{L}*|мин\p{L}*|h|hours?|hrs?|min|mins|minutes?)\s*,\s*(\d{1,2}[:.]\d{2})(?!\s*[–—-]\s*\d)/iu)
+    || (и ? [null, и[1] + ':' + и[2]] : []))[1] || '';
   return { часов, легла, текст: s.trim(), ...(ночей >= 2 && всего !== null && всего <= ночей * 16 ? { ночей, всего } : {}) };
 }
 const ЕЛ_ЗВЕРЬ = сл('съел|съеден|сгрыз|слопал|сожра|перекусил|проглотил|умял|стащил|ate(?![\\p{L}])|eaten|devour|gobbl|wolfed');

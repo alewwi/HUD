@@ -3,8 +3,8 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
-import { МЕТКИ } from './codes.js?v=23.89.85';
-import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.89.85';
+import { МЕТКИ } from './codes.js?v=23.89.86';
+import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.89.86';
 
 // Замеры по шагам для поиска узких мест: включаются только объектом
 // window.__hudProf = {} в консоли, копят { шаг: [мс, …] }. Без него — прямой вызов.
@@ -110,6 +110,19 @@ export function соединитьСигналы(а, б) {
   for (const с of [а, б]) { if (с.aborted) c.abort(с.reason); else с.addEventListener('abort', () => c.abort(с.reason), { once: true }); }
   return c.signal;
 }
+/**
+ * Длина ответа из настроек Таверны — та, с которой она пишет свои ответы
+ * (getMaxResponseTokens у неё не в контексте): Chat Completion — «Max Response
+ * Length», текстовые API — amount_gen. 0 — не нашлась. Лимит 0 в полях HUD
+ * значит «как в Таверне».
+ */
+export function длинаОтветаТаверны(ctx = (() => { try { return globalThis.SillyTavern?.getContext?.() || null; } catch (_) { return null; } })()) {
+  const число = (v) => { const n = parseInt(v, 10); return Number.isFinite(n) && n > 0 ? n : 0; };
+  const поле = (id) => { try { return globalThis.document?.getElementById?.(id)?.value; } catch (_) { return undefined; } };
+  if (ctx && ctx.mainApi === 'openai') return число(ctx.chatCompletionSettings?.openai_max_tokens) || число(поле('openai_max_tokens'));
+  return число(поле('amount_gen')) || число(ctx?.amount_gen) || число(ctx?.chatCompletionSettings?.openai_max_tokens);
+}
+
 export function генерацияТаверны(ctx, { prompt = '', systemPrompt = '', responseLength = null, signal = null } = {}) {
   const f = ctx && ctx.generateRaw;
   if (typeof f !== 'function') throw new Error('SillyTavern не отдал функцию генерации');

@@ -16,14 +16,14 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.85';
-import { settings } from '../settings.js?v=23.89.85';
-import { т } from '../i18n.js?v=23.89.85';
-import { карточкаПерсонажа, персонаИгрока } from './assistant.js?v=23.89.85';
-import { связьПраздников, сохранитьПодготовку, ответитьНаПодготовку, подготовка, подготовкаСписком } from './holiday-lore.js?v=23.89.85';
-import { отправить, текстОтвета, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили } from './holiday-gen.js?v=23.89.85';
-import { историяДляПраздника } from './holiday-day.js?v=23.89.85';
-import { добавитьПодсказку } from '../turn-notes.js?v=23.89.85';
+import { escapeHtml } from '../utils.js?v=23.89.86';
+import { settings } from '../settings.js?v=23.89.86';
+import { т } from '../i18n.js?v=23.89.86';
+import { карточкаПерсонажа, персонаИгрока } from './assistant.js?v=23.89.86';
+import { связьПраздников, сохранитьПодготовку, ответитьНаПодготовку, подготовка, подготовкаСписком } from './holiday-lore.js?v=23.89.86';
+import { отправить, текстОтвета, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили, полеТокенов, токеныОкна, подключитьТокены, причинаОшибки } from './holiday-gen.js?v=23.89.86';
+import { историяДляПраздника } from './holiday-day.js?v=23.89.86';
+import { добавитьПодсказку } from '../turn-notes.js?v=23.89.86';
 
 function контекст() { try { return globalThis.SillyTavern?.getContext?.() || null; } catch (_) { return null; } }
 function сохранитьНастройки() { try { связьПраздников().сохранить?.(); } catch (_) { /* не критично */ } }
@@ -103,7 +103,7 @@ export async function открытьПодготовку(данные = {}) {
           </div>
           ${книги.length ? `<details class="hud-prepgen-books"${источник('holidayUseLore') ? '' : ' hidden'}><summary class="hud-holgen-note">${п('Какие лорбуки')}</summary><div class="hud-holgen-books">${книги.map(к => `<label class="hud-holgen-book"><input type="checkbox" value="${escapeHtml(к)}"${выбраны.has(к) ? ' checked' : ''}><span>${escapeHtml(к)}</span></label>`).join('')}</div></details>` : ''}
         </div>
-        <label class="hud-holgen-field"><span class="hud-holgen-lbl">${п('Профиль подключения')}</span>${рядПрофиля()}</label>
+        <div class="hud-holgen-row"><label class="hud-holgen-field"><span class="hud-holgen-lbl">${п('Профиль подключения')}</span>${рядПрофиля()}</label>${полеТокенов('holidayPrepMaxTokens')}</div>
         <div class="hud-holgen-actions"><button type="button" class="hud-holgen-run">✨ ${п('Сгенерировать')}</button><span class="hud-holgen-status" aria-live="polite"></span></div>
         <div class="hud-prepgen-result" hidden>
           <div class="hud-prepgen-top"><span class="hud-holgen-lbl">${п('Шаги подготовки')} <small>${п('галочка — взять')}</small></span><button type="button" class="hud-prepgen-again" title="${п('Сгенерировать заново')}">↻ ${п('Заново')}</button></div>
@@ -138,6 +138,7 @@ export async function открытьПодготовку(данные = {}) {
     settings.holidayLorebooks = [...окно.querySelectorAll('.hud-holgen-book input:checked')].map(и => и.value); сохранитьНастройки();
   });
   отписаться = подключитьПрофили(окно, статус, сохранитьНастройки);
+  подключитьТокены(окно, 'holidayPrepMaxTokens', сохранитьНастройки);
 
   окно.addEventListener('click', (e) => {
     const t = e.target.closest('button');
@@ -178,7 +179,7 @@ export async function открытьПодготовку(данные = {}) {
       безHud = true;
       let таймерОжидания = 0;
       const raw = await Promise.race([
-        отправить(ctx2, system, user, signal),
+        отправить(ctx2, system, user, signal, токеныОкна(окно, 'holidayPrepMaxTokens', сохранитьНастройки)),
         new Promise((_, reject) => { таймерОжидания = setTimeout(() => { reject(new Error(т('модель молчит дольше') + ' ' + ЖДЁМ_МС / 1000 + ' с')); отмена?.abort(); }, ЖДЁМ_МС); }),
         new Promise((_, reject) => signal.addEventListener('abort', () => reject(signal.reason), { once: true })),
       ]).finally(() => clearTimeout(таймерОжидания));
@@ -190,7 +191,7 @@ export async function открытьПодготовку(данные = {}) {
       статус.textContent = '';
       показать();
     } catch (e) {
-      статус.textContent = e && e.name === 'AbortError' ? т('Отменено') : т('Не получилось:') + ' ' + (e && e.message ? e.message : e);
+      статус.textContent = e && e.name === 'AbortError' ? т('Отменено') : т('Не получилось:') + ' ' + причинаОшибки(e);
       if (!(e && e.name === 'AbortError')) console.warn('[TavernOS HUD] Подготовка:', e);
     } finally {
       if (безHud) window.__tavernOSHudSkipInject = Math.max(0, (window.__tavernOSHudSkipInject || 1) - 1);

@@ -4077,6 +4077,40 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('праздники: промпт по-английски, с форматом JSON и числом', !/[А-Яа-яЁё]/.test(system + user.replace('Мир Ривы', '')) && user.includes('"date": "DD.MM"') && user.includes('Exactly 4 holidays') && user.includes('17.10.2031'));
   проверить('праздники: без числа — «сколько найдёт»', ПГ.промптПраздников({ карточка: 'x' }).user.includes('As many as the materials support'));
   {
+    // Лимит токенов окон: у каждого свой ключ; не задан — 3000; 0, пусто и мусор — 0 («как в Таверне»); границы 256…65536.
+    const ключ = 'holidayPrepMaxTokens', было = Н[ключ];
+    const л = (v) => { Н[ключ] = v; return ПГ.лимитТокенов(ключ); };
+    равно('токены окон: умолчание, 0 — как в Таверне, границы', [л(undefined), л(''), л('abc'), л(0), л(-5), л(100), л(4096), л('8000'), л(999999)], [3000, 0, 0, 0, 0, 256, 4096, 8000, 65536]);
+    Н[ключ] = 5000;
+    проверить('токены окон: поле показывает сохранённое, несёт свой ключ, пускает 0 и подписывает максимум', /class="hud-holgen-tokens" data-key="holidayPrepMaxTokens" min="0" max="65536"[^>]*value="5000"/.test(ПГ.полеТокенов(ключ)) && ПГ.полеТокенов(ключ).includes('0 — как в Таверне · максимум 65536'));
+    Н[ключ] = было;
+    // Число уходит в запрос: и через профиль подключения, и через модель чата.
+    const ушло = [];
+    const ctxЧат = { generateRaw: (o) => { ушло.push(['чат', typeof o === 'object' ? o.responseLength : null]); return Promise.resolve('[]'); } };
+    const былПрофиль = Н.holidayProfileId;
+    Н.holidayProfileId = '';
+    await ПГ.отправить(ctxЧат, 's', 'u', null, 7000);
+    await ПГ.отправить(ctxЧат, 's', 'u', null);
+    await ПГ.отправить(ctxЧат, 's', 'u', null, 10);
+    await ПГ.отправить(ctxЧат, 's', 'u', null, 0);
+    Н.holidayProfileId = '';
+    равно('токены окон: модель чата получает лимит окна; без него — 3000; меньше 256 — 256; 0 — длину ответа Таверна берёт сама', ушло.map(x => x[1]), [7000, 3000, 256, null]);
+    Н.holidayProfileId = былПрофиль;
+    // Каждое окно показывает поле со своим ключом и отправляет его же.
+    const окна = { 'render/holiday-gen.js': 'holidayGenMaxTokens', 'render/holiday-day.js': 'holidayDayMaxTokens', 'render/holiday-prep.js': 'holidayPrepMaxTokens', 'render/place-gen.js': 'placeGenMaxTokens' };
+    const мимо = Object.entries(окна).filter(([ф, к]) => { const т = fs.readFileSync(path.join(КОРЕНЬ, ф), 'utf8'); return !(т.includes(`полеТокенов('${к}')`) && т.includes(`токеныОкна(окно, '${к}'`) && т.includes(`подключитьТокены(окно, '${к}'`)); }).map(([ф]) => ф);
+    равно('токены окон: праздники, «Как празднуют», подготовка и правила места — поле и запрос со своим ключом', мимо, []);
+    const реген = fs.readFileSync(path.join(КОРЕНЬ, 'regen.js'), 'utf8');
+    проверить('телефон: свой лимит при ↻ телефона, 0 у HUD и телефона — длина ответа Таверны', реген.includes('телефон ? settings.phoneMaxTokens : settings.hudMaxTokens') && реген.includes('лимитКакВТаверне ? длинаОтветаТаверны(stContext)') && Н.phoneMaxTokens === 8192);
+    const ЛД = await модуль('lore-dialog.js');
+    равно('лорбук: 0 и мусор — как в Таверне, иначе 256…65536', [ЛД.лимитЛора(0), ЛД.лимитЛора(''), ЛД.лимитЛора('x'), ЛД.лимитЛора(100), ЛД.лимитЛора(2048), ЛД.лимитЛора(1e6)], [0, 0, 0, 256, 2048, 65536]);
+    const ПА = await модуль('render/assistant.js');
+    равно('помощник: поле 📏 и настройка — 256…16000, 0 — как в Таверне, не задан — 1500', [ПА.лимитАссистента(null), ПА.лимитАссистента(0), ПА.лимитАссистента(''), ПА.лимитАссистента(10), ПА.лимитАссистента(3000), ПА.лимитАссистента(99999)], [1500, 0, 0, 256, 3000, 16000]);
+    // Длина ответа Таверны: Chat Completion — Max Response Length; текстовые API — amount_gen.
+    const У = await модуль('utils.js');
+    равно('длина ответа Таверны: по API, не нашлась — 0', [У.длинаОтветаТаверны({ mainApi: 'openai', chatCompletionSettings: { openai_max_tokens: 4096 } }), У.длинаОтветаТаверны({ mainApi: 'textgenerationwebui', amount_gen: 512 }), У.длинаОтветаТаверны({ mainApi: 'openai', chatCompletionSettings: {} })], [4096, 512, 0]);
+  }
+  {
     const с = ПГ.промптПраздников({ карточка: 'x', пожелание: '  праздники, связанные с семьёй  ' }).user;
     const без = ПГ.промптПраздников({ карточка: 'x', пожелание: '   ' }).user;
     проверить('праздники: пожелание игрока уходит в промт своим тегом и правилом, пустое — нет',
@@ -5080,6 +5114,42 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     globalThis.SillyTavern.getContext = прежний;
     Object.assign(Ст.settings, было);
   }
+}
+
+// Фракции: «Как менялось» во всех видах — раньше путь и причины были только у
+// «Щитов», а «Зал совета» и «Оранжерея» показывали один последний шаг.
+{
+  const НФ = (await модуль('settings.js')).settings;
+  const F = await модуль('render/factions.js');
+  const ход = (n, дата, за) => ({ строки: ['Гильдия | Мари | ' + n + ' | уважают | ' + за], дата });
+  const история = [ход(40, '01.05', 'помогла'), ход(55, '02.05', 'спасла склад'), ход(50, '03.05', 'опоздала')];
+  const было = { factions: НФ.factions, factionsView: НФ.factionsView };
+  НФ.factions = 'user';
+  try {
+    for (const вид of ['classic', 'council', 'garden']) {
+      НФ.factionsView = вид;
+      const html = F.блокФракций(история.at(-1).строки, { игрок: 'Мари', персонаж: 'Дамиан', история, uid: 'f' + вид });
+      проверить('фракции «' + вид + '»: путь +40 → +55 → +50', html.includes('+40 → +55 → +50'), html.slice(0, 200));
+      проверить('фракции «' + вид + '»: даты и причины сдвигов', html.includes('спасла склад') && html.includes('02.05') && html.includes('опоздала'));
+    }
+    проверить('фракции: путь с минусом через «−»', F.путьФракции([{ было: -55, стало: -58 }]) === '−55 → −58');
+  } finally { Object.assign(НФ, было); }
+}
+
+// Гороскоп при «мире раз в день» пишется только в первом HUD нового дня —
+// проверка полноты не должна требовать его каждый ход.
+{
+  const НГ = (await модуль('settings.js')).settings;
+  const ChГ = await модуль('hud-check.js');
+  const было = { enableWorld: НГ.enableWorld, enableHoroscope: НГ.enableHoroscope, hudWorldDaily: НГ.hudWorldDaily };
+  Object.assign(НГ, { enableWorld: true, enableHoroscope: true });
+  try {
+    const безГороскопа = hud({ sc: { T: '10:00' }, cs: [{ N: 'Дамиан', Th: 'мысль', Ex: 'ждал | вышло' }], wd: { nws: [] } });
+    НГ.hudWorldDaily = true;
+    проверить('гороскоп: при «мире раз в день» не требуется каждый ход', !ChГ.чегоНеХватает(безГороскопа).includes('гороскоп'));
+    НГ.hudWorldDaily = false;
+    проверить('гороскоп: без «мира раз в день» — требуется', ChГ.чегоНеХватает(безГороскопа).includes('гороскоп'));
+  } finally { Object.assign(НГ, было); }
 }
 
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);

@@ -11,20 +11,20 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.89.85';
-import { normalizeJSONData } from './schema.js?v=23.89.85';
-import { parseRelationList } from './render/relations-graph.js?v=23.89.85';
-import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.85';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.85';
-import { createDashboard } from './chat-stats.js?v=23.89.85';
-import { settings } from './settings.js?v=23.89.85';
-import { статусРужья } from './codes.js?v=23.89.85';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.85';
-import { историяБеременностей } from './render/conception.js?v=23.89.85';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.85';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.85';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.85';
-import { создатьКарты } from './history-maps.js?v=23.89.85';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.86';
+import { normalizeJSONData } from './schema.js?v=23.89.86';
+import { parseRelationList } from './render/relations-graph.js?v=23.89.86';
+import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.86';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.86';
+import { createDashboard, времяОтправки } from './chat-stats.js?v=23.89.86';
+import { settings } from './settings.js?v=23.89.86';
+import { статусРужья } from './codes.js?v=23.89.86';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.86';
+import { историяБеременностей } from './render/conception.js?v=23.89.86';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.86';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.86';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.86';
+import { создатьКарты } from './history-maps.js?v=23.89.86';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -117,8 +117,8 @@ const чистоеИмя = (имя) => имяБезПриставки(текст
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.89.85';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.85';
+import { extractHudBlock } from './hud-block.js?v=23.89.86';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.86';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -574,12 +574,42 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     if (ключиЧата.has(к)) { const п = подписьХода(летопись.get(к)); if (п) подписиЧата.add(п); }
     else лишние.push({ поз, к });
   });
+  // Прежние версии ответов, которые в чате уже заменены. Ключ летописи — время
+  // отправки, а свайп и перегенерация дают ответу новое: старая версия
+  // остаётся в летописи без сообщения и вставала бы лишним ходом с событиями,
+  // которых в сюжете нет. Такой ход узнаём по свайпам сообщения или по
+  // времени: записан после #k-1, но раньше ответа #k — это прежний #k.
+  // Ходы до начала чата (вычищенное начало, летопись старого чата) и после
+  // его конца это правило не трогает.
+  const свайпыЧата = new Set();
+  for (const m of chat) for (const и of (m && Array.isArray(m.swipe_info) ? m.swipe_info : [])) if (и && и.send_date) свайпыЧата.add(String(и.send_date).trim());
+  const времена = chat.map(m => времяОтправки(m && m.send_date));
+  const заменён = (к) => {
+    if (свайпыЧата.has(к)) return true;
+    const T = времяОтправки(к);
+    if (T === null) return false;
+    const k = времена.findIndex(t => t !== null && t > T);
+    return k > 0 && !chat[k].is_user && времена[k - 1] !== null && времена[k - 1] < T;
+  };
+  // Момент хода в минутах сюжета: дата и время из HUD.
+  const моментХода = (в) => {
+    const sc = в && в.scene || {};
+    const д = значимо(sc['Дата']) ? parseSceneDate(sc['Дата']) : null;
+    const м = текст(sc['Время']).match(/(\d{1,2})[:.](\d{2})/);
+    return д === null || !м ? null : д / 60000 + (+м[1]) * 60 + (+м[2]);
+  };
   let следующийЛишний = 0;
-  const вставитьЛишние = (доПозиции, at, учесть) => {
+  // следующий — HUD сообщения, перед которым встают ходы: ход летописи, что по
+  // сюжету не раньше него, стоять перед ним не может — это его же прежняя
+  // версия (перегенерировали и ответ, и реплику игрока перед ним).
+  const вставитьЛишние = (доПозиции, at, учесть, следующий = null) => {
+    const потом = моментХода(следующий);
     while (следующийЛишний < лишние.length && лишние[следующийЛишний].поз < доПозиции) {
       const { к } = лишние[следующийЛишний++];
-      if (!учесть) continue;
+      if (!учесть || заменён(к)) continue;
       const в = летопись.get(к);
+      const сейчас = моментХода(в);
+      if (потом !== null && сейчас !== null && сейчас >= потом) continue;
       const п = подписьХода(в);
       if (п && подписиЧата.has(п)) continue;
       if (п) подписиЧата.add(п);
@@ -600,7 +630,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     const ключ = ключСообщения(chat[i], i);
     // Ходы летописи вне чата — перед этим сообщением, если оно в ней есть. До
     // начала отрезка («последние 50») их не берём: они раньше него.
-    if (порядокЛетописи.has(ключ)) вставитьЛишние(порядокЛетописи.get(ключ), i - 0.5, i > from || from === 0);
+    if (порядокЛетописи.has(ключ)) вставитьЛишние(порядокЛетописи.get(ключ), i - 0.5, i > from || from === 0, data || летопись.get(ключ));
     // Музыка хода: из самого сообщения, а у вычищенного — из летописи.
     let музыка = музыкаДляЛетописи(музыкаХода(chat[i]));
     if (data) { const в = выжимкаHUD(data, музыка); if (в) вЛетопись.set(ключ, в); }
@@ -736,7 +766,8 @@ function ключКэша(from, to) {
 // устаревшим: пересчёт быстрее, чем объяснять, почему в нём другое.
 // 3: беременности делятся по исходам из записей чата.
 // 5: генерации по дням (dashboard.activity); 6: серии и детали дня.
-export const ВЕРСИЯ_ОТЧЁТА = 6;
+// 7: прежние версии ответов из летописи (свайпы, перегенерации) — не ходы.
+export const ВЕРСИЯ_ОТЧЁТА = 7;
 export async function readCache(from, to) {
   const payload = await readEntry(ключКэша(from, to));
   if (!payload || !payload.report) return null;

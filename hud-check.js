@@ -9,11 +9,11 @@
 // честно бывает 'empty', комментариев может не быть вовсе. Ложная тревога
 // здесь стоит лишнего запроса к модели, поэтому лучше промолчать.
 
-import { settings } from './settings.js?v=23.89.85';
-import { extractHudBlock } from './hud-block.js?v=23.89.85';
-import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.89.85';
-import { противоречияБыта } from './render/life.js?v=23.89.85';
-import { сжатыеПоля, лимитПоля } from './compact-fields.js?v=23.89.85';
+import { settings } from './settings.js?v=23.89.86';
+import { extractHudBlock } from './hud-block.js?v=23.89.86';
+import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.89.86';
+import { противоречияБыта } from './render/life.js?v=23.89.86';
+import { сжатыеПоля, лимитПоля } from './compact-fields.js?v=23.89.86';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const МЕТКА = /<\s*new this turn\b[^>]*>/i;
@@ -63,7 +63,10 @@ export function чегоНеХватает(текстСообщения, { дл�
   const предложений = сжатДневник ? Math.min(3, Math.max(2, Math.floor(сжатДневник / 20))) : 3;
   const короткая = (т) => { const s = String(т || '').replace(/~~.*?~~/g, '').trim(); return s.length < знаков && (s.match(/[.!?…]+(?=\s|$)/g) || []).length < предложений; };
   if (settings.enableDiary && Array.isArray(к.dy) && к.dy.some(з => объект(з) && заполнено(з.tx) && короткая(з.tx))) нет.push(м('дневник (слишком короткий)', 'dy (diary entry too short: write a real entry of several sentences)'));
-  if (settings.enableWorld && settings.enableHoroscope !== false && !заполнено(к.wd && к.wd.zd)) нет.push(м('гороскоп', 'wd.zd (horoscope)'));
+  // «Мир раз в день» (hudWorldDaily, по умолчанию включено): гороскоп пишется
+  // только в первом HUD нового дня, в остальных промт велит его пропускать —
+  // требовать его каждый ход значило бы перегенерировать почти каждый ответ.
+  if (settings.enableWorld && settings.enableHoroscope !== false && settings.hudWorldDaily === false && !заполнено(к.wd && к.wd.zd)) нет.push(м('гороскоп', 'wd.zd (horoscope)'));
   // Бой: раз блок есть, этап и участники обязательны, остальное — нет.
   if (settings.enableCombat !== false && объект(к.cb) && заполнено(к.cb)) {
     if (!заполнено(к.cb.st)) нет.push(м('этап боя', 'cb.st (combat stage)'));
