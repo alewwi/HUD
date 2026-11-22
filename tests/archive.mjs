@@ -107,6 +107,54 @@ const A = await модуль('render/archive.js');
   A.выбратьФильтр('timeline', 'all');
 }
 
+// --- Сколько вы ролите: генерации по дням ----------------------------------------
+{
+  const S = await модуль('chat-stats.js');
+  const R = await модуль('regen.js');
+  const д1 = 'November 20, 2026 8:00pm', д2 = 'November 21, 2026 9:15pm';
+  const hud = '[HUD]{"sc":{"T":"20:00"}}[/HUD]';
+  const чат = [
+    // Приветствие с альтернативами — не генерации.
+    { is_user: false, name: 'Дамиан', send_date: д1, mes: 'Привет', swipes: ['Привет', 'Здравствуй'], swipe_id: 0, swipe_info: [{ send_date: д1 }, { send_date: д1 }] },
+    { is_user: true, name: 'Мари', send_date: д1, mes: 'Ход 1' },
+    // Ответ и два свайпа: свайп ушёл на второй день, у него метка — две генерации HUD.
+    { is_user: false, name: 'Дамиан', send_date: д2, mes: 'Вариант 3 ' + hud, swipe_id: 2,
+      swipes: ['Вариант 1 ' + hud, 'Вариант 2', 'Вариант 3 ' + hud],
+      swipe_info: [{ send_date: д1, extra: { hud_versions: [{ hud: 'x', when: new Date(2026, 10, 20, 20, 5).getTime(), note: 'до перегенерации' }] } }, { send_date: д2 }, { send_date: д2 }],
+      extra: { hud_gens: [new Date(2026, 10, 21, 21, 16).getTime(), new Date(2026, 10, 21, 21, 20).getTime()] } },
+    { is_user: true, name: 'Мари', send_date: д2, mes: 'Ход 2', is_system: true },
+    { is_user: false, name: 'SillyTavern System', is_system: true, extra: { type: 'help' }, mes: 'Справка' },
+    { is_user: false, name: 'Дамиан', mes: 'Без даты' },
+  ];
+  const счёт = (hudSeparate) => { const d = S.createDashboard({ userName: 'Мари', hudSeparate }); чат.forEach((m, i) => d.add(m, null, i)); return d.finish().activity; };
+  const а = счёт(true);
+  проверить('генерации: игрок 2, персонажи 2, свайпы 2 — приветствие и справка не в счёт', а.totals.user === 2 && а.totals.ai === 2 && а.totals.swipes === 2, JSON.stringify(а.totals));
+  // HUD: свайп 1 — версия «до перегенерации» + первый HUD (отдельно включён) = 2;
+  // свайп 2 без HUD — 0; текущий свайп 3 — по метке, 2. Ответ без даты без HUD.
+  проверить('генерации: HUD — по меткам точно, у старых свайпов — по версиям и HUD в тексте', а.totals.hud === 4 && а.hudExact === 2 && а.hudApprox === 2, JSON.stringify([а.totals, а.hudExact, а.hudApprox]));
+  const [день1, день2] = а.recent;
+  проверить('генерации: у каждого свайпа своя дата', а.days === 2 && день1.day === '2026-11-20' && день1.user === 1 && день1.ai === 1 && день1.swipes === 0 && день1.hud === 2
+    && день2.user === 1 && день2.swipes === 2 && день2.hud === 2, JSON.stringify(а.recent));
+  проверить('генерации: в день — среднее по дням игры, без даты — только в итогах', а.undated === 1 && а.perDay.user === 1 && а.perDay.swipes === 1 && а.perDay.all === 4.5 && а.totals.all === 10, JSON.stringify([а.perDay, а.undated, а.totals.all]));
+  const б = счёт(false);
+  проверить('генерации: без «HUD отдельно» первый HUD свайпа не запрос, перегенерации — да', б.totals.hud === 3 && !б.hudSeparate, JSON.stringify(б.totals));
+
+  const html = A.карточкаГенераций({ dashboard: { activity: а } });
+  const подписи = [...html.matchAll(/<span>([^<]+)<\/span>/g)].map(m => m[1]).filter(x => /в день$/.test(x));
+  проверить('карточка: сначала игрок и персонажи, потом свайпы, HUD, всё вместе', подписи.join('|') === 'ваших сообщений в день|ответов персонажей в день|свайпов в день|HUD отдельно в день|всего генераций в день', подписи.join('|'));
+  проверить('карточка: по дням — новые сверху, легенда с HUD', html.indexOf('21 нояб') < html.indexOf('20 нояб') && /<\/i>HUD<\/span>/.test(html), html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 400));
+  const безHUD = A.карточкаГенераций({ dashboard: { activity: { ...а, hudSeparate: false, totals: { ...а.totals, hud: 0 } } } });
+  проверить('карточка: HUD не отдельно и не перегенерировался — его строки нет', !/HUD отдельно в день/.test(безHUD) && !/<\/i>HUD<\/span>/.test(безHUD));
+  проверить('вкладка «Статистика» показывает карточку', fs.readFileSync(path.join(КОРЕНЬ, 'render/archive.js'), 'utf8').includes('${карточкаГенераций(отчёт)}'));
+
+  const m = { extra: {}, swipe_id: 1, swipe_info: [{}, {}] };
+  R.отметитьГенерациюHUD(m, 111); R.отметитьГенерациюHUD(m, 222);
+  проверить('метка генерации HUD — у сообщения и в swipe_info текущего свайпа', m.extra.hud_gens.join() === '111,222' && m.swipe_info[1].extra.hud_gens.join() === '111,222' && !m.swipe_info[0].extra);
+  for (let i = 0; i < 60; i++) R.отметитьГенерациюHUD(m, i);
+  проверить('метка генерации HUD — не больше 50 на свайп', m.extra.hud_gens.length === S.ГЕНЕРАЦИЙ_HUD_НА_СВАЙП && m.extra.hud_gens[49] === 59);
+  проверить('регенерация ставит метку после вставки HUD', /updateMessageDataForCurrentSwipe\(targetMessage, updatedFullText\);\n\s+отметитьГенерациюHUD\(targetMessage\);/.test(fs.readFileSync(path.join(КОРЕНЬ, 'regen.js'), 'utf8')));
+}
+
 // --- Окно: обработчики и стили на месте ---------------------------------------
 {
   const код = fs.readFileSync(path.join(КОРЕНЬ, 'render/archive.js'), 'utf8');

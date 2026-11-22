@@ -9,9 +9,9 @@
 // Текст сообщения здесь только считается, на экран не выводится, поэтому
 // разметку режем регуляркой — DOM на тысячу сообщений не нужен.
 
-import { hudFilled } from './utils.js?v=23.89.81';
+import { hudFilled } from './utils.js?v=23.89.82';
 
-import { заменитьHudБлоки } from './hud-block.js?v=23.89.81';
+import { заменитьHudБлоки, hudБлоки } from './hud-block.js?v=23.89.82';
 
 // Служебные вставки других расширений и размышления модели — не проза.
 const СЛУЖЕБНОЕ = /<(think|thinking|plan|comics|img|script|style|details|summary)\b[^>]*>[\s\S]*?<\/\1>/gi;
@@ -82,7 +82,102 @@ const медиана = (xs) => { if (!xs.length) return null; const s = [...xs].
 const топ = (карта, n, минимум = 1) => [...карта.entries()].filter(([, c]) => c >= минимум)
   .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, n);
 
-export function createDashboard({ userName = '' } = {}) {
+// --- Сколько вы ролите -------------------------------------------------------
+// Все генерации по дням отправки: реплики игрока, ответы персонажей, лишние
+// свайпы и HUD отдельными запросами. У каждого свайпа своя дата в swipe_info.
+//
+// HUD отдельным запросом с 23.89.82 оставляет метку extra.hud_gens (время
+// каждой генерации, regen.js). У старых сообщений её нет — считаем примерно:
+// перегенерация кладёт прежний HUD в версии «до перегенерации», а при
+// включённом «HUD отдельным запросом» первый HUD ответа — тоже запрос.
+export const ГЕНЕРАЦИЙ_HUD_НА_СВАЙП = 50;
+const ключДня = (t) => { const d = new Date(t); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
+const естьHUDвТексте = (s) => { const t = String(s || ''); return /\[HUD_OFF:/.test(t) || hudБлоки(t).length > 0; };
+
+export function createActivity({ hudSeparate = false } = {}) {
+  const ВИДЫ = ['user', 'ai', 'swipes', 'hud'];
+  const всего = { user: 0, ai: 0, swipes: 0, hud: 0 };
+  const безДаты = { user: 0, ai: 0, swipes: 0, hud: 0 };
+  const дни = new Map();
+  let примерно = 0, точно = 0;
+
+  const учесть = (вид, когда) => {
+    всего[вид]++;
+    if (когда === null || !Number.isFinite(когда)) { безДаты[вид]++; return; }
+    const к = ключДня(когда);
+    let д = дни.get(к);
+    if (!д) { д = { day: к, user: 0, ai: 0, swipes: 0, hud: 0 }; дни.set(к, д); }
+    д[вид]++;
+  };
+
+  function hudСвайпа(extra, текст, естьHUD, когдаСвайпа) {
+    const метки = extra && Array.isArray(extra.hud_gens) ? extra.hud_gens.map(Number).filter(Number.isFinite) : [];
+    метки.forEach(t => учесть('hud', t));
+    if (метки.length) точно += метки.length;
+    // Перегенерации до появления меток — по версиям HUD.
+    const граница = метки.length ? Math.min(...метки) : Infinity;
+    const версии = extra && Array.isArray(extra.hud_versions) ? extra.hud_versions : [];
+    for (const v of версии) {
+      if (!v || v.note !== 'до перегенерации') continue;
+      const t = Number(v.when);
+      if (Number.isFinite(t) && t >= граница) continue;
+      учесть('hud', Number.isFinite(t) ? t : когдаСвайпа);
+      примерно++;
+    }
+    if (!метки.length && hudSeparate && (естьHUD || естьHUDвТексте(текст))) { учесть('hud', когдаСвайпа); примерно++; }
+  }
+
+  function add(mes, data, at) {
+    if (!mes) return;
+    const когдаСообщения = времяОтправки(mes.send_date);
+    if (mes.is_user) { учесть('user', когдаСообщения); return; }
+    // Первое сообщение персонажа — приветствие карточки, а его свайпы —
+    // альтернативные приветствия: их никто не генерировал.
+    if (at === 0) return;
+    const свайпы = Array.isArray(mes.swipes) && mes.swipes.length ? mes.swipes : [mes.mes];
+    const инфо = Array.isArray(mes.swipe_info) ? mes.swipe_info : [];
+    const текущий = Number.isInteger(mes.swipe_id) && mes.swipe_id >= 0 && mes.swipe_id < свайпы.length ? mes.swipe_id : 0;
+    свайпы.forEach((текст, k) => {
+      const и = инфо[k] && typeof инфо[k] === 'object' ? инфо[k] : null;
+      const свой = и ? времяОтправки(и.send_date) : null;
+      const когда = свой !== null ? свой : когдаСообщения;
+      учесть(k === 0 ? 'ai' : 'swipes', когда);
+      // У текущего свайпа extra живёт в самом сообщении (Таверна переносит его
+      // в swipe_info при смене свайпа).
+      const extra = k === текущий ? (mes.extra || (и && и.extra)) : (и && и.extra);
+      hudСвайпа(extra, k === текущий ? mes.mes : текст, k === текущий && !!data, когда);
+    });
+  }
+
+  function finish() {
+    const список = [...дни.values()].sort((a, b) => a.day.localeCompare(b.day));
+    список.forEach(д => { д.all = ВИДЫ.reduce((s, в) => s + д[в], 0); });
+    const n = список.length;
+    const вДень = {};
+    for (const в of [...ВИДЫ, 'all']) {
+      const сумма = список.reduce((s, д) => s + д[в], 0);
+      вДень[в] = n ? Math.round(сумма / n * 10) / 10 : null;
+    }
+    const итого = { ...всего, all: ВИДЫ.reduce((s, в) => s + всего[в], 0) };
+    const размах = n ? Math.round((new Date(список[n - 1].day) - new Date(список[0].day)) / 86400000) + 1 : null;
+    const пик = список.reduce((л, д) => (!л || д.all > л.all ? д : л), null);
+    return {
+      hudSeparate: !!hudSeparate,
+      totals: итого,
+      undated: ВИДЫ.reduce((s, в) => s + безДаты[в], 0),
+      days: n, span: размах,
+      perDay: вДень,
+      busiest: пик ? { day: пик.day, all: пик.all } : null,
+      hudExact: точно, hudApprox: примерно,
+      recent: список.slice(-14),
+    };
+  }
+
+  return { add, finish };
+}
+
+export function createDashboard({ userName = '', hudSeparate = false } = {}) {
+  const активность = createActivity({ hudSeparate });
   let всего = 0, отИгрока = 0, знаков = 0, слов = 0;
   const говорящие = new Map();
   const слова = new Map(), пары = new Map();
@@ -114,6 +209,7 @@ export function createDashboard({ userName = '' } = {}) {
     // сообщения Таверны (рассказчик, справка) — только их HUD, если он есть.
     const служебное = mes.is_system && ((mes.extra && mes.extra.type) || /^(SillyTavern System|System)$/i.test(String(mes.name || '')));
     if (служебное) { учестьHUD(data, at); return; }
+    активность.add(mes, data, at);
     const текст = чистыйТекст(mes.mes);
     if (!текст && !data) return;
     const игрок = !!mes.is_user;
@@ -286,6 +382,7 @@ export function createDashboard({ userName = '' } = {}) {
         share: диалог + описание ? Math.round(диалог / (диалог + описание) * 100) : null,
       },
       nsfw: { hudTurns: hudХодов, nsfwTurns: nsfwХодов, scenes: nsfwСерий, share: hudХодов ? Math.round(nsfwХодов / hudХодов * 100) : 0 },
+      activity: активность.finish(),
       mentions: топ(упоминания, 15).map(([k, count]) => { const [from, to] = k.split('\0'); return { from, to, count }; }),
     };
   }

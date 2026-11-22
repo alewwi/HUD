@@ -6,19 +6,19 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.81';
-import { английский } from '../i18n.js?v=23.89.81';
-import { settings } from '../settings.js?v=23.89.81';
-import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.81';
-import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.81';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.81';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.81';
-import { ссылкиТрека } from './music.js?v=23.89.81';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.81';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.81';
-import { ико } from './view-icons.js?v=23.89.81';
-import { namesLikelySame } from '../names.js?v=23.89.81';
-import { старина, стариннаяЗабота } from '../era.js?v=23.89.81';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.82';
+import { английский } from '../i18n.js?v=23.89.82';
+import { settings } from '../settings.js?v=23.89.82';
+import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.82';
+import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.82';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.82';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.82';
+import { ссылкиТрека } from './music.js?v=23.89.82';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.82';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.82';
+import { ико } from './view-icons.js?v=23.89.82';
+import { namesLikelySame } from '../names.js?v=23.89.82';
+import { старина, стариннаяЗабота } from '../era.js?v=23.89.82';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).
@@ -492,7 +492,54 @@ function вкладкаСтатистики(отчёт) {
       </div>`
     : '';
 
-  return `<div class="hud-arc-tiles">${плитки}</div>${люди}${настроения}${погода}`;
+  return `<div class="hud-arc-tiles">${плитки}</div>${карточкаГенераций(отчёт)}${люди}${настроения}${погода}`;
+}
+
+// Сколько вы ролите: генерации в день — сначала сообщения игрока и персонажей,
+// потом свайпы, потом HUD отдельными запросами, потом всё вместе. Ниже — по
+// дням, последние две недели игры.
+const ЦВЕТА_ГЕНЕРАЦИЙ = { user: '#3987e5', ai: '#2fa37a', swipes: '#d9a326', hud: '#d95926' };
+function деньКоротко(ключ) {
+  const [г, м, д] = String(ключ).split('-').map(Number);
+  const дата = new Date(г, м - 1, д);
+  return isNaN(дата) ? ключ : дата.toLocaleDateString(английский() ? 'en-US' : 'ru-RU', { day: 'numeric', month: 'short' });
+}
+export function карточкаГенераций(отчёт) {
+  const а = отчёт && отчёт.dashboard && отчёт.dashboard.activity;
+  if (!а) return '';
+  const т = а.totals, вд = а.perDay;
+  if (!т.all) return '';
+  const сHUD = а.hudSeparate || т.hud > 0;
+  const вДень = (v) => (v === null ? '—' : число(v));
+  const всего = (n) => `всего ${число(n)}`;
+  const плитки = [
+    плитка(вДень(вд.user), 'ваших сообщений в день', всего(т.user)),
+    плитка(вДень(вд.ai), 'ответов персонажей в день', всего(т.ai)),
+    плитка(вДень(вд.swipes), 'свайпов в день', всего(т.swipes)),
+    сHUD ? плитка(вДень(вд.hud), 'HUD отдельно в день', всего(т.hud)) : '',
+    плитка(вДень(вд.all), 'всего генераций в день', всего(т.all)),
+  ].join('');
+  const виды = [['user', 'вы'], ['ai', 'персонажи'], ['swipes', 'свайпы'], ...(сHUD ? [['hud', 'HUD']] : [])];
+  const максимум = Math.max(1, ...а.recent.map(д => виды.reduce((s, [в]) => s + д[в], 0)));
+  const дни = а.recent.slice().reverse().map(д => {
+    const сумма = виды.reduce((s, [в]) => s + д[в], 0);
+    const подсказка = `${деньКоротко(д.day)}: ` + виды.map(([в, имя]) => `${имя} ${д[в]}`).join(' · ');
+    return `<div class="hud-gens-day" title="${escapeHtml(подсказка)}"><span class="hud-gens-date">${escapeHtml(деньКоротко(д.day))}</span>`
+      + `<span class="hud-gens-track">${виды.filter(([в]) => д[в]).map(([в]) => `<i style="width:${(д[в] / максимум * 100).toFixed(2)}%;background:${ЦВЕТА_ГЕНЕРАЦИЙ[в]}"></i>`).join('')}</span>`
+      + `<span class="hud-gens-val">${число(сумма)}</span></div>`;
+  }).join('');
+  const легенда = `<div class="hud-dash-legend">${виды.map(([в, имя]) => `<span><i style="background:${ЦВЕТА_ГЕНЕРАЦИЙ[в]}"></i>${escapeHtml(имя)}</span>`).join('')}</div>`;
+  const пояснения = [
+    а.days ? `В день — среднее по дням, когда вы играли: ${число(а.days)} ${склон(а.days, 'день', 'дня', 'дней')}${а.span && а.span > а.days ? ` из ${число(а.span)} по календарю` : ''}.` : 'Дат отправки нет — только итоги.',
+    а.busiest && а.days > 1 ? `Больше всего — ${деньКоротко(а.busiest.day)}: ${число(а.busiest.all)}.` : '',
+    а.undated ? `Без даты отправки: ${число(а.undated)} — в итогах, но не в днях.` : '',
+    сHUD && а.hudApprox ? (а.hudSeparate ? 'HUD отдельно у старых ходов посчитан примерно: по сохранённым версиям HUD и включённому «HUD отдельным запросом».' : 'HUD отдельно у старых ходов посчитан примерно: по сохранённым версиям HUD.') : '',
+    'Приветствие карточки и его альтернативы не считаются.',
+  ].filter(Boolean).map(x => `<span>${escapeHtml(x)}</span>`).join(' ');
+  return `<div class="hud-arc-card hud-gens"><div class="hud-arc-card-head"><i class="hud-arc-medal">${значок('chart')}</i><b>Сколько вы ролите</b></div>`
+    + `<div class="hud-arc-tiles${сHUD ? ' has-hud' : ''}">${плитки}</div>`
+    + (дни ? `<div class="hud-dash-sub">По дням</div><div class="hud-gens-days">${дни}</div>${легенда}` : '')
+    + `<div class="hud-dash-foot">${пояснения}</div></div>`;
 }
 
 // --- Дашборд ------------------------------------------------------------------

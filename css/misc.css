@@ -1599,6 +1599,21 @@
 .hud-dash-legend span { display: inline-flex; align-items: center; gap: 6px; }
 .hud-dash-legend i { width: 10px; height: 10px; border-radius: 2px; }
 
+/* Сколько вы ролите (вкладка «Статистика»): итог — последней плиткой в цвет темы. */
+.hud-gens .hud-arc-tiles { grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); margin-bottom: 10px; }
+/* Телефон: две колонки; с HUD плиток пять — итог встаёт на всю ширину. */
+@media (max-width: 600px) { .hud-gens .hud-arc-tiles.has-hud .hud-arc-tile:last-child { grid-column: 1 / -1; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-gens .hud-arc-tiles.has-hud .hud-arc-tile:last-child { grid-column: 1 / -1; } } }
+/* cq ↑ */
+.hud-gens .hud-arc-tile:last-child { border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent); background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 12%, transparent); }
+.hud-gens-days { display: flex; flex-direction: column; gap: 4px; }
+.hud-gens-day { display: grid; grid-template-columns: 4.6em minmax(0, 1fr) auto; align-items: center; gap: 8px; font-size: 11.5px; }
+.hud-gens-date { white-space: nowrap; opacity: .75; font-variant-numeric: tabular-nums; }
+.hud-gens-track { display: flex; gap: 1px; height: 9px; border-radius: 4px; overflow: hidden; background: color-mix(in srgb, currentColor 9%, transparent); }
+.hud-gens-track i { display: block; height: 100%; min-width: 2px; }
+.hud-gens-val { font-variant-numeric: tabular-nums; font-size: 11px; opacity: .8; white-space: nowrap; min-width: 2ch; text-align: right; }
+
 /* =========================================================================
    СПРОСИТЬ ПРО СЮЖЕТ
    ========================================================================= */
@@ -6199,7 +6214,7 @@ html:not(.hud-theme-cyberpunk) .hud-os-card :is(.hud-row:not(.nsfw) > .hud-key, 
 :where(.hud-os-card) :where(.hud-key, .hud-key-label) { text-shadow: 0 0 calc(2px * var(--hud-glow-r)) var(--hud-glow-soft), 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow-soft); }
 
 /* Шкалы — как неоновые трубки. */
-.hud-ill-meter, .hud-org-meter, .hud-prg-meter, .hud-conception-bar, .hud-poll-bar, .hud-dash-bar-track, .hud-mark-heal-track, .hud-heat-bar, .hud-breaking-track, .hud-fc-bar {
+.hud-ill-meter, .hud-org-meter, .hud-prg-meter, .hud-conception-bar, .hud-poll-bar, .hud-dash-bar-track, .hud-gens-track, .hud-mark-heal-track, .hud-heat-bar, .hud-breaking-track, .hud-fc-bar {
   filter: drop-shadow(0 0 calc(4px * var(--hud-glow-r)) var(--hud-glow));
 }
 .hud-trustmap .hud-zone-bar > i, .hud-bodymap:not(.hud-row.nsfw *) .hud-zone-bar > i { box-shadow: 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow); }

@@ -5,14 +5,15 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.81';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.81';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.81';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.81';
-import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.81';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.81';
-import { генерацияТаверны } from './utils.js?v=23.89.81';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.81';
+import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.82';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.82';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.82';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.82';
+import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.82';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.82';
+import { генерацияТаверны } from './utils.js?v=23.89.82';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.82';
+import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.89.82';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -33,6 +34,20 @@ export function показатьБлок(id, блок) {
 }
 
 export function подключить(связь) { основа = связь; }
+
+// Время каждой генерации HUD отдельным запросом — для подсчёта генераций в
+// статистике архива (chat-stats.js). Своё у каждого свайпа, как версии HUD.
+export function отметитьГенерациюHUD(message, когда = Date.now()) {
+  if (!message) return;
+  if (!message.extra || typeof message.extra !== 'object') message.extra = {};
+  const было = Array.isArray(message.extra.hud_gens) ? message.extra.hud_gens.filter(Number.isFinite) : [];
+  message.extra.hud_gens = [...было, когда].slice(-ГЕНЕРАЦИЙ_HUD_НА_СВАЙП);
+  const свайп = Array.isArray(message.swipe_info) && Number.isInteger(message.swipe_id) ? message.swipe_info[message.swipe_id] : null;
+  if (свайп && typeof свайп === 'object') {
+    if (!свайп.extra || typeof свайп.extra !== 'object') свайп.extra = {};
+    свайп.extra.hud_gens = message.extra.hud_gens;
+  }
+}
 
 // --- Подключение для прямого запроса -------------------------------------------
 // Таверна сама кладёт в запрос генерации поля подключения выбранного источника
@@ -709,6 +724,7 @@ export async function handleHudRegenButton(regenBtn) {
           // можно вернуть кнопкой «↶» на карточке.
           основа.запомнитьВерсиюHUD(targetMessage, extractHudBlock(основа.текстСообщенияЧата(targetMessage)), 'до перегенерации');
           основа.updateMessageDataForCurrentSwipe(targetMessage, updatedFullText);
+          отметитьГенерациюHUD(targetMessage);
 
           const saveFn =
               (stContext && typeof stContext.saveChatConditional === 'function') ? stContext.saveChatConditional.bind(stContext) :

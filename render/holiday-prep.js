@@ -16,14 +16,14 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.81';
-import { settings } from '../settings.js?v=23.89.81';
-import { т } from '../i18n.js?v=23.89.81';
-import { карточкаПерсонажа, персонаИгрока } from './assistant.js?v=23.89.81';
-import { связьПраздников, сохранитьПодготовку, ответитьНаПодготовку, подготовка, подготовкаСписком } from './holiday-lore.js?v=23.89.81';
-import { отправить, текстОтвета, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили } from './holiday-gen.js?v=23.89.81';
-import { историяДляПраздника } from './holiday-day.js?v=23.89.81';
-import { добавитьПодсказку } from '../turn-notes.js?v=23.89.81';
+import { escapeHtml } from '../utils.js?v=23.89.82';
+import { settings } from '../settings.js?v=23.89.82';
+import { т } from '../i18n.js?v=23.89.82';
+import { карточкаПерсонажа, персонаИгрока } from './assistant.js?v=23.89.82';
+import { связьПраздников, сохранитьПодготовку, ответитьНаПодготовку, подготовка, подготовкаСписком } from './holiday-lore.js?v=23.89.82';
+import { отправить, текстОтвета, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили } from './holiday-gen.js?v=23.89.82';
+import { историяДляПраздника } from './holiday-day.js?v=23.89.82';
+import { добавитьПодсказку } from '../turn-notes.js?v=23.89.82';
 
 function контекст() { try { return globalThis.SillyTavern?.getContext?.() || null; } catch (_) { return null; } }
 function сохранитьНастройки() { try { связьПраздников().сохранить?.(); } catch (_) { /* не критично */ } }

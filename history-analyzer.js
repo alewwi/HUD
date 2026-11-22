@@ -11,19 +11,20 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.89.81';
-import { normalizeJSONData } from './schema.js?v=23.89.81';
-import { parseRelationList } from './render/relations-graph.js?v=23.89.81';
-import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.81';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.81';
-import { createDashboard } from './chat-stats.js?v=23.89.81';
-import { статусРужья } from './codes.js?v=23.89.81';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.81';
-import { историяБеременностей } from './render/conception.js?v=23.89.81';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.81';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.81';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.81';
-import { создатьКарты } from './history-maps.js?v=23.89.81';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.82';
+import { normalizeJSONData } from './schema.js?v=23.89.82';
+import { parseRelationList } from './render/relations-graph.js?v=23.89.82';
+import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.82';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.82';
+import { createDashboard } from './chat-stats.js?v=23.89.82';
+import { settings } from './settings.js?v=23.89.82';
+import { статусРужья } from './codes.js?v=23.89.82';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.82';
+import { историяБеременностей } from './render/conception.js?v=23.89.82';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.82';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.82';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.82';
+import { создатьКарты } from './history-maps.js?v=23.89.82';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -116,8 +117,8 @@ const чистоеИмя = (имя) => имяБезПриставки(текст
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.89.81';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.81';
+import { extractHudBlock } from './hud-block.js?v=23.89.82';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.82';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -508,7 +509,8 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
   const карты = создатьКарты();
 
   // Дашборд считает все сообщения, а не только с HUD, — в этом же проходе.
-  const дашборд = createDashboard({ userName: getSafeUserName() });
+  // «HUD отдельным запросом» включён — первый HUD ответа тоже запрос (подсчёт генераций).
+  const дашборд = createDashboard({ userName: getSafeUserName(), hudSeparate: !!(settings && settings.hudSeparate && !settings.autoInject) });
   // Блоки выгруженных ходов (offload.js) — из файла, до прохода. Не
   // загрузились — эти ходы возьмём из летописи, как у вычищенного чата.
   try { await подгрузитьЧат(chat); } catch (_) { /* летопись подстрахует */ }
@@ -733,7 +735,8 @@ function ключКэша(from, to) {
 // Отчёт старого устройства (без дат у ходов, с дублями секретов) считаем
 // устаревшим: пересчёт быстрее, чем объяснять, почему в нём другое.
 // 3: беременности делятся по исходам из записей чата.
-export const ВЕРСИЯ_ОТЧЁТА = 4;
+// 5: генерации по дням (dashboard.activity).
+export const ВЕРСИЯ_ОТЧЁТА = 5;
 export async function readCache(from, to) {
   const payload = await readEntry(ключКэша(from, to));
   if (!payload || !payload.report) return null;

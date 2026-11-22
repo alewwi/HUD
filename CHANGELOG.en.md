@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.82 — 2026-11-22
+
+### Added
+- **"How much you roleplay" in the archive statistics.** The Statistics tab has a new card: how many generations an average day of play takes — first your messages and the characters' replies, then swipes, then HUD as separate requests (when the HUD is written separately or was regenerated), then everything together. Below it, bars for each day of the last two weeks of play show how many of your messages, replies, swipes and HUDs there were. The day comes from the send date, and each swipe has its own. The card greeting and alternative greetings are not counted. A separate HUD now remembers the time of each of its generations, so new turns are counted exactly and older ones approximately, from saved HUD versions; the note under the card says so.
+
 ## 23.89.81 — 2026-11-21
 
 ### Changed
