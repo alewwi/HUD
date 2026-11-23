@@ -5,15 +5,16 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.91';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.91';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.91';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.91';
-import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.91';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.91';
-import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.89.91';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.91';
-import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.89.91';
+import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.92';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.92';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.92';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.92';
+import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.92';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.92';
+import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.89.92';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.92';
+import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.89.92';
+import { сводкаВыключена } from './summary-fields.js?v=23.89.92';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -507,8 +508,8 @@ export async function handleHudRegenButton(regenBtn) {
           const вСнимке = естьСнимок ? allMatchesRegen[allMatchesRegen.length - 1] : null;
           toSummarize.forEach(rm => {
               let content = freshMessages[rm.mIdx].content;
-              // «Без сводки» (hudSummaryCut): старые блоки вырезаются так же, как снимок.
-              if (rm === вСнимке || settings.hudSummaryCut === true) {
+              // «Без сводки» (hudSummaryCut или пустой выбор): старые блоки вырезаются так же, как снимок.
+              if (rm === вСнимке || сводкаВыключена(settings)) {
                   const хвостДо = content.slice(0, rm.index).match(/\s*$/)[0];
                   const головаПосле = content.slice(rm.index + rm.length).match(/^\s*/)[0];
                   const до = content.slice(0, rm.index - хвостДо.length);
@@ -520,7 +521,7 @@ export async function handleHudRegenButton(regenBtn) {
               const прошлый = allMatchesRegen[allMatchesRegen.indexOf(rm) - 1];
               const прошлыйТекст = прошлый ? freshMessages[прошлый.mIdx].content.substring(прошлый.index, прошлый.index + прошлый.length) : '';
               let сводка;
-              if (settings.hudSummaryCut === true) { freshMessages[rm.mIdx].content = '…'; return; }
+              if (сводкаВыключена(settings)) { freshMessages[rm.mIdx].content = '…'; return; }
               try { сводка = основа.сводкаHUD(hudBlockText, прошлыйТекст); } catch (_) { return; }
               freshMessages[rm.mIdx].content = content.slice(0, rm.index) + '\n' + сводка + '\n' + content.slice(rm.index + rm.length);
           });

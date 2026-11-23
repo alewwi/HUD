@@ -4,6 +4,21 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.92 — 2026-11-23
+
+### Added
+- **You choose what goes into the summary.** Settings → Token savings → "📋 What goes into the summary". The [HUD_SUMMARY] is the short recap the model sees instead of the full HUD for older turns. It used to hold only what was built in: date, time, weather, who is where, the event of the turn and what is new. Now the "What goes into the summary" line shows what is in it, and a tap opens everything the HUD has as tick plaques by section: scene, characters, player, memory, diary and dreams, phone and letters, old times, companions, nursery, fight, world — over two hundred items. Tick clothing, thoughts, illnesses, relationships, facts or news, and they go into the summary of every older turn.
+  - Sections are folded so there is no long scroll: tap a name to open or close it, and the name shows how many items in it are chosen.
+  - On top, an example summary of the last turn of the open chat, as a card and as the line the model sees, with its token cost next to the full HUD's. It changes as you tick.
+  - Untouched, the summary is exactly as before. the "As it was" button on top brings back the basics; "Untick all" means no summary at all, as with "Remove old HUDs completely".
+  - Whatever is turned off in the settings does not go into the summary and is struck through in the list: fine-tuning, blocks (diary, phone, world…), illnesses, body state, pregnancy, cycle, intimacy details, and everything intimate when the intimacy prompt is "never". The same for player fields the model does not write without "all fields, like characters".
+  - Clothing of characters and player goes as one part; the last day-log line does not repeat the Event; illnesses and the watch read as words ("cold — stable, 60%", "sleep 00:40–07:10, steps 4200"), not codes.
+  - The summary card in the chat shows the chosen items on their own lines.
+  - Old HUDs parsed for these items are kept in the browser: in a long chat the first send after a reload does not parse them again.
+
+### Fixed
+- **Summary card:** "late evening", "early morning", "deep night" are the time of day in the header, not a stray line at the bottom.
+
 ## 23.89.91 — 2026-11-23
 
 ### Changed

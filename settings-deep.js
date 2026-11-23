@@ -10,13 +10,17 @@
 // Дерево глубокой настройки большое (две с половиной сотни галочек), поэтому
 // собирается при первом раскрытии, а не вместе со всеми настройками.
 
-import { settings } from './settings.js?v=23.89.91';
-import { escapeHtml, mapKey } from './utils.js?v=23.89.91';
-import { т, английский } from './i18n.js?v=23.89.91';
-import { уверены } from './confirm-erase.js?v=23.89.91';
-import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.89.91';
-import { КАТАЛОГ_СЖАТИЯ, ПУТИ_СЖАТИЯ, лимитПоля, подписьЛимита, очиститьЛимиты, МАКС_СЛОВ, МАКС_ПУНКТОВ } from './compact-fields.js?v=23.89.91';
-import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.89.91';
+import { settings } from './settings.js?v=23.89.92';
+import { escapeHtml, mapKey } from './utils.js?v=23.89.92';
+import { т, английский } from './i18n.js?v=23.89.92';
+import { уверены } from './confirm-erase.js?v=23.89.92';
+import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.89.92';
+import { КАТАЛОГ_СЖАТИЯ, ПУТИ_СЖАТИЯ, лимитПоля, подписьЛимита, очиститьЛимиты, МАКС_СЛОВ, МАКС_ПУНКТОВ } from './compact-fields.js?v=23.89.92';
+import { КАТАЛОГ_СВОДКИ, ОСНОВА_СВОДКИ, ПУТИ_СВОДКИ, выборСводки, выборСвой, имяПункта, пунктВыключен } from './summary-fields.js?v=23.89.92';
+import { hudБлоки } from './hud-block.js?v=23.89.92';
+import { карточкаСводки } from './render/summary-card.js?v=23.89.92';
+import { оценкаТокенов } from './token-budget.js?v=23.89.92';
+import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.89.92';
 
 // --- Глубокая настройка -------------------------------------------------------
 
@@ -123,6 +127,104 @@ function счётчикиСжатия() {
   if (размеры) { const n = Object.keys(очиститьЛимиты(settings.compactLimits)).length; размеры.textContent = n ? (английский() ? `(${n} changed)` : `(изменено: ${n})`) : ''; }
 }
 
+// --- Что входит в сводку (summary-fields.js) -------------------------------------
+// Строка «Что входит в сводку: дата, время…» — нажатие раскрывает всё, что есть
+// в HUD, плашками-галочками по разделам. Сверху — пример сводки по последнему
+// HUD открытого чата: видно, что уйдёт модели и сколько это стоит.
+
+export function разметкаВыбораСводки() {
+  return `<details class="hud-set-group hud-set-sub hud-sumpick" id="hud-sumpick">
+    <summary><span class="hud-sumpick-title">📋 Что входит в сводку</span> <span class="hud-sumpick-now"></span></summary>
+    <div class="hud-set-body">
+      <div class="hud-set-note">Отмеченное уходит модели в сводке [HUD_SUMMARY] каждого старого хода. Основа — то, что сводка писала всегда; остальное — любые данные HUD на ваш выбор. Каждый пункт сверх основы — ещё немного токенов за каждый старый ход в истории. Сам чат не меняется.</div>
+      <div class="hud-set-note hud-sumpick-warn" hidden></div>
+      <div class="hud-sumpick-acts"><button type="button" class="hud-theme-act" id="hud-sumpick-base" title="Вернуть сводку как была: дата, время, погода, кто где, событие хода и новое">Как было</button><button type="button" class="hud-theme-act" id="hud-sumpick-none" title="Снять все галочки: старые HUD уйдут модели без сводки">Снять всё</button></div>
+      <div class="hud-sumpick-preview" aria-live="polite"></div>
+      <div class="hud-sumpick-tree" id="hud-sumpick-tree"></div>
+    </div>
+  </details>`;
+}
+
+function деревоСводки() {
+  const выбор = выборСводки(settings);
+  return КАТАЛОГ_СВОДКИ.map(р => {
+    // Раздел выключен своей галочкой блока — плашки видны, но приглушены.
+    const выкл = р.группы.every(г => г.поля.every(([путь]) => пунктВыключен(settings, путь)));
+    const группы = р.группы.map(г => `<div class="hud-sumpick-grp">${р.группы.length > 1 ? `<span class="hud-sumpick-gname">${escapeHtml(т(г.имя))}</span>` : ''}<div class="hud-sumpick-chips">${г.поля.map(([путь, имя]) => {
+      const тихо = !выкл && пунктВыключен(settings, путь);
+      return `<label class="hud-sumpick-chip${тихо ? ' is-muted' : ''}"${тихо ? ` title="${escapeHtml(т('Выключено в настройках: в сводку не попадёт'))}"` : ''}><input type="checkbox" data-sum="${путь}"${выбор.has(путь) ? ' checked' : ''}><span>${escapeHtml(т(имя))}</span></label>`;
+    }).join('')}</div></div>`).join('');
+    // Раздел свёрнут: нажатие на название раскрывает и сворачивает его.
+    return `<details class="hud-sumpick-sec${р.код === 'base' ? ' is-base' : ''}${выкл ? ' is-off' : ''}" data-sec="${р.код}"><summary class="hud-sumpick-head"><span>${escapeHtml(т(р.имя))}</span><small class="hud-sumpick-count"></small>${выкл ? `<small class="hud-sumpick-offnote">${escapeHtml(т('блок выключен'))}</small>` : ''}</summary><div class="hud-sumpick-body">${группы}</div></details>`;
+  }).join('');
+}
+
+// Подпись у строки: выбранное словами. Вся основа — одним словом «основа +
+// одежда, мысли»; длинный список — «и ещё N».
+function подписьВыбора() {
+  const выбор = выборСводки(settings);
+  if (!выбор.size) return т('ничего — сводки нет');
+  const вся = ОСНОВА_СВОДКИ.every(п => выбор.has(п));
+  // Одежда персонажей и игрока — одним словом.
+  const имена = [...new Set(ПУТИ_СВОДКИ.filter(п => выбор.has(п) && !(вся && ОСНОВА_СВОДКИ.includes(п))).map(п => т(имяПункта(п)).toLowerCase()))];
+  const n = вся ? 4 : 6;
+  const список = имена.length <= n ? имена.join(', ') : имена.slice(0, n).join(', ') + (английский() ? ` and ${имена.length - n} more` : ` и ещё ${имена.length - n}`);
+  if (!вся) return список;
+  return имена.length ? `${т('основа')} + ${список}` : т('основа: дата, время, погода, кто где, событие, новое');
+}
+
+function счётчикиСводки(корень) {
+  const выбор = выборСводки(settings);
+  const сейчас = корень.querySelector(':scope > summary .hud-sumpick-now');
+  if (сейчас) { сейчас.textContent = подписьВыбора(); сейчас.classList.toggle('is-own', выборСвой(settings)); }
+  корень.querySelectorAll('.hud-sumpick-sec').forEach(р => {
+    // Считаем то, что правда уйдёт: отмеченное, но выключенное — не в счёт.
+    const n = [...р.querySelectorAll('input[data-sum]')].filter(г => выбор.has(г.dataset.sum) && !пунктВыключен(settings, г.dataset.sum)).length;
+    const м = р.querySelector('.hud-sumpick-count');
+    if (м) м.textContent = n ? String(n) : '';
+  });
+  const пред = корень.querySelector('.hud-sumpick-warn');
+  if (пред) {
+    const текст = settings.hudSummaryCut === true ? т('Сейчас включено «Старые HUD убирать совсем»: сводки нет, выбор заработает, когда снимете ту галочку.')
+      : !выбор.size ? т('Ничего не выбрано: старые HUD уходят модели без сводки, как при «Старые HUD убирать совсем».') : '';
+    пред.textContent = текст; пред.hidden = !текст;
+  }
+}
+
+// Пример: сводка последнего HUD открытого чата (с прошлым — для «Нового»).
+function примерСводки(основа, корень) {
+  const место = корень.querySelector('.hud-sumpick-preview');
+  if (!место) return;
+  let чат = [];
+  try { чат = основа.getStContextSafe()?.chat || []; } catch (_) { чат = []; }
+  const блоки = [];
+  for (let i = чат.length - 1; i >= 0 && блоки.length < 2; i--) {
+    const m = чат[i];
+    if (!m || m.is_user || typeof m.mes !== 'string' || !m.mes.includes('[')) continue;
+    const б = hudБлоки(m.mes);
+    for (let k = б.length - 1; k >= 0 && блоки.length < 2; k--) блоки.push(б[k].full);
+  }
+  if (!блоки.length || typeof основа.сводкаHUD !== 'function') {
+    место.innerHTML = `<div class="hud-sumpick-empty">${escapeHtml(т('Откройте чат с HUD — здесь появится пример сводки по его последнему ходу.'))}</div>`;
+    return;
+  }
+  if (!выборСводки(settings).size || settings.hudSummaryCut === true) {
+    место.innerHTML = `<div class="hud-sumpick-empty">${escapeHtml(т('Сводки нет: старые HUD уходят модели без неё.'))}</div>`;
+    return;
+  }
+  let строка = '';
+  try { строка = основа.сводкаHUD(блоки[0], блоки[1] || ''); } catch (_) { строка = ''; }
+  const суть = строка.replace('[HUD_SUMMARY]', '').replace('[/HUD_SUMMARY]', '').trim();
+  if (!суть) {
+    место.innerHTML = `<div class="hud-sumpick-empty">${escapeHtml(т('В последнем HUD нет ничего из выбранного.'))}</div>`;
+    return;
+  }
+  const токенов = оценкаТокенов(строка), полный = оценкаТокенов(блоки[0]);
+  // Строка для модели остаётся раскрытой, пока отмечают плашки.
+  const строкаОткрыта = !!место.querySelector('.hud-sumpick-rawbox[open]');
+  место.innerHTML = `<div class="hud-sumpick-cap"><span>${escapeHtml(т('Пример по последнему ходу'))}</span><b>≈ ${токенов} ${escapeHtml(т('токенов за ход'))}</b><small>${escapeHtml(т('полный HUD'))} ≈ ${полный}</small></div>${карточкаСводки(строка)}<details class="hud-sumpick-rawbox"${строкаОткрыта ? ' open' : ''}><summary>${escapeHtml(т('Как это видит модель'))}</summary><code class="hud-sumpick-raw">${escapeHtml(строка)}</code></details>`;
+}
+
 // --- Свои статы ---------------------------------------------------------------
 
 // Поля карточки для «после поля»: ключ — как у строки в карточке (data-k).
@@ -192,6 +294,43 @@ export function подключитьРазделы(основа) {
     settings.modernComms = ['letters', 'both'].includes(e.target.value) ? e.target.value : 'phone';
     сохранить();
   });
+
+  // Что входит в сводку.
+  const выборС = document.getElementById('hud-sumpick');
+  const деревоСв = document.getElementById('hud-sumpick-tree');
+  if (выборС && деревоСв) {
+    let таймерПримера = 0;
+    const пример = () => { clearTimeout(таймерПримера); таймерПримера = setTimeout(() => { try { примерСводки(основа, выборС); } catch (_) { /* пример не обязателен */ } }, 120); };
+    // Раскрытые разделы остаются раскрытыми, когда список собирается заново.
+    const собратьСв = () => {
+      const раскрыты = new Set([...деревоСв.querySelectorAll('.hud-sumpick-sec[open]')].map(р => р.dataset.sec));
+      деревоСв.innerHTML = деревоСводки();
+      деревоСв.querySelectorAll('.hud-sumpick-sec').forEach(р => { if (раскрыты.has(р.dataset.sec)) р.open = true; });
+      счётчикиСводки(выборС); пример();
+    };
+    // При каждом раскрытии — заново: приглушённые пункты зависят от других
+    // настроек (блоки, близость, «все поля игрока»), их могли поменять.
+    выборС.addEventListener('toggle', () => { if (выборС.open) собратьСв(); });
+    счётчикиСводки(выборС);
+    деревоСв.addEventListener('change', (e) => {
+      const г = e.target.closest('input[data-sum]');
+      if (!г) return;
+      const выбор = выборСводки(settings);
+      if (г.checked) выбор.add(г.dataset.sum); else выбор.delete(г.dataset.sum);
+      // Совпало с основой — снова «не трогали»: если основа в новой версии
+      // пополнится, новое придёт само.
+      const список = ПУТИ_СВОДКИ.filter(п => выбор.has(п));
+      settings.summaryFields = список.length === ОСНОВА_СВОДКИ.length && ОСНОВА_СВОДКИ.every(п => выбор.has(п)) ? null : список;
+      счётчикиСводки(выборС);
+      пример();
+      основа.saveSettings();
+    });
+    const задать = (знач) => { settings.summaryFields = знач; if (деревоСв.firstChild) собратьСв(); else счётчикиСводки(выборС); основа.saveSettings(); };
+    document.getElementById('hud-sumpick-base')?.addEventListener('click', () => задать(null));
+    document.getElementById('hud-sumpick-none')?.addEventListener('click', () => задать([]));
+    // «Убирать совсем» рядом — от неё зависят предупреждение и пример.
+    document.getElementById('hud-summary-cut')?.addEventListener('change', () => setTimeout(() => { счётчикиСводки(выборС); if (выборС.open) пример(); }, 0));
+  }
 
   // Глубокая настройка.
   const глубокая = document.getElementById('hud-fine');

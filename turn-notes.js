@@ -21,23 +21,23 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.91';
-import { английский } from './i18n.js?v=23.89.91';
-import { flattenFieldValue } from './utils.js?v=23.89.91';
-import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.89.91';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.91';
-import { статусОбещания } from './hud-expand.js?v=23.89.91';
-import { полеВкл } from './deep-fields.js?v=23.89.91';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.91';
-import { namesLikelySame } from './names.js?v=23.89.91';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.91';
-import { праздникиГода } from './render/holidays.js?v=23.89.91';
-import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.91';
-import { заметкаМеста } from './render/place-lore.js?v=23.89.91';
-import { заметкаПоста } from './render/almanac.js?v=23.89.91';
-import { заметкаСил } from './render/powers.js?v=23.89.91';
-import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.91';
-import { приметыЧеловека, общееСцены, фазаБлизости } from './body-cues.js?v=23.89.91';
+import { settings } from './settings.js?v=23.89.92';
+import { английский } from './i18n.js?v=23.89.92';
+import { flattenFieldValue } from './utils.js?v=23.89.92';
+import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.89.92';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.92';
+import { статусОбещания } from './hud-expand.js?v=23.89.92';
+import { полеВкл } from './deep-fields.js?v=23.89.92';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.92';
+import { namesLikelySame } from './names.js?v=23.89.92';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.92';
+import { праздникиГода } from './render/holidays.js?v=23.89.92';
+import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.92';
+import { заметкаМеста } from './render/place-lore.js?v=23.89.92';
+import { заметкаПоста } from './render/almanac.js?v=23.89.92';
+import { заметкаСил } from './render/powers.js?v=23.89.92';
+import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.92';
+import { приметыЧеловека, общееСцены, фазаБлизости } from './body-cues.js?v=23.89.92';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;

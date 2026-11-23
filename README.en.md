@@ -584,7 +584,7 @@ Settings are grouped — expand the one you need. Below is the essential part of
 - *HUD in every reply* — the main switch: on — the model writes the HUD in every reply; off — the HUD only via the “➕ Create HUD” button, as a separate request.
 - *Instruction as a separate message* — the schema goes as the last message after the preset and history. Turn it off if your backend doesn't accept a system message at the end.
 - *Snapshot of the latest HUD* — the model updates the previous HUD instead of rebuilding the world. Helps continuity a lot.
-- *HUD summary — how many HUDs the model sees in full* — for the rest, the history sent to the model has a short [HUD_SUMMARY] recap instead of the full HUD; the chat itself doesn't change. 1 is the sweet spot.
+- *HUD summary — how many HUDs the model sees in full* — for the rest, the history sent to the model has a short [HUD_SUMMARY] recap instead of the full HUD; the chat itself doesn't change. 1 is the sweet spot. *What goes into the summary* — date, time, weather, who is where, the event and what is new, plus any HUD data you choose.
 - *Reply check* — what to do with an incomplete HUD (warn or complete it), contradictions with daily life, "Fill in what was skipped", "Boosts".
 - *HUD regeneration* — connection profile (can be cheaper than the main one), how many messages to send, token limit.
 
@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.91**:
+The latest version is **23.89.92**:
 
+- You choose what goes into the [HUD_SUMMARY]: a line in "Token savings" opens all HUD data as tick plaques, with an example summary and its token cost on top; whatever is off in the settings is not sent.
 - Archive: long lists are folded everywhere, newest first — relation paths ("earlier N"), atlas places in portions, moods and trust reasons under "More"; an open list collapses from its header or a button at the bottom.
 - Companion wounds as a list, like in the character card: where, stage, how far healed, when it heals, how to treat it, whether it scars, plus scars from old wounds — in every companion view. Scene: melting March snow and snowdrops, a glowing garland, pumpkins and fireworks at night, clouds in cloudy weather, a lamp in the wind, a kite on the sand and campfire embers in the rain.
 - Living details: a rise (orgasm 65 → 85 → 97) is not held back by the pause; "after" even without phase 3; "in the city" is not the room temperature; illness is not "pain"; "desire to sleep" is not desire.
