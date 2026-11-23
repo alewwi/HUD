@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.88**:
+The latest version is **23.89.89**:
 
+- Living details: a rise (orgasm 65 → 85 → 97) is not held back by the pause; "after" even without phase 3; "in the city" is not the room temperature; illness is not "pain"; "desire to sleep" is not desire.
 - Living details by strength and by scene, in the character's own manner; thirst, heat and cold by the indoor temperature, all cycle phases, breastfeeding, marks, adrenaline; a separate "Living details in intimacy" checkbox — desire with wetness, orgasm from 60, a long scene, "after"; nothing turned off is sent to the model.
 - A "Reputation" tab in the archive with the whole faction history; the model writes reputation as changes only, and "How it changed" in the HUD covers "Turns back". A "Living details for the player too" checkbox. "Who lives where" in the "Atlas of places". An unchanged price is grey, intercepts no longer double, energy and alertness don't rise without sleep, coffee or adrenaline, and a crash follows them.
 - A token limit for every HUD generation: a field in the holiday, fair, "How it's celebrated", preparation, place-rules, lorebook and Assistant windows, a separate limit for the phone; 0 means the response length from Tavern, the maximum is shown under the field. A clear hint when a reply runs out of tokens. "How it changed" for factions in every view, sleep in plain words ("4 h, bed at 01:00"), no horoscope gap with "World once a day", swipes no longer show as extra turns in the chronicle.

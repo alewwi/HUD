@@ -5560,6 +5560,7 @@ export const СЛОВАРЬ_EN = {
   "Желание и влага до сцены, тело у самого оргазма (от 60), долгая сцена, месячные, живот, молоко, «после» — мелкими приметами в манере персонажа. Только когда часть про близость уходит модели (Всегда или Авто во время сцены); «после» ещё несколько ответов, пока не «Никогда». Каждую можно выключить в «Заметках модели».": "Desire and wetness before the scene, the body close to orgasm (from 60), a long scene, a period, a pregnant belly, milk, \"after\" — as small signs in the character's own manner. Only when the intimacy part goes to the model (Always, or Auto during a scene); \"after\" for a few more replies unless set to Never. Each one can be turned off in \"Model notes\".",
   "жажда": "thirst",
   "хмель": "tipsiness",
+  "боль и болезни": "pain and illness",
   "сытость после еды": "full after eating",
   "лютеиновая фаза и ПМС": "luteal phase and PMS",
   "кормление грудью": "breastfeeding",

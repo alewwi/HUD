@@ -4,6 +4,16 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.89 — 2026-11-23
+
+### Fixed
+- **Living details: a rise is not held back by the pause.** One detail used to wait six messages, so orgasm readiness 65 → 85 → 97 in a row showed only the first step. Now a stronger step goes at once; the same step still waits. The same for hunger, stress and the rest.
+- **"After" intimacy even when the model skipped phase 3.** Models often write "1 — empty" right after a scene. The HUD now remembers that intimacy was on last turn and still sends "after". After a time jump of more than a day it is not sent.
+- **Indoor temperature, more precise.** "-10°C in the city" and "+24°C in Boston" no longer count as the room's temperature. A stairwell, a palace or a parquet floor no longer means the person is outside.
+- **Illness is not "pain".** "Ill: empty" and nearly healed conditions (recovery 90%+) no longer give a detail. Flu or a cold goes to the model as an illness with its name, not as pain; a wound as pain with its zone. The sub-item in "Model notes" is now "pain and illness".
+- **Desire means desire.** "Desire to sleep" and "nervous excitement" no longer trigger the intimacy detail. "Mns: empty" on a man no longer makes him a woman for the details.
+- **A hickey with intimacy off** is skipped, and a plain mark next to it (a bruise) stays a detail instead of vanishing with it.
+
 ## 23.89.88 — 2026-11-23
 
 ### Added

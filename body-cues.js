@@ -21,11 +21,11 @@
 // «После» в следующие ходы — пока nsfwPrompt не «никогда», как нейтральная
 // история близости в prompt.js.
 
-import { settings } from './settings.js?v=23.89.88';
-import { полеВкл } from './deep-fields.js?v=23.89.88';
-import { flattenFieldValue } from './utils.js?v=23.89.88';
-import { namesLikelySame } from './names.js?v=23.89.88';
-import { старина } from './era.js?v=23.89.88';
+import { settings } from './settings.js?v=23.89.89';
+import { полеВкл } from './deep-fields.js?v=23.89.89';
+import { flattenFieldValue } from './utils.js?v=23.89.89';
+import { namesLikelySame } from './names.js?v=23.89.89';
+import { старина } from './era.js?v=23.89.89';
 
 const стр = (v) => String(flattenFieldValue(v) ?? '').trim();
 const ЗАГЛУШКА = /^(?:[\d\s.,:;%\/—–-]|empty|none|null|нет|пусто|n\/a)*$/iu;
@@ -60,9 +60,25 @@ export function фазаБлизости(з) {
 // спальне», «за бортом -55°C, в салоне +22°C». Берём ту, что внутри: кусок
 // между запятыми с «в <строчное слово>», «внутри», «дома». «В Бостоне» — с
 // заглавной, это город. Уличная — только когда сам человек на улице.
-const ВНУТРИ = /(?<![\p{L}])(?:внутри|в помещении|дома|indoors|inside)(?![\p{L}])|(?<![\p{L}])во?\s+(?!(?:тени|полдень|полночь|ночи|ночь|утро|утра|воздухе|среднем|пике|сумерках|обед|тени)(?![\p{L}]))(?=\p{Ll})|(?<![\p{L}])in (?:the |a |her |his |their |our )?(?:room|bedroom|house|hall|cabin|car|flat|apartment|office|kitchen|salon|lounge|study|library|bathroom|cellar|tent|carriage)/iu;
-const СНАРУЖИ = /за окн|за стекл|за бортом|снаружи|на улице|outside|outdoors|out the window/iu;
-const НА_УЛИЦЕ = /(?<![\p{L}])(?:улиц|парк|пляж|лес|двор|сад(?![\p{L}]*ик)|пол[еяю](?![\p{L}])|берег|набережн|площад|крыш|террас|балкон|палуб|полян|алле|дорог|тракт|трасс|рынок|рынке|ярмарк|лагер|остров|outside|street|park|beach|forest|woods|yard|garden|field|shore|square|roof|terrace|balcony|deck|road|market|camp)/iu;
+const ВНУТРИ_СЛОВОМ = /(?<![\p{L}])(?:внутри|в помещении|дома|indoors|inside)(?![\p{L}])|(?<![\p{L}])in (?:the |a |her |his |their |our )?(?:room|bedroom|house|hall|cabin|car|flat|apartment|office|kitchen|salon|lounge|study|library|bathroom|cellar|tent|carriage)(?![\p{L}])/iu;
+const СНАРУЖИ = /за окн|за стекл|за бортом|снаружи|на улице|на воздухе|outside|outdoors|out the window/iu;
+// «в городе», «в лесу», «в тени» — со строчной, но это улица или время.
+const НЕ_ПОМЕЩЕНИЕ = /^(?:тени|полдень|полночь|ночи|ночь|утро|утра|обед|сумерках|воздухе|среднем|пике|городе|город|столице|округе|регионе|стране|области|краю|горах|лесу|лесах|поле|полях|саду|парке|порту|гавани|деревне|селе|долине|степи|пустыне|море|морях|океане|воде|реке|озере|небе|низине|тайге|тундре|джунглях|окрестностях)$/u;
+// Помещение: «внутри», «дома», «in the room» или «в <слово со строчной>»
+// («в спальне», «в салоне»). Заглавная — город («в Бостоне»). Проверка
+// буквы — в коде: под флагом i \p{Ll} ловит и заглавные.
+function вПомещении(кусок) {
+  if (СНАРУЖИ.test(кусок)) return false;
+  if (ВНУТРИ_СЛОВОМ.test(кусок)) return true;
+  for (const m of кусок.matchAll(/(?<![\p{L}])[вВ]о?\s+(\p{L}+)/gu)) {
+    const слово = m[1], буква = слово[0];
+    if (буква === буква.toLowerCase() && буква !== буква.toUpperCase() && !НЕ_ПОМЕЩЕНИЕ.test(слово)) return true;
+  }
+  return false;
+}
+// Человек на улице — по его месту. Слова целиком: «лестница» — не лес,
+// «дворец» — не двор, «паркет» — не парк.
+const НА_УЛИЦЕ = /(?<![\p{L}])(?:улиц\p{L}*|парк(?:е|а|у|ом)?|пляж\p{L}*|лес(?:у|а|ом|е)?|лесн\p{L}*|двор(?:е|а|у|ом)?|сад(?:у|а|ом|е)?|пол(?:е|я|ю)|берег\p{L}*|набережн\p{L}*|площад\p{L}*|крыш\p{L}*|террас\p{L}*|балкон\p{L}*|палуб\p{L}*|полян\p{L}*|алле[яиюе]|шоссе|обочин\p{L}*|тракт\p{L}*|трасс\p{L}*|рын(?:ок|ке|ка)|ярмарк\p{L}*|лагер\p{L}*|outside|street|park|beach|forest|woods|yard|garden|field|shore|square|rooftop|roof|terrace|balcony|deck|road|market|camp)(?![\p{L}])/iu;
 export function температураМеста(погода, место) {
   const s = стр(погода);
   if (!s) return null;
@@ -72,7 +88,7 @@ export function температураМеста(погода, место) {
       if (/F/i.test(m[2] || '')) continue;
       const t = parseFloat(m[1].replace('−', '-').replace(',', '.'));
       if (!Number.isFinite(t)) continue;
-      if (ВНУТРИ.test(кусок) && !СНАРУЖИ.test(кусок)) внутри = t;
+      if (вПомещении(кусок)) внутри = t;
       else if (снаружи === null) снаружи = t;
     }
   }
@@ -112,8 +128,9 @@ function состояние(з, игрок, имя, общее) {
     следы: вкл('enableIntimacyExtras') && пол('Mrk') ? стр(з.Mrk) : '',
     фаза: фазаБлизости(з),
   };
-  // Пол: «Ж»/«М» в начале внешности, иначе цикл или беременность.
-  с.жен = ЖЕН.test(ap) || (!МУЖ.test(ap) && (!!цикл || !!берем));
+  // Пол: «Ж»/«М» в начале внешности, иначе цикл или беременность по сути —
+  // «Mns: empty» у мужчины женщиной его не делает.
+  с.жен = ЖЕН.test(ap) || (!МУЖ.test(ap) && (поСути(цикл) || поСути(берем)));
   с.муж = !с.жен && МУЖ.test(ap);
   с.текст = [с.ph, с.h, ill].join(' ');
   return с;
@@ -126,19 +143,26 @@ const ниже = (v, пороги) => (v === null ? 0 : пороги.filter(п =
 const выше = (v, пороги) => (v === null ? 0 : пороги.filter(п => v >= п).length);
 const ВСЕ = ['calm', 'fight', 'sex', 'after'];
 
-// Боль: группа болезни с самым низким выздоровлением; зона — оттуда.
+// Боль и болезнь: группа с самым низким выздоровлением. Рана (есть зона или
+// травма в названии) — «боль» с зоной; остальное — «болезнь» с её названием.
+// «Ill: empty», зажившее, хроническое и почти здоровое (rc от 90) — не примета.
+const ТРАВМА = /ран[аыуе]?(?![\p{L}])|ранен|порез|ушиб|перелом|ожог|вывих|растяж|травм|укус|синяк|ссадин|сотряс|огнестр|ножев|wound|cut|bruise|fracture|burn|sprain|injur|gash|stab|gunshot/iu;
 function боль(с) {
   let лучшая = null;
   if (с.ill) for (const г of с.ill.split('|')) {
-    if (/(?:^|;)\s*sg\s*[:：]\s*(?:healed|зажил|chronic|хрон)/i.test(г)) continue;
+    if (!поСути(г) || /(?:^|;)\s*sg\s*[:：]\s*(?:healed|зажил|chronic|хрон)/i.test(г)) continue;
     const rc = метка(г, 'rc');
+    if (rc !== null && rc >= 90) continue;
     const сила = rc === null ? 1 : rc <= 30 ? 3 : rc <= 60 ? 2 : 1;
-    if (!лучшая || сила > лучшая.сила) лучшая = { сила, зона: с.пол('Ill.zn') ? текстМетки(г, 'zn') : '' };
+    const зона = с.пол('Ill.zn') ? текстМетки(г, 'zn') : '';
+    const имя = текстМетки(г, 'nm') || (г.includes(':') ? '' : г.trim());
+    if (!имя && !зона) continue;
+    if (!лучшая || сила > лучшая.сила) лучшая = { сила, зона, рана: !!зона || ТРАВМА.test(имя), имя: имя.slice(0, 40) };
   }
-  const текст = [с.ph, с.h].join(' ');
-  const словами = /(?:^|[^\p{L}])(?:болит|боль|ноет|рана|ранен|pain|ache|wound)/iu.test(текст) && !/(?:нет|без|не)\s+(?:бол|ран)|no (?:pain|wound)/iu.test(текст);
   if (лучшая) return лучшая;
-  return словами ? { сила: 1, зона: '' } : null;
+  const текст = [с.ph, с.h].join(' ');
+  const словами = /(?:^|[^\p{L}])(?:болит|боль|ноет|рана|ранен|pain|ache|wound|hurts?|sore)/iu.test(текст) && !/(?:нет|без|не)\s+(?:бол|ран)|no (?:pain|wound)|doesn.t hurt/iu.test(текст);
+  return словами ? { сила: 1, зона: '', рана: true, имя: '' } : null;
 }
 const холодИЖара = (с) => с.общее.температура?.(с) ?? null;
 // Часы с последнего кормления по времени сцены.
@@ -153,8 +177,9 @@ function свежийСлед(с) {
   for (const кусок of с.следы.split(';')) {
     const [суть, срок = ''] = кусок.split('|');
     if (!суть.trim() || /получен|received|got it/i.test(срок) || ЗАГЛУШКА.test(суть)) continue;
+    // Засос, укус — только под настройкой близости; тогда берём следующий след.
     const интимный = ИНТИМНЫЙ_СЛЕД.test(суть);
-    if (интимный && !с.общее.послеВкл) continue;
+    if (интимный && !с.интимВкл) continue;
     const имя = суть.split('—')[0].trim().slice(0, 60);
     return { имя, интимный };
   }
@@ -173,6 +198,7 @@ function фетишВКадре(с) {
   }
   return null;
 }
+const ЖЕЛАНИЕ = /(?<!(?:нервн|эмоциональн|психомоторн|умственн)\p{L}*\s+)возбужд|влечени|вожделени|похоть|томлени\p{L}*\s+(?:внизу|между)|желани\p{L}*\s+(?:близости|секса|его|её|ее|тела|прикосновен)|sexual(?:ly)?\s+(?:desire|arous|tension)|(?<!nervous\s+)arous|horny|turned on|lust(?![\p{L}])/iu;
 const ПРИМЕР_ЖЕН = (жен, муж, общие) => (с) => (с.жен ? жен : с.муж ? муж : общие);
 
 // Пауза — сообщений до повтора той же приметы у того же человека.
@@ -186,8 +212,11 @@ export const ПРИМЕТЫ = [
     прим: [['a yawn swallowed halfway', 'slow to answer, eyes heavy'], ['leans on whatever is near', 'reads the same line twice'], ['nods off mid-sentence', 'clumsy, drops things']] },
   { к: 'stress', что: 'stress', где: ['calm', 'fight'], сила: (с) => выше(с.стресс, [75, 88, 96]),
     прим: [['a tight jaw', 'fingers that will not stay still'], ['a breath held a moment too long', 'snaps at a small thing'], ['hands shaking', 'cannot sit still at all']] },
-  { к: 'pain', что: 'pain', где: ВСЕ, сила: (с) => боль(с)?.сила || 0, деталь: (с) => боль(с)?.зона || '',
-    прим: [['a careful way of moving', 'a wince hidden too late'], ['favours that side', 'goes pale at a wrong move'], ['every move costs; breath hisses through the teeth']] },
+  { к: 'pain', что: (с) => (боль(с)?.рана === false ? 'illness' : 'pain'), где: ВСЕ, сила: (с) => боль(с)?.сила || 0,
+    деталь: (с) => { const б = боль(с); return б ? (б.рана ? б.зона : б.имя) : ''; },
+    прим: (с) => (боль(с)?.рана === false
+      ? [['a sniff or cough held back', 'paler than usual'], ['feverish eyes, a shiver', 'moves like everything aches'], ['barely upright, glassy-eyed']]
+      : [['a careful way of moving', 'a wince hidden too late'], ['favours that side', 'goes pale at a wrong move'], ['every move costs; breath hisses through the teeth']]) },
   { к: 'hang', что: 'hangover', где: ['calm'], сила: (с) => (/похмел|hangover/i.test(с.текст) ? (/сильн|жутк|тяжёл|тяжел|severe|brutal/i.test(с.текст) ? 2 : 1) : 0),
     прим: [['squints at the light', 'reaches for water'], ['winces at loud sounds', 'queasy at the smell of food']] },
   { к: 'tipsy', что: 'tipsiness', где: ['calm'], сила: (с) => { const т = [с.ph, с.b].join(' '); return /похмел|hangover/i.test(т) ? 0 : /сильно пьян|в стельку|very drunk|wasted|smashed/i.test(т) ? 2 : /пьян|навесел|захмел|подвыпив|хмельн|tipsy|drunk|buzzed/i.test(т) ? 1 : 0; },
@@ -236,7 +265,8 @@ export const ПРИМЕТЫ = [
   // Желание до сцены: возбуждение в физиологии; у женщины — влага.
   { к: 'desire', гр: 'cx', что: (с) => (с.жен ? 'arousal, with wetness' : 'arousal'), где: ['calm'], сила: (с) => {
     if (с.фаза !== 1) return 0;
-    const есть = /возбужд|желани|влечени|томлен|arous|desire|horny|turned on/i.test(с.ph) && !/(?:нет|без|не)\s+(?:возбужд|желани)|no (?:arousal|desire)/i.test(с.ph);
+    // «Желание спать» и «нервное возбуждение» — не про это.
+    const есть = ЖЕЛАНИЕ.test(с.ph) && !/(?:нет|без|не)\s+(?:возбужд|желани|влечени)|no (?:arousal|desire)|not (?:aroused|turned on)/iu.test(с.ph);
     return есть ? (/ovul|овуля/.test(с.фазаЦикла) ? 2 : 1) : 0;
   }, прим: ПРИМЕР_ЖЕН(
     [['a slick warmth between her thighs she can’t ignore', 'shifts her legs, aware of how damp she is'], ['wet enough to feel it with every step', 'breath shallow, gaze lingering']],
@@ -277,7 +307,8 @@ export const ПРИМЕТЫ = [
  */
 export function приметыЧеловека(з, игрок, имя, общее, можно = () => true) {
   const с = состояние(з, игрок, имя, общее);
-  const вид = с.фаза === 2 ? 'sex' : с.фаза === 3 ? 'after' : общее.бой ? 'fight' : 'calm';
+  с.интимВкл = !!общее.послеВкл && можно('cx', '');
+  const вид =с.фаза === 2 ? 'sex' : с.фаза === 3 ? 'after' : общее.бой ? 'fight' : 'calm';
   const итог = [];
   for (const п of ПРИМЕТЫ) {
     const cx = п.гр === 'cx';
@@ -285,8 +316,6 @@ export function приметыЧеловека(з, игрок, имя, обще�
     if (!п.где.includes(вид) || !можно(п.гр || 'cue', п.к)) continue;
     const сила = Math.min(3, п.сила(с) || 0);
     if (!сила) continue;
-    // Интимный след на коже (засос, укус) — ещё и под настройкой близости.
-    if (п.к === 'marks' && свежийСлед(с)?.интимный && !можно('cx', '')) continue;
     const наборы = typeof п.прим === 'function' ? п.прим(с) : п.прим;
     итог.push({ к: п.к, гр: п.гр || 'cue', что: typeof п.что === 'function' ? п.что(с) : п.что, сила, деталь: п.деталь ? п.деталь(с) : '', примеры: наборы[Math.min(сила, наборы.length) - 1], пауза: п.пауза, после: п.к === 'after' });
   }
