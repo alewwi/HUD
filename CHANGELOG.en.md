@@ -4,6 +4,18 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.88 — 2026-11-23
+
+### Added
+- **Living details in intimacy** — its own checkbox under "Intimacy" and sub-items in "Model notes". Desire before the scene, with wetness for a woman and stronger at ovulation; a fetish in sight when something from the fetish list is on someone nearby; the body close to orgasm — only from 60 to 100, in three steps; a long scene (duration, rounds); a period, a pregnant belly and milk during the scene; "after" in the after-intimacy phase and for a few replies later. These go to the model only when the intimacy part does: "Always", or "Auto" while a scene is on; "after" unless set to "Never".
+- **New living details:** thirst, tipsiness, fullness after a meal, heat and cold by temperature, all four cycle phases (period, follicular, ovulation, luteal with PMS before the period), pregnancy cravings, full breasts when breastfeeding by the time of the last feed, fresh marks on the body, adrenaline after a fight.
+
+### Changed
+- **Living details by strength and by scene.** Each person gets their strongest state, not the first on the list: severe stress beats slight hunger. States have three steps. Nothing out of place is sent: food in a fight, hunger during intimacy. The HUD spots a fight even without the combat block, from the words of the last messages.
+- **The model invents the sign in the person's own manner.** The HUD sends the state, its strength and an example for scale only; a cold or reserved character lets only a trace show instead of blushing or biting a lip. Pain comes with the wound's zone when it is recorded. "After" is coloured by how it was for that person: the intimacy may not have been wanted.
+- **Temperature indoors.** When the weather has two temperatures ("+19°C, +21°C in the bedroom", "−55°C outside the plane, +22°C in the cabin"), the indoor one counts. The outdoor one counts only when the person is outside.
+- **Nothing that is turned off is sent.** A detail whose data is off is not written for the model: the pregnancy, cycle, body state, illness, combat or scene details block, the deep setting of a field or of the detail itself. On a swipe, details come from the HUD above, not from the reply being rewritten.
+
 ## 23.89.87 — 2026-11-23
 
 ### Added

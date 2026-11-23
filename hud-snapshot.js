@@ -12,21 +12,21 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.89.87';
+import { settings } from './settings.js?v=23.89.88';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { тМодели as т } from './i18n.js?v=23.89.87';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.87';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.89.87';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.87';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.89.87';
-import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.89.87';
-import { упомянутВТексте } from './names.js?v=23.89.87';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.87';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.87';
-import { доверияБезПричин } from './turn-notes.js?v=23.89.87';
-import { ступениВСнимке } from './render/trust-stages.js?v=23.89.87';
+import { тМодели as т } from './i18n.js?v=23.89.88';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.88';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.89.88';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.88';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.89.88';
+import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.89.88';
+import { упомянутВТексте } from './names.js?v=23.89.88';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.88';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.88';
+import { доверияБезПричин } from './turn-notes.js?v=23.89.88';
+import { ступениВСнимке } from './render/trust-stages.js?v=23.89.88';
 const имяИгрокаСнимка = () => { try { return window.SillyTavern?.getContext?.()?.name1 || ''; } catch (_) { return ''; } };
-import { почиститьСнимок } from './render/medieval-life.js?v=23.89.87';
+import { почиститьСнимок } from './render/medieval-life.js?v=23.89.88';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -426,6 +426,13 @@ export function решитьNSFW(снимок, тексты) {
    драка, погоня, — или свежая рана. В мирных ходах блок не стоит ничего. */
 const ОПАСНОСТЬ_СИЛЬНО = /(?<![\p{L}])(?:(?<!пушечный |без единого |ни одного )выстрел\p{L}*|стреля\p{L}*|напал\p{L}*|нападени\p{L}*|драк(?:а|и|у|е|ой|ою|ам|ами|ах)?(?![\p{L}])|дерут\p{L}*|погон(?:я|и|ю|е|ей|ями|ях)(?![\p{L}])|гонятся|засад\p{L}*|(?<!(?:после|до|со дня|с момента|со времени|пережил\p{L}*|помн\p{L}*|вспомина\p{L}*)\s(?:\p{L}+\s)?)взрыв(?:а|у|ом|е|ы|ов|ами|чатк\p{L}*)?(?![\p{L}])(?!\s+(?:смеха|хохота|эмоций|аплодисментов|гнева|ярости))|перестрелк\p{L}*|атаков\p{L}*|бросился на|замахнул\p{L}*|gunshot|gunfire|shots? (?:fired|rang)|shoot(?:s|ing)?(?![\p{L}])|fired (?:at|a shot)|(?<!(?:panic|heart|anxiety|asthma)\s)attack(?:s|ed|ing)?(?![\p{L}])|ambush|explosion|exploded|firefight|shootout|chase|chasing|lunge[sd]? at|threw a punch|swung at|brawl|fistfight)/iu;
 const ОПАСНОСТЬ = /(?<![\p{L}])(?:(?<!под дулом (?:\p{L}+ )?|под )пистолет\p{L}*|револьвер\p{L}*|винтовк\p{L}*|автомат(?![\p{L}])|ружь\p{L}*|нож(?:ом|и|а)?(?![\p{L}])|кинжал\p{L}*|клинок|меч(?:ом|а)?(?![\p{L}])|кастет\p{L}*|(?<!под )прицел\p{L}*|курок|граната|ранен\p{L}*|кулаком|ударил\p{L}* (?:его|е[её]|ему|ей|в лицо|по лицу|в челюсть|в живот|ногой|локтем|коленом|прикладом|рукоять\p{L}*)|gun(?![\p{L}])|guns|pistol|revolver|rifle|shotgun|knife|knives|dagger|blade|sword|brass knuckles|trigger|grenade|wounded|punch(?:ed|es)?|fight(?:s|ing)?(?![\p{L}])|bleeding)/giu;
+// Опасность по словам последних сообщений — и без блока боя: живым деталям
+// нужно знать, что идёт драка, даже когда бой выключен.
+export function опасностьВТекстах(тексты) {
+  const весь = текстДляРешений(Array.isArray(тексты) ? тексты : []);
+  if (ОПАСНОСТЬ_СИЛЬНО.test(весь)) return true;
+  return new Set((весь.match(ОПАСНОСТЬ) || []).map(w => w.toLowerCase().slice(0, 5))).size >= 2;
+}
 export function решитьБой(снимок, тексты) {
   if (settings.enableCombat === false) return false;
   const режим = settings.combatPrompt || 'auto';
@@ -436,9 +443,7 @@ export function решитьБой(снимок, тексты) {
   // Только проза: в самом HUD-блоке прошлого ответа — память, воспоминания,
   // раны. Одно «взрыв в ангаре» в памяти держало блок боя в промте десятки
   // мирных ходов подряд.
-  const весь = текстДляРешений(Array.isArray(тексты) ? тексты : []);
-  if (ОПАСНОСТЬ_СИЛЬНО.test(весь)) return true;
-  if (new Set((весь.match(ОПАСНОСТЬ) || []).map(w => w.toLowerCase().slice(0, 5))).size >= 2) return true;
+  if (опасностьВТекстах(тексты)) return true;
   // Свежая рана в прошлом HUD.
   const люди = объект(снимок) ? [...(Array.isArray(снимок.cs) ? снимок.cs : []), снимок.us].filter(объект) : [];
   // Только что полученная: модель оставляет «fresh» на десятки ходов (перелом

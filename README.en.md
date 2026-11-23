@@ -107,7 +107,7 @@ A separate tab for everyone the model described in the turn:
 - **Neglected state** — a plate when a person goes several days with almost no food, water or sleep. The model shows it in the story and in time records it as an illness, and undernourishment lowers the chance of conception and disturbs the cycle.
 - **Building up** — HUD sees where what has piled up is heading: a week of no sleep or food, stress through the roof, a negative balance, a Chekhov's gun past its deadline. A plate appears on the card: what is building up ("Anna snaps under too much stress", "a debt collector comes"), and on a tap, why and a "Suggest to the model" button. The idea goes to the model once, in the next reply; "No thanks" removes it for good.
 - **Bets** — who bet whom, on what and what is staked ("I'll put up my McLaren that…"). The model writes the bet on the card of whoever made it, and HUD shows it on both sides. You see who the bet is with and how it ended; what it is on and the stake slide out on a tap.
-- **Living details** — the model shows hunger, tiredness, stress and pain through small details instead of naming them, with pauses between them.
+- **Living details** — the model shows hunger, thirst, tiredness, stress, pain, cold and heat indoors, cycle phases, pregnancy and breastfeeding through small signs in the character's own manner instead of naming them: the strongest first, only what fits the scene, with pauses. A separate checkbox adds **living details in intimacy**: desire, the body close to orgasm, a long scene, "after".
 - **Illnesses and injuries** — stage, symptoms, treatment and a recovery bar; body marks with a healing timer.
 - **Shared memories** — accumulate across turns: the same memory reworded isn't duplicated.
 
@@ -571,7 +571,7 @@ Settings are grouped — expand the one you need. Below is the essential part of
   Each new feature has its own checkbox here:
   - for the screen: question badges, one-time nudges, intimacy reminders;
   - for the story: invitations, thread deadlines, relationship scars, era holidays;
-  - for the body: living details, the neglected state, weight and calories;
+  - for the body: living details, living details in intimacy, the neglected state, weight and calories;
   - for pregnancy: check-ups, serious findings, the threat die, miscarriage and abortion.
 
   A switched-off feature leaves the screen and the request to the model. Single parts are switched off in Fine tuning, in the Model notes and On-screen hints sections.
@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.87**:
+The latest version is **23.89.88**:
 
+- Living details by strength and by scene, in the character's own manner; thirst, heat and cold by the indoor temperature, all cycle phases, breastfeeding, marks, adrenaline; a separate "Living details in intimacy" checkbox — desire with wetness, orgasm from 60, a long scene, "after"; nothing turned off is sent to the model.
 - A "Reputation" tab in the archive with the whole faction history; the model writes reputation as changes only, and "How it changed" in the HUD covers "Turns back". A "Living details for the player too" checkbox. "Who lives where" in the "Atlas of places". An unchanged price is grey, intercepts no longer double, energy and alertness don't rise without sleep, coffee or adrenaline, and a crash follows them.
 - A token limit for every HUD generation: a field in the holiday, fair, "How it's celebrated", preparation, place-rules, lorebook and Assistant windows, a separate limit for the phone; 0 means the response length from Tavern, the maximum is shown under the field. A clear hint when a reply runs out of tokens. "How it changed" for factions in every view, sleep in plain words ("4 h, bed at 01:00"), no horoscope gap with "World once a day", swipes no longer show as extra turns in the chronicle.
 - The chat avatar checkboxes in the panel and in the phone Settings no longer drift apart.

@@ -11,7 +11,8 @@
 //  · Разовые подсказки: игрок выбирает плашку, и она уходит в следующий ответ.
 //    Подсказка живёт ровно на одном сообщении и во всех его свайпах.
 //  · Сдвиги доверия: шрамы, инерция после большого сдвига, соперник.
-//  · Живые детали: мелкая примета тела вместо названия состояния, с паузами.
+//  · Живые детали (body-cues.js): мелкая примета тела вместо названия состояния,
+//    по силе и сцене, с паузами; приметы близости — отдельной настройкой.
 //  · Запущенное состояние: дни подряд без еды или сна.
 //  · Вес: просьба написать рост и вес один раз и обновлять раз в неделю сюжета.
 //  · Праздники эпохи, приглашения, сроки сюжетных нитей.
@@ -20,22 +21,23 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.87';
-import { английский } from './i18n.js?v=23.89.87';
-import { flattenFieldValue } from './utils.js?v=23.89.87';
-import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.89.87';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.87';
-import { статусОбещания } from './hud-expand.js?v=23.89.87';
-import { полеВкл } from './deep-fields.js?v=23.89.87';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.87';
-import { namesLikelySame } from './names.js?v=23.89.87';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.87';
-import { праздникиГода } from './render/holidays.js?v=23.89.87';
-import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.87';
-import { заметкаМеста } from './render/place-lore.js?v=23.89.87';
-import { заметкаПоста } from './render/almanac.js?v=23.89.87';
-import { заметкаСил } from './render/powers.js?v=23.89.87';
-import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.87';
+import { settings } from './settings.js?v=23.89.88';
+import { английский } from './i18n.js?v=23.89.88';
+import { flattenFieldValue } from './utils.js?v=23.89.88';
+import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.89.88';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.88';
+import { статусОбещания } from './hud-expand.js?v=23.89.88';
+import { полеВкл } from './deep-fields.js?v=23.89.88';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.88';
+import { namesLikelySame } from './names.js?v=23.89.88';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.88';
+import { праздникиГода } from './render/holidays.js?v=23.89.88';
+import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.88';
+import { заметкаМеста } from './render/place-lore.js?v=23.89.88';
+import { заметкаПоста } from './render/almanac.js?v=23.89.88';
+import { заметкаСил } from './render/powers.js?v=23.89.88';
+import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.88';
+import { приметыЧеловека, общееСцены, фазаБлизости } from './body-cues.js?v=23.89.88';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -299,50 +301,58 @@ function заметкаОтношений(х, снимок, чат, цель, и
 /* --- Живые детали и запущенное состояние ------------------------------------- */
 
 const метка = (значение, код) => { const m = String(значение ?? '').match(new RegExp('(?:^|;)\\s*' + код + '\\s*[:：]\\s*(-?\\d{1,3})', 'i')); return m ? +m[1] : null; };
-const ДЕТАЛИ = [
-  ['голод', (с) => с.сытость !== null && с.сытость <= 30, ['a quiet rumble from the stomach', 'a glance at anything edible', 'mentions a skipped meal']],
-  ['усталость', (с) => с.энергия !== null && с.энергия <= 25, ['a yawn swallowed halfway', 'slow to answer, eyes heavy', 'leans on whatever is near']],
-  ['стресс', (с) => с.стресс !== null && с.стресс >= 75, ['a tight jaw', 'fingers that will not stay still', 'a breath held a moment too long']],
-  ['боль', (с) => /(?:^|[^\p{L}])(?:болит|боль|ноет|рана|ранен|pain|ache|wound)/iu.test(с.текст) && !/(?:нет|без|не)\s+(?:бол|ран)|no (?:pain|wound)/iu.test(с.текст), ['a careful way of moving', 'a wince hidden too late', 'favours one side']],
-  ['похмелье', (с) => /похмел|hangover/i.test(с.текст), ['squints at the light', 'reaches for water', 'winces at loud sounds']],
-  ['холод', (с) => /замёрз|замерз|озноб|freezing|shiver/i.test(с.текст), ['rubs cold hands together', 'pulls the collar tighter', 'breath a little uneven from the cold']],
-  ['пмс', (с) => /phs\s*:\s*(?:luteal|menstrual)/i.test(с.цикл), ['a dull pull low in the belly', 'shorter patience than usual', 'a craving for something sweet']],
-  ['беременность', (с) => с.срок >= 5 && с.знают, ['a hand resting on the stomach without thinking', 'turns away from a strong smell', 'tires sooner than usual']],
-];
+// Живые детали (body-cues.js): у каждого человека — самая сильная примета,
+// которой сейчас нет паузы; за ход не больше двух, сильные первыми. Свайп того
+// же ответа получает то же (разовые.детали по цели).
 const ДЕТАЛЕЙ_ЗА_ХОД = 2, ПАУЗА_СООБЩЕНИЙ = 6;
-const КОД_ДЕТАЛИ = { голод: 'hunger', усталость: 'tired', стресс: 'stress', боль: 'pain', похмелье: 'hang', холод: 'cold', пмс: 'pms', беременность: 'preg' };
+// После близости (фаза 3 в снимке) приметы «после» ещё столько ответов.
+const ОТВЕТОВ_ПОСЛЕ = 6;
+const СИЛА = ['', 'slight', 'strong', 'severe'];
+// Для запущенного состояния: шкалы тела и жалобы.
 function состояние(з) {
-  return { сытость: метка(з.Bs, 'sat'), энергия: метка(з.Bs, 'eng'), стресс: метка(з.Bs, 'str'), сон: метка(з.Bs, 'slp'),
-    текст: [з.Ph, з.H, з.Ill].map(v => String(v ?? '')).join(' '), цикл: String(з.Mns ?? ''), срок: метка(з.Prg, 'wk') ?? 0,
-    // Пока никто не знает, примет беременности быть не должно.
-    знают: /(?:^|;)\s*knw\s*[:：]\s*(?!empty|none|нет)\S/i.test(String(з.Prg ?? '')) };
+  return { сытость: метка(з.Bs, 'sat'), энергия: метка(з.Bs, 'eng'), сон: метка(з.Bs, 'slp'),
+    текст: [з.Ph, з.H, з.Ill].map(v => String(v ?? '')).join(' ') };
 }
 function людиСнимка(снимок, имяИгрока) {
   const люди = (Array.isArray(снимок?.cs) ? снимок.cs : []).filter(c => c && чисто(c.N)).map(c => ({ имя: чисто(c.N), з: c }));
   if (снимок?.us && typeof снимок.us === 'object') люди.unshift({ имя: имяИгрока, з: снимок.us, игрок: true });
   return люди;
 }
-function заметкаДеталей(х, снимок, цель, имяИгрока) {
+function заметкаДеталей(х, снимок, цель, имяИгрока, { nsfw = false, бой = false } = {}) {
   if (х.разовые.детали && х.разовые.детали.цель === цель) return х.разовые.детали.текст;
-  const строки = [];
+  const люди = людиСнимка(снимок, имяИгрока);
+  // Снимок — прошлый HUD: фаза 3 там — близость только что кончилась.
+  for (const { имя, з } of люди) {
+    const к = `${имя}|@после`;
+    if (фазаБлизости(з) === 3) х.детали[к] = { цель };
+    else if (х.детали[к] && х.детали[к].цель > цель) delete х.детали[к];
+  }
+  const недавноБыло = (с) => { const з = х.детали[`${с.имя}|@после`]; return !!з && цель > з.цель && цель - з.цель <= ОТВЕТОВ_ПОСЛЕ; };
+  const общее = общееСцены(снимок, люди, { бой, nsfw, недавноБыло });
+  const можно = (гр, к) => (гр === 'cx' ? вкл('enableIntimacyCues') : вкл('enableBodyCues')) && нота(гр) && (!к || нота(гр + '.' + к));
   // Про игрока — только если не выключено (bodyCuesPlayer): игрока ведёт сам
   // игрок, и примета его тела в ответе модели — это модель пишет за него.
   const сИгроком = settings.bodyCuesPlayer !== false;
-  for (const { имя, з, игрок } of людиСнимка(снимок, имяИгрока)) {
-    if (строки.length >= ДЕТАЛЕЙ_ЗА_ХОД) break;
+  const выбор = [];
+  for (const { имя, з, игрок } of люди) {
     if (игрок && !сИгроком) continue;
-    const с = состояние(з);
-    for (const [ключ, условие, варианты] of ДЕТАЛИ) {
-      if (!нота('cue.' + КОД_ДЕТАЛИ[ключ]) || !условие(с)) continue;
-      const след = `${имя}|${ключ}`, был = х.детали[след];
-      if (был && цель - был.цель < ПАУЗА_СООБЩЕНИЙ) continue;
-      const показов = (был?.показов || 0) + 1;
-      х.детали[след] = { цель, показов };
-      строки.push(`${имя}: ${варианты[показов % варианты.length]}`);
-      break;
-    }
+    const свободные = приметыЧеловека(з, !!игрок, имя, общее, можно).filter(п => {
+      const был = х.детали[`${имя}|${п.гр}.${п.к}`];
+      return !(был && был.цель < цель && цель - был.цель < (п.пауза ?? ПАУЗА_СООБЩЕНИЙ));
+    });
+    if (свободные.length) выбор.push({ имя, п: свободные.reduce((a, b) => (b.сила > a.сила ? b : a)) });
   }
-  const текст = строки.length ? `Small body details for this reply, at most one each, shown and never named: ${строки.join('; ')}.` : '';
+  выбор.sort((a, b) => b.п.сила - a.п.сила);
+  const строки = [];
+  let после = false;
+  for (const { имя, п } of выбор.slice(0, ДЕТАЛЕЙ_ЗА_ХОД)) {
+    const след = `${имя}|${п.гр}.${п.к}`;
+    const показов = (х.детали[след]?.показов || 0) + 1;
+    х.детали[след] = { цель, показов };
+    строки.push(`${имя} — ${п.что}${п.деталь ? ` (${п.деталь})` : ''}, ${СИЛА[п.сила]} (like: ${п.примеры[показов % п.примеры.length]})`);
+    после ||= п.после;
+  }
+  const текст = строки.length ? `Living details for this reply, one small sign per person — shown, never named. Make it your own sign in this person's manner (a cold or guarded one lets only a trace slip), not the example and not one used lately: ${строки.join('; ')}.${после ? ' Colour what comes after intimacy by how it was for them: it may not have been wanted.' : ''}` : '';
   х.разовые.детали = { цель, текст };
   сохранить();
   return текст;
@@ -906,7 +916,7 @@ function заметкаЗамков(х, снимок, чат, цель) {
 /* --- Всё вместе -------------------------------------------------------------- */
 
 /** Текст заметок к этому запросу. тип — тип генерации Таверны. */
-export function заметкиХода({ чат, снимок = null, тип = 'normal', имяИгрока = '' } = {}) {
+export function заметкиХода({ чат, снимок = null, тип = 'normal', имяИгрока = '', nsfw = false, опасно = false } = {}) {
   if (тип === 'impersonate' || тип === 'quiet') return '';
   const х = хранилище();
   if (!х || !Array.isArray(чат)) return '';
@@ -942,7 +952,8 @@ export function заметкиХода({ чат, снимок = null, тип = '
     // Ступени: потолок, который игрок ещё не открыл, замки и только что открытые ступени.
     строки.push(...заметкиСтупеней(снимок));
 
-    if (вкл('enableBodyCues') && нота('cue')) { const д = заметкаДеталей(х, снимок, цель, игрок); if (д) строки.push(д); }
+    // Живые детали: обычные (cue) и близости (cx) — у каждой группы своя галка.
+    if ((вкл('enableBodyCues') && нота('cue')) || (вкл('enableIntimacyCues') && нота('cx'))) { const д = заметкаДеталей(х, снимок, цель, игрок, { nsfw, бой: опасно }); if (д) строки.push(д); }
     if (вкл('enableNeglect') && нота('neg')) строки.push(...заметкаЗапущенного(х, снимок, чат, цель, сцена, игрок));
     if (вкл('enableWeight') && нота('wg')) { const в = заметкаВеса(х, снимок, цель, сцена, игрок); if (в) строки.push(в); }
     if (вкл('enableEraHolidays') && нота('hol')) { const п = заметкаПраздников(х, снимок, цель, сцена); if (п) строки.push(п); }

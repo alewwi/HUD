@@ -5,9 +5,9 @@
 // Оформление — в духе остальной вкладки, газетной полосы: биржевая сводка,
 // театральные билеты, сводка происшествий.
 
-import { escapeHtml, applyTooltips } from '../utils.js?v=23.89.87';
-import { settings } from '../settings.js?v=23.89.87';
-import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.87';
+import { escapeHtml, applyTooltips } from '../utils.js?v=23.89.88';
+import { settings } from '../settings.js?v=23.89.88';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.88';
 // В средневековье — свои заголовки и без «ADMIT ONE» на билетах.
 const средневековье = () => старина();
 

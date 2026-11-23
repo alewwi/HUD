@@ -157,6 +157,9 @@ export const defaultSettings = {
   // Живые детали и «запущенное состояние» — и про игрока ({{user}}). Выключено —
   // только про персонажей: игрока ведёт сам игрок.
   bodyCuesPlayer: true,
+  // Живые детали близости (body-cues.js, группа cx): желание, оргазм, долгая
+  // сцена, после — только когда часть про близость уходит модели.
+  enableIntimacyCues: true,
   enableNeglect: true,
   enableWeight: true,
   enableEraHolidays: true,

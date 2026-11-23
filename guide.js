@@ -11,10 +11,10 @@
 //     настройки» (код и название) и словарь вопросиков (что это).
 // Слева оглавление по разделам, сверху поиск по всему тексту.
 
-import { английский, т } from './i18n.js?v=23.89.87';
-import { escapeHtml } from './utils.js?v=23.89.87';
-import { TAB_HELP, findTermHelp } from './help.js?v=23.89.87';
-import { КАТАЛОГ } from './deep-fields.js?v=23.89.87';
+import { английский, т } from './i18n.js?v=23.89.88';
+import { escapeHtml } from './utils.js?v=23.89.88';
+import { TAB_HELP, findTermHelp } from './help.js?v=23.89.88';
+import { КАТАЛОГ } from './deep-fields.js?v=23.89.88';
 
 let открыто = false;
 const э = (s) => escapeHtml(String(s ?? ''));
@@ -173,7 +173,8 @@ export const ПОЯСНЕНИЯ_ПОЛЕЙ = {
   "Шрамы": ["HUD напоминает модели о старой ране в доверии: раз в восемь ответов, чтобы её не забыли, но и не выпячивали.", "The HUD reminds the model of an old wound in trust, once every eight replies, so it is neither forgotten nor overplayed."],
   "Впечатление от сдвига доверия": ["Когда доверие резко изменилось, HUD просит модель показать, как человек это переживает.", "When trust changes sharply, the HUD asks the model to show how the person takes it."],
   "Соперник": ["Подсказка модели о сопернике в словесной дуэли: кто ведёт и как отвечает проигрывающий.", "A note for the model about the opponent in a verbal duel: who is ahead and how the one losing answers back."],
-  "Живые детали": ["Короткие напоминания модели о теле: голод, усталость, боль, похмелье, ПМС — чтобы это проявлялось в сцене.", "Short reminders to the model about the body: hunger, tiredness, pain, a hangover, PMS, so they show in the scene."],
+  "Живые детали": ["Короткие напоминания модели о теле: голод, жажда, усталость, боль, холод и жара в помещении, похмелье, фазы цикла, беременность, кормление, свежие следы — самое сильное первым и только уместное в сцене. Модель показывает примету в манере персонажа и не называет состояние.", "Short reminders to the model about the body: hunger, thirst, tiredness, pain, cold and heat indoors, a hangover, cycle phases, pregnancy, breastfeeding, fresh marks — the strongest first and only what fits the scene. The model shows the sign in the character’s own manner and never names the state."],
+  "Живые детали близости": ["Приметы тела в близости: желание и влага до сцены, фетиш в кадре, тело у оргазма от 60, долгая сцена, месячные, живот, молоко, «после». Только когда часть про близость уходит модели; характер персонажа решает, как это видно.", "Body signs in intimacy: desire and wetness before the scene, a fetish in sight, the body close to orgasm from 60, a long scene, a period, a belly, milk, after. Only when the intimacy part goes to the model; the character decides how it shows."],
   "Просьба записать вес": ["HUD просит модель указать рост, вес и активность, если их нет, — без них не посчитать норму еды.", "The HUD asks the model for height, weight and activity when they are missing; the food norm cannot be counted without them."],
   "Праздники": ["Заметки модели о праздниках мира: перед праздником, в сам день и итог после.", "Notes to the model about the world’s holidays: before the day, on the day and the outcome after."],
   "Сроки": ["Когда срок ружья или плана из календаря прошёл, HUD просит модель решить: случилось или сорвалось.", "When the deadline of a gun or a calendar plan has passed, the HUD asks the model to settle whether it happened or failed."],
