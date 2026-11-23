@@ -13,6 +13,7 @@ All notable changes to TavernOS HUD, newest first, starting from version 23.88.7
 - **Illness is not "pain".** "Ill: empty" and nearly healed conditions (recovery 90%+) no longer give a detail. Flu or a cold goes to the model as an illness with its name, not as pain; a wound as pain with its zone. The sub-item in "Model notes" is now "pain and illness".
 - **Desire means desire.** "Desire to sleep" and "nervous excitement" no longer trigger the intimacy detail. "Mns: empty" on a man no longer makes him a woman for the details.
 - **A hickey with intimacy off** is skipped, and a plain mark next to it (a bruise) stays a detail instead of vanishing with it.
+- **"Sticky" does not outlast a shower.** "Sticky" is suggested only right after intimacy and only while "After intimacy", aftercare or physiology mention no shower or bath. Later turns keep the soreness and sensitivity.
 
 ## 23.89.88 — 2026-11-23
 

@@ -297,7 +297,12 @@ export const ПРИМЕТЫ = [
   // После: в фазе 3 и несколько ответов спустя. Не «послевкусие» — сцена могла
   // быть и не по желанию: окраску даёт сам человек.
   { к: 'after', гр: 'cx', что: 'after intimacy', где: ['after', 'calm'], пауза: 4, сила: (с) => (с.фаза === 3 && с.пол('ND') ? 2 : с.фаза === 1 && с.общее.недавноБыло?.(с) ? 1 : 0),
-    прим: [['skin still sticky', 'a sore, careful way of sitting or walking'], ['skin sticky, damp', 'over-sensitive, flinching at a light touch', 'legs not quite steady']] },
+    // «Липко» — только сразу после и пока не помылись: в следующие ходы и после
+    // душа остаются ноющее тело и чувствительность.
+    прим: (с) => [['a sore, careful way of sitting or walking', 'tender in places, aware of it at a wrong move'],
+      /душ|ванн|помыл|мыл[аи]с|умыл|shower|bath|washed|wash(?:ed|ing) up/i.test([с.пол('ND') ? стр(с.з.ND) : '', стр(с.з.AC), с.ph].join(' '))
+        ? ['over-sensitive, flinching at a light touch', 'legs not quite steady']
+        : ['skin sticky, damp', 'over-sensitive, flinching at a light touch', 'legs not quite steady']] },
 ];
 
 /**
