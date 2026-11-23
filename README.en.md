@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.90**:
+The latest version is **23.89.91**:
 
+- Archive: long lists are folded everywhere, newest first — relation paths ("earlier N"), atlas places in portions, moods and trust reasons under "More"; an open list collapses from its header or a button at the bottom.
 - Companion wounds as a list, like in the character card: where, stage, how far healed, when it heals, how to treat it, whether it scars, plus scars from old wounds — in every companion view. Scene: melting March snow and snowdrops, a glowing garland, pumpkins and fireworks at night, clouds in cloudy weather, a lamp in the wind, a kite on the sand and campfire embers in the rain.
 - Living details: a rise (orgasm 65 → 85 → 97) is not held back by the pause; "after" even without phase 3; "in the city" is not the room temperature; illness is not "pain"; "desire to sleep" is not desire.
 - Living details by strength and by scene, in the character's own manner; thirst, heat and cold by the indoor temperature, all cycle phases, breastfeeding, marks, adrenaline; a separate "Living details in intimacy" checkbox — desire with wetness, orgasm from 60, a long scene, "after"; nothing turned off is sent to the model.

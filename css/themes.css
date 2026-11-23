@@ -1486,6 +1486,28 @@
 }
 .hud-arc-more[open] > summary::after { transform: rotate(-135deg) translateY(-2px); }
 @media (prefers-reduced-motion: reduce) { .hud-arc-more > summary::after { transition: none; } }
+/* «Ещё» ↔ «Свернуть» в шапке; кнопка «Свернуть» внизу длинного раскрытого. */
+:is(.hud-arc-more, .hud-arc-earlier) > summary .is-open,
+:is(.hud-arc-more, .hud-arc-earlier)[open] > summary .is-shut { display: none; }
+:is(.hud-arc-more, .hud-arc-earlier)[open] > summary .is-open { display: inline; }
+.hud-arc-fold {
+  display: block; margin: 6px auto 8px; padding: 3px 12px; border-radius: 999px; cursor: pointer;
+  font: inherit; font-size: 11px; font-weight: 600; color: inherit;
+  background: color-mix(in srgb, currentColor 7%, transparent); border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+}
+/* Ранние шаги пути: пилюля «раньше N», раскрытые — отдельной строкой над последними. */
+.hud-arc-path > .hud-arc-earlier { display: inline-block; }
+.hud-arc-path > .hud-arc-earlier[open] { flex-basis: 100%; }
+.hud-arc-earlier > summary {
+  list-style: none; cursor: pointer; user-select: none; display: inline-flex; align-items: center; gap: 5px;
+  padding: 2px 8px; border-radius: 999px; font-size: 11px; font-weight: 600;
+  background: color-mix(in srgb, currentColor 6%, transparent); border: 1px dashed color-mix(in srgb, currentColor 22%, transparent);
+}
+.hud-arc-earlier > summary::-webkit-details-marker { display: none; }
+.hud-arc-path .hud-arc-earlier .hud-arc-count { opacity: 1; }
+.hud-arc-earlier-body { margin-top: 5px; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.hud-arc-earlier-body > .hud-arc-fold { margin: 0 0 0 4px; }
+@media (hover: hover) and (pointer: fine) { .hud-arc-fold:hover, .hud-arc-earlier > summary:hover { background: color-mix(in srgb, currentColor 12%, transparent); } }
 .hud-arc-count {
   font-style: normal; font-size: 10px; font-weight: 700; line-height: 1.5; padding: 0 6px; border-radius: 999px;
   background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 24%, transparent);

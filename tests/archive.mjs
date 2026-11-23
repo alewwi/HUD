@@ -319,5 +319,29 @@ const A = await модуль('render/archive.js');
   проверить('вкладка «Репутация»: старый отчёт без поля — пусто, без ошибки', A.вкладкаРепутации({ moments: {} }, '').includes('нет фракций'));
 }
 
+// Длинное свёрнуто: путь отношения — два последних шага, ранние по «раньше»
+// (дорисовываются при раскрытии); места атласа — порциями; строки сверх шести — под «Ещё».
+{
+  const AM = await модуль('render/archive-maps.js');
+  контекст = { chat: [], chatMetadata: {}, name1: 'Ивета', name2: 'Орин' };
+  const смены = Array.from({ length: 9 }, (_, i) => ({ rel: 'ступень ' + (i + 1), at: i + 1 }));
+  const цели = Object.fromEntries(Array.from({ length: 8 }, (_, i) => ['Гость ' + i, i ? [{ rel: 'знакомый', at: i }] : смены]));
+  const о = { moments: {}, relations: { 'Орин': цели }, secrets: [], moods: [] };
+  const html = A.вкладкаОтношений(о, '');
+  const видно = html.replace(/<details class="hud-arc-earlier"[^>]*>[\s\S]*?<\/details>/g, '');
+  проверить('свёртка: путь отношения — два последних шага и «раньше 7»', видно.includes('ступень 9') && видно.includes('ступень 8') && !видно.includes('ступень 7') && /раньше<\/span><span class="is-open">Свернуть<\/span><i class="hud-arc-count">7</.test(html), видно.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').slice(0, 300));
+  проверить('свёртка: ранние шаги не в разметке, пока не раскрыли', !html.includes('ступень 1 ') && /data-arc-lazy="1"/.test(html));
+  проверить('свёртка: поиск показывает весь путь', A.вкладкаОтношений(о, 'ступень').includes('ступень 1 '));
+  проверить('свёртка: людей сверх шести — под «Ещё» со «Свернуть» в шапке', /<span class="is-shut">Ещё<\/span><span class="is-open">Свернуть<\/span><i class="hud-arc-count">2</.test(html));
+  const места = Array.from({ length: 25 }, (_, i) => ({ place: 'Место ' + i, visits: 30 - i, turns: 30 - i, people: [], works: [] }));
+  A.сброситьПоказанное();
+  const атлас = AM.вкладкаАтласа({ maps: { atlas: места } }, '');
+  проверить('свёртка: атлас — 10 мест и «Ещё 15»', (атлас.match(/class="hud-arc-place"/g) || []).length === 10 && /data-arc-more="atlas">Ещё <b>15<\/b>/.test(атлас), атлас.slice(-400));
+  A.показатьЕщё('atlas', true);
+  const весь = AM.вкладкаАтласа({ maps: { atlas: места } }, '');
+  проверить('свёртка: «Показать все» — 25 мест и «Свернуть»', (весь.match(/class="hud-arc-place"/g) || []).length === 25 && весь.includes('data-arc-less="atlas"'));
+  A.сброситьПоказанное();
+}
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалов}`);
 process.exitCode = провалов ? 1 : 0;

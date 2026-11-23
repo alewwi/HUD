@@ -6,19 +6,19 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.90';
-import { английский } from '../i18n.js?v=23.89.90';
-import { settings } from '../settings.js?v=23.89.90';
-import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.90';
-import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.90';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.90';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.90';
-import { ссылкиТрека } from './music.js?v=23.89.90';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.90';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.90';
-import { ико } from './view-icons.js?v=23.89.90';
-import { namesLikelySame } from '../names.js?v=23.89.90';
-import { старина, стариннаяЗабота } from '../era.js?v=23.89.90';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.91';
+import { английский } from '../i18n.js?v=23.89.91';
+import { settings } from '../settings.js?v=23.89.91';
+import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.91';
+import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.91';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.91';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.91';
+import { ссылкиТрека } from './music.js?v=23.89.91';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.91';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.91';
+import { ико } from './view-icons.js?v=23.89.91';
+import { namesLikelySame } from '../names.js?v=23.89.91';
+import { старина, стариннаяЗабота } from '../era.js?v=23.89.91';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).
@@ -79,7 +79,7 @@ function фильтрыHTML(вкладка, варианты) {
     `<button type="button" class="${выбран === id ? 'is-on' : ''}" aria-pressed="${выбран === id}" data-arc-filter="${вкладка}:${id}"><span>${подпись}</span><i class="hud-arc-count">${n}</i></button>`).join('')}</div>`;
 }
 // Первые записи списка и кнопки «ещё» / «все» / «свернуть».
-function порцией(вкладка, записи) {
+export function порцией(вкладка, записи) {
   const n = Math.min(записи.length, показано[вкладка] || ПОРЦИЯ);
   const осталось = записи.length - n;
   let низ = '';
@@ -89,6 +89,37 @@ function порцией(вкладка, записи) {
       + (n > ПОРЦИЯ ? `<button type="button" data-arc-less="${вкладка}">Свернуть</button>` : '') + '</div>';
   } else if (n > ПОРЦИЯ) низ = `<div class="hud-arc-pager"><button type="button" data-arc-less="${вкладка}">Свернуть</button></div>`;
   return записи.slice(0, n).join('') + низ;
+}
+// Строки внутри карточки: сверху последние, остальное — под «Ещё». Раскрытое
+// сворачивается и шапкой («Свернуть»), и кнопкой внизу — листать назад не надо.
+const СВЕРНУТЬ_ВНИЗУ = 6;
+const кнопкаСвернуть = (n) => (n > СВЕРНУТЬ_ВНИЗУ ? '<button type="button" class="hud-arc-fold" data-arc-fold="1">Свернуть</button>' : '');
+export function ещёHTML(строки, подпись = 'Ещё') {
+  if (!строки.length) return '';
+  return `<details class="hud-arc-more"><summary>${значок('clock')}<span class="is-shut">${подпись}</span><span class="is-open">Свернуть</span><i class="hud-arc-count">${строки.length}</i></summary>`
+    + строки.join('') + кнопкаСвернуть(строки.length) + '</details>';
+}
+// Путь статусов: видны последние шаги, ранние — по «раньше». У пары бывает
+// по 200 смен, и вкладка весила мегабайт, поэтому ранние шаги дорисовываются
+// только при раскрытии (openArchiveDialog → toggle). При поиске — весь путь:
+// найденное может быть в начале.
+let отложенное = new Map();
+const сброситьОтложенное = () => { отложенное = new Map(); };
+function путьHTML(шаги, сразу, поиск) {
+  if (поиск || шаги.length <= сразу + 1) return шаги.join('<i>→</i>');
+  const ранние = шаги.slice(0, -сразу);
+  const id = String(отложенное.size + 1);
+  отложенное.set(id, ранние.join('<i>→</i>') + кнопкаСвернуть(ранние.length));
+  return `<details class="hud-arc-earlier" data-arc-lazy="${id}"><summary><span class="is-shut">раньше</span><span class="is-open">Свернуть</span><i class="hud-arc-count">${ранние.length}</i></summary></details>`
+    + '<i>→</i>' + шаги.slice(-сразу).join('<i>→</i>');
+}
+// Раскрыли «раньше» — дорисовать шаги внутрь.
+function дорисовать(d) {
+  if (!d.open || !d.dataset.arcLazy || d.dataset.arcFilled) return;
+  const html = отложенное.get(d.dataset.arcLazy);
+  if (html === undefined) return;
+  d.dataset.arcFilled = '1';
+  d.insertAdjacentHTML('beforeend', `<div class="hud-arc-earlier-body">${htmlВФормате(html)}</div>`);
 }
 // Сверху — последнее: по ходу, при равенстве — что появилось позже.
 const новыеСверху = (a, b) => b.ключ - a.ключ || b.с - a.с;
@@ -107,7 +138,7 @@ const ЯРЛЫКИ_УРОВНЯ = { low: 'низкий', medium: 'средний
 
 // История записи: шаги по ходам, раскрываются под карточкой.
 const историяHTML = (заголовок, число, шаги) => `<details class="hud-arc-more"><summary>${значок('clock')}<span>${заголовок}</span>${число ? `<i class="hud-arc-count">${число}</i>` : ''}</summary>`
-  + `<ol class="hud-arc-steps">${шаги.map(ш => `<li class="is-${ш.вид}"><span class="hud-arc-step-at">${ссылка(ш.at)}</span><span class="hud-arc-step-what">${ш.html}</span></li>`).join('')}</ol></details>`;
+  + `<ol class="hud-arc-steps">${шаги.map(ш => `<li class="is-${ш.вид}"><span class="hud-arc-step-at">${ссылка(ш.at)}</span><span class="hud-arc-step-what">${ш.html}</span></li>`).join('')}</ol>${кнопкаСвернуть(шаги.length)}</details>`;
 
 // Раскрыт — знают все, о ком речь; остальное (никто, подозревают, слухи) — нет.
 const РАСКРЫТЫЕ = new Set(['known', 'revealed']);
@@ -192,6 +223,11 @@ function графикДоверия(записи) {
   const y = v => (40 - 38 * (Math.max(минимум, Math.min(100, v)) - минимум) / (100 - минимум)).toFixed(1);
   return `<svg class="hud-arc-trust" viewBox="0 0 200 42" preserveAspectRatio="none" aria-hidden="true"><path d="M${точки.map((v, i) => `${x(i)} ${y(v)}`).join('L')}"/></svg>`;
 }
+// Сдвиги доверия с причиной: последние сверху, остальное — под «Ещё».
+function причиныДоверия(записи) {
+  const строки = записи.filter(з => з.почему || з.шрам || Math.abs(з.d) >= 15).reverse().map(з => `<div class="hud-arc-row"><label class="${з.d > 0 ? 'is-up' : 'is-down'}">${з.d > 0 ? '+' : ''}${з.d}${з.шрам ? ' 🩹' : ''}</label><div class="hud-arc-path">${escapeHtml(чистаяПричина(з.почему) || 'без причины')} ${ссылка(з.индекс)}</div></div>`);
+  return строки.slice(0, СТРОК_ОТНОШЕНИЙ).join('') + ещёHTML(строки.slice(СТРОК_ОТНОШЕНИЙ));
+}
 function поворотыДоверия(поиск) {
   const пары = new Map();
   for (const з of сдвигиЧата()) {
@@ -202,13 +238,13 @@ function поворотыДоверия(поиск) {
   }
   return [...пары].map(([имя, записи]) => ({ вид: 'trust', менялись: true, ключ: Math.max(...записи.map(з => Number(з.индекс) || 0)), с: Number(записи[0].индекс) || 0,
     html: `<div class="hud-arc-card"><div class="hud-arc-card-head"><i class="hud-arc-medal">${значок('heart')}</i><b>${escapeHtml(имя)}</b><span class="hud-arc-tag">доверие</span></div>${графикДоверия(записи)}`
-    + записи.filter(з => з.почему || з.шрам || Math.abs(з.d) >= 15).slice(-8).reverse().map(з => `<div class="hud-arc-row"><label class="${з.d > 0 ? 'is-up' : 'is-down'}">${з.d > 0 ? '+' : ''}${з.d}${з.шрам ? ' 🩹' : ''}</label><div class="hud-arc-path">${escapeHtml(чистаяПричина(з.почему) || 'без причины')} ${ссылка(з.индекс)}</div></div>`).join('')
-    + `</div>` }));
+    + причиныДоверия(записи) + `</div>` }));
 }
 // Строк в карточке человека сразу; остальные — под «Ещё».
 const СТРОК_ОТНОШЕНИЙ = 6;
 export function вкладкаОтношений(отчёт, поиск) {
   моменты = (отчёт && отчёт.moments) || {};
+  сброситьОтложенное();
   const карточки = поворотыДоверия(поиск);
   for (const субъект of Object.keys(отчёт.relations)) {
     const цели = отчёт.relations[субъект];
@@ -220,7 +256,7 @@ export function вкладкаОтношений(отчёт, поиск) {
       .sort((a, b) => b.at - a.at);
     if (!строки.length) continue;
     const строка = ({ цель, смен }) => {
-      const путь = цели[цель].map(c => `<span class="hud-arc-status">${escapeHtml(c.rel)} ${ссылка(c.at)}</span>`).join('<i>→</i>');
+      const путь = путьHTML(цели[цель].map(c => `<span class="hud-arc-status">${escapeHtml(c.rel)} ${ссылка(c.at)}</span>`), 2, поиск);
       const менялось = смен ? `<span class="hud-arc-tag">${смен} смен${смен === 1 ? 'а' : ''}</span>` : '';
       return `<div class="hud-arc-row"><label>→ ${escapeHtml(имяБезПриставки(цель))}</label><div class="hud-arc-path">${путь}${менялось}</div></div>`;
     };
@@ -228,7 +264,7 @@ export function вкладкаОтношений(отчёт, поиск) {
     карточки.push({ вид: 'rel', менялись: строки.some(x => x.смен), ключ: строки[0].at, с: Math.min(...строки.map(x => x.at)), html: `<div class="hud-arc-card">
       <div class="hud-arc-card-head"><i class="hud-arc-medal">${значок('head')}</i><b>${escapeHtml(имяБезПриставки(субъект))}</b></div>
       ${строки.slice(0, СТРОК_ОТНОШЕНИЙ).map(строка).join('')}
-      ${лишние.length ? `<details class="hud-arc-more"><summary>${значок('clock')}<span>Ещё</span><i class="hud-arc-count">${лишние.length}</i></summary>${лишние.map(строка).join('')}</details>` : ''}
+      ${ещёHTML(лишние.map(строка))}
     </div>` });
   }
   if (!карточки.length) return поиск ? пусто(true, '') : '<div class="hud-arc-empty">В этом отрезке отношения не менялись</div>';
@@ -269,7 +305,7 @@ export function вкладкаРепутации(отчёт, поиск) {
       + (л.changes.length ? `<div class="hud-arc-row"><label>путь</label><div class="hud-arc-path">${путь}</div></div>` : '')
       + `<div class="hud-arc-row"><label>впервые</label><div class="hud-arc-path">${сЗнаком(л.start)}${л.startWhy ? ` · ${escapeHtml(л.startWhy)}` : ''} ${ссылка(л.firstSeen)}</div></div>`
       + сдвиги.slice(0, СТРОК_ОТНОШЕНИЙ).map(строка).join('')
-      + (лишние.length ? `<details class="hud-arc-more"><summary>${значок('clock')}<span>Ещё</span><i class="hud-arc-count">${лишние.length}</i></summary>${лишние.map(строка).join('')}</details>` : '')
+      + ещёHTML(лишние.map(строка))
       + `</div>` };
   });
   // Итог за отрезок: от первого числа до последнего.
@@ -406,7 +442,7 @@ function журналБеременностейHTML() {
   const журнал = журналБеременностей();
   if (!журнал.length) return '';
   return `<details class="hud-arc-card hud-arc-preglog"><summary>Журнал событий</summary><ul>${журнал.slice(-40).reverse().map(з => `<li>${Number.isFinite(з.дата) ? `<time>${дм(з.дата)}</time> ` : ''}<b>${escapeHtml(имяМатери(з.кто))}</b> ${escapeHtml(з.что)}</li>`).join('')}</ul>`
-    + `<button type="button" class="hud-arc-again" data-arc-preglog="1">Скачать журнал</button></details>`;
+    + `<button type="button" class="hud-arc-again" data-arc-preglog="1">Скачать журнал</button>${кнопкаСвернуть(журнал.length)}</details>`;
 }
 
 export function вкладкаХронологии(отчёт, поиск) {
@@ -492,7 +528,7 @@ export function вкладкаСаундтрека(отчёт, поиск) {
     }).join('') + '</div>'));
 }
 
-function вкладкаСтатистики(отчёт) {
+export function вкладкаСтатистики(отчёт) {
   моменты = (отчёт && отчёт.moments) || {};
   const s = отчёт.stats;
   const плитка = (значение, подпись, пояснение) => `<div class="hud-arc-tile">
@@ -524,11 +560,13 @@ function вкладкаСтатистики(отчёт) {
         <div class="hud-arc-row"><div>${s.characters.map(n => `<span class="hud-arc-who">${escapeHtml(n)}</span>`).join('')}</div></div></div>`
     : '';
 
+  // Настроение: последние смены, ранние — по «раньше»; люди сверх восьми — под «Ещё».
+  сброситьОтложенное();
+  const строкаНастроения = (m) => `<div class="hud-arc-row"><label>${escapeHtml(m.name)}</label>
+          <div class="hud-arc-path">${путьHTML(m.changes.map(c => `<span class="hud-arc-status">${escapeHtml(c.mood)} ${ссылка(c.at)}</span>`), 6, '')}</div></div>`;
   const настроения = отчёт.moods.length
     ? `<div class="hud-arc-card"><div class="hud-arc-card-head"><i class="hud-arc-medal">${значок('wave')}</i><b>Настроение по персонажам</b></div>
-        ${отчёт.moods.slice(0, 8).map(m => `<div class="hud-arc-row"><label>${escapeHtml(m.name)}</label>
-          <div class="hud-arc-path">${m.changes.slice(-6).map(c => `<span class="hud-arc-status">${escapeHtml(c.mood)} ${ссылка(c.at)}</span>`).join('<i>→</i>')}
-          ${m.changes.length > 6 ? `<span class="hud-arc-tag">всего ${m.changes.length}</span>` : ''}</div></div>`).join('')}
+        ${отчёт.moods.slice(0, 8).map(строкаНастроения).join('')}${ещёHTML(отчёт.moods.slice(8).map(строкаНастроения))}
       </div>`
     : '';
 
@@ -938,6 +976,17 @@ export function openArchiveDialog() {
   }));
   // Поиск — заново с первой порции.
   $('.hud-arc-search').addEventListener('input', () => { сброситьПоказанное(); показать(); });
+  // Раскрыли «раньше» в пути — дорисовать ранние шаги (toggle не всплывает).
+  тело.addEventListener('toggle', (e) => дорисовать(e.target), true);
+  // «Свернуть» внизу раскрытого — закрыть его и вернуть шапку в вид.
+  тело.addEventListener('click', (e) => {
+    const к = e.target.closest('[data-arc-fold]');
+    const d = к && к.closest('details');
+    if (!d) return;
+    d.open = false;
+    const шапка = d.querySelector(':scope > summary');
+    if (шапка) шапка.scrollIntoView({ block: 'nearest' });
+  });
   // Фильтр вкладки, «ещё», «все», «свернуть».
   тело.addEventListener('click', (e) => {
     const к = e.target.closest('[data-arc-filter], [data-arc-more], [data-arc-all], [data-arc-less]');

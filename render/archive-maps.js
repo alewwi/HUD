@@ -11,11 +11,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.90';
-import { ико } from './view-icons.js?v=23.89.90';
-import { normalizeDiaryMood, ТЕМЫ_ДНЕВНИКА } from './diary.js?v=23.89.90';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.90';
-import { английский } from '../i18n.js?v=23.89.90';
+import { escapeHtml } from '../utils.js?v=23.89.91';
+import { ико } from './view-icons.js?v=23.89.91';
+import { normalizeDiaryMood, ТЕМЫ_ДНЕВНИКА } from './diary.js?v=23.89.91';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.91';
+import { английский } from '../i18n.js?v=23.89.91';
+// Порции и «Ещё» — общие с остальными вкладками (цикл импорта: зовутся только при показе).
+import { порцией } from './archive.js?v=23.89.91';
 // Подписи «Где кто живёт» — сразу на языке интерфейса (языки из таблиц — английские).
 const L = (ru, en) => (английский() ? en : ru);
 
@@ -100,10 +102,10 @@ export function вкладкаАтласа(отчёт, поиск = '') {
     + ((м.lived || []).length ? `<span class="lived">${значок('house')} ${L('жили раньше', 'lived here before')}: ${м.lived.map(x => кто(x, м.place) + (x.until ? ` <small>${L('до', 'until')} ${escapeHtml(дата(x.until))}</small>` : '')).join(', ')}</span>` : '')
     + ((м.stayed || []).length ? `<span class="stayed">${значок('moon')} ${L('ночью были', 'here at night')}: ${м.stayed.slice(0, 4).map(x => escapeHtml(x.name) + (x.nights > 1 ? ` <small>×${x.nights}</small>` : '')).join(', ')}${м.stayed.length > 4 ? ` <small>${L('и ещё', 'and')} ${м.stayed.length - 4}${L('', ' more')}</small>` : ''}</span>` : '');
   return дома + `<section class="hud-arc-card hud-arc-atlas"><div class="hud-arc-card-head">${значок('pin')} <b>Атлас мест</b><span class="hud-arc-tag">${места.length}</span></div>`
-    + места.map(м => `<div class="hud-arc-place"><div class="top"><b>${escapeHtml(заглавная(м.place))}</b><span class="visits" style="--arc-v:${Math.round(м.visits / наибольшее * 100)}%"><i></i>${м.visits} ${склон(м.visits, 'визит', 'визита', 'визитов')}</span></div>`
+    + порцией('atlas', места.map(м => `<div class="hud-arc-place"><div class="top"><b>${escapeHtml(заглавная(м.place))}</b><span class="visits" style="--arc-v:${Math.round(м.visits / наибольшее * 100)}%"><i></i>${м.visits} ${склон(м.visits, 'визит', 'визита', 'визитов')}</span></div>`
       + `<div class="meta">${м.lastDate ? `<span>${значок('clock')} последний раз ${escapeHtml(м.lastDate)}</span>` : ''}${жильё(м)}${м.works.length ? `<span class="works">${значок('tool')} работает: ${escapeHtml(м.works.join(', '))}</span>` : ''}</div>`
       + (м.people.length ? `<div class="people">${м.people.map(п => `<span>${escapeHtml(п.name)} <small>${п.turns}</small></span>`).join('')}</div>` : '')
-      + '</div>').join('') + '</section>';
+      + '</div>')) + '</section>';
 }
 const склон = (n, один, два, пять) => { const д = n % 100, е = n % 10; return д > 10 && д < 20 ? пять : е === 1 ? один : е >= 2 && е <= 4 ? два : пять; };
 

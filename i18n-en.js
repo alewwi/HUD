@@ -5457,6 +5457,7 @@ export const СЛОВАРЬ_EN = {
   "пропущен": "missed",
   "Журнал звонков пуст": "The call log is empty",
   "Раньше": "Earlier",
+  "раньше": "earlier",
   "во время сцены": "during the scene",
   "Часы пока ничего не записали": "The watch hasn't recorded anything yet",
   "шаги": "steps",

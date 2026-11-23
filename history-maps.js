@@ -11,10 +11,10 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.90';
-import { применитьСтупени, ступениВкл } from './render/trust-stages.js?v=23.89.90';
-import { namesLikelySame } from './names.js?v=23.89.90';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.90';
+import { getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.91';
+import { применитьСтупени, ступениВкл } from './render/trust-stages.js?v=23.89.91';
+import { namesLikelySame } from './names.js?v=23.89.91';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.91';
 
 const текст = (v) => (v === null || v === undefined ? '' : typeof v === 'string' ? v : Array.isArray(v) ? v.map(текст).join('; ') : typeof v === 'object' ? Object.values(v).map(текст).join('; ') : String(v)).trim();
 const значимо = (s) => !!s && !/^(?:empty|none|null|—|-|n\/a|nc)$/i.test(String(s).trim());

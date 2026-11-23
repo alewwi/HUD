@@ -4,6 +4,16 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.91 — 2026-11-23
+
+### Changed
+- **Archive: long lists are folded everywhere, newest first.**
+  - In "Relations" every person shows the two latest statuses. Earlier ones hide under an "earlier N" pill and are drawn only when you tap it. A path of 200 changes used to run as a wall and made the tab heavy.
+  - The "Atlas of places" shows places in portions like the other tabs: 10 places, then "More", "Show all" and "Collapse".
+  - In "Statistics" the mood per character shows the last six changes, earlier ones under "earlier". Characters beyond eight no longer vanish; they are under "More".
+  - The trust card shows the last six reasons, the rest under "More". Older reasons used to get lost.
+  - An open "More" says "Collapse" in its header. A long open list also has a "Collapse" button at the bottom, and after it the header comes back on screen. The same goes for "Who learned it and when", "Thread history" and the pregnancy log.
+
 ## 23.89.90 — 2026-11-23
 
 ### Changed
