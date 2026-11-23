@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.89**:
+The latest version is **23.89.90**:
 
+- Companion wounds as a list, like in the character card: where, stage, how far healed, when it heals, how to treat it, whether it scars, plus scars from old wounds — in every companion view. Scene: melting March snow and snowdrops, a glowing garland, pumpkins and fireworks at night, clouds in cloudy weather, a lamp in the wind, a kite on the sand and campfire embers in the rain.
 - Living details: a rise (orgasm 65 → 85 → 97) is not held back by the pause; "after" even without phase 3; "in the city" is not the room temperature; illness is not "pain"; "desire to sleep" is not desire.
 - Living details by strength and by scene, in the character's own manner; thirst, heat and cold by the indoor temperature, all cycle phases, breastfeeding, marks, adrenaline; a separate "Living details in intimacy" checkbox — desire with wetness, orgasm from 60, a long scene, "after"; nothing turned off is sent to the model.
 - A "Reputation" tab in the archive with the whole faction history; the model writes reputation as changes only, and "How it changed" in the HUD covers "Turns back". A "Living details for the player too" checkbox. "Who lives where" in the "Atlas of places". An unchanged price is grey, intercepts no longer double, energy and alertness don't rise without sleep, coffee or adrenaline, and a crash follows them.

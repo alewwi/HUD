@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.89.89';
-import { mapKey } from './utils.js?v=23.89.89';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.89';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.89';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.89';
+import { settings } from './settings.js?v=23.89.90';
+import { mapKey } from './utils.js?v=23.89.90';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.90';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.90';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.90';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -262,7 +262,7 @@ export function normalizeJSONData(parsed) {
   const ПОДПИСИ_ВЬЮЧНЫХ = { ld: 'Груз', rst: 'Выносливость', fod: 'Корм', tck: 'Сбруя', stb: 'Постой', inj: 'Рана' };
   const companionsParsed = (Array.isArray(parsed.companions) ? parsed.companions : [])
     .map(p => {
-      if (typeof p === 'string') return { name: toStr(p), species: '', age: '', eyes: '', wants: '', treat: '', owner: '', mood: '', condition: '', diet: '', bond: '', skills: '', note: '', levels: '', extra: [] };
+      if (typeof p === 'string') return { name: toStr(p), species: '', age: '', eyes: '', wants: '', treat: '', owner: '', mood: '', condition: '', diet: '', bond: '', skills: '', note: '', levels: '', injuries: '', scars: '', extra: [] };
       if (!p || typeof p !== 'object') return null;
       const один = (k) => toStr(Array.isArray(p[k]) ? p[k].join('; ') : p[k]);
       // Модель не всегда пишет коды из инструкции: «k» вместо «sp», «s» вместо
@@ -278,6 +278,11 @@ export function normalizeJSONData(parsed) {
         mood: поле('mood', 'md', 'm', 'настроение'), condition: поле('condition', 'cnd', 'health', 'hlt', 'h', 'hp', 'состояние', 'здоровье'), diet: поле('diet', 'fd', 'food', 'f', 'рацион', 'еда'),
         bond: поле('bond', 'bnd', 'b', 'loyalty', 'привязанность'), skills: поле('skills', 'skl', 'sk', 'tricks', 'умения'),
         note: поле('note', 'nte', 'st', 'sts', 's', 'state', 'status', 'doing', 'now', 'act', 'сейчас') };
+      // Раны списком (render/pet-wounds.js): группы через «|». Список или объект от модели — тоже.
+      const группа = (v) => (v && typeof v === 'object' && !Array.isArray(v) ? Object.entries(v).map(([k, x]) => k + ': ' + toStr(x)).join('; ') : toStr(v));
+      const раны = (...ключи) => { ключи.forEach(k => взято.add(k)); for (const k of ключи) { const v = p[k]; const s = Array.isArray(v) ? v.map(группа).filter(Boolean).join(' | ') : группа(v); if (s && valid(s)) return s; } return ''; };
+      спутник.injuries = раны('injuries', 'inj', 'ill', 'wounds', 'wound', 'раны', 'рана');
+      спутник.scars = раны('scars', 'scr', 'scar', 'шрамы');
       // Потребности 1-5 для тамагочи: строка «Сытость: 4; Энергия: 3» или объект.
       const сырыеУровни = ['levels', 'lv', 'needs', 'потребности'].map(k => p[k]).find(v => v !== undefined && v !== null && v !== '');
       ['levels', 'lv', 'needs', 'потребности'].forEach(k => взято.add(k));

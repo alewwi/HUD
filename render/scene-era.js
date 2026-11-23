@@ -118,7 +118,9 @@ function кристаллы() {
   return [svg('0 0 34 28', `<defs>${заливка(g, '#e6fbff', '#5455a4', '#84b9d9')}</defs><path d="M2 25l5-4 7 1 5-3 9 2 4 4-6 2H7Z" fill="#70647a"/>`
       + `<path fill="url(#${g})" d="M4 23 3 13l4-3 5 5 1 10Zm9 1L11 8l4-7 7 4 1 16-4 5Zm8 1 3-14 5-3 2 7-4 11Z"/>`
       + `<path d="m15 1 2.5 8 2 17 3.5-5-1-16Zm14 7-3 7-2 11 3 .1 4-11ZM7 10l1 8 2 7h3l-1-10Z" fill="#5c66ae" fill-opacity=".55"/><path d="M11 8l6.5 1L22 5M3 13l5 5 4-3m12-4 2 4 5-.1" fill="none" stroke="#e9f7ff" stroke-width=".65"/><path d="m5 26 4-1m13 1 4-1m-11 .7 2-2" stroke="#ba9aab" stroke-width=".7"/>`),
-    svg('0 0 34 28', `<ellipse cx="17" cy="17" rx="16" ry="12" class="gl-cyan"/><path d="m15 1 2.5 8 2 17M7 10l1 8m21-10-3 7" fill="none" stroke="#caf3ff" stroke-width="1.1"/>`)];
+    // Свечение — мягкое, по силуэту кристаллов, и две искры на верхушках:
+    // прежние штрихи по граням светились ночью жёсткими белыми полосами.
+    svg('0 0 34 28', `<ellipse cx="17" cy="18" rx="16" ry="11" class="gl-cyan"/><path class="gl-core" d="M4 23 3 13l4-3 5 5 1 10Zm9 1L11 8l4-7 7 4 1 16-4 5Zm8 1 3-14 5-3 2 7-4 11Z"/><path class="gl-tw" d="M15 -.8v3.6M13.2 1h3.6M29 6.2v2.8M27.6 7.6h2.8"/>`)];
 }
 
 function метла() {

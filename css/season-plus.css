@@ -143,6 +143,13 @@
 .hud-sp-tulips .t1 .bloom { fill: #e8344a; } .hud-sp-tulips .t2 .bloom { fill: #ffcf3a; }
 .hud-sp-tulips .t3 .bloom { fill: #f28ab5; } .hud-sp-tulips .t4 .bloom { fill: #9a5ad6; }
 .hud-sp-tulips .tulip { transform-box: fill-box; transform-origin: 50% 100%; }
+/* Март: на месте тюльпанов — подснежники (render/scene-plus.js). */
+.hud-sp-tulips .drop { transform-box: fill-box; transform-origin: 50% 100%; }
+.hud-sp-tulips .sd-leaf { fill: #6c977a; }
+.hud-sp-tulips .sd-stalk { fill: none; stroke: #5d9658; stroke-width: .7; stroke-linecap: round; }
+.hud-sp-tulips .sd-petal { fill: #f8faf7; stroke: rgba(118, 138, 128, .6); stroke-width: .3; }
+.hud-sp-tulips .sd-mark { fill: none; stroke: #4f9a48; stroke-width: .6; stroke-linecap: round; }
+.hud-sp-tulips .sd-ovary { fill: #6aa858; }
 @media (max-width: 470px) { .season-spring .hud-sp-tulips { display: none; } }
 @media (max-width: 390px) { .season-spring .hud-flower:is(.f3, .f5) { display: none; } }
 @container hud (max-width: 420px) { .season-spring .hud-sp-tulips { display: none; } }
@@ -192,7 +199,7 @@
   .hud-sp-ducks .dl-walk .lg2 { animation: hud-sp-duck-leg 1.1s ease-in-out infinite reverse; }
   .hud-sp-ducks .d2 .dl-walk, .hud-sp-ducks .d2 .dl-walk :is(.lg1, .lg2) { animation-duration: 1.25s; animation-delay: .3s; }
   .hud-sp-ducks .d3 .dl-walk, .hud-sp-ducks .d3 .dl-walk :is(.lg1, .lg2) { animation-duration: .95s; animation-delay: .6s; }
-  .hud-sp-tulips .tulip { animation: hud-sp-sway 3.2s ease-in-out infinite; animation-delay: calc(var(--i) * .25s); }
+  .hud-sp-tulips :is(.tulip, .drop) { animation: hud-sp-sway 3.2s ease-in-out infinite; animation-delay: calc(var(--i) * .25s); }
 }
 @keyframes hud-sp-sway { 0%, 100% { transform: rotate(0deg); } 30% { transform: rotate(3deg); } 70% { transform: rotate(-2.5deg); } }
 @keyframes hud-sp-beam { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
@@ -665,6 +672,8 @@
    в процентах куст на карточке ~420px попадал прямо на ствол. --- */
 .season-spring .hud-blossom-shrub { left: auto; right: 51px; }
 .season-spring .hud-sp-tulips { left: auto; right: 87px; }
+/* Узкая карточка: правее ствола со скворечником (bt3 ≈ 62% + 42px), а не на нём. */
+.season-spring .hud-sp-tulips { left: max(calc(62% + 48px), calc(100% - 139px)); right: auto; }
 
 /* --- Весна: скворечник с птенцом --- */
 .hud-birdhouse.is-svg > svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
@@ -754,6 +763,14 @@
 .hud-xmas-tree.is-svg .bauble .cap { fill: none; stroke: #c9b070; stroke-width: .7; }
 .hud-xmas-tree.is-svg .xs-star { fill: #ffd96e; stroke: #e8a52a; stroke-width: .4; stroke-linejoin: round; }
 .hud-xmas-tree.is-svg .xs-star-hi { fill: #fff6d0; }
+/* Светящийся двойник ёлки в слое огней (render/scene-plus.js): стоит в той же
+   рамке, что и ёлка (.hud-xmas-tree), и разгорается к ночи, как фонарь. Цвет и
+   мигание огоньков — общие с ёлкой (.lt выше). */
+.hud-fx-lights .hud-spl-xmas { filter: none; z-index: auto; }
+.hud-spl-xmas .glow { filter: blur(1.4px); opacity: .6; }
+.hud-spl-xmas .dot { opacity: 1; }
+.hud-spl-xmas .star-glow { fill: rgba(255, 214, 120, .5); filter: blur(2.6px); }
+.hud-spl-xmas .star { fill: #ffe7a0; }
 
 /* --- Зима: снегирь сидит на шапке фонаря --- */
 .hud-sp-lamp .bf-feet { fill: none; stroke: #1f2228; stroke-width: .5; stroke-linecap: round; }
@@ -812,6 +829,11 @@
 .hud-scene-widget:is(.phase-sunset, .phase-evening, .phase-night, .phase-deep-night, .phase-predawn) .hud-pk-art .pk-cut { fill: #ffd36b; animation: hud-pumpkin-flicker 2.4s ease-in-out infinite; }
 .hud-scene-widget:is(.phase-sunset, .phase-evening, .phase-night, .phase-deep-night, .phase-predawn) .hud-pk-art .pk-rind { fill: #ff9a3a; }
 .hud-scene-widget:is(.phase-evening, .phase-night, .phase-deep-night) .hud-pumpkin.is-svg { box-shadow: none; filter: drop-shadow(0 0 4px rgba(255, 150, 40, .45)); }
+/* Свет тыкв в слое огней (render/scene-plus.js): рамки — те же .hud-pumpkin. */
+.hud-fx-lights .hud-spl-pumpkins .hud-pumpkin.is-svg { filter: none; }
+.hud-pk-glow .halo { fill: rgba(255, 150, 40, .38); filter: blur(4px); }
+.hud-pk-glow .face { fill: #ffd36b; filter: drop-shadow(0 0 1.5px rgba(255, 190, 80, .9)); }
+@media (prefers-reduced-motion: no-preference) { .hud-pk-glow .face { animation: hud-pumpkin-flicker 2.4s ease-in-out infinite; } }
 /* Без движения сцена стоит на первом кадре — пусть это будет кадр, где
    скворец уже у летка с кормом, а птенец тянется к нему. */
 .season-spring .hud-starling.is-svg, .hud-bh-art .bh-chick, .hud-bh-art .ch-beak-l { animation-delay: -4s; }
@@ -1038,3 +1060,219 @@
 .hud-scene-widget:not(:is(.phase-evening, .phase-night, .phase-deep-night)) > .hud-fx-fireflies,
 .hud-scene-widget:not(:is(.season-summer, .season-spring.month-5.month-late)) > .hud-fx-fireflies,
 .hud-scene-widget:is(.weather-storm, .weather-rain, .weather-intensity-high) > .hud-fx-fireflies { display: none; }
+
+/* =========================================================================
+   НЕПОГОДА: ЖИВОТНЫЕ ПРЯЧУТСЯ
+   В дождь любой силы, грозу, град, густой снегопад, метель и буран, в сильный
+   ветер звери и птицы уходят из сцены: птицы, утки, лягушка, пчёлы и бабочка,
+   стрекоза и цикады, ёж, краб, улитка, ворона на пугале, снегирь на фонаре,
+   птенцы в дупле и в скворечнике, звери-духи, феи, дракон и ведьма на метле из облика эпохи
+   (render/scene-era.js — и их светящиеся двойники в слое огней). Обычный снег
+   и лёгкий ветер плохой погодой не считаются. Классы ставит index.js.
+   ========================================================================= */
+.hud-scene-widget:is(.weather-storm, .weather-rain, .weather-hail, .weather-windy-strong,
+  :is(.weather-wind, .weather-snow):is(.weather-intensity-high, .weather-intensity-heavy, .weather-intensity-gale, .weather-intensity-extreme))
+  :is(.hud-frog, .hud-butterfly, .hud-bee, .hud-starling, .hud-woodpecker, .hud-hollow-chick, .hud-spring-flock, .hud-snail, .hud-sp-ducks,
+  .hud-gull, .hud-gull-glide, .hud-summer-dragonfly, .hud-summer-cicada-sound, .hud-sp-crab, .hud-bird-flock, .hud-hedgehog, .hud-burrow-animal,
+  .crow, .bullfinch, .bh-chick, .se-fox, .se-deer, .se-dragon, .hud-se-fairies, .se-broom) { display: none !important; }
+.hud-scene-widget:is(.weather-hail, .weather-windy-strong, .weather-snow.weather-intensity-heavy, .weather-snow.weather-intensity-gale, .weather-snow.weather-intensity-extreme) > .hud-fx-fireflies { display: none; }
+
+/* =========================================================================
+   ВЕТЕР: ЕЛИ, ЁЛКА И ФОНАРЬ
+   Ветер — это и сам ветер (weather-wind, windy, windy-strong), и гроза,
+   и метель с бураном (снег с силой high/gale/extreme несёт ветром).
+   Ели жёстче лиственных деревьев — наклон меньше, у каждой свой такт.
+   Новогодняя ёлка качается вместе со светящимся двойником в слое огней
+   (у обоих класс .hud-xmas-tree). У фонаря качается только голова на
+   кронштейне — вокруг конца кронштейна (26, 11 в рисунке 40×90), столб
+   стоит; её ореол и луч в слое огней — в той же группе и с тем же тактом.
+   В покое сцена стоит на первом кадре — уже в наклоне.
+   ========================================================================= */
+@keyframes hud-spruce-lean        { 0%, 100% { rotate: -1.3deg; } 50% { rotate: .4deg; } }
+@keyframes hud-spruce-lean-strong { 0%, 100% { rotate: -2.8deg; } 50% { rotate: -.4deg; } }
+@keyframes hud-lamp-swing         { 0%, 100% { rotate: -6deg; } 50% { rotate: 4deg; } }
+@keyframes hud-lamp-swing-strong  { 0%, 100% { rotate: -12deg; } 50% { rotate: 6deg; } }
+.hud-sp-spruce, .season-winter .hud-xmas-tree { transform-origin: 50% 100%; }
+.lamp-swing { transform-box: view-box; transform-origin: 26px 11px; }
+.hud-scene-widget:is(.weather-wind, .weather-windy, .weather-windy-strong, .weather-storm, .weather-snow:is(.weather-intensity-high, .weather-intensity-gale, .weather-intensity-extreme))
+  :is(.hud-sp-spruce, .hud-xmas-tree) { animation: hud-spruce-lean 3.1s ease-in-out var(--lean-d, 0s) infinite; }
+.hud-scene-widget:is(.weather-wind, .weather-windy, .weather-windy-strong, .weather-storm, .weather-snow:is(.weather-intensity-high, .weather-intensity-gale, .weather-intensity-extreme))
+  :is(.hud-sp-lamp, .hud-spl-lamp) .lamp-swing { animation: hud-lamp-swing 2.3s ease-in-out infinite; }
+.hud-scene-widget:is(.weather-windy-strong, .weather-storm, .weather-wind:is(.weather-intensity-high, .weather-intensity-heavy), .weather-snow:is(.weather-intensity-gale, .weather-intensity-extreme))
+  :is(.hud-sp-spruce, .hud-xmas-tree) { animation: hud-spruce-lean-strong 2s ease-in-out var(--lean-d, 0s) infinite; }
+.hud-scene-widget:is(.weather-windy-strong, .weather-storm, .weather-wind:is(.weather-intensity-high, .weather-intensity-heavy), .weather-snow:is(.weather-intensity-gale, .weather-intensity-extreme))
+  :is(.hud-sp-lamp, .hud-spl-lamp) .lamp-swing { animation: hud-lamp-swing-strong 1.4s ease-in-out infinite; }
+.hud-sp-spruce.e2 { --lean-d: -.9s; }
+.hud-sp-spruce.e3 { --lean-d: -1.7s; }
+.hud-xmas-tree { --lean-d: -.5s; }
+/* Слой огней идёт вместе со сценой и под мышью — иначе ореол фонаря и
+   гирлянда отставали бы от качающейся головы и ёлки. */
+@media (hover: hover) and (pointer: fine) {
+  .hud-scene-widget:hover .hud-fx-lights, .hud-scene-widget:hover .hud-fx-lights * { animation-play-state: running !important; }
+}
+
+/* =========================================================================
+   КОСТЁР: ВЕТЕР И ДОЖДЬ
+   Ветер (и гроза, и метель) клонит пламя в сторону и треплет его чаще,
+   дым сносит вбок. Дождь (кроме мороси) и гроза заливают огонь: пламени,
+   искр и зарева нет, на обугленных поленьях тлеют угли, над ними — тонкий
+   пар; ореол в слое огней сжимается до тусклого свечения углей.
+   ========================================================================= */
+.hud-campfire.is-svg .embers { display: none; }
+.hud-campfire.is-svg .em-bed { fill: #2e2420; }
+.hud-campfire.is-svg .em-char { fill: #1c1614; }
+.hud-campfire.is-svg .em { fill: #ff6a24; filter: drop-shadow(0 0 1px rgba(255, 120, 40, .9)); }
+.hud-campfire.is-svg .em.e2 { fill: #ffa040; } .hud-campfire.is-svg .em.e4 { fill: #ff8a30; }
+@keyframes hud-fire-wind        { 0%, 100% { transform: skewX(-12deg) scale(.96, 1.03); } 35% { transform: skewX(-6deg) scale(1.05, .93); } 70% { transform: skewX(-15deg) scale(.92, 1.06); } }
+@keyframes hud-fire-wind-strong { 0%, 100% { transform: skewX(-22deg) scale(.94, .96); } 40% { transform: skewX(-12deg) scale(1.06, .88); } 75% { transform: skewX(-26deg) scale(.9, 1); } }
+@keyframes hud-fire-smoke-wind {
+  0% { transform: translate(0, 0) scale(.5); opacity: 0; }
+  12% { opacity: .6; }
+  100% { transform: translate(-14px, -12px) scale(2.2); opacity: 0; }
+}
+@keyframes hud-ember-glow { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
+.hud-scene-widget:is(.weather-wind, .weather-windy, .weather-windy-strong, .weather-storm, .weather-snow:is(.weather-intensity-high, .weather-intensity-gale, .weather-intensity-extreme)) .hud-campfire.is-svg .flames {
+  animation: hud-fire-wind .8s ease-in-out infinite;
+}
+.hud-scene-widget:is(.weather-windy-strong, .weather-wind:is(.weather-intensity-high, .weather-intensity-heavy), .weather-snow:is(.weather-intensity-gale, .weather-intensity-extreme)) .hud-campfire.is-svg .flames {
+  animation: hud-fire-wind-strong .55s ease-in-out infinite;
+}
+.hud-scene-widget:is(.weather-wind, .weather-windy, .weather-windy-strong, .weather-storm, .weather-snow:is(.weather-intensity-high, .weather-intensity-gale, .weather-intensity-extreme)) .hud-campfire.is-svg .puff {
+  animation-name: hud-fire-smoke-wind; animation-duration: 3s; /* задержки клубов — прежние */
+}
+/* Дождь и гроза: угли вместо огня. */
+.hud-scene-widget:is(.weather-storm, .weather-rain:not(.weather-intensity-low)) .hud-campfire.is-svg :is(.flames, .spark, .glow) { display: none; }
+.hud-scene-widget:is(.weather-storm, .weather-rain:not(.weather-intensity-low)) .hud-campfire.is-svg .embers { display: inline; }
+.hud-scene-widget:is(.weather-storm, .weather-rain:not(.weather-intensity-low)) .hud-campfire.is-svg .em { animation: hud-ember-glow 2.6s ease-in-out infinite; }
+.hud-scene-widget:is(.weather-storm, .weather-rain:not(.weather-intensity-low)) .hud-campfire.is-svg .em:is(.e2, .e4) { animation-delay: -1.3s; }
+.hud-scene-widget:is(.weather-storm, .weather-rain:not(.weather-intensity-low)) .hud-campfire.is-svg :is(.log, .log-end) { filter: brightness(.55) saturate(.6); }
+.hud-scene-widget:is(.weather-storm, .weather-rain:not(.weather-intensity-low)) .hud-campfire.is-svg .puff { fill: rgba(196, 200, 206, .4); }
+.hud-scene-widget:is(.weather-storm, .weather-rain:not(.weather-intensity-low)) .hud-campfire::before { display: none; }
+.hud-scene-widget:is(.weather-storm, .weather-rain:not(.weather-intensity-low)) .hud-spl-campfire { opacity: calc(var(--scene-night-strength, 0) * .45); }
+.hud-scene-widget:is(.weather-storm, .weather-rain:not(.weather-intensity-low)) .hud-spl-campfire > svg { transform: scale(.4); transform-origin: 50% 75%; }
+
+/* =========================================================================
+   ОБЛАЧНО: НЕСКОЛЬКО ОБЛАКОВ ВМЕСТО ОДНОГО БОЛЬШОГО
+   Облака — разметка render/scene-plus.js (облакаНеба) в слое .hud-fx-cloud-cover:
+   он над светилом и под пейзажем. Два облака стоят в рамке светила
+   (.hud-sky-at-sun повторяет положение .hud-fx-celestial, на узкой карточке —
+   его боковую полосу и поджатую дугу) и закрывают солнце или луну; четыре
+   разбросаны по небу. Прежнее облако из градиентов выключено.
+   ========================================================================= */
+.hud-scene-widget.weather-cloudy.weather-cloudy .hud-fx-cloud-cover { background: none !important; filter: none; }
+.hud-scene-widget.weather-cloudy.weather-cloudy .hud-fx-cloud-cover::before,
+.hud-scene-widget.weather-cloudy.weather-cloudy .hud-fx-cloud-cover::after { display: none; }
+.hud-sky-at-sun { position: absolute; left: var(--cel-x, auto); top: var(--cel-y, 14px); width: 54px; height: 54px; margin: -27px 0 0 -27px; }
+.hud-scene-widget:not([style*="--cel-x"]) .hud-sky-at-sun { left: auto; right: 26px; top: 14px; margin: 0; }
+.hud-sky-cloud { position: absolute; display: block; aspect-ratio: 80 / 32; pointer-events: none; }
+.hud-sky-cloud > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hud-sky-cloud .puff { fill: #edf1f6; }
+.hud-sky-cloud .shade { fill: rgba(146, 158, 182, .88); }
+.hud-sky-cloud .lit { fill: none; stroke: rgba(255, 255, 255, .85); stroke-width: 1.3; stroke-linecap: round; }
+.hud-sky-at-sun .k1 { left: -52%; top: 26%; width: 180%; }
+.hud-sky-at-sun .k2 { left: 18%; top: -26%; width: 120%; }
+.hud-sky-cloud.k3 { left: 3%; top: 9%; width: clamp(46px, 13%, 80px); }
+.hud-sky-cloud.k4 { left: 34%; top: 24%; width: clamp(36px, 9%, 58px); opacity: .86; }
+.hud-sky-cloud.k5 { left: 58%; top: 5%; width: clamp(48px, 14%, 84px); }
+.hud-sky-cloud.k6 { left: 83%; top: 30%; width: clamp(32px, 8%, 52px); opacity: .82; }
+/* Вечером и ночью облака гаснут вместе с небом, на закате теплеют. */
+.hud-scene-widget:is(.phase-evening, .phase-night, .phase-deep-night, .phase-predawn) .hud-sky-cloud { filter: brightness(.5) saturate(.6); }
+.hud-scene-widget:is(.phase-golden, .phase-sunset) .hud-sky-cloud { filter: sepia(.3) saturate(1.3) brightness(1.02); }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-sky-cloud { animation: hud-sp-drift 14s ease-in-out infinite; animation-play-state: paused; }
+  .hud-sky-cloud.k2 { animation-duration: 11s; animation-delay: -3s; } .hud-sky-cloud.k4 { animation-duration: 17s; animation-delay: -6s; }
+  .hud-sky-cloud.k5 { animation-delay: -9s; } .hud-sky-cloud.k6 { animation-duration: 19s; animation-delay: -2s; }
+  .hud-scene-widget.fx-active .hud-sky-cloud { animation-play-state: running; }
+}
+@media screen and (max-width: 600px) {
+  .hud-sky-at-sun { width: 40px; height: 40px; margin: -20px 0 0 -20px; left: var(--cel-xm, var(--cel-x, auto)); top: calc(24% + var(--cel-y, 12px) * .62); }
+  .hud-scene-widget:not([style*="--cel-x"]) .hud-sky-at-sun { left: auto; right: 20px; top: 12px; margin: 0; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media screen and (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-sky-at-sun { width: 40px; height: 40px; margin: -20px 0 0 -20px; left: var(--cel-xm, var(--cel-x, auto)); top: calc(24% + var(--cel-y, 12px) * .62); }
+  .hud-scene-widget:not([style*="--cel-x"]) .hud-sky-at-sun { left: auto; right: 20px; top: 12px; margin: 0; }
+} }
+/* cq ↑ */
+
+/* =========================================================================
+   ДОЖДЬ И ГРОЗА: НА ВСЮ КАРТОЧКУ
+   Дождь шёл узкой полосой по центру из двух маленьких тучек — капли
+   появлялись посреди неба. Теперь струи на всю ширину и высоту (как было
+   только на телефоне: полоса скошена, а не повёрнута, верх ровный), тучки
+   убраны, а вдоль верхней кромки висит срезанная рамкой серая туча —
+   полоса с неровным комковатым низом, из-под неё и идёт дождь. Ливень —
+   туча ниже и темнее, морось — светлее и тоньше. Гроза свои тучи оставляет,
+   растянут только дождь. Туча — мягкие размытые клубы, а не плотная полоса.
+   ========================================================================= */
+.hud-scene-widget:is(.weather-rain, .weather-storm) .hud-fx-weather::after {
+  left: -30%; width: 160%; margin-left: 0; top: 0; height: 100%;
+  transform: skewX(calc(-1 * min(24deg, var(--rain-lean, 8deg) + var(--rain-tilt-extra, 0deg) * .6)));
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, rgba(0,0,0,.6) 80%, transparent 100%);
+          mask-image: linear-gradient(to bottom, transparent 0, #000 16%, rgba(0,0,0,.6) 80%, transparent 100%);
+}
+.hud-scene-widget.weather-rain.weather-intensity-high .hud-fx-weather::after { --rain-lean: 11deg; }
+.hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-weather::after { --rain-lean: 4deg; }
+.hud-scene-widget.weather-storm .hud-fx-weather::after { --rain-lean: 13deg; }
+.hud-scene-widget.weather-rain .hud-fx-clouds .hud-rain-cloud { display: none !important; }
+.hud-scene-widget.weather-rain .hud-fx-weather::before {
+  content: ''; position: absolute; left: -6%; right: -6%; top: -10px; z-index: 2; pointer-events: none;
+  height: clamp(30px, 22%, 48px);
+  --rs-a: 114, 124, 142; --rs-b: 138, 148, 166; --rs-c: 96, 105, 122;
+  /* Туча из мягких клубов: три ряда размытых пятен разной величины и шага
+     (на глаз не повторяются) и сплошная пелена вдоль самой кромки. Края
+     клубов прозрачные, поверх — размытие: пух, а не снежный карниз. */
+  background:
+    radial-gradient(closest-side, rgba(var(--rs-b), .9) 30%, rgba(var(--rs-b), .45) 66%, rgba(var(--rs-b), 0) 100%) 0 0 / 78px 64% repeat-x,
+    radial-gradient(closest-side, rgba(var(--rs-a), .85) 34%, rgba(var(--rs-a), .38) 68%, rgba(var(--rs-a), 0) 100%) 27px 18% / 53px 70% repeat-x,
+    radial-gradient(closest-side, rgba(var(--rs-c), .7) 30%, rgba(var(--rs-c), .3) 66%, rgba(var(--rs-c), 0) 100%) 61px 34% / 121px 74% repeat-x,
+    radial-gradient(closest-side, rgba(255, 255, 255, .26), rgba(255, 255, 255, 0)) 12px 0 / 97px 46% repeat-x,
+    linear-gradient(180deg, rgba(var(--rs-a), .95) 0%, rgba(var(--rs-a), .75) 30%, rgba(var(--rs-a), 0) 62%);
+  filter: blur(2.2px);
+  opacity: .97;
+  animation: none;
+}
+.hud-scene-widget.weather-rain.weather-intensity-high .hud-fx-weather::before { height: clamp(34px, 27%, 56px); --rs-a: 98, 107, 124; --rs-b: 120, 129, 146; --rs-c: 78, 86, 102; opacity: .96; }
+.hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-weather::before { height: clamp(24px, 16%, 36px); --rs-a: 168, 177, 192; --rs-b: 188, 196, 208; --rs-c: 150, 160, 176; opacity: .8; }
+.hud-scene-widget.weather-rain:is(.phase-evening, .phase-sunset) .hud-fx-weather::before { filter: blur(2.2px) brightness(.8); }
+.hud-scene-widget.weather-rain:is(.phase-night, .phase-deep-night, .phase-predawn) .hud-fx-weather::before { filter: blur(2.2px) brightness(.5); }
+
+/* --- Зима: порог первого дома под сугробом ---
+   Нижняя кромка вала sd-mid1 растворялась с 66% высоты, а низ первого дома
+   приходится как раз на эту полупрозрачную полосу: сквозь неё проступал низ
+   двери — серая «ступенька». У второго дома низ в плотной части своего вала.
+   Растворяем только нижнюю пятую часть. */
+.season-winter .hud-snowdrift.sd-mid1 {
+  -webkit-mask-image: linear-gradient(180deg, #000 0 82%, transparent 100%);
+          mask-image: linear-gradient(180deg, #000 0 82%, transparent 100%);
+}
+
+/* =========================================================================
+   ВОЗДУШНЫЙ ЗМЕЙ: НЕПОГОДА И ВЕТЕР
+   В дождь (любой), грозу, снег и град змей не летает — брошен на песке
+   (render/scene-plus.js, .hud-sp-kite-down): мокрый парус темнее, хвост
+   и леер раскиданы. Он лежит там, где днём ходит краб — краб в непогоду
+   прячется. На ветру летящий змей мечется сильнее и чаще, в сильный ветер —
+   ещё резче.
+   ========================================================================= */
+.hud-sp-kite-down { display: none; position: absolute; pointer-events: none; }
+.hud-sp-kite-down > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.season-summer .hud-sp-kite-down { left: 48%; bottom: 2%; width: clamp(40px, 10%, 60px); aspect-ratio: 70 / 20; z-index: 6; }
+.hud-sp-kite-down .shadow { fill: rgba(90, 70, 40, .22); }
+.hud-sp-kite-down .sail.s1 { fill: #d85858; } .hud-sp-kite-down .sail.s2 { fill: #ddb656; }
+.hud-sp-kite-down .crease { fill: none; stroke: rgba(0, 0, 0, .18); stroke-width: .6; }
+.hud-sp-kite-down .spar { fill: none; stroke: #5a3a20; stroke-width: .8; stroke-linecap: round; }
+.hud-sp-kite-down .tail, .hud-sp-kite-down .string { fill: none; stroke: rgba(250, 250, 245, .75); stroke-width: .6; stroke-linecap: round; }
+.hud-sp-kite-down .bow { fill: #3fb0c6; }
+.hud-scene-widget:is(.weather-rain, .weather-storm, .weather-snow, .weather-hail) .hud-sp-kite { display: none; }
+.hud-scene-widget:is(.weather-rain, .weather-storm, .weather-snow, .weather-hail) .hud-sp-kite-down { display: block; }
+@keyframes hud-sp-kite-wind        { 0%, 100% { transform: translate(0, 0) rotate(-6deg); } 25% { transform: translate(6px, -5px) rotate(12deg); } 50% { transform: translate(2px, 2px) rotate(-10deg); } 75% { transform: translate(7px, -2px) rotate(9deg); } }
+@keyframes hud-sp-kite-wind-strong { 0%, 100% { transform: translate(0, 0) rotate(-14deg); } 20% { transform: translate(10px, -7px) rotate(18deg); } 45% { transform: translate(3px, 4px) rotate(-16deg); } 70% { transform: translate(12px, -3px) rotate(14deg); } }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-scene-widget:is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-sp-kite { animation: hud-sp-kite-wind 1.6s ease-in-out infinite; }
+  .hud-scene-widget:is(.weather-windy-strong, .weather-wind:is(.weather-intensity-high, .weather-intensity-heavy)) .hud-sp-kite { animation: hud-sp-kite-wind-strong .9s ease-in-out infinite; }
+  .hud-scene-widget:is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-sp-kite .tail { animation: hud-sp-sway .5s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 0; }
+}
+/* Обычный и лёгкий снег непогодой не считаются — краб остаётся на месте,
+   и змей ложится левее, между мячом и морской звездой. */
+.season-summer.weather-snow:not(:is(.weather-intensity-high, .weather-intensity-heavy, .weather-intensity-gale, .weather-intensity-extreme)) .hud-sp-kite-down { left: 27%; }

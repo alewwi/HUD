@@ -17,8 +17,8 @@
 // в кодах (hud-snapshot.js, HUDвКодах).
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { namesLikelySame } from './names.js?v=23.89.89';
-import { блокКакБыл } from './hud-block.js?v=23.89.89';
+import { namesLikelySame } from './names.js?v=23.89.90';
+import { блокКакБыл } from './hud-block.js?v=23.89.90';
 
 export const NC = /^\s*(?:nc|n\/c|no change|unchanged)\s*\.?\s*$/i;
 export const ПОЛЯ_NC = ['Ap', 'C', 'Kn', 'Ft', 'NG', 'SxL'];
@@ -67,7 +67,7 @@ const КЛЮЧИ_ИМЕНИ = ['N', 'n', 'nm'];
 // У спутников описание (вид, возраст, глаза, лакомство, хозяин, навыки) —
 // постоянное: необязательные поля модель пишет не каждый ход, и прежнее
 // ищется глубже первой пустоты.
-const ПОСТОЯННЫЕ_В_СПИСКАХ = [...ПОЛЯ_NC, 'sp', 'ag', 'eye', 'trt', 'ow', 'skl'];
+const ПОСТОЯННЫЕ_В_СПИСКАХ = [...ПОЛЯ_NC, 'sp', 'ag', 'eye', 'trt', 'ow', 'skl', 'scr'];
 
 // Модель пишет «nc» не только в разрешённых полях, а видит HUD игрок: любое
 // поле, в любой глубине объекта и в списках с именами, берёт значение с того

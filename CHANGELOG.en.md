@@ -4,6 +4,26 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.90 — 2026-11-23
+
+### Changed
+- **Companion wounds as a list, like in the character card.** Instead of a single word "wounded", every wound, illness or breakdown gets its own card:
+  - what it is and where on the body;
+  - the stage by colour: fresh, worsening, stable, healing, healed;
+  - a "how far it has healed" bar;
+  - when it heals, how to treat it, symptoms;
+  - whether it will leave a scar.
+
+  Under the wounds — **"Scars"** from old wounds: what, where and how it was got. It fits every companion view: tiles in the card, pixels in the tamagotchi, rows in the classic view. A robot or drone shows "Breakdowns" and "Repair marks". The "wounded" badge in the card now comes from the wound list and names what hurts on hover.
+- **The model writes companion wounds separately.** "Condition" is just how it feels in a phrase; wounds get their own field, scars too. Both can be turned off in the deep settings. In the medieval era with "Wounds without antiseptics" a wound also has its danger and when it will show; an old horse wound entry shows in the same list. The pencil edits a companion wound by its labels.
+- **Scene and weather:**
+  - in March the meadow has melting snow patches with thawed spots, the stream runs from under a drift, and snowdrops stand in place of tulips;
+  - the Christmas tree garland, pumpkin lanterns and fireworks glow above the night darkening;
+  - cloudy weather has clouds drifting across the sky, fading with the sky in the evening and warming at sunset;
+  - in the wind a street lamp swings its head on the bracket while the post stands;
+  - in rain, snow and hail the kite lies on the sand, and a campfire put out by rain smoulders as embers;
+  - crystals glow softly at night, without harsh white streaks.
+
 ## 23.89.89 — 2026-11-23
 
 ### Fixed

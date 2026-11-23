@@ -12,7 +12,7 @@
 // ставится заново на каждую сборку, обработчики — один раз на панель.
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { т } from './i18n.js?v=23.89.89';
+import { т } from './i18n.js?v=23.89.90';
 
 const РЯДЫ = '.hud-theme-row[title]';
 const ПУНКТЫ = '.hud-theme-row, .hud-role, .hud-theme-preset, .hud-theme-packs > label, .hud-pset-row, .hud-ct-row';

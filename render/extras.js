@@ -4,13 +4,14 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.89.89';
-import { решениеПоПодписи, подписьСна } from '../disputes.js?v=23.89.89';
-import { settings } from '../settings.js?v=23.89.89';
-import { аватаркаПоИмени } from './views.js?v=23.89.89';
-import { магияВМире } from '../era.js?v=23.89.89';
-import { кодЯзыка } from '../i18n.js?v=23.89.89';
-import { реальныйПортрет } from './pet-real.js?v=23.89.89';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.89.90';
+import { решениеПоПодписи, подписьСна } from '../disputes.js?v=23.89.90';
+import { settings } from '../settings.js?v=23.89.90';
+import { аватаркаПоИмени } from './views.js?v=23.89.90';
+import { магияВМире } from '../era.js?v=23.89.90';
+import { кодЯзыка } from '../i18n.js?v=23.89.90';
+import { реальныйПортрет } from './pet-real.js?v=23.89.90';
+import { блокРанСпутника, состояниеПоРанам } from './pet-wounds.js?v=23.89.90';
 
 // Умения спутника — не больше четырёх: модель копит их ходами, и в карточке
 // выстраивалась стена пилюль. Короткие (до шести слов) — вперёд, в порядке
@@ -667,9 +668,11 @@ export function карточкаСпутника(p, значок, связь, с
     + плитка('wish', 'Хочет', p.wants, ' is-wish') + плитка('candy', 'Любимое лакомство', p.treat, ' is-treat')
     + (есть(p.mood) && String(p.mood).length > 26 ? плитка('smile', 'Настроение', p.mood, ' is-mood') : '');
   const умения = есть(p.skills) ? лучшиеУмения(p.skills) : [];
-  const здор = здоровье(p.condition, механизм), корм = механизм ? '' : времяКорма(p.diet);
+  // Рана или болезнь из списка ран главнее слов состояния: «здоров» при свежем укусе — неправда.
+  const поРанам = состояниеПоРанам(p, механизм);
+  const здор = поРанам ? ['bad', поРанам.слово, поРанам.кто] : здоровье(p.condition, механизм), корм = механизм ? '' : времяКорма(p.diet);
   const значки = (есть(p.age) ? `<span class="chip age" title="Возраст">${ик('cake')}<span data-i18n-skip>${escapeHtml(String(p.age))}</span></span>` : '')
-    + (здор ? `<span class="chip h-${здор[0]}">${ик(здор[0] === 'ok' ? 'shield' : 'cond')}${здор[1]}</span>` : '')
+    + (здор ? `<span class="chip h-${здор[0]}"${здор[2] ? ` title="${escapeHtml(здор[2])}"` : ''}>${ик(здор[0] === 'ok' ? 'shield' : 'cond')}${здор[1]}</span>` : '')
     + (корм ? `<span class="chip fed" title="Когда ел">${ик('food')}ел в ${escapeHtml(корм.replace('.', ':'))}</span>` : '');
   // Духу и фамильяру сытость и чистота ни к чему — только силы и настроение.
   const нужды = потребностиСпутника(p, механизм).filter(н => род !== 'spirit' || н.к === 'energy' || н.к === 'mood');
@@ -685,6 +688,7 @@ export function карточкаСпутника(p, значок, связь, с
     + (связьHTML ? `<div class="hud-pet2-bondrow">${связьHTML}</div>` : '')
     + шкалы
     + (плитки ? `<div class="hud-pet2-tiles">${плитки}</div>` : '')
+    + блокРанСпутника(p, механизм)
     + (есть(p.note) ? `<div class="hud-pet2-now">${ик('note')}<span>Сейчас: ${escapeHtml(String(p.note))}</span></div>` : '')
     // Свои поля (груз, силы, рана верхового…) — такими же плитками, как состояние и рацион.
     + (Array.isArray(p.extra) && p.extra.length ? `<div class="hud-pet2-tiles is-extra">${p.extra.map(д => { const в = видПоляСпутника(д.key); return плитка(в.ик, escapeHtml(д.key), д.value, ' is-own' + в.класс); }).join('')}</div>` : '')
@@ -716,7 +720,8 @@ export function тамагочи(p, связь, связьHTML = '') {
   const сведения = строка('Возраст', p.age) + строка('Хозяин', p.owner) + строка('Состояние', p.condition) + строка('Рацион', p.diet) + строка('Хочет', p.wants) + строка('Любимое лакомство', p.treat)
     + (есть(p.note) ? строка('Настроение', p.mood) : '')
     + (Array.isArray(p.extra) ? p.extra.map(д => строка(escapeHtml(д.key), д.value)).join('') : '');
-  const низ = (сведения || умения.length) ? `<div class="hud-tama-info">${сведения}${умения.length ? `<div class="hud-tama-skills">${умения.map(у => `<i>${escapeHtml(у)}</i>`).join('')}</div>` : ''}</div>` : '';
+  const раны = блокРанСпутника(p, !!тип.mech);
+  const низ = (сведения || умения.length || раны) ? `<div class="hud-tama-info">${сведения}${раны}${умения.length ? `<div class="hud-tama-skills">${умения.map(у => `<i>${escapeHtml(у)}</i>`).join('')}</div>` : ''}</div>` : '';
   return `<div class="hud-tama">${dev}<div class="hud-tama-stats"><b>${escapeHtml(p.name)}</b>${есть(p.species) ? `<small>${escapeHtml(p.species)}</small>` : ''}`
     + статы.map(s => `<div class="hud-tama-st" style="--c:${s.c}">${ик(s.ик, s.c)}<span>${s.имя}</span><span class="hud-tama-px">${Array.from({ length: 5 }, (_, i) => `<i${i < s.n ? '' : ' class="off"'}></i>`).join('')}</span></div>`).join('')
     + (связьHTML || '') + (реплика ? `<div class="hud-tama-say">${escapeHtml(реплика)}</div>` : '') + `</div>${низ}</div>`;

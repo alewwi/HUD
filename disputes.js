@@ -21,7 +21,7 @@
 //
 // Хранится в метаданных чата: { r: решения, o: открытые }.
 
-import { settings } from './settings.js?v=23.89.89';
+import { settings } from './settings.js?v=23.89.90';
 
 const КЛЮЧ = 'tavernosHudDisputes';
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);

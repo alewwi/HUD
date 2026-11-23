@@ -16,19 +16,19 @@
 //   · запасы «хватит до…» (ep.sup);
 //   · вера: личная (ep.fth), дела Церкви (ep.ch), обвинение в колдовстве (ep.wt);
 //   · брак и законность детей (ep.mar, ep.leg);
-//   · гумор (hum) и опасность ран (dng, trn) — в «Болезнях и травмах», рана спутника — inj;
+//   · гумор (hum) и опасность ран (dng, trn) — в «Болезнях и травмах», у спутника — те же dng, trn в его ранах (inj, render/pet-wounds.js);
 //   · домочадцы (ep.hh);
 //   · суд, клятва и ордалия (ep.law).
 // Всё «ep» — строки «часть | часть | …»; неизменную часть модель пишет «nc»
 // (hud-expand.js разворачивает из прошлого хода). Показ — карточки во вкладке
 // «Мир» (блокиЭпохи), промт — промптЭпохи и поля к грамотам, письмам, спутникам.
 
-import { settings } from '../settings.js?v=23.89.89';
-import { старина, магияСкрыта, заклинанияВМире, дарыВМире } from '../era.js?v=23.89.89';
-import { escapeHtml } from '../utils.js?v=23.89.89';
-import { английский } from '../i18n.js?v=23.89.89';
-import { видБлока } from './views.js?v=23.89.89';
-import { видЖизни, естьВидЖизни } from './world-life-views.js?v=23.89.89';
+import { settings } from '../settings.js?v=23.89.90';
+import { старина, магияСкрыта, заклинанияВМире, дарыВМире } from '../era.js?v=23.89.90';
+import { escapeHtml } from '../utils.js?v=23.89.90';
+import { английский } from '../i18n.js?v=23.89.90';
+import { видБлока } from './views.js?v=23.89.90';
+import { видЖизни, естьВидЖизни } from './world-life-views.js?v=23.89.90';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -124,10 +124,6 @@ export function промптРан() {
 }
 /** Короткие коды для игрока: «nm; sg; …» + dng; trn; hum. */
 export const кодыРан = () => (раныВкл() ? '; dng; trn' : '') + (гуморыВкл() ? '; hum' : '');
-/** Поле раны у спутника. */
-export function промптРаныСпутника() {
-  return раныВкл() ? `, "inj": "[ONLY if wounded: the wound — its danger with no antiseptics (festering, fever, gangrene, none yet) — when it will show or turn]"` : '';
-}
 /** Тон опасности раны: bad — горячка, гангрена; mid — нагноение; good — пока нет. */
 export function тонРаны(опасность) {
   const s = String(опасность || '').toLowerCase().replace(/ё/g, 'е');
@@ -163,15 +159,15 @@ export function почиститьСнимок(к) {
   if (!вестиВНовостяхВкл() && объект(к.wd) && Array.isArray(к.wd.nws)) к.wd.nws = к.wd.nws.map(с => (typeof с === 'string' && с.split('|').length >= 5 ? с.split('|').slice(0, 2).map(x => x.trim()).join(' | ') : с));
   if (!письмаВПутиВкл() && Array.isArray(к.lt)) к.lt.forEach(п => { if (объект(п)) delete п.eta; });
   if (!бракВкл()) [...(Array.isArray(к.cs) ? к.cs : []), к.us, ...(Array.isArray(к.bb) ? к.bb : [])].forEach(ч => { if (объект(ч)) { delete ч.Mrg; delete ч.Lgt; } });
-  // Раны выключены — из «Болезней и травм» уходят dng и trn, у спутников — inj.
+  // Раны выключены — из «Болезней и травм» и из ран спутников уходят dng и trn.
   // Гуморы выключены — уходит hum.
   const лишниеМетки = [...(раныВкл() ? [] : ['dng', 'trn']), ...(гуморыВкл() ? [] : ['hum'])];
   if (лишниеМетки.length) {
     const rx = new RegExp(String.raw`^\s*(?:${лишниеМетки.join('|')})\s*:`, 'i');
     const безЛишнего = (s) => (typeof s === 'string' ? s.split('|').map(г => г.split(';').filter(ч => !rx.test(ч)).join(';')).join('|') : s);
     [...(Array.isArray(к.cs) ? к.cs : []), к.us, ...(Array.isArray(к.bb) ? к.bb : [])].forEach(ч => { if (объект(ч) && ч.Ill !== undefined) ч.Ill = безЛишнего(ч.Ill); });
+    if (Array.isArray(к.pet)) к.pet.forEach(п => { if (объект(п) && п.inj !== undefined) п.inj = безЛишнего(п.inj); });
   }
-  if (!раныВкл() && Array.isArray(к.pet)) к.pet.forEach(п => { if (объект(п)) delete п.inj; });
   const р = вьючные();
   if (р !== 'full' && Array.isArray(к.pet)) к.pet.forEach(п => { if (объект(п)) ['fod', 'tck', 'stb', ...(р === 'off' ? ['ld', 'rst'] : [])].forEach(k => delete п[k]); });
 }

@@ -71,7 +71,7 @@
 
 /* ───────────── что прятать ───────────── */
 .tech-primitive :is(.hud-winter-house, .hud-era-castle, .hud-sp-lamp, .hud-spl-lamp, .hud-sp-sled, .hud-sp-lighthouse, .hud-spl-lighthouse, .hud-sailboat, .hud-rowboat, .hud-fishnet,
-  .hud-sp-scarecrow, .hud-sp-pumpkins, .hud-sp-lantern, .hud-spl-lantern, .hud-sp-farm, .hud-sp-mill, .hud-watering-can, .hud-birdhouse, .hud-sp-kite, .hud-fence),
+  .hud-sp-scarecrow, .hud-sp-pumpkins, .hud-sp-lantern, .hud-spl-lantern, .hud-sp-farm, .hud-sp-mill, .hud-watering-can, .hud-birdhouse, .hud-sp-kite, .hud-sp-kite-down, .hud-fence),
 .tech-industrial :is(.hud-winter-house, .hud-era-castle, .hud-sp-lamp, .hud-spl-lamp, .hud-surfboard, .hud-surfboard-shadow, .hud-volleyball-net, .hud-volleyball, .hud-towel, .hud-towel-shadow,
   .hud-sailboat, .hud-sp-lantern, .hud-spl-lantern, .hud-sp-mill),
 .tech-future :is(.hud-winter-house, .hud-era-castle, .hud-sp-lamp, .hud-spl-lamp, .hud-surfboard, .hud-surfboard-shadow, .hud-umbrella, .hud-sp-scarecrow, .hud-sp-lantern, .hud-spl-lantern,
@@ -131,6 +131,8 @@
 .hud-se-p .w-line { stroke: #ffd98a; }
 .hud-se-l .gl-cyan { fill: #6fdcff; opacity: .55; filter: blur(3px); }
 .hud-se-l .gl-cyan.s { opacity: .4; }
+.hud-se-l .gl-core { fill: #bdf0ff; opacity: .5; filter: blur(1.6px); }
+.hud-se-l .gl-tw { fill: none; stroke: #effcff; stroke-width: .7; stroke-linecap: round; filter: drop-shadow(0 0 1.2px #9fe6ff); }
 .hud-se-l .gl-violet { fill: #a77bff; opacity: .55; filter: blur(3px); }
 .hud-se-l .gl-violet.faint { opacity: .3; }
 .hud-se-l .gl-amber { fill: #ffb24a; opacity: .6; filter: blur(3px); }

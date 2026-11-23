@@ -3,9 +3,9 @@
 // Домен «Сцена»: SVG молнии и сезонные декорации (снег, дождь, роса, листья).
 // Чистые генераторы разметки — модуль ни от чего не зависит.
 
-import { деталиСезона, снеговикSvg, замокSvg, кострSvg, цветокSvg, ёжSvg, нораSvg } from './scene-plus.js?v=23.89.89';
-export { огниСезона } from './scene-plus.js?v=23.89.89';
-import { голоеДеревоSvg, ёлкаSvg, скворечникSvg, скворецSvg, дятелSvg, тыкваФонарьSvg, избаSvg, замокДальнийSvg, снеговикСтаринныйSvg, чайкаSvg, весенниеПоляSvg, хуторSvg, мельницаSvg } from './scene-art.js?v=23.89.89';
+import { деталиСезона, снеговикSvg, замокSvg, кострSvg, цветокSvg, ёжSvg, нораSvg } from './scene-plus.js?v=23.89.90';
+export { огниСезона, облакаНеба } from './scene-plus.js?v=23.89.90';
+import { голоеДеревоSvg, ёлкаSvg, скворечникSvg, скворецSvg, дятелSvg, тыкваФонарьSvg, талыйСнегSvg, избаSvg, замокДальнийSvg, снеговикСтаринныйSvg, чайкаSvg, весенниеПоляSvg, хуторSvg, мельницаSvg } from './scene-art.js?v=23.89.90';
 
 export function buildLightningSvg() {
   return `<svg viewBox="0 0 140 140" preserveAspectRatio="none" class="hud-bolt-svg">
@@ -45,7 +45,7 @@ export function buildSeasonSceneHtml(seasonClass, extra) {
   return сценаСезона(seasonClass, extra) + деталиСезона(seasonClass, extra) + праздничное(extra);
 }
 
-// Тыквы, крашеные яйца, фейерверк. Какие праздники сегодня — решает
+// Тыквы и крашеные яйца. Какие праздники сегодня — решает
 // render/holidays.js по дате сцены.
 function праздничное(extra) {
   let html = '';
@@ -59,19 +59,7 @@ function праздничное(extra) {
     const яйца = [1, 2, 3, 4, 5].map(i => `<span class="hud-easter-egg eg${i}"></span>`).join('');
     html += `<div class="hud-easter" aria-hidden="true">${яйца}<span class="hud-easter-basket"><i class="hud-easter-egg in1"></i><i class="hud-easter-egg in2"></i><i class="hud-easter-egg in3"></i></span></div>`;
   }
-  if (extra.fireworks) {
-    // Каждый залп — точка с кольцом искр из box-shadow: восемнадцать искр по
-    // кругу, у каждого залпа свой цвет и своё место в небе.
-    const ЦВЕТА = ['#ff5f7e', '#ffd166', '#7ae7ff', '#c79bff'];
-    const залпы = ЦВЕТА.map((цвет, i) => {
-      const искры = Array.from({ length: 18 }, (_, k) => {
-        const угол = (k / 18) * Math.PI * 2, r = 26 + (k % 3) * 4;
-        return `${Math.round(Math.cos(угол) * r)}px ${Math.round(Math.sin(угол) * r)}px 1.5px .8px ${k % 2 ? цвет : "#fff6d8"}`;
-      }).join(',');
-      return `<span class="hud-firework fw${i + 1}" style="--fw:${цвет}"><i class="hud-firework-trail"></i><i class="hud-firework-burst" style="box-shadow:${искры}"></i></span>`;
-    }).join('');
-    html += `<div class="hud-fireworks" aria-hidden="true">${залпы}</div>`;
-  }
+  // Салют — в слое огней поверх ночного затемнения (render/scene-plus.js, огниСезона).
   return html;
 }
 
@@ -152,10 +140,11 @@ function сценаСезона(seasonClass, extra) {
     // То же для весны: горизонт и трава, иначе луг читается пустым холмом.
     const tufts = Array.from({ length: 6 }, (_, i) => `<span class="hud-grass-tuft gt${i + 1}"></span>`).join('');
     const puffs = Array.from({ length: 4 }, (_, i) => `<span class="hud-dandelion dn${i + 1}"></span>`).join('');
-    // Март: снег в тени, талый ручей, подснежники.
+    // Март: остатки снега, талый ручей, подснежники.
+    // Ручей — раньше снега: исток прячется под пятном у дальнего конца.
     const мартовское = март
-      ? '<div class="hud-spring-snow s1"></div><div class="hud-spring-snow s2"></div><div class="hud-spring-snow s3"></div>'
-        + ручейСПерспективой()
+      ? ручейСПерспективой()
+        + [[1, 26], [2, 20], [3, 18], [4, 16]].map(([i, h]) => `<div class="hud-spring-snow s${i}" aria-hidden="true">${талыйСнегSvg(i, h)}</div>`).join('')
         + [1, 2, 3, 4].map(i => `<span class="hud-snowdrop sn${i}"></span>`).join('')
       : '';
     // Возвращаются перелётные птицы — клином, в сторону, обратную осенней стае.

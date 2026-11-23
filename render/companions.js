@@ -4,10 +4,11 @@
 // каждого своё настроение, состояние, рацион и привязанность к хозяину.
 // Вкладка появляется, только когда в HUD есть хоть один спутник.
 
-import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.89.89';
-import { видБлока, видПривязанности } from './views.js?v=23.89.89';
-import { карточкаСпутника, тамагочи, лучшиеУмения, видПоляСпутника } from './extras.js?v=23.89.89';
-import { внешностьСпутника } from './pet-looks.js?v=23.89.89';
+import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.89.90';
+import { видБлока, видПривязанности } from './views.js?v=23.89.90';
+import { карточкаСпутника, тамагочи, лучшиеУмения, видПоляСпутника, родПортрета } from './extras.js?v=23.89.90';
+import { внешностьСпутника } from './pet-looks.js?v=23.89.90';
+import { блокРанСпутника } from './pet-wounds.js?v=23.89.90';
 
 // Значок по виду. Частное раньше общего: «ворон-фамильяр» — птица, а не дух.
 const ВИДЫ = [
@@ -79,6 +80,8 @@ export function buildCompanionsHTML(list, uid, isChecked, extra = {}) {
         ? `<div class="hud-pet-bond" title="Привязанность ${Math.round(связь)} из 100"><span>привязанность</span><i><i style="width:${связь}%"></i></i><em>${Math.round(связь)}</em></div>`
         : '')
       + строка('🩺', 'Состояние', p.condition)
+      // Раны и шрамы — списком, как в карточке персонажа (render/pet-wounds.js).
+      + блокРанСпутника(p, родПортрета(p.species, p.name) === 'robot')
       + строка('🍖', 'Рацион', p.diet)
       + строка('📝', 'Сейчас', p.note)
       + (Array.isArray(p.extra) ? p.extra.map(д => строка(видПоляСпутника(д.key).значок, ПОДПИСИ_ПОЛЕЙ[String(д.key).toLowerCase()] || д.key, д.value)).join('') : '')

@@ -480,6 +480,73 @@
 .hud-tama-skills i { font-style: normal; padding: 1px 8px; border: 1px solid color-mix(in srgb, var(--p) 45%, transparent); }
 .hud-tama-skills i::before { content: "+ "; opacity: .6; }
 
+/* Раны, болезни и шрамы спутника (render/pet-wounds.js) — списком, как в
+   карточке персонажа. Одна разметка на три вида: прежний список, карточка,
+   тамагочи. Кромка и шкала — цветом стадии (--w), как у .hud-ill. */
+.hud-petw { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; min-width: 0; }
+.hud-petw svg { width: 14px; height: 14px; flex: none; }
+.hud-petw-h, .hud-petw-scl { display: flex; align-items: center; gap: 6px; font-size: .62em; font-weight: 800; letter-spacing: .05em; line-height: 1.3; text-transform: uppercase; opacity: .82; }
+.hud-petw-h svg { color: #e0705f; }
+.hud-petw-h b { padding: 0 6px; border-radius: 99px; background: color-mix(in srgb, #d0574a 30%, transparent); }
+.hud-petw-it { --w: #e0566b; min-width: 0; padding: 8px 10px; border-radius: 12px; background: color-mix(in srgb, var(--w) 9%, rgba(0,0,0,.18)); border: 1px solid color-mix(in srgb, var(--w) 32%, transparent); border-left: 3px solid var(--w); }
+.hud-petw-it.is-worsening { --w: #ff4d4d; }
+.hud-petw-it.is-stable { --w: #e3a54a; }
+.hud-petw-it.is-healing { --w: #58c18a; }
+.hud-petw-it.is-chronic { --w: #9a8ad8; }
+.hud-petw-it.is-healed { --w: #6fb7e8; }
+.hud-petw-top { display: flex; align-items: flex-start; gap: 8px; min-width: 0; }
+.hud-petw-ico { display: grid; place-items: center; width: 24px; height: 24px; flex: none; border-radius: 8px; color: var(--w); background: color-mix(in srgb, var(--w) 18%, transparent); }
+.hud-petw-nm { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.hud-petw-nm b { font-size: .88em; overflow-wrap: anywhere; }
+.hud-petw-nm span { font-size: .74em; opacity: .7; overflow-wrap: anywhere; }
+.hud-petw-st { flex: none; max-width: 45%; padding: 2px 8px; border-radius: 99px; font-size: .66em; font-weight: 700; line-height: 1.4; color: var(--w); background: color-mix(in srgb, var(--w) 16%, transparent); overflow-wrap: anywhere; }
+.hud-petw-m { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; align-items: center; margin-top: 7px; font-size: .66em; }
+.hud-petw-m > span:last-child { opacity: .75; font-variant-numeric: tabular-nums; }
+.hud-petw-bar { display: block; height: 6px; border-radius: 99px; overflow: hidden; background: rgba(255,255,255,.1); }
+.hud-petw-bar > span { display: block; height: 100%; border-radius: inherit; background: var(--w); }
+.hud-petw-row { display: grid; grid-template-columns: 6.4em minmax(0, 1fr); gap: 8px; margin-top: 4px; font-size: .8em; line-height: 1.35; }
+.hud-petw-row > span { opacity: .62; }
+.hud-petw-row > p { margin: 0; overflow-wrap: anywhere; }
+.hud-petw-row.is-heal > p { font-weight: 600; }
+.hud-petw-row.is-scar > p { font-style: italic; }
+.hud-petw-row.is-danger.is-bad > p { color: #ff7a6b; font-weight: 600; }
+.hud-petw-row.is-danger.is-mid > p { color: #e3a54a; }
+.hud-petw-scars { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; }
+.hud-petw-scl { flex: 1 1 100%; }
+.hud-petw-scl svg { color: color-mix(in srgb, var(--hud-text, #eee) 70%, transparent); }
+.hud-petw-sc { display: inline-flex; flex-wrap: wrap; align-items: baseline; gap: 0 6px; min-width: 0; max-width: 100%; padding: 3px 9px; border-radius: 10px; font-size: .76em; line-height: 1.35;
+  background: rgba(255,255,255,.05); border: 1px dashed color-mix(in srgb, var(--hud-text, #eee) 28%, transparent); }
+.hud-petw-sc > * { overflow-wrap: anywhere; min-width: 0; }
+.hud-petw-where { opacity: .75; }
+.hud-petw-from { flex-basis: 100%; font-size: .9em; font-style: italic; opacity: .62; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-petw-it { background: color-mix(in srgb, var(--w) 8%, rgba(255,255,255,.55)); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-petw-bar { background: rgba(0,0,0,.1); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-petw-sc { background: rgba(0,0,0,.035); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-petw-row.is-danger.is-bad > p { color: #b0392d; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-petw-row.is-danger.is-mid > p { color: #9a6410; }
+/* Прежний список: строки как у «Состояния». */
+.hud-pet .hud-petw-it { background: rgba(255,255,255,.035); }
+/* Карточка: отступы и скругления плиток. */
+.hud-pet2 .hud-petw { margin: 12px 14px 0; }
+.hud-pet2 .hud-petw-h svg { color: #e0705f; }
+/* Тамагочи: пиксельный экран — прямые углы, моноширинный шрифт, шкала сегментами. */
+.hud-tama-info .hud-petw { margin: 4px 0 2px; gap: 5px; }
+.hud-tama-info .hud-petw b { opacity: 1; }
+.hud-tama-info .hud-petw-it { border-radius: 0; border-width: 2px; border-left-width: 4px; background: color-mix(in srgb, var(--w) 8%, transparent); box-shadow: inset -2px -2px 0 rgba(0,0,0,.18); }
+.hud-tama-info .hud-petw-ico { border-radius: 0; }
+.hud-tama-info .hud-petw-st { border-radius: 0; }
+.hud-tama-info .hud-petw-bar { height: 8px; border-radius: 0; }
+.hud-tama-info .hud-petw-bar > span { border-radius: 0; background: repeating-linear-gradient(90deg, var(--w) 0 6px, transparent 6px 8px); }
+.hud-tama-info .hud-petw-row { font-size: 1em; }
+.hud-tama-info .hud-petw-sc { border-radius: 0; font-size: 1em; }
+.hud-tama-info .hud-petw-h, .hud-tama-info .hud-petw-scl { font-size: .9em; }
+.hud-tama-info .hud-petw-h::before { content: "▸"; }
+@media (max-width: 600px) { .hud-petw-row { grid-template-columns: minmax(0, 1fr); gap: 0; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-petw-row { grid-template-columns: minmax(0, 1fr); gap: 0; } } }
+/* cq ↑ */
+@media (min-width: 601px) { @container hud (max-width: 300px) { .hud-petw-row { grid-template-columns: minmax(0, 1fr); gap: 0; } } }
+
 /* =========================================================================
    СДВИГИ ДОВЕРИЯ: видны при наведении или нажатии
    ========================================================================= */

@@ -35,7 +35,7 @@ if (location.protocol === 'file:') {
 }
 const V = '?v=' + (await (await fetch('../../manifest.json', { cache: 'no-store' })).json()).version;
 const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '../../css/all.css' + V; document.head.append(css);
-const { buildSeasonSceneHtml, buildLightningSvg, огниСезона } = await import('../../render/scene.js' + V);
+const { buildSeasonSceneHtml, buildLightningSvg, огниСезона, облакаНеба } = await import('../../render/scene.js' + V);
 const { вычислитьСвет } = await import('../../render/light.js' + V);
 const { праздникиСцены } = await import('../../render/holidays.js' + V);
 const { теньЛуны } = await import('../../render/extras.js' + V);
@@ -84,10 +84,10 @@ function виджет({ сезон, месяц, число, минуты, пог
   return `<div><h3>${подпись} · ${чч}:${мм} · ${ф.replace('phase-', '')}</h3><div class="mes_text"><div class="hud-os-card"><input type="checkbox" class="hud-toggle-input" checked hidden><div class="hud-os-wrapper"><i class="hud-scene-c" aria-hidden="true"></i>
     <div class="${классы}"${сцена}>
       <div class="hud-fx-bg"></div><div class="hud-fx-stars">${звёзды()}</div><div class="hud-fx-fireflies">${ff}</div><div class="hud-fx-storm-flash"></div>
-      <div class="hud-fx-lightning">${buildLightningSvg()}</div><div class="hud-fx-rainbow"></div><div class="hud-fx-celestial"${небо}></div><div class="hud-fx-cloud-cover"></div>
+      <div class="hud-fx-lightning">${buildLightningSvg()}</div><div class="hud-fx-rainbow"></div><div class="hud-fx-celestial"${небо}></div><div class="hud-fx-cloud-cover">${погода === 'weather-cloudy' ? облакаНеба() : ''}</div>
       <div class="hud-fx-season-scene"${солнце}>${buildSeasonSceneHtml(сезон, экстра)}</div>
       <div class="hud-fx-weather"><span class="hud-snow-layer snow-far"></span><span class="hud-snow-layer snow-mid"></span><span class="hud-snow-layer snow-near"></span></div>
-      <div class="hud-fx-frost"></div><div class="hud-fx-temp"></div><div class="hud-fx-daylight"></div><div class="hud-fx-overlay"></div><div class="hud-fx-lights">${огниСезона(сезон)}</div>
+      <div class="hud-fx-frost"></div><div class="hud-fx-temp"></div><div class="hud-fx-daylight"></div><div class="hud-fx-overlay"></div><div class="hud-fx-lights">${огниСезона(сезон, экстра)}</div>
       <div class="hud-scene-top"><div class="hud-scene-time-group"><div class="hud-time-display">${чч}<span class="hud-time-colon">:</span>${мм}</div><div class="hud-date-display">${дата}</div></div>
       <div class="hud-scene-weather-group"><div class="hud-weather-item">${СЕЗОНЫ.find(с => с[0] === сезон)[4]}</div></div></div>
     </div></div></div></div></div>`;

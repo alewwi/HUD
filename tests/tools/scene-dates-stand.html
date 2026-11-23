@@ -1,0 +1,205 @@
+<!doctype html><html class="hud-glass-frosted hud-cq"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Фон погоды по датам — стенд</title>
+<style>
+body { margin: 0; padding: 12px; background: #1d1a22; color: #ddd; font: 13px system-ui, sans-serif; }
+.bar { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; padding: 8px 10px; margin: -12px -12px 12px; background: #15121a; border-bottom: 1px solid #333; }
+.bar label { display: inline-flex; gap: 4px; align-items: center; }
+.bar select { background: #222; color: #ddd; border: 1px solid #444; border-radius: 4px; }
+.bar a { color: #c9b8e0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--w, 430px)), var(--w, 430px))); gap: 16px; align-items: start; }
+h2 { grid-column: 1 / -1; margin: 14px 0 0; font-size: 15px; color: #c9b8e0; }
+h2 small { display: block; margin-top: 2px; font-size: 11px; font-weight: 400; color: #8f8799; }
+h3 { margin: 0 0 4px; font-size: 11px; color: #bbb; font-weight: 600; }
+h3 small { display: block; font-weight: 400; color: #8a8a8a; }
+h3 b { color: #ffcf7a; font-weight: 600; }
+.mes_text .hud-os-card { width: 100%; content-visibility: visible !important; }
+</style></head>
+<body>
+<div class="bar">
+  <label>Ширина <select id="w"><option value="215px">215 (телефон)</option><option value="320px">320</option><option value="430px" selected>430</option><option value="540px">540</option><option value="600px">600</option></select></label>
+  <label>Время <select id="times"><option value="dn" selected>день и ночь</option><option value="all">утро, день, закат, ночь</option><option value="d">только день</option><option value="n">только ночь</option></select></label>
+  <label>Год <select id="year"><option>2024</option><option>2025</option><option selected>2026</option><option>2027</option></select></label>
+  <label>Раздел <select id="part"><option value="">все</option><option value="spring">весна по месяцам</option><option value="hol">праздники</option><option value="odd">праздник не в своём сезоне</option><option value="base">остальные сезоны</option></select></label>
+  <label>Погода <select id="weather"><option value="weather-clear">ясно</option><option value="weather-cloudy">облачно</option><option value="weather-rain">дождь</option><option value="weather-snow">снег</option><option value="weather-fog">туман</option></select></label>
+  <label><input type="checkbox" id="anim" checked> анимации</label>
+  <label>Основа <select id="base"><option value="modern">современность</option><option value="medieval">средневековье</option></select></label><label>Технологии <select id="tech"><option value="auto">как у основы</option><option value="primitive">первобытные</option><option value="preindustrial">доиндустриальные</option><option value="industrial">индустриальные</option><option value="modern">современные</option><option value="future">будущее</option></select></label><label>Магия <select id="magic"><option value="none">нет</option><option value="hidden">скрыта</option><option value="high">явная: чары</option><option value="grounded">явная: дары и духи</option></select></label>
+</div>
+<div class="grid" id="grid">загрузка…</div>
+<script type="module">
+// Стенд фона окна погоды по датам: всё, что меняет сам вид сцены в
+// зависимости от числа и месяца, а не от погоды. Весна по месяцам (март —
+// проталины и ручей, апрель — цветение и клин птиц, начало мая — сирень,
+// конец мая — пух и светлячки, без даты), ёлка и салют на Новый год, тыквы
+// на Хэллоуин, крашеные яйца на Пасху (западную и православную — даты по
+// выбранному году) и праздники в «чужом» сезоне (южное полушарие, другой
+// мир). Разметка — как в index.js: те же модули сцены, света, праздников
+// и облика эпохи. Открывать через tests/tools/stand.cmd scene-dates-stand.html
+// или сервер Таверны:
+//   /scripts/extensions/third-party/HUD/tests/tools/scene-dates-stand.html
+// Параметры: ?w=215px&times=all&year=2024&part=hol&base=medieval — как в панели.
+if (location.protocol === 'file:') {
+  const путь = '/scripts/extensions/third-party/HUD/tests/tools/scene-dates-stand.html';
+  document.getElementById('grid').innerHTML = '<div style="grid-column:1/-1;max-width:560px;line-height:1.6">Браузер не даёт стенду загрузить модули из файла. Открой его одним из способов:<br>• из папки HUD: <b>tests/tools/stand.cmd scene-dates-stand.html</b>;<br>• при запущенной Таверне: <a style="color:#c9b8e0" href="http://127.0.0.1:8000' + путь + '">127.0.0.1:8000' + путь + '</a></div>';
+  throw new Error('file://');
+}
+const V = '?v=' + (await (await fetch('../../manifest.json', { cache: 'no-store' })).json()).version;
+await new Promise((resolve, reject) => {
+  const link = document.createElement('link');
+  link.rel = 'stylesheet'; link.href = '../../css/all.css' + V; link.onload = resolve; link.onerror = reject;
+  document.head.append(link);
+});
+const { buildSeasonSceneHtml, buildLightningSvg, огниСезона, облакаНеба } = await import('../../render/scene.js' + V);
+const { вычислитьСвет } = await import('../../render/light.js' + V);
+const { праздникиСцены, пасхаЗападная, пасхаПравославная } = await import('../../render/holidays.js' + V);
+const { теньЛуны } = await import('../../render/extras.js' + V);
+const { обликСцены, огниОблика, классыОблика, сценаСтарины } = await import('../../render/scene-era.js' + V);
+
+const ВОСХОД = [480, 450, 400, 345, 300, 280, 290, 330, 375, 420, 460, 485];
+const ЗАКАТ = [990, 1040, 1090, 1145, 1190, 1215, 1210, 1165, 1105, 1045, 990, 970];
+const ТЕМП = { 'season-summer': 'тепло, +24°C', 'season-autumn': 'прохладно, +9°C', 'season-winter': 'холодно, −6°C', 'season-spring': 'свежо, +12°C' };
+const ИМЯ = { 'season-summer': 'лето', 'season-autumn': 'осень', 'season-winter': 'зима', 'season-spring': 'весна' };
+const МЕС = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+
+// Фаза по минутам — как в index.js.
+function фаза(мин, старт, конец) {
+  const длина = конец - старт;
+  if (мин < 120) return 'phase-deep-night';
+  if (мин < старт - 60) return 'phase-night';
+  if (мин < старт) return 'phase-predawn';
+  if (мин < старт + длина * 0.286) return 'phase-morning';
+  if (мин < старт + длина * 0.786) return 'phase-day';
+  if (мин < старт + длина * 0.893) return 'phase-golden';
+  if (мин < конец) return 'phase-sunset';
+  if (мин < конец + 120) return 'phase-evening';
+  return 'phase-night';
+}
+const звёзды = () => {
+  const dot = (l, t, sz, dur, d) => `<span class="hud-star2 dot" style="left:${l}%;top:${t}%;width:${sz}px;height:${sz}px;animation-duration:${dur}s;animation-delay:${d}s;"></span>`;
+  const dia = (l, t, sz, dur, d) => `<span class="hud-star2 diamond" style="left:${l}%;top:${t}%;width:${sz}px;height:${sz}px;animation-duration:${dur}s;animation-delay:${d}s;"></span>`;
+  return dot(12, 22, 2, 2.2, 0) + dia(24, 12, 3, 2.6, .4) + dot(38, 30, 2, 1.9, .9) + dot(50, 10, 2.4, 2.4, .2) + dia(62, 26, 3, 3, 1.2) + dot(74, 14, 2, 2.1, .6) + dot(84, 32, 2.6, 2.8, 1.5) + dia(92, 20, 2.5, 2.3, .3) + dot(6, 38, 1.8, 2, 1.8);
+};
+
+// Одна карточка. месяц/число = 0 — в снимке нет даты: тогда, как в index.js,
+// нет ни класса месяца, ни праздников, а весна рисуется апрельской.
+function виджет({ сезон, год, месяц, число, минуты, погода, анимация, облик, подпись }) {
+  const средневековье = сценаСтарины(облик);
+  const м = месяц || 4;
+  const старт = ВОСХОД[м - 1], конец = ЗАКАТ[м - 1];
+  const ф = фаза(минуты, старт, конец);
+  const свет = вычислитьСвет({ минуты, началоДня: старт, конецДня: конец });
+  const { p, cx, cy, cxm } = свет;
+  const дата = месяц ? `${String(число).padStart(2, '0')}.${String(месяц).padStart(2, '0')}.${год}` : '';
+  const небо = ` style="--cel-x:${cx.toFixed(1)}%;--cel-xm:${cxm.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--cel-layer:1;--scene-layer:2;"`;
+  const солнце = ` style="--sun-h:${p.toFixed(3)};--sun-alt:${Math.max(0, Math.sin(p * Math.PI)).toFixed(3)};"`;
+  const сцена = ` style="--cel-x:${cx.toFixed(1)}%;--cel-xm:${cxm.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--scene-day-progress:${p.toFixed(3)};--scene-night-strength:${свет.ночь.toFixed(3)};--scene-golden-strength:${свет.золото.toFixed(3)};--scene-sunset-strength:${свет.закат.toFixed(3)};--scene-star-strength:${свет.звёзды.toFixed(3)};${теньЛуны(дата || '15.04.' + год)}"`;
+  const ночь = /phase-(?:evening|night|deep-night|predawn)/.test(ф);
+  const новогодниеДни = !!месяц && !!число && ((месяц === 12 && число >= 28) || (месяц === 1 && число <= 13));
+  const праздники = праздникиСцены({ число, месяц, год, ночь });
+  const экстра = { dew: ф === 'phase-morning' && /clear|cloudy/.test(погода) && /spring|summer/.test(сезон), deepFreeze: false, month: месяц || undefined, day: число || undefined,
+    era: средневековье ? 'medieval' : 'modern', ...праздники, newYear: новогодниеДни };
+  const классМесяца = месяц ? `month-${месяц}${число >= 20 ? ' month-late' : ''}` : '';
+  const чч = String(Math.floor(минуты / 60)).padStart(2, '0'), мм = String(минуты % 60).padStart(2, '0');
+  const классы = ['hud-scene-widget', ф, погода, сезон, классМесяца, средневековье ? 'era-medieval' : '', классыОблика(облик), свет.звёзды < .01 ? 'stars-off' : '', анимация ? 'fx-active' : ''].filter(Boolean).join(' ');
+  const ff = Array.from({ length: 6 }, (_, i) => `<span class="hud-firefly ff${i + 1}"></span>`).join('');
+  // Что из праздничного и месячного реально включено — подписью под заголовком.
+  const флаги = [
+    экстра.newYear && сезон === 'season-winter' ? 'ёлка' : '', экстра.newYear && сезон !== 'season-winter' ? 'НГ-дни (ёлка только зимой)' : '',
+    экстра.fireworks ? 'салют' : '', экстра.halloween ? 'тыквы-фонари' : '', экстра.easter ? 'пасхальные яйца' : '',
+  ].filter(Boolean);
+  const датаПодписью = месяц ? `${число} ${МЕС[месяц - 1]} ${год}` : 'без даты';
+  return `<div><h3>${подпись} · ${датаПодписью} · ${чч}:${мм}<small>${ИМЯ[сезон]} · ${ф.replace('phase-', '')}${классМесяца ? ' · ' + классМесяца : ''}${флаги.length ? ' · <b>' + флаги.join(', ') + '</b>' : ''}</small></h3><div class="mes_text"><div class="hud-os-card"><input type="checkbox" class="hud-toggle-input" checked hidden><div class="hud-os-wrapper"><i class="hud-scene-c" aria-hidden="true"></i>
+    <div class="${классы}"${сцена}>
+      <div class="hud-fx-bg"></div><div class="hud-fx-stars">${звёзды()}</div><div class="hud-fx-fireflies">${ff}</div><div class="hud-fx-storm-flash"></div>
+      <div class="hud-fx-lightning">${buildLightningSvg()}</div><div class="hud-fx-rainbow"></div><div class="hud-fx-celestial"${небо}></div><div class="hud-fx-cloud-cover">${погода === 'weather-cloudy' ? облакаНеба() : ''}</div>
+      <div class="hud-fx-season-scene"${солнце}>${buildSeasonSceneHtml(сезон, экстра)}${обликСцены(сезон, { ...облик, ночь })}</div>
+      <div class="hud-fx-weather"><span class="hud-snow-layer snow-far"></span><span class="hud-snow-layer snow-mid"></span><span class="hud-snow-layer snow-near"></span></div>
+      <div class="hud-fx-frost"></div><div class="hud-fx-temp"></div><div class="hud-fx-daylight"></div><div class="hud-fx-overlay"></div><div class="hud-fx-lights">${огниСезона(сезон, экстра)}${огниОблика(сезон, облик)}</div>
+      <div class="hud-scene-top"><div class="hud-scene-time-group"><div class="hud-time-display">${чч}<span class="hud-time-colon">:</span>${мм}</div><div class="hud-date-display">${дата}</div></div>
+      <div class="hud-scene-weather-group"><div class="hud-weather-item">${ТЕМП[сезон]}</div></div></div>
+    </div></div></div></div></div>`;
+}
+
+// Моменты суток для карточки. «Ночь» в новогоднюю ночь — до полуночи 31-го
+// или после полуночи 1-го: салют бывает только в эти две ночи.
+function моменты(месяц, режим, ночьВ = 23 * 60 + 10) {
+  const м = месяц || 4, старт = ВОСХОД[м - 1], конец = ЗАКАТ[м - 1];
+  const все = { утро: старт + 50, день: Math.round((старт + конец) / 2), закат: конец - 25, ночь: ночьВ };
+  const какие = режим === 'all' ? ['утро', 'день', 'закат', 'ночь'] : режим === 'd' ? ['день'] : режим === 'n' ? ['ночь'] : ['день', 'ночь'];
+  return какие.map(к => [к, все[к]]);
+}
+
+function разделы(год) {
+  const зап = пасхаЗападная(год), прав = пасхаПравославная(год);
+  const однаПасха = зап.месяц === прав.месяц && зап.число === прав.число;
+  // Сезон весны по месяцу пасхи — в марте пасха приходится на проталины.
+  return [
+    { id: 'spring', имя: 'Весна по месяцам', пояснение: 'Март — снег в тени, талый ручей, подснежники, голые кроны; апрель — цветение, клин птиц, лепестки; начало мая — сирень и лепестки; с 20 мая — пух одуванчиков и светлячки ночью. Без даты весна рисуется апрельской, но без класса месяца. Пасха сюда не попадает: если на число падает пасхальная неделя, берётся ближайший год без неё.',
+      карточки: [
+        { подпись: 'Без даты', сезон: 'season-spring', месяц: 0, число: 0 },
+        { подпись: 'Март', сезон: 'season-spring', месяц: 3, число: 12 },
+        { подпись: 'Апрель', сезон: 'season-spring', месяц: 4, число: 15 },
+        { подпись: 'Начало мая', сезон: 'season-spring', месяц: 5, число: 16 },
+        { подпись: 'Конец мая', сезон: 'season-spring', месяц: 5, число: 25 },
+      ] },
+    { id: 'hol', имя: 'Праздники', пояснение: `Ёлка во дворе — с 28 декабря по 13 января и только в зимней сцене; салют — ночью 31 декабря и 1 января; тыквы-фонари — с 24 октября по 1 ноября; крашеные яйца — с Великой субботы до следующего воскресенья. Пасха ${год}: западная ${зап.число} ${МЕС[зап.месяц - 1]}, православная ${прав.число} ${МЕС[прав.месяц - 1]}${однаПасха ? ' (в этом году совпадают)' : ''}.`,
+      карточки: [
+        { подпись: 'Ёлка: первый день', сезон: 'season-winter', месяц: 12, число: 28 },
+        { подпись: 'Новогодняя ночь', сезон: 'season-winter', месяц: 12, число: 31 },
+        { подпись: 'Первая ночь января', сезон: 'season-winter', месяц: 1, число: 1, ночьВ: 40 },
+        { подпись: 'Ёлка: последний день', сезон: 'season-winter', месяц: 1, число: 13 },
+        { подпись: 'Ёлки уже нет', сезон: 'season-winter', месяц: 1, число: 14 },
+        { подпись: 'Хэллоуин', сезон: 'season-autumn', месяц: 10, число: 31 },
+        { подпись: 'Тыквы: первый день', сезон: 'season-autumn', месяц: 10, число: 24 },
+        { подпись: 'Пасха (западная)', сезон: 'season-spring', месяц: зап.месяц, число: зап.число },
+        ...(однаПасха ? [] : [{ подпись: 'Пасха (православная)', сезон: 'season-spring', месяц: прав.месяц, число: прав.число }]),
+      ] },
+    { id: 'odd', имя: 'Праздник не в своём сезоне', пояснение: 'Сезон пишет модель, дата — своя: южное полушарие или другой мир. Праздник от сезона не зависит — тыквы, яйца и салют встают в любую сцену; ёлка только в зимней. Весна в сентябре–ноябре — без мартовских, апрельских и майских примет.',
+      карточки: [
+        { подпись: 'Новый год летом', сезон: 'season-summer', месяц: 12, число: 31 },
+        { подпись: 'Новый год осенью', сезон: 'season-autumn', месяц: 1, число: 1, ночьВ: 40 },
+        { подпись: 'Хэллоуин зимой', сезон: 'season-winter', месяц: 10, число: 31 },
+        { подпись: 'Хэллоуин весной', сезон: 'season-spring', месяц: 10, число: 31 },
+        { подпись: 'Хэллоуин летом', сезон: 'season-summer', месяц: 10, число: 31 },
+        { подпись: 'Пасха осенью', сезон: 'season-autumn', месяц: зап.месяц, число: зап.число },
+        { подпись: 'Пасха зимой', сезон: 'season-winter', месяц: зап.месяц, число: зап.число },
+        { подпись: 'Пасха летом', сезон: 'season-summer', месяц: зап.месяц, число: зап.число },
+        { подпись: 'Весна в октябре', сезон: 'season-spring', месяц: 10, число: 10 },
+      ] },
+    { id: 'base', имя: 'Остальные сезоны', пояснение: 'Лето, осень и зима от месяца не зависят — для сравнения с праздничными.',
+      карточки: [
+        { подпись: 'Лето', сезон: 'season-summer', месяц: 7, число: 15 },
+        { подпись: 'Осень', сезон: 'season-autumn', месяц: 10, число: 10 },
+        { подпись: 'Зима', сезон: 'season-winter', месяц: 2, число: 10 },
+      ] },
+  ];
+}
+
+function нарисовать() {
+  const q = (id) => document.getElementById(id);
+  document.documentElement.style.setProperty('--w', q('w').value);
+  const год = +q('year').value, режим = q('times').value, часть = q('part').value;
+  const base = q('base').value, t = q('tech').value;
+  const опц = { погода: q('weather').value, анимация: q('anim').checked, облик: { base, tech: t === 'auto' ? (base === 'medieval' ? 'preindustrial' : 'modern') : t, magic: q('magic').value } };
+  let out = '';
+  for (const р of разделы(год)) {
+    if (часть && часть !== р.id) continue;
+    out += `<h2>${р.имя}<small>${р.пояснение}</small></h2>`;
+    for (const к of р.карточки) {
+      // Весна по месяцам — без праздников: пасхальная неделя легко падает на
+      // эти числа, а раздел про сам месяц. Год для неё — тот, где пасхи нет.
+      let г = год;
+      if (р.id === 'spring' && к.месяц) {
+        for (let y = год; y < год + 40; y++) { if (!праздникиСцены({ число: к.число, месяц: к.месяц, год: y }).easter) { г = y; break; } }
+      }
+      for (const [время, минуты] of моменты(к.месяц, режим, к.ночьВ)) {
+        out += виджет({ ...к, ...опц, год: г, минуты, подпись: `${к.подпись} — ${время}` });
+      }
+    }
+  }
+  q('grid').innerHTML = out;
+  window.__ready = true;
+}
+const P = new URLSearchParams(location.search);
+for (const [k, v] of P) { const эл = document.getElementById(k); if (!эл) continue; if (эл.type === 'checkbox') эл.checked = v === '1'; else эл.value = v; }
+document.querySelectorAll('.bar select, .bar input').forEach(эл => эл.addEventListener('change', нарисовать));
+нарисовать();
+</script></body></html>

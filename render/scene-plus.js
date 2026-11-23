@@ -6,7 +6,7 @@
 // Движение — как у всей сцены: стоит, пока виджет не раскрыт касанием
 // (.fx-active), и первый кадр каждой анимации — спокойная картинка.
 
-import { ельSvg, салазкиSvg } from './scene-art.js?v=23.89.89';
+import { ельSvg, салазкиSvg, ёлкаОгниSvg, тыкваСветSvg } from './scene-art.js?v=23.89.90';
 
 const лист = (x, y, r, s, цвет) => `<path class="sp-leaf ${цвет}" transform="translate(${x} ${y}) rotate(${r}) scale(${s})" d="M0 -6 L1.6 -2.4 L5 -3.4 L3.6 0 L6 1.6 L2.2 2 L2.6 5.4 L0 3.4 L-2.6 5.4 L-2.2 2 L-6 1.6 L-3.6 0 L-5 -3.4 L-1.6 -2.4Z M0 3.4 V8"/>`;
 
@@ -149,7 +149,16 @@ function лето() {
   const змей = `<div class="hud-sp-kite" aria-hidden="true"><svg viewBox="0 0 50 70"><path class="string" d="M24 26 C30 40 22 52 34 70"/><path class="tail" d="M24 26 C18 34 26 40 20 48 C16 54 22 58 18 64"/>`
     + `<path class="bow" d="M21 36 l-3 -2 l0 4Z M21 36 l3 -2 l0 4Z M20.5 48 l-3 -2 l0 4Z M20.5 48 l3 -2 l0 4Z M19 60 l-3 -2 l0 4Z M19 60 l3 -2 l0 4Z"/>`
     + `<path class="sail s1" d="M24 2 L36 14 L24 26Z"/><path class="sail s2" d="M24 2 L12 14 L24 26Z"/><path class="spar" d="M24 2 V26 M12 14 H36"/></svg></div>`;
-  return облако('c1') + облако('c2') + пальмаSvg() + маяк + змей + ракушки + краб;
+  // Тот же змей, брошенный на песке: в дождь, снег и град он не летает
+  // (css/season-plus.css показывает этот рисунок вместо летящего). Парус
+  // лежит в перспективе и чуть смят, хвост с бантиками раскинут по песку,
+  // леер спутан петлями.
+  const змейНаПеске = `<div class="hud-sp-kite-down" aria-hidden="true"><svg viewBox="0 0 70 20"><ellipse class="shadow" cx="24" cy="16.4" rx="17" ry="2.4"/>`
+    + `<path class="string" d="M21 12.6 C15 18 6 18.4 4 15.6 C2.4 13 7.6 11.6 9.4 14.2 C11 16.8 3 19.4 0 18.4"/>`
+    + `<path class="tail" d="M37.4 13.2 C42 16.4 45 10.6 50.6 13.4 S59 17.6 64.6 12.6 C66.4 11.2 68 12.4 69.4 13.8"/>`
+    + `<path class="bow" d="M44.6 14.2 l-2 -2.2 l-.4 3.4Z M44.6 14.2 l2.4 -1.6 l-.6 3.2Z M53.4 14.6 l-2.2 -1.8 l-.2 3.2Z M53.4 14.6 l2.2 -2 l0 3.4Z M61.6 15 l-2 -2.4 l-.4 3.2Z M61.6 15 l2.4 -1.4 l-.8 3Z"/>`
+    + `<path class="sail s2" d="M8 14.4 L22.4 7.6 L22 17.2Z"/><path class="sail s1" d="M22.4 7.6 L38.2 13 L22 17.2Z"/><path class="crease" d="M22.4 7.6 L28 15.4"/><path class="spar" d="M22.4 7.6 L22 17.2 M8 14.4 L38.2 13"/></svg></div>`;
+  return облако('c1') + облако('c2') + пальмаSvg() + маяк + змей + змейНаПеске + ракушки + краб;
 }
 
 function осень() {
@@ -179,9 +188,11 @@ function зима(extra = {}) {
   const ель = (класс) => `<div class="hud-sp-spruce ${класс}" aria-hidden="true">${ельSvg()}</div>`;
   const ели = ель('e1') + ель('e2') + ель('e3');
   // Фонарный столб: тёплый ореол, шапка снега; на шапке фонаря — снегирь.
+  // Голова фонаря висит на кронштейне (группа lamp-swing): в ветер качается
+  // она одна вокруг конца кронштейна, столб стоит.
   const фонарь = `<div class="hud-sp-lamp" aria-hidden="true"><svg viewBox="0 0 40 90"><path class="pole" d="M18 90 V18 C18 12 22 10 26 12"/>`
-    + `<path class="base" d="M14 90 H22 L21 84 H15Z"/><path class="head" d="M21 14 H31 L29 26 H23Z"/><rect class="light" x="23.5" y="16" width="5" height="8" rx="1"/><path class="cap" d="M20 14 C22 9 30 9 32 14Z"/>`
-    + `<g transform="translate(12.4 -7.6)"><g class="bullfinch"><path class="bf-feet" d="M12 18.2 v1.2 M14 18.2 v1.2"/><ellipse class="bf-belly" cx="13" cy="15" rx="4.2" ry="3.4"/><path class="bf-back" d="M8.6 14 C9 10.5 12 9.6 14.6 10.6 C16.4 11.4 17 13 16.8 14 C14 12.6 11 12.8 8.6 14Z"/><path class="bf-tail" d="M9 15 L5 17.5 L9.4 17Z"/><circle class="bf-eye" cx="15" cy="12.2" r=".6"/><path class="bf-beak" d="M16.8 12.6 L18.4 13.2 L16.8 13.8Z"/></g></g></svg></div>`;
+    + `<path class="base" d="M14 90 H22 L21 84 H15Z"/><g class="lamp-swing"><path class="head" d="M21 14 H31 L29 26 H23Z"/><rect class="light" x="23.5" y="16" width="5" height="8" rx="1"/><path class="cap" d="M20 14 C22 9 30 9 32 14Z"/>`
+    + `<g transform="translate(12.4 -7.6)"><g class="bullfinch"><path class="bf-feet" d="M12 18.2 v1.2 M14 18.2 v1.2"/><ellipse class="bf-belly" cx="13" cy="15" rx="4.2" ry="3.4"/><path class="bf-back" d="M8.6 14 C9 10.5 12 9.6 14.6 10.6 C16.4 11.4 17 13 16.8 14 C14 12.6 11 12.8 8.6 14Z"/><path class="bf-tail" d="M9 15 L5 17.5 L9.4 17Z"/><circle class="bf-eye" cx="15" cy="12.2" r=".6"/><path class="bf-beak" d="M16.8 12.6 L18.4 13.2 L16.8 13.8Z"/></g></g></g></svg></div>`;
   // Санки и цепочка следов к ним. Верёвка привязана к загнутому носу и
   // свободно лежит на снегу, а не висит дугой в воздухе.
   const следы = Array.from({ length: 7 }, (_, i) => `<ellipse class="step" cx="${(8 + i * 11).toFixed(1)}" cy="${(i % 2 ? 9 : 13).toFixed(1)}" rx="2.6" ry="1.4"/>`).join('');
@@ -193,6 +204,17 @@ function зима(extra = {}) {
 
 const облако = (класс) => `<div class="hud-sp-cloud ${класс}" aria-hidden="true"><svg viewBox="0 0 80 32"><path class="shade" d="M8 28 C2 28 2 20 8 19 C8 12 18 10 22 15 C24 6 38 4 42 12 C46 6 58 7 58 15 C66 13 74 19 70 26 C70 28 66 29 62 29Z"/>`
   + `<path class="puff" d="M8 26 C2 26 3 18 9 18 C9 11 19 9 23 14 C25 5 39 4 43 11 C47 5 59 7 58 14 C66 12 73 18 69 24 C68 26 64 27 61 27Z"/><path class="lit" d="M14 14 C16 11 20 11 22 13 M28 8 C32 6 37 7 39 10 M46 9 C49 8 53 9 54 11"/></svg></div>`;
+
+/* Облачно: вместо одного большого облака — несколько обычных. Два держатся
+   у светила (их место — от --cel-x/--cel-y сцены) и закрывают его, остальные
+   разбросаны по небу на разной высоте (css/season-plus.css, .hud-sky-cloud).
+   Рисунок — как у облаков весны и лета, только серее. */
+export function облакаНеба() {
+  const облако = (к) => `<span class="hud-sky-cloud ${к}"><svg viewBox="0 0 80 32"><path class="shade" d="M8 28 C2 28 2 20 8 19 C8 12 18 10 22 15 C24 6 38 4 42 12 C46 6 58 7 58 15 C66 13 74 19 70 26 C70 28 66 29 62 29Z"/>`
+    + `<path class="puff" d="M8 26 C2 26 3 18 9 18 C9 11 19 9 23 14 C25 5 39 4 43 11 C47 5 59 7 58 14 C66 12 73 18 69 24 C68 26 64 27 61 27Z"/><path class="lit" d="M14 14 C16 11 20 11 22 13 M28 8 C32 6 37 7 39 10 M46 9 C49 8 53 9 54 11"/></svg></span>`;
+  // k1 и k2 — в рамке светила (.hud-sky-at-sun повторяет положение .hud-fx-celestial).
+  return `<span class="hud-sky-at-sun">${облако('k1')}${облако('k2')}</span>` + ['k3', 'k4', 'k5', 'k6'].map(облако).join('');
+}
 
 function весна(extra) {
   // Тюльпаны у правого края — разных цветов, на листьях.
@@ -218,8 +240,28 @@ function весна(extra) {
     + утёнок(26, 1, 1) + утёнок(16, .92, 2) + утёнок(6.5, .86, 3)
     + '<path class="blades" d="M33 17.6 l-.6 -2.4 M34 17.6 l.5 -2 M11 17.8 l-.5 -1.8 M21 17.8 l.6 -1.9 M58 17.6 l.5 -2.2 M59.2 17.6 l-.3 -1.6 M1.5 17.8 l.4 -1.8"/></svg></div>';
   // Кучевые облака в весеннем небе (облако — общее с летом).
-  const май = extra && extra.month === 5;
-  return облако('c1') + облако('c2') + утки + тюльпаны + (май ? '' : '');
+  // В марте тюльпанов ещё нет — на их месте подснежники.
+  const март = extra && extra.month === 3;
+  return облако('c1') + облако('c2') + утки + (март ? подснежники() : тюльпаны);
+}
+
+/* Подснежники в рамке тюльпанов (70×40): тонкий стебель загибается крючком,
+   с него свисает белый колокольчик — три наружных лепестка, между ними
+   зелёная метка внутренних, сверху зелёная завязь; у корня — пара узких
+   сизых листьев. */
+function подснежники() {
+  const растения = [[8, 23, 1], [17, 29, -1], [27, 20, 1], [37, 27, 1], [46, 22, -1], [56, 30, 1], [64, 21, -1]];
+  const тело = растения.map(([x, h, сторона], i) => {
+    const верх = 40 - h, bx = x + сторона * 3.2, by = верх + 3.6;
+    const лепесток = (поворот) => `<path class="sd-petal" transform="rotate(${поворот} ${bx} ${by})" d="M${bx} ${by} C${bx - 2} ${by + 1.4} ${bx - 1.9} ${by + 4.8} ${bx} ${by + 6.2} C${bx + 1.9} ${by + 4.8} ${bx + 2} ${by + 1.4} ${bx} ${by}Z"/>`;
+    return `<g class="drop" style="--i:${i}">`
+      + `<path class="sd-leaf" d="M${x - .4} 40 C${x - 3} ${40 - h * .3} ${x - 2.6} ${40 - h * .55} ${x - 1.6} ${40 - h * .62} C${x - 1.2} ${40 - h * .4} ${x - .2} ${40 - h * .2} ${x + .6} 40Z"/>`
+      + `<path class="sd-leaf" d="M${x + .2} 40 C${x + 2.6} ${40 - h * .26} ${x + 2.8} ${40 - h * .46} ${x + 2.2} ${40 - h * .52} C${x + 1.4} ${40 - h * .34} ${x + .8} ${40 - h * .16} ${x + .9} 40Z"/>`
+      + `<path class="sd-stalk" d="M${x} 40 C${x} ${40 - h * .6} ${x} ${верх + 1} ${x + сторона * 1.6} ${верх} S${bx} ${верх + 1} ${bx} ${by - 1.2}"/>`
+      + лепесток(-26) + лепесток(26) + лепесток(0)
+      + `<path class="sd-mark" d="M${bx - .7} ${by + 5.4} q.7 .7 1.4 0"/><ellipse class="sd-ovary" cx="${bx}" cy="${by - .5}" rx=".9" ry="1.1"/></g>`;
+  }).join('');
+  return `<div class="hud-sp-tulips is-snowdrops" aria-hidden="true"><svg viewBox="0 0 70 40">${тело}</svg></div>`;
 }
 
 /** Детали поверх сцены сезона (render/scene.js). Пусто — у сезона деталей нет. */
@@ -237,11 +279,38 @@ export function деталиСезона(seasonClass, extra = {}) {
  * затемнения). Каждый огонь стоит в той же рамке, что и его предмет, и
  * загорается к вечеру и ночью (--scene-night-strength).
  */
-export function огниСезона(seasonClass) {
+export function огниСезона(seasonClass, extra = {}) {
+  return огниМеста(seasonClass) + праздничныеОгни(seasonClass, extra);
+}
+
+/* Праздничный свет: гирлянда ёлки, тыквы-фонари и салют. Оба нужны ночью, а внутри сцены
+   ночное затемнение гасило их вместе с пейзажем. Флаги — те же, что у сцены
+   (newYear, fireworks из render/holidays.js и index.js). */
+function праздничныеОгни(seasonClass, extra) {
+  let html = '';
+  if (extra.newYear && seasonClass === 'season-winter') html += `<div class="hud-spl hud-spl-xmas hud-xmas-tree is-svg" aria-hidden="true">${ёлкаОгниSvg()}</div>`;
+  if (extra.halloween) html += '<div class="hud-spl hud-spl-pumpkins hud-pumpkins" aria-hidden="true">' + [1, 2, 3].map(i => `<span class="hud-pumpkin pk${i} is-svg">${тыкваСветSvg(i)}</span>`).join('') + '</div>';
+  if (extra.fireworks) {
+    // Каждый залп — точка с кольцом искр из box-shadow: восемнадцать искр по
+    // кругу, у каждого залпа свой цвет и своё место в небе.
+    const ЦВЕТА = ['#ff5f7e', '#ffd166', '#7ae7ff', '#c79bff'];
+    const залпы = ЦВЕТА.map((цвет, i) => {
+      const искры = Array.from({ length: 18 }, (_, k) => {
+        const угол = (k / 18) * Math.PI * 2, r = 26 + (k % 3) * 4;
+        return `${Math.round(Math.cos(угол) * r)}px ${Math.round(Math.sin(угол) * r)}px 1.5px .8px ${k % 2 ? цвет : '#fff6d8'}`;
+      }).join(',');
+      return `<span class="hud-firework fw${i + 1}" style="--fw:${цвет}"><i class="hud-firework-trail"></i><i class="hud-firework-burst" style="box-shadow:${искры}"></i></span>`;
+    }).join('');
+    html += `<div class="hud-fireworks" aria-hidden="true">${залпы}</div>`;
+  }
+  return html;
+}
+
+function огниМеста(seasonClass) {
   if (seasonClass === 'season-summer') return '<div class="hud-spl hud-spl-lighthouse" aria-hidden="true"><svg viewBox="0 0 40 60"><circle class="core" cx="20" cy="9.5" r="5"/><g class="beams"><path class="beam" d="M20 9 L-60 -2 L-60 20Z"/><path class="beam" d="M20 9 L100 -2 L100 20Z"/></g></svg></div>';
   if (seasonClass === 'season-autumn') return '<div class="hud-spl hud-spl-lantern" aria-hidden="true"><svg viewBox="0 0 16 26"><circle class="halo" cx="8" cy="13" r="16"/><circle class="core" cx="8" cy="13" r="3.6"/></svg></div>'
     + '<div class="hud-spl hud-spl-campfire" aria-hidden="true"><svg viewBox="0 0 30 40"><ellipse class="halo" cx="15" cy="30" rx="34" ry="22"/><ellipse class="core" cx="15" cy="30" rx="7" ry="6"/></svg></div>';
-  if (seasonClass === 'season-winter') return '<div class="hud-spl hud-spl-lamp" aria-hidden="true"><svg viewBox="0 0 40 90"><path class="cone" d="M23 24 L29 24 L44 90 L8 90Z"/><circle class="halo" cx="26" cy="20" r="22"/><circle class="core" cx="26" cy="20" r="4.5"/><ellipse class="pool" cx="26" cy="88" rx="22" ry="4"/></svg></div>';
+  if (seasonClass === 'season-winter') return '<div class="hud-spl hud-spl-lamp" aria-hidden="true"><svg viewBox="0 0 40 90"><g class="lamp-swing"><path class="cone" d="M23 24 L29 24 L44 90 L8 90Z"/><circle class="halo" cx="26" cy="20" r="22"/><circle class="core" cx="26" cy="20" r="4.5"/></g><ellipse class="pool" cx="26" cy="88" rx="22" ry="4"/></svg></div>';
   return '';
 }
 
@@ -253,7 +322,7 @@ export function снеговикSvg() {
   return '<svg class="hud-old-svg" viewBox="0 0 60 90" aria-hidden="true">'
     + '<ellipse class="sm-shadow" cx="30" cy="87" rx="24" ry="3.5"/>'
     + '<g class="sm-broom"><path class="stick" d="M50 86 L44 34"/><path class="bristle" d="M47.5 86 L52.5 86 L55 76 L50.5 74 L46 76Z"/><path class="tie" d="M46.4 77 L53.8 76.2"/></g>'
-    + '<path class="arm" d="M14 50 L3 42 M7 45 L4 40 M7 45 L2 46 M46 50 L56 41 M52 44.5 L54 39 M52 44.5 L58 45"/>'
+    + '<path class="arm" d="M21 47 L3 41 M8 42.7 L5 37.8 M8 42.7 L2.2 44.4 M39 47 L57 39 M52 41.2 L54 36.2 M52 41.2 L58 42.3"/>'
     + '<circle class="ball" cx="30" cy="72" r="16"/><path class="ball-sh" d="M17 76 C20 85 40 88 45 76 C43 84 22 86 17 76Z"/><path class="ball-hi" d="M20 66 C22 61 26 59 30 59"/>'
     + '<circle class="ball" cx="30" cy="48" r="12"/><path class="ball-sh" d="M20 52 C23 59 37 61 41 52 C39 58 24 59 20 52Z"/><path class="ball-hi" d="M22 44 C24 40 27 39 30 39"/>'
     + '<circle class="coal" cx="30" cy="44" r="1.3"/><circle class="coal" cx="30" cy="49" r="1.3"/><circle class="coal" cx="30" cy="54" r="1.3"/>'
@@ -292,6 +361,9 @@ export function кострSvg() {
     + '<g class="smoke"><circle class="puff p1" cx="15" cy="14" r="2.4"/><circle class="puff p2" cx="15" cy="14" r="2.4"/><circle class="puff p3" cx="15" cy="14" r="2.4"/><circle class="puff p4" cx="15" cy="14" r="2.4"/></g>'
     + '<ellipse class="glow" cx="15" cy="34" rx="13" ry="4"/>'
     + '<path class="log" d="M4 36 L25 31 L26 33.6 L5 38.6Z"/><path class="log l2" d="M5 31 L26 36.4 L25 39 L4 33.6Z"/><circle class="log-end" cx="4.6" cy="37.3" r="1.4"/><circle class="log-end" cx="25.6" cy="37.7" r="1.4"/>'
+    // Угли — видны, только когда дождь залил огонь (css: weather-rain, storm).
+    + '<g class="embers"><ellipse class="em-bed" cx="15" cy="34.6" rx="7.4" ry="2.3"/><path class="em-char" d="M9.6 34 C11 32.4 13 32.6 14 33.6 C15.4 32.2 18 32.4 19.8 33.8 C18 35.4 12 35.6 9.6 34Z"/>'
+    + '<circle class="em e1" cx="11.6" cy="34.2" r="1"/><circle class="em e2" cx="14.6" cy="33.5" r="1.2"/><circle class="em e3" cx="17.6" cy="34" r=".9"/><circle class="em e4" cx="16" cy="35.2" r=".7"/><circle class="em e5" cx="13" cy="35.3" r=".6"/></g>'
     + '<g class="flames"><path class="fl-o" d="M15 33 C8 33 7 27 10 22 C10.5 25 12 26 12.5 25 C11.5 21 13 17 16 14 C15.5 18 18 20 19.5 18.5 C21.5 22 23 27 20 31 C19 32.6 17 33 15 33Z"/>'
     + '<path class="fl-m" d="M15 33 C11 33 10.5 29 12.5 26 C13 28 14 28.4 14.4 27.6 C14 25 15 22.4 17 20.6 C17 23 18.4 24.6 19.4 24 C20.4 27 20 31 15 33Z"/>'
     + '<path class="fl-i" d="M15 33 C13 33 12.6 31 13.6 29.4 C14.2 30.2 14.8 30 15 29.4 C15 28.2 15.6 27 16.6 26.2 C16.8 28 17.6 29 17.6 30.4 C17.6 32 16.6 33 15 33Z"/></g>'
