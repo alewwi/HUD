@@ -20,22 +20,22 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.86';
-import { английский } from './i18n.js?v=23.89.86';
-import { flattenFieldValue } from './utils.js?v=23.89.86';
-import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.89.86';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.86';
-import { статусОбещания } from './hud-expand.js?v=23.89.86';
-import { полеВкл } from './deep-fields.js?v=23.89.86';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.86';
-import { namesLikelySame } from './names.js?v=23.89.86';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.86';
-import { праздникиГода } from './render/holidays.js?v=23.89.86';
-import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.86';
-import { заметкаМеста } from './render/place-lore.js?v=23.89.86';
-import { заметкаПоста } from './render/almanac.js?v=23.89.86';
-import { заметкаСил } from './render/powers.js?v=23.89.86';
-import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.86';
+import { settings } from './settings.js?v=23.89.87';
+import { английский } from './i18n.js?v=23.89.87';
+import { flattenFieldValue } from './utils.js?v=23.89.87';
+import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.89.87';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.87';
+import { статусОбещания } from './hud-expand.js?v=23.89.87';
+import { полеВкл } from './deep-fields.js?v=23.89.87';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.87';
+import { namesLikelySame } from './names.js?v=23.89.87';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.87';
+import { праздникиГода } from './render/holidays.js?v=23.89.87';
+import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.87';
+import { заметкаМеста } from './render/place-lore.js?v=23.89.87';
+import { заметкаПоста } from './render/almanac.js?v=23.89.87';
+import { заметкаСил } from './render/powers.js?v=23.89.87';
+import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.87';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -319,14 +319,18 @@ function состояние(з) {
 }
 function людиСнимка(снимок, имяИгрока) {
   const люди = (Array.isArray(снимок?.cs) ? снимок.cs : []).filter(c => c && чисто(c.N)).map(c => ({ имя: чисто(c.N), з: c }));
-  if (снимок?.us && typeof снимок.us === 'object') люди.unshift({ имя: имяИгрока, з: снимок.us });
+  if (снимок?.us && typeof снимок.us === 'object') люди.unshift({ имя: имяИгрока, з: снимок.us, игрок: true });
   return люди;
 }
 function заметкаДеталей(х, снимок, цель, имяИгрока) {
   if (х.разовые.детали && х.разовые.детали.цель === цель) return х.разовые.детали.текст;
   const строки = [];
-  for (const { имя, з } of людиСнимка(снимок, имяИгрока)) {
+  // Про игрока — только если не выключено (bodyCuesPlayer): игрока ведёт сам
+  // игрок, и примета его тела в ответе модели — это модель пишет за него.
+  const сИгроком = settings.bodyCuesPlayer !== false;
+  for (const { имя, з, игрок } of людиСнимка(снимок, имяИгрока)) {
     if (строки.length >= ДЕТАЛЕЙ_ЗА_ХОД) break;
+    if (игрок && !сИгроком) continue;
     const с = состояние(з);
     for (const [ключ, условие, варианты] of ДЕТАЛИ) {
       if (!нота('cue.' + КОД_ДЕТАЛИ[ключ]) || !условие(с)) continue;
@@ -360,7 +364,7 @@ export function запущенноеУ(имя, сцена = null) {
 function заметкаЗапущенного(х, снимок, чат, цель, сцена, имяИгрока) {
   const строки = [];
   if (!Number.isFinite(сцена)) return строки;
-  for (const { имя, з } of людиСнимка(снимок, имяИгрока)) {
+  for (const { имя, з, игрок } of людиСнимка(снимок, имяИгрока)) {
     const с = состояние(з), запись = х.запущено[имя] || {};
     if (перерывВСчёте(запись, сцена)) ЗАПУЩЕНО.forEach(к => { delete запись[к]; });
     const следить = (ключ, плохо) => {
@@ -373,7 +377,8 @@ function заметкаЗапущенного(х, снимок, чат, цель
     const вода = следить('вода', /жажд|обезвож|пересохл|thirst|dehydrat|parched/i.test(с.текст));
     if (ЗАПУЩЕНО.some(к => к in запись)) { запись.видели = сцена; х.запущено[имя] = запись; } else delete х.запущено[имя];
     const КОД = { еда: 'food', вода: 'water', сон: 'sleep' };
-    const напомнить = (ключ, текст) => { if (нота('neg.' + КОД[ключ]) && пораНапомнить(х, чат, цель, `запущено|${имя}|${ключ}`, текст)) строки.push(текст); };
+    // Счёт дней у игрока идёт (карточка), а в ответ модели — по той же галке, что приметы.
+    const напомнить = (ключ, текст) => { if (!(игрок && settings.bodyCuesPlayer === false) && нота('neg.' + КОД[ключ]) && пораНапомнить(х, чат, цель, `запущено|${имя}|${ключ}`, текст)) строки.push(текст); };
     if (голод >= 2) напомнить('еда', `${имя} has gone ${голод} days with almost no food: weak, dizzy, thinner, and it shows.${голод >= 4 ? ' If it goes on, write it in Ill.' : ''}`);
     if (вода >= 2) напомнить('вода', `${имя} has gone ${вода} days short of water: cracked lips, headache, dizziness.${вода >= 3 ? ' If it goes on, write it in Ill.' : ''}`);
     if (сон >= 2) напомнить('сон', `${имя} has gone ${сон} days nearly without sleep: slow thinking, shaking hands, mistakes.${сон >= 4 ? ' If it goes on, write it in Ill.' : ''}`);

@@ -10,23 +10,23 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.86';
-import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.86';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.86';
+import { settings } from './settings.js?v=23.89.87';
+import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.87';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.87';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.86';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.86';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.86';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.86';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.86';
-import { возрастТочно } from './render/babies.js?v=23.89.86';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.86';
-import { сжатьСхему } from './compact-fields.js?v=23.89.86';
-import { короткийПромпт } from './prompt-short.js?v=23.89.86';
-import { подготовкаИдёт } from './render/holiday-lore.js?v=23.89.86';
-import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан, промптРаныСпутника } from './render/medieval-life.js?v=23.89.86';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.86';
-import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.89.86';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.87';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.87';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.87';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.87';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.87';
+import { возрастТочно } from './render/babies.js?v=23.89.87';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.87';
+import { сжатьСхему } from './compact-fields.js?v=23.89.87';
+import { короткийПромпт } from './prompt-short.js?v=23.89.87';
+import { подготовкаИдёт } from './render/holiday-lore.js?v=23.89.87';
+import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан, промптРаныСпутника } from './render/medieval-life.js?v=23.89.87';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.87';
+import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.89.87';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -190,20 +190,23 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   // Фракции и репутация (wd.rep) — слой мира; к кому — по настройке.
   const фракции = !!settings.enableWorld && (settings.factions || 'user') !== 'off';
   const целиФракций = settings.factions === 'both' ? '{{user}} or {{char}} — a separate row for each' : settings.factions === 'char' ? '{{char}}' : '{{user}}';
-  const ключиМира = settings.enableWorld && settings.hudWorldDaily !== false ? ['nws', 'rm', 'fc', ...(гороскоп ? ['zd', 'fate'] : []), ...(экономика ? ['eco'] : []), ...(афиша ? ['afs'] : []), ...(город ? ['cty'] : []), 'ad', ...(фракции ? ['rep'] : [])] : [];
+  const ключиМира = settings.enableWorld && settings.hudWorldDaily !== false ? ['nws', 'rm', 'fc', ...(гороскоп ? ['zd', 'fate'] : []), ...(экономика ? ['eco'] : []), ...(афиша ? ['afs'] : []), ...(город ? ['cty'] : []), 'ad'] : [];
   const ключиПамяти = settings.enableMemory && settings.hudMemoryDelta !== false ? ['fct', ...(settings.promisesList === false ? [] : ['prm']), ...(ружья ? ['gun'] : []), 'sec', 'lg'] : [];
   // Что не изменилось, модель пишет коротко — и ничто ниже не должно требовать
   // «всё целиком каждый ход»: раньше такие строки перевешивали, и модель не
   // писала «nc» вовсе, а память переписывала списком.
   // Брак и законность (render/medieval-life.js) меняются редко — им тоже «nc».
   const ПОЛЯ_NC_ПРОМТА = [...ПОЛЯ_NC_МОДЕЛИ, ...(бракВкл() ? ['Mrg', 'Lgt'] : [])];
-  const краткоВЦелом = settings.hudNoChange !== false || ключиМира.length > 0 || ключиПамяти.length > 0;
+  const краткоВЦелом = settings.hudNoChange !== false || ключиМира.length > 0 || ключиПамяти.length > 0 || фракции;
   const краткость = (settings.hudNoChange !== false ? `
 - ♻️ NO CHANGE: in ${ПОЛЯ_NC_ПРОМТА.join(', ').replace(/, ([^,]*)$/, ' and $1')} write just "nc" (no change) when the field is the same as in the last HUD — ${['for every character', игрок ? 'for {{user}}' : '', малышиВПромпт ? 'for every child in "bb"' : ''].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' and $1')}. Copying an unchanged field out in full is a mistake: it only lengthens the reply, and the HUD restores the value from the last HUD by itself. Any real change — an item used or moved, a bruise fading, a symptom easing, a new memory or goal, a shift in a relationship or in trust — means the field is written in full with the update. No last HUD, or the person is not in it — always in full. A field that was empty stays empty, never nc. Only these fields: never write nc anywhere else.` : '')
     + (ключиМира.length ? `
 - 🗞️ WORLD ONCE A DAY: in "wd" write ${списокКодов(ключиМира)} only in the first HUD of a new in-story day or when something in them really changes; otherwise leave those keys out — the HUD keeps the last ones.${settings.showComments ? ' "com" is written every turn.' : ''}` : '')
     + (ключиПамяти.length ? `
-- 🧠 MEMORY AS UPDATES: in "me" write ${списокКодов(ключиПамяти)} with only what is new or changed this turn — never list again an item from the last HUD that did not change: the HUD keeps the rest by itself. To change an item, write it again starting with its id from the last HUD — '[f2] new text' (a secret — the same "id"); to remove one, write '- [f2]'. New items get no id. Nothing new — []. "lg" starts over on a new day.` : '');
+- 🧠 MEMORY AS UPDATES: in "me" write ${списокКодов(ключиПамяти)} with only what is new or changed this turn — never list again an item from the last HUD that did not change: the HUD keeps the rest by itself. To change an item, write it again starting with its id from the last HUD — '[f2] new text' (a secret — the same "id"); to remove one, write '- [f2]'. New items get no id. Nothing new — []. "lg" starts over on a new day.` : '')
+    // Репутация — только сдвиги и новые группы; прежние строки HUD дополняет сам (hud-expand.js).
+    + (фракции ? `
+- 🏛️ REPUTATION AS UPDATES: in "wd"."rep" write only the rows of groups whose standing changed this turn and of groups that matter for the first time — never repeat a row from the last HUD that did not change: the HUD keeps the rest by itself. Nothing changed — "rep": [].` : '');
 
   // HUD одной строкой (settings.hudOneLine): переносы и отступы JSON — около
   // десятой части токенов ответа. Схема ниже остаётся по полю на строку: так
@@ -225,7 +228,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
 - 🌍 LIVING WORLD: off-screen characters keep living — they work, sleep, travel, message, plan, argue, buy, miss appointments. Never erase that life just because the protagonist cannot see it.${правилоМагии}
 - 🪞 NO RETELLING: the HUD adds what the reply does not say. Thoughts (Th, K) and hidden subtext (D) never repeat or paraphrase lines, actions or narration from the reply — they show what is under them. Hidden subtext is always something NEW: often it is not in the reply at all.
 - 🧠 KNOWLEDGE BOUNDARIES: each character knows only what they plausibly could. Never leak another's private thoughts, messages or plans without a believable path.
-- 📦 SCHEMA FIXED: emit every section and every field of the schema below, every turn. Empty means [] / {} / "empty" — never drop a key to say "nothing changed". The only exceptions are fields marked OPTIONAL or "ONLY … otherwise omit"${ключиМира.length || ключиПамяти.length ? ', and the WORLD and MEMORY rules above' : ''}.${settings.hudNoChange !== false ? ' An unchanged field written as "nc" under the NO CHANGE rule is not a dropped field.' : ''}
+- 📦 SCHEMA FIXED: emit every section and every field of the schema below, every turn. Empty means [] / {} / "empty" — never drop a key to say "nothing changed". The only exceptions are fields marked OPTIONAL or "ONLY … otherwise omit"${ключиМира.length || ключиПамяти.length || фракции ? ', and the WORLD, MEMORY and REPUTATION rules above' : ''}.${settings.hudNoChange !== false ? ' An unchanged field written as "nc" under the NO CHANGE rule is not a dropped field.' : ''}
 - 📏 HOW MANY ITEMS: list fields have NO upper limit unless their description gives a size. Give as many items as the story actually supports — one item where four are obvious is a loss of information, including when a fuller description quietly folds several real things into one instead of splitting them by ;. More detail is never a reason for fewer items: it lengthens each item, it doesn't merge neighbours into it. A single-item list is almost always a sign you stopped too early. Aim for 3+ wherever the material allows.
 - 🏷️ LABELED ITEMS: wherever a field's description shows its items as "<label>: <value>" or "code: value", write every item that way, separated by SEMICOLONS, never commas — a comma-separated list collapses into one unreadable pill. Never output a bare value without its label.
 - ⚠️ FORMATTING: use exactly these codes as keys. Quote speech and phrases inside a value with «ёлочки», never with straight double quotes — a raw " ends the JSON string and cuts the text off; if one is unavoidable, escape it as \\". Separate list items with ; — never with slashes — and never put ; inside a single item.
@@ -258,7 +261,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "Pp": "[after childbirth, ONLY for a woman who has given birth in the story — otherwise omit. 'bf: breast, formula or mixed${заботаСтарины ? ' (formula here means a wet nurse or animal milk)' : ''}; lfd: time of the last breastfeed as HH:MM; brs: breasts — fullness, pain, leaking, nipples; sy: how she feels — healing, bleeding, tiredness, mood'. Keep it while she recovers and feeds]",` : ''}${цикл ? `
    "Mns": "[menstrual cycle, ONLY for someone with a uterus. 'cyd: cycle day, a number; cyl: cycle length, days; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period date; pms: PMS window, dates; dly: days late, 0 if none; rsn: reason for a delay — stress, illness, contraception, pregnancy; empty if none'. Moves with story days: the day grows, the phase follows, the period comes on time unless something delays it. From a known pregnancy (Prg) until the period returns after birth — only 'phs: paused', no day count or delay]",` : ''}
    "Ph": "[physiology: bodily sensations right now — hunger, thirst, cold, pain, drowsiness${интим ? ', arousal' : ''}. What the body feels, not what it does. Not the phone]",
-${состояниеТела ? `   "Bs": "[body state, 0-100 each followed by a word: 'eng: energy; awk: alertness; sat: satiety; str: stress; slp: last night's sleep — hours and bedtime, and after several bad nights in a row also how many and the total, e.g. '1.5 h, 03:30; 5 nights: 9 h'; dut: the work or study duty ahead and when${мана ? `; mn: mana — the reserve their ${ф('magic', 'gift')} draws on, ONLY for someone ${ф('who wields magic', 'with a gift')}` : ''}'. Effort, hunger and sleepless hours lower them, food, rest and sleep restore; stress rises with danger and conflict${мана ? `; mana is spent by using ${ф('magic', 'the gift')} and returns about ${МАНА_В_ЧАС} per hour of rest, fully after a night's sleep` : ''}]",
+${состояниеТела ? `   "Bs": "[body state, 0-100 each followed by a word: 'eng: energy; awk: alertness; sat: satiety; str: stress; slp: last night's sleep — hours and bedtime, and after several bad nights in a row also how many and the total, e.g. '1.5 h, 03:30; 5 nights: 9 h'; dut: the work or study duty ahead and when${мана ? `; mn: mana — the reserve their ${ф('magic', 'gift')} draws on, ONLY for someone ${ф('who wields magic', 'with a gift')}` : ''}'. eng and awk never rise by themselves: only sleep or a nap, coffee or another stimulant, or adrenaline can raise them; otherwise they stay or fall, hour by hour, with effort, hunger and time awake. A lift from coffee or adrenaline is borrowed: when it wears off (coffee after a few hours, adrenaline soon after the danger passes) comes the crash — eng and awk drop hard, below where they were before it. Food fills sat; stress rises with danger and conflict${мана ? `; mana is spent by using ${ф('magic', 'the gift')} and returns about ${МАНА_В_ЧАС} per hour of rest, fully after a night's sleep` : ''}]",
 ` : ''}${дары ? `   "Ab": "[${ф("magic, ONLY for someone who wields it: one group per school or signature spell, separated by |: 'nm: the school or spell — e.g. огненная магия, иллюзии, порталы, целительство, обереги, проклятия; mst: novice, trained, adept or master; cn: what they can really cast at this level, with a concrete scale — how big, how far, how long, how many at once, and what it needs (words, gestures, a focus, a circle); lim: what they can NOT do; cst: what casting costs the body'. The SAME schools every turn; the level grows slowly and only through the story", "abilities, ONLY for someone with an innate gift: one group per gift, separated by |: 'nm: the gift — element or force, e.g. огонь, вода, земля, воздух, духи; mst: novice, trained, adept or master; cn: what it can really do at this level, with a concrete scale — how much, how far, how long; lim: what it can NOT do; cst: what using it costs the body'. Innate and physical — never spells, portals or teleportation. The SAME gifts every turn; the level grows slowly and only through the story")}]",
 ` : ''}${эффекты ? `   "Ef": "[${ф("spells and enchantments acting on them right now, ONLY if any — a curse, a ward, a charm, a glamour, a geas, a tracking mark", "lasting effects acting on them right now, ONLY if any — a spirit's mark or blessing, chi blocked, a bending hold, frostbite or heat from a gift, a poison; never spells")}: one group per effect, separated by |: 'nm: what acts on them; src: who or what caused it; til: when it ends — HH:MM today or DD.MM HH:MM; sy: how it shows'. The HUD counts the time left by sc.T; remove it once til has passed, unless the story renews it]",
 ` : ''}   "L": "[location: the exact place right now — city, building, room, spot in the room]",
@@ -597,7 +600,7 @@ ${блокПисем(true)}`;
   "afs": ["[kind | title | where and when]", "events: 2-6 rows of what is on today, ${экономика ? 'fitting the era and place' : фон}; kind is one of: cinema, theatre, concert, exhibition, festival, sport, club, street, lecture"],` : ''}${город ? `
   "cty": ["[kind | what is happening]", "city services: 2-5 rows, ${экономика || афиша ? 'fitting the era and place' : фон}; kind is one of: traffic, roads, weather, transport, repairs, emergency, utilities, police, health, protest"],` : ''}
   "ad": ["[classified ad: short, in the voice of whoever posted it]", "ads: one line per ad"]${фракции ? `,
-  "rep": ["[faction or group] | [toward whom: ${целиФракций}] | [standing -100..100] | [attitude in 1-3 words, e.g. уважают, презирают, боятся] | [why: what earned this standing or its latest shift]", "reputation: how groups that matter in the story — gangs, police, guilds, noble houses, a class at the university, a court — regard ${целиФракций}; one row per group${settings.factions === 'both' ? ' and per person' : ''}. The number moves only through events, by steps, never resets; on a shift, why says what caused it"]` : ''}`;
+  "rep": ["[faction or group] | [toward whom: ${целиФракций}] | [standing -100..100] | [attitude in 1-3 words, e.g. respect, despise, fear] | [why: what earned this standing or its latest shift]", "reputation: how groups that matter in the story — gangs, police, guilds, noble houses, a class at the university, a court — regard ${целиФракций}; one row per group${settings.factions === 'both' ? ' and per person' : ''}, written only when its standing shifts or the group is new (REPUTATION AS UPDATES); nothing shifted — []. The number moves only through events, by steps, never resets; on a shift, why says what caused it"]` : ''}`;
     if (settings.showComments) {
       p += `,
   "com": ["[nickname: comment]", "comments: ordinary people of this world posting under nicknames wherever this place and era talk: a city forum, a chat, a darknet board, a tavern wall. They live in the story's world, know only what is public or leaked, argue and get things wrong; they never see private scenes or thoughts, never address the reader and do not know this is a story. One line per comment, as many as the thread gets"]`;
@@ -636,7 +639,7 @@ Codes: {{hudLastKeys}}
 \`\`\`json
 {{hudLast}}
 \`\`\`${канон}
-Update it to match ${чего}: keep what is still true, change what ${чего} changes, remove what has ended or faded, add what is new. Never copy it back unchanged when the story has moved on. Replace every "<new this turn>" with real content — never skip a field because it is short or missing above${краткоВЦелом ? `. What did not change is written the short way the rules above allow (${[settings.hudNoChange !== false ? '"nc"' : '', ключиМира.length ? 'world keys left out' : '', ключиПамяти.length ? 'memory as updates only' : ''].filter(Boolean).join(', ')}) — never copied out in full` : '; however long the chat, the HUD is written in full every turn'}.{{/if}}`;
+Update it to match ${чего}: keep what is still true, change what ${чего} changes, remove what has ended or faded, add what is new. Never copy it back unchanged when the story has moved on. Replace every "<new this turn>" with real content — never skip a field because it is short or missing above${краткоВЦелом ? `. What did not change is written the short way the rules above allow (${[settings.hudNoChange !== false ? '"nc"' : '', ключиМира.length ? 'world keys left out' : '', ключиПамяти.length ? 'memory as updates only' : '', фракции ? 'reputation as updates only' : ''].filter(Boolean).join(', ')}) — never copied out in full` : '; however long the chat, the HUD is written in full every turn'}.{{/if}}`;
   if (cacheStable) {
     // No scene-dependent macros or state in the reusable prefix.
     p = p.replace(/\{\{if hudLast\}\}[\s\S]*?\{\{\/if\}\}/g, '')

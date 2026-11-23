@@ -11,10 +11,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.86';
-import { ико } from './view-icons.js?v=23.89.86';
-import { normalizeDiaryMood, ТЕМЫ_ДНЕВНИКА } from './diary.js?v=23.89.86';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.86';
+import { escapeHtml } from '../utils.js?v=23.89.87';
+import { ико } from './view-icons.js?v=23.89.87';
+import { normalizeDiaryMood, ТЕМЫ_ДНЕВНИКА } from './diary.js?v=23.89.87';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.87';
+import { английский } from '../i18n.js?v=23.89.87';
+// Подписи «Где кто живёт» — сразу на языке интерфейса (языки из таблиц — английские).
+const L = (ru, en) => (английский() ? en : ru);
 
 const значок = (имя) => ико(имя, 'hud-arc-ico');
 const пусто = (текст) => `<div class="hud-arc-empty">${текст}</div>`;
@@ -67,13 +70,38 @@ export function вкладкаКалендаря(отчёт, поиск = '') {
 }
 
 // --- Атлас мест -----------------------------------------------------------------------
+// «Понедельник, 14.10.2024» → «14.10.2024»; не разобралась — как есть.
+const дата = (s) => { const t = parseSceneDate(s); if (t === null) return String(s || ''); const d = new Date(t), z = (n) => String(n).padStart(2, '0'); return `${z(d.getUTCDate())}.${z(d.getUTCMonth() + 1)}` + (d.getUTCFullYear() !== 2000 || /2000/.test(s) ? '.' + d.getUTCFullYear() : ''); };
+const срок = (с, по) => { const а = дата(с), б = дата(по); if (!а || !б || а === б) return а || б; const [, , га] = а.split('.'), [, , гб] = б.split('.'); return (га && га === гб ? а.slice(0, 5) : а) + ' – ' + б; };
+const заглавная = (s) => String(s || '').charAt(0).toUpperCase() + String(s || '').slice(1);
+const тотЖеДом = (дом, место) => { const а = String(дом || '').toLowerCase(), б = String(место || '').toLowerCase(); return а.startsWith(б) || б.startsWith(а); };
+// Где кто живёт: дома человека по порядку сюжета. Стрелка — переехал, точка —
+// два дома в одно время. Ночёвки в гостях — числом.
+function гдеКтоЖивёт(отчёт, поиск) {
+  const люди = ((отчёт.maps && отчёт.maps.homes) || []).filter(ч => ч.homes.length && поиском(поиск, ч.name, ...ч.homes.map(д => д.place)));
+  if (!люди.length) return '';
+  const ряд = (ч) => ч.homes.map((д, i) => {
+    const до = i ? (ч.homes[i - 1].toAt < д.fromAt ? '<i>→</i>' : '<i>·</i>') : '';
+    return до + `<span class="hud-arc-status">${escapeHtml(заглавная(д.place))} <small>${escapeHtml(срок(д.from, д.to))}</small></span>`;
+  }).join('') + (ч.stays.length ? `<span class="hud-arc-tag" title="${escapeHtml(ч.stays.map(г => заглавная(г.place)).join(', '))}">${L(`ночью в гостях: ${ч.stays.length} ${склон(ч.stays.length, 'место', 'места', 'мест')}`, `nights as a guest: ${ч.stays.length} ${ч.stays.length === 1 ? 'place' : 'places'}`)}</span>` : '');
+  return `<section class="hud-arc-card hud-arc-homes"><div class="hud-arc-card-head">${значок('house')} <b>${L('Где кто живёт', 'Where people live')}</b></div>`
+    + `<p class="hud-arc-note">${L('Дом — жилище с именем человека («пентхаус Эдвина»), «своя кровать» или «съёмная квартира» в адресе, дом семьи с двух ночей, без имени — с трёх разных ночей сюжета не в гостевой. Стрелка — переехал, точка — два дома сразу. Остальное — ночь в гостях или на событии.', 'A home is a dwelling named after the person (“Edwin’s penthouse”), “own bed” or “rented flat” in the address, a family home after two nights, an unnamed one after three different story nights outside a guest room. An arrow means they moved, a dot means two homes at once. Everything else is a night as a guest or at an event.')}</p>`
+    + люди.map(ч => `<div class="hud-arc-row"><label>${escapeHtml(ч.name)}</label><div class="hud-arc-path">${ряд(ч)}</div></div>`).join('') + '</section>';
+}
 export function вкладкаАтласа(отчёт, поиск = '') {
   const места = ((отчёт.maps && отчёт.maps.atlas) || []).filter(м => поиском(поиск, м.place, ...м.people.map(п => п.name)));
-  if (!места.length) return пусто('Мест за этот отрезок нет: их пишет поле «Место» у персонажей.');
+  const дома = гдеКтоЖивёт(отчёт, поиск);
+  if (!места.length) return дома || пусто('Мест за этот отрезок нет: их пишет поле «Место» у персонажей.');
   const наибольшее = Math.max(...места.map(м => м.visits), 1);
-  return `<section class="hud-arc-card hud-arc-atlas"><div class="hud-arc-card-head">${значок('pin')} <b>Атлас мест</b><span class="hud-arc-tag">${места.length}</span></div>`
-    + места.map(м => `<div class="hud-arc-place"><div class="top"><b>${escapeHtml(м.place)}</b><span class="visits" style="--arc-v:${Math.round(м.visits / наибольшее * 100)}%"><i></i>${м.visits} ${склон(м.visits, 'визит', 'визита', 'визитов')}</span></div>`
-      + `<div class="meta">${м.lastDate ? `<span>${значок('clock')} последний раз ${escapeHtml(м.lastDate)}</span>` : ''}${м.lives.length ? `<span class="lives">${значок('house')} живёт: ${escapeHtml(м.lives.join(', '))}</span>` : ''}${м.works.length ? `<span class="works">${значок('tool')} работает: ${escapeHtml(м.works.join(', '))}</span>` : ''}</div>`
+  const кто = (x, место) => escapeHtml(x.name) + (тотЖеДом(x.home, место) || !x.home ? '' : ` <small>(${escapeHtml(x.home)})</small>`);
+  // Отчёт старой версии: дом — по ночам, без подробностей.
+  const живут = (м) => (м.livesAt || (м.lives || []).map(name => ({ name })));
+  const жильё = (м) => (живут(м).length ? `<span class="lives">${значок('house')} живёт: ${живут(м).map(x => кто(x, м.place)).join(', ')}</span>` : '')
+    + ((м.lived || []).length ? `<span class="lived">${значок('house')} ${L('жили раньше', 'lived here before')}: ${м.lived.map(x => кто(x, м.place) + (x.until ? ` <small>${L('до', 'until')} ${escapeHtml(дата(x.until))}</small>` : '')).join(', ')}</span>` : '')
+    + ((м.stayed || []).length ? `<span class="stayed">${значок('moon')} ${L('ночью были', 'here at night')}: ${м.stayed.slice(0, 4).map(x => escapeHtml(x.name) + (x.nights > 1 ? ` <small>×${x.nights}</small>` : '')).join(', ')}${м.stayed.length > 4 ? ` <small>${L('и ещё', 'and')} ${м.stayed.length - 4}${L('', ' more')}</small>` : ''}</span>` : '');
+  return дома + `<section class="hud-arc-card hud-arc-atlas"><div class="hud-arc-card-head">${значок('pin')} <b>Атлас мест</b><span class="hud-arc-tag">${места.length}</span></div>`
+    + места.map(м => `<div class="hud-arc-place"><div class="top"><b>${escapeHtml(заглавная(м.place))}</b><span class="visits" style="--arc-v:${Math.round(м.visits / наибольшее * 100)}%"><i></i>${м.visits} ${склон(м.visits, 'визит', 'визита', 'визитов')}</span></div>`
+      + `<div class="meta">${м.lastDate ? `<span>${значок('clock')} последний раз ${escapeHtml(м.lastDate)}</span>` : ''}${жильё(м)}${м.works.length ? `<span class="works">${значок('tool')} работает: ${escapeHtml(м.works.join(', '))}</span>` : ''}</div>`
       + (м.people.length ? `<div class="people">${м.people.map(п => `<span>${escapeHtml(п.name)} <small>${п.turns}</small></span>`).join('')}</div>` : '')
       + '</div>').join('') + '</section>';
 }

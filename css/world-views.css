@@ -222,6 +222,8 @@
 .hud-wv.is-tiles .back span { margin-top: 2px; font-size: .74em; font-weight: 700; opacity: .8; }
 @media (hover: hover) and (pointer: fine) { .hud-wv.is-tiles .tile:hover .face { border-color: color-mix(in srgb, var(--tc) 50%, transparent); } }
 .hud-wv.is-tiles .tile.is-up { --tc: #3ccf9a; } .hud-wv.is-tiles .tile.is-down { --tc: #ff7a7a; }
+/* Без изменения — серым: акцент темы бывает красным и читался как падение. */
+.hud-wv.is-tiles .tile.is-flat { --tc: #98a1ab; }
 .hud-wv.is-tiles .nm { font-size: .74em; line-height: 1.25; color: var(--v-ink-soft); }
 .hud-wv.is-tiles .tile b { font-size: 1.22em; font-weight: 800; line-height: 1.15; color: color-mix(in srgb, var(--tc) 25%, var(--ink-hi, #fff)); }
 .hud-wv.is-tiles .tile em { align-self: flex-start; max-width: 100%; overflow-wrap: anywhere; border-radius: 8px !important; font-style: normal; font-size: .7em; font-weight: 700; padding: 1px 7px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--tc) 20%, transparent); color: color-mix(in srgb, var(--tc) 65%, var(--ink-hi, #fff)); }

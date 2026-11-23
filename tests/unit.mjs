@@ -583,6 +583,23 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     wd: { com: ['nik: новое'] },
     me: { fct: ['Кольцо у Мари', 'Дарен знает про письмо'], gun: ['- Письмо в сейфе | Мари | open'], sec: [{ f: 'Дамиан болен', stt: 'suspected' }], lg: ['09:30 - звонок'] },
   };
+  {
+    // Репутация обновлениями: модель пишет только сдвинувшиеся группы.
+    const былоРеп = { wd: { rep: ['Гильдия | {{user}} | 20 | терпят | новенькая', 'Стража | {{user}} | -5 | косятся | чужая', 'Гильдия | {{char}} | 60 | уважают | мастер'] } };
+    const пусто = { wd: { rep: [] } };
+    проверить('репутация: [] — все прежние строки', Р.развернутьКраткое(пусто, [былоРеп], { репутация: true }) && JSON.stringify(пусто.wd.rep) === JSON.stringify(былоРеп.wd.rep));
+    const сдвиг = { wd: { rep: ['Гильдия | {{user}} | 35 | уважают | починила печь', 'Мельники | {{user}} | 10 | присматриваются | новый заказ'] } };
+    Р.развернутьКраткое(сдвиг, [былоРеп], { репутация: true });
+    проверить('репутация: сдвиг встаёт на место той же группы к тому же адресату, новая — в конец, к другому адресату не трогает',
+      сдвиг.wd.rep.length === 4 && /35/.test(сдвиг.wd.rep[0]) && /Стража/.test(сдвиг.wd.rep[1]) && /\{\{char\}\} \| 60/.test(сдвиг.wd.rep[2]) && /Мельники/.test(сдвиг.wd.rep[3]), JSON.stringify(сдвиг.wd.rep));
+    const безКлюча = { wd: { nws: ['x'] } };
+    Р.развернутьКраткое(безКлюча, [{ wd: { nws: ['y'] } }, былоРеп], { репутация: true });
+    проверить('репутация: ключа нет — из последнего хода, где она была', (безКлюча.wd.rep || []).length === 3);
+    const выкл = { wd: { rep: [] } };
+    Р.развернутьКраткое(выкл, [былоРеп], {});
+    проверить('репутация: без опции не трогаем', выкл.wd.rep.length === 0);
+    проверить('репутация не в «мире дня»', !Р.МИР_ДНЯ.includes('rep'));
+  }
   const опц = { мир: Р.МИР_ДНЯ, память: Р.ПАМЯТЬ_ОБНОВЛЕНИЯМИ };
   проверить('что-то развернулось', Р.развернутьКраткое(ход, [прошлый], опц));
   const т = ход.cs[0];
@@ -707,7 +724,13 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('промт: nc разрешён и в здоровье, статусе, инвентаре, следах, болезнях и медленных полях — только без изменений', /Ap, C, Kn, Ft, NG, SxL, H, St, I, Mrk, Ill, R, G, Rl, Mm, Tr, Fr, X, Ln and Fl write just "nc"/.test(с) && /Any real change/.test(с) && /Copying an unchanged field out in full is a mistake/.test(с));
   // Ничто не должно перевешивать краткость: с «пиши всё целиком каждый ход» модель не писала «nc» вовсе.
   проверить('промт: нет требований писать HUD целиком при краткости', !с.includes('If unsure, write it in full') && fs.readFileSync(path.join(КОРЕНЬ, 'prompt.js'), 'utf8').includes("never copied out in full` : '; however long the chat, the HUD is written in full every turn'") && с.includes('is not a dropped field') && с.includes('never list again an item from the last HUD'));
-  проверить('промт: правила nc, мира раз в день и памяти обновлениями', с.includes('♻️ NO CHANGE') && с.includes('🗞️ WORLD ONCE A DAY') && с.includes('"com" is written every turn') && с.includes('🧠 MEMORY AS UPDATES') && с.includes('and the WORLD and MEMORY rules above'));
+  {
+    const мирДня = (с.match(/WORLD ONCE A DAY: in "wd" write ([^\n]*?) only in/) || [])[1] || '';
+    проверить('промт: репутация — обновлениями, не «мир раз в день»', с.includes('🏛️ REPUTATION AS UPDATES') && с.includes('Nothing changed — "rep": []') && !/"rep"/.test(мирДня), мирДня);
+    проверить('промт: в строке репутации нет кириллицы', !/[Ѐ-ӿ]/.test((с.match(/"rep": \[[^\n]*/) || [''])[0]));
+    проверить('промт: энергия и бодрость сами не растут, после кофе и адреналина — откат', /eng and awk never rise by themselves: only sleep or a nap, coffee or another stimulant, or adrenaline/.test(с) && /comes the crash — eng and awk drop hard, below where they were/.test(с));
+  }
+  проверить('промт: правила nc, мира раз в день и памяти обновлениями', с.includes('♻️ NO CHANGE') && с.includes('🗞️ WORLD ONCE A DAY') && с.includes('"com" is written every turn') && с.includes('🧠 MEMORY AS UPDATES') && с.includes('and the WORLD, MEMORY and REPUTATION rules above'));
   Object.assign(Ст.settings, { hudNoChange: false, hudWorldDaily: false, hudMemoryDelta: false });
   const без = Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true });
   проверить('промт: выключено — правил нет', !без.includes('NO CHANGE') && !без.includes('WORLD ONCE') && !без.includes('MEMORY AS UPDATES') && !без.includes('WORLD and MEMORY rules'));
@@ -1441,6 +1464,18 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
       проверить('перенос: «Austin & Daren» и «Austin & Angela» — разные вкладки, Дарен не у Анджелы', (итог3.intercepts || []).length === 3 && сЕвой && сЕвой.messages.length === 1 && !/Daren/.test(IC.interceptParticipants(сЕвой)), JSON.stringify(итог3.intercepts));
       const брэндон = (итог3.intercepts || []).filter(и => /Gordon/.test(и.chatName));
       проверить('перенос: «Gordon Reid» с телефона Ясмины и «Gordon & Yasmin» — одна вкладка', брэндон.length === 1 && брэндон[0].messages.length === 2);
+      // Ход без сообщений («Nora & Ezra» с пустым ms) не называет второго
+      // человека — пустая копия вставала отдельной вкладкой рядом с полной.
+      for (const порядок of [[0, 1], [1, 0]]) {
+        const ходы = [{ tg: 'Ezra Vale', cn: 'Nora & Ezra' }, { tg: 'Ezra Vale', cn: 'Nora & Ezra', ms: ['Ezra Vale -> Nora Vale: Будем через полчаса. | 18:26 | Read'] }];
+        const чат4 = [{ is_user: true, mes: 'а' }, ход({ sc: { Dt: '01.07.2028' }, tp: [ходы[порядок[0]]] }), { is_user: true, mes: 'б' }, ход({ sc: { Dt: '01.07.2028' }, tp: [ходы[порядок[1]]] }),
+          { is_user: true, mes: 'в' }, ход({ sc: { Dt: '01.07.2028' }, tp: [{ tg: 'Mira Holt', cn: 'Mira & Jules', ms: ['Mira Holt -> Jules: Тихо. | 19:00 | Read'] }] })];
+        globalThis.SillyTavern = { getContext: () => ({ chat: чат4, name1: 'Мари', name2: 'Damian' }) };
+        const итог4 = CO.mergeCarryOver(P.parseHUDComplex(чат4[5].mes), { getAttribute: () => '5' });
+        globalThis.SillyTavern = прежний;
+        const норы = (итог4.intercepts || []).filter(и => /Nora/.test(и.chatName));
+        проверить(`перенос: перехват без сообщений и с ними — одна вкладка (${порядок.join('→')})`, норы.length === 1 && (норы[0].messages || []).length === 1, JSON.stringify(итог4.intercepts));
+      }
       проверить('перехват: чат назван именем собеседника — он в составе', IC.interceptParticipants({ target: 'Yasmin Montes-Harlow', chatName: 'Gordon Reid', messages: ['Gordon Reid -> Yasmin Montes-Harlow: Мы нашли ее. | 04:29 | Read'] }) === 'Gordon Reid; Yasmin Montes-Harlow');
       const СН = await модуль('hud-snapshot.js');
       const снимок = СН.собратьСнимок(hud({ sc: { Dt: '01.07.2028' }, tp: [{ tg: 'Austin Laroche', cn: 'Austin & Daren', ms: ['Daren -> Austin: Сдали. | 05:15 | Read', 'Austin -> Daren: Будь в башне к десяти. | 05:30 | Read'] }] }).replace(/^\[HUD\]|\[\/HUD\]$/g, ''));
@@ -3227,6 +3262,19 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   const заметка = N.заметкиХода({ чат, снимок, тип: 'normal' });
   проверить('шрам и инерция уходят модели', /still carries a wound from Мари/.test(заметка) && /still under the impression/.test(заметка));
   проверить('живая деталь показана, не названа', /Small body details/.test(заметка) && !/hungry/.test(заметка));
+  проверить('живые детали: по умолчанию и про игрока', /Small body details[^.]*Мари: /.test(заметка), заметка);
+  {
+    // Галка «Живые детали и про игрока» выключена: приметы — только персонажам.
+    const Ст = await модуль('settings.js');
+    const прежняя = Ст.settings.bodyCuesPlayer, контекст = globalThis.SillyTavern.getContext;
+    const мета2 = {}, чат2 = [{ is_user: true, mes: 'a' }, { is_user: false, mes: 'b' }, { is_user: true, mes: 'c' }];
+    globalThis.SillyTavern.getContext = () => ({ chat: чат2, chatMetadata: мета2, name1: 'Мари', saveMetadataDebounced() {} });
+    Ст.settings.bodyCuesPlayer = false;
+    const без = N.заметкиХода({ чат: чат2, снимок: { sc: { Dt: '01.03.2027' }, us: { Bs: 'sat: 10; eng: 5' }, cs: [{ N: 'Дамиан', Bs: 'eng: 15; sat: 80' }] }, тип: 'normal' });
+    Ст.settings.bodyCuesPlayer = прежняя;
+    globalThis.SillyTavern.getContext = контекст;
+    проверить('живые детали: галка выключена — про игрока ничего, про персонажа есть', /Small body details[^.]*Дамиан: /.test(без) && !/Мари: /.test(без), без);
+  }
   проверить('просьба про вес уходит', /"wg"/.test(заметка) && /ONLY THIS TURN/.test(заметка));
   проверить('просроченная нить просит развязки', /deadline of this thread passed on 20\.02\.2027/.test(заметка));
   проверить('нить разбирается', N.разобратьНить('Долг | Нолан | open | 20.02.2027 | main').вид === 'main' && N.срокиНитей().length === 1);

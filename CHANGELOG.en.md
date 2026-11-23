@@ -4,6 +4,20 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.87 — 2026-11-23
+
+### Added
+- **A "Reputation" tab in the archive.** The whole history of every faction over the chosen stretch: a chart on its own scale, the standing and attitude now, the full path (+10 → +25 → +15), the first appearance and every shift with its reason and a link to the turn. "Grew" and "Fell" filters by the stretch's result; search by name and reasons.
+- **Reputation as changes only.** The model writes only the groups whose standing moved this turn and new ones; nothing moved — empty. The HUD takes the other rows from the last turn and stores the full list in the message, so the model sees every number next turn. Reputation is no longer part of "World once a day".
+- **Faction "How it changed" follows "Turns back".** The path inside the HUD covers as many turns as "Lists from past turns → Turns back"; with carry-over off — only the latest shift. The whole history is in the archive tab.
+- **A "Living details for the player too" checkbox** in "Body and health". Off — body cues (a rumbling stomach, favouring a wounded side) and "so many days without food or sleep" reminders go to the model only for the characters: the player plays their own hero. The card shows everything as before.
+- **"Who lives where" in the "Atlas of places".** A home is a dwelling in the address named after the person, an "own bed" or a "rented flat"; a family home after two nights, an unnamed one after three different story nights; an arrow means they moved, a dot means two homes at once, the rest are nights as a guest. The atlas key of a place is the named dwelling or building, not the street, floor or district.
+
+### Fixed
+- **An unchanged price is grey.** In the "Quotes" view a tile with no change took the theme colour — in a red theme it read as a drop.
+- **Intercepts no longer double.** A turn where the model wrote a conversation with no messages sat next to the same conversation with messages as a separate empty tab. Now the same name on the same owner's phone is one conversation.
+- **Energy and alertness don't rise on their own.** The model raises them only with sleep or a nap, coffee or another stimulant, and adrenaline; a lift from coffee or adrenaline is borrowed — when it wears off comes a crash below where they were.
+
 ## 23.89.86 — 2026-11-22
 
 ### Added

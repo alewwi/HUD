@@ -11,9 +11,10 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.86';
-import { применитьСтупени, ступениВкл } from './render/trust-stages.js?v=23.89.86';
-import { namesLikelySame } from './names.js?v=23.89.86';
+import { getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.87';
+import { применитьСтупени, ступениВкл } from './render/trust-stages.js?v=23.89.87';
+import { namesLikelySame } from './names.js?v=23.89.87';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.87';
 
 const текст = (v) => (v === null || v === undefined ? '' : typeof v === 'string' ? v : Array.isArray(v) ? v.map(текст).join('; ') : typeof v === 'object' ? Object.values(v).map(текст).join('; ') : String(v)).trim();
 const значимо = (s) => !!s && !/^(?:empty|none|null|—|-|n\/a|nc)$/i.test(String(s).trim());
@@ -27,13 +28,31 @@ const чистоеИмя = (s) => имяБезПриставки(String(s || '')
 // «Кухня, у плиты»): часть со словом-местом — уже место, не география.
 const ГЕОГРАФИЯ = /^(?:[\p{Lu}][\p{L}'’-]*)(?:\s+[\p{Lu}][\p{L}'’-]*)?$/u;
 const СЛОВО_МЕСТА = /^(?:квартир|дом|домик|особняк|поместь|усадьб|пентхаус|кампус|университет|академи|колледж|институт|школ|общежит|офис|кабинет|комнат|спальн|кухн|гостин|столов|ванн|прихож|коридор|холл|зал|лестниц|балкон|террас|веранд|крыльц|подвал|чердак|гараж|паркинг|лифт|бар|клуб|кафе|кофейн|ресторан|отел|гостиниц|номер|больниц|клиник|палат|парк|сад|двор|лес|пляж|берег|озер|рек|улиц|площад|переул|шоссе|дорог|обочин|трасс|мост|набережн|башн|замок|замк|двор[её]ц|храм|церк|собор|магазин|рын|склад|серверн|лаборатор|библиотек|вилл|коттедж|дач|лофт|студи|салон|спортзал|стадион|бассейн|полици|участок|участк|тюрьм|вокзал|станци|аэропорт|порт|причал|яхт|корабл|машин|автомобил|поезд|самол[её]т|таверн|трактир|корчм|кузниц|конюшн|лагер|пещер|house|home|apartment|flat|mansion|manor|estate|penthouse|campus|university|college|academy|school|dorm|office|study|room|bedroom|kitchen|hall|bar|club|caf[eé]|restaurant|hotel|hospital|clinic|park|garden|yard|forest|beach|street|road|highway|tower|castle|palace|church|temple|shop|store|warehouse|basement|attic|garage|lab|library|villa|cottage|studio|gym|station|airport|harbou?r|ship|car|tavern|inn|camp|cave)/i;
-const география = (часть) => ГЕОГРАФИЯ.test(часть) && !часть.split(/\s+/).some(с => СЛОВО_МЕСТА.test(с));
-export function ключМеста(место) {
+// «Ларсен-Тауэр», «Брукфилд-холл» — здание, а не город: слово через дефис тоже смотрим.
+const ЗДАНИЕ = /^(?:тауэр|хаус|холл|плаза|tower|house|hall|plaza)/i;
+// «штат Мэн», «район Бэк-Бэй» — тоже география.
+const ОБЛАСТЬ = /^(?:штат|район|микрорайон|округ|квартал|провинци\p{L}*|state|district|county|province)\s+\p{Lu}[\p{L}'’-]*(?:\s+\p{Lu}[\p{L}'’-]*)?$/iu;
+// Слово места — основа и окончание до трёх букв: «Кухня», «Поместье» — да,
+// «Портленд» (порт + ленд) — город.
+const словоМеста = (с) => { const м = с.match(СЛОВО_МЕСТА) || с.match(ЗДАНИЕ); return !!м && с.length - м[0].length <= 3; };
+const география = (часть) => ОБЛАСТЬ.test(часть) || (ГЕОГРАФИЯ.test(часть) && !часть.split(/[\s-]+/).some(словоМеста));
+function первоеМесто(место) {
   const части = String(место || '').split(/[,;(—]/).map(ч => ч.trim()).filter(Boolean);
   let i = 0;
   while (i < части.length - 1 && география(части[i])) i++;
   const главное = части[i] || '';
   return главное.length > 1 ? главное : '';
+}
+// Названное жилище в адресе главнее первой части: «Ист 72-я улица, второй
+// уровень пентхауса Делакуров» — это пентхаус Делакуров, а не улица. Просто
+// «квартира» без имени — не место атласа: у каждого своя.
+// У него — часть адреса до самого жилища: «кухня скромной съёмной квартиры»,
+// без «на втором этаже у холодильника».
+export function ключМеста(место) {
+  const ж = разобратьЖилище(место);
+  if (ж && !ж.общее) return ж.суть;
+  const первое = первоеМесто(место);
+  return ж && первое === ж.часть ? ж.начало : первое;
 }
 const норма = (s) => String(s || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
 
@@ -46,6 +65,75 @@ const ЖИЛЬЁ = /(?:^|[^\p{L}])(?:квартир|дом(?![\p{L}])|дома(?
 // нарицательные (со строчной): «наследник Эшби» не работает в «пентхаусе Эшби».
 const основы = (s) => [...new Set((норма(s).match(/\p{L}{5,}/gu) || []).map(с => с.slice(0, 5)))];
 const основыМеста = (s) => [...new Set((String(s || '').match(/(?<![\p{L}«"])\p{Ll}{5,}/gu) || []).map(с => норма(с).slice(0, 5)))];
+
+// --- Где кто живёт -------------------------------------------------------------
+// Ночь в месте — ещё не дом: ночуют и в гостях, и на балу в отеле, а за годы
+// сюжета люди переезжают. Дом — жилище из адреса (квартира, пентхаус,
+// общежитие…), а не первая часть адреса («Ист 72-я улица, второй уровень
+// пентхауса Делакуров» — это пентхаус Делакуров). Чей он — по названию: имя
+// или фамилия человека в нём — его дом или дом его семьи, чужое имя — он в
+// гостях. Без имени — дом, если там прошло три разные ночи сюжета (не ходы:
+// одна долгая ночь — это десяток ходов), и не в гостевой комнате.
+const ЖИЛИЩА = [
+  [/^квартир/i, 'квартира'], [/^апартамент/i, 'апартаменты'], [/^домик/i, 'домик'], [/^дом(?:а|е|у|ом)?$/i, 'дом'],
+  [/^особняк/i, 'особняк'], [/^поместь/i, 'поместье'], [/^усадьб/i, 'усадьба'], [/^вилл(?:а|ы|е|у|ой)$/i, 'вилла'],
+  [/^пентхаус/i, 'пентхаус'], [/^таунхаус/i, 'таунхаус'], [/^коттедж/i, 'коттедж'], [/^дач(?:а|и|е|у|ей)$/i, 'дача'],
+  [/^лофт/i, 'лофт'], [/^общежити/i, 'общежитие'], [/^резиденци/i, 'резиденция'],
+  [/^(?:apartment|flat|house|home|mansion|manor|estate|villa|penthouse|townhouse|cottage|loft|dorm|dormitory|residence)$/i, null],
+];
+const СНАРУЖИ = /(?:^|\s)(?:у|возле|около|рядом|напротив|перед|по пути|аллея|аллее|крыльц\p{L}*|подъезд\p{L}*|ворот\p{L}*|парковк\p{L}*|outside|near|in front of)(?:\s|$)/iu;
+const ХВОСТ_АДРЕСА = /\s(?:в|во|на|у|возле|рядом|с|со|под|над|за|около|напротив|при|перед|между|после|до|из|от|к|по|in|at|on|near|by|with|before|from|to)\s/iu;
+const ПРИЛАГАТЕЛЬНОЕ = /(?:ый|ий|ой|ая|яя|ое|ее|ые|ие|ую|юю)$/i;
+const СПАЛЬНЯ = /(?:спальн|bedroom|мастер-сьют|master suite)/iu;
+const НЕ_ДОМ = /(?:отел|гостиниц|мотел|хостел|hotel|motel|hostel)/iu;
+const ГОСТЕВАЯ = /(?:гостев|guest)/iu;
+// «своей кровати», «съёмной квартиры» — человек у себя, чьё бы имя ни стояло рядом.
+const СВОЁ = /(?:^|[^\p{L}])(?:сво(?:й|я|ё|е|ей|его|ему|ём|ю|их|ими?)|съ[её]мн\p{L}*|own|rented)\s+(?:\p{L}+\s+)?(?:кроват|комнат|спальн|квартир|дом|постел|кухн|гостин|жиль|кабинет|bed|room|apartment|flat|house|place)/iu;
+// Жилище из адреса: { суть, показ, общее } или null. суть — без прилагательных
+// («пентхаус Делакуров»), показ — как в адресе («загородный особняк Сенаторов»),
+// общее — одно слово без имени («квартира»).
+function разобратьЖилище(место) {
+  const части = String(место || '').split(/[,;(—]/).map(ч => ч.trim()).filter(Boolean);
+  for (const часть of части) {
+    const слова = часть.split(/\s+/);
+    const чисто = (с) => с.replace(/[«»"'.]/g, '');
+    const i = слова.findIndex((с, k) => (k === 0 || /^\p{Ll}/u.test(с)) && ЖИЛИЩА.some(([rx]) => rx.test(чисто(с))));
+    if (i < 0) continue;
+    const до = слова.slice(0, i).join(' ');
+    if (СНАРУЖИ.test(' ' + до + ' ')) return null;
+    const слово = чисто(слова[i]);
+    const именит = (ЖИЛИЩА.find(([rx]) => rx.test(слово)) || [])[1] || слово;
+    const сам = слово.toLowerCase() === именит ? слово : именит;
+    const хвост = (' ' + слова.slice(i + 1).join(' ')).split(ХВОСТ_АДРЕСА)[0].trim();
+    const суть = (сам + ' ' + хвост).trim();
+    // «Загородный особняк Сенаторов» — с прилагательными; «второй уровень пентхауса Делакуров» — «пентхаус Делакуров».
+    const показ = i && слова.slice(0, i).every(с => ПРИЛАГАТЕЛЬНОЕ.test(с)) && сам === слово ? (до + ' ' + суть).replace(/\s+/g, ' ') : суть;
+    return { суть, показ, общее: !хвост && показ === суть, часть, начало: слова.slice(0, i + 1).join(' ') };
+  }
+  return null;
+}
+export function жилищеИз(место) {
+  const ж = разобратьЖилище(место);
+  if (ж) return { ключ: норма(ж.суть), показ: ж.показ };
+  // Жилища в адресе нет, но есть спальня: дом — само здание («Ларсен-Тауэр, 45-й этаж, мастер-спальня»).
+  const здание = первоеМесто(место);
+  if (СПАЛЬНЯ.test(String(место || '')) && здание && !НЕ_ДОМ.test(String(место || '')) && !СПАЛЬНЯ.test(здание)) return { ключ: норма(здание), показ: здание };
+  return null;
+}
+// Чей дом по названию для этого человека: 'свой' (его имя), 'семья' (только
+// фамилия: «поместье Ларсен», «поместье семьи Делакур»), 'чужой' (имя другого
+// человека из чата) или '' (имени нет: «особняк Сенаторов»). Первое слово
+// названия — само жилище или прилагательное, не имя.
+const словаИмени = (s) => (String(s || '').match(/\p{Lu}[\p{L}'’-]{2,}/gu) || []);
+function чейДом(название, имя, все) {
+  const в = (String(название || '').match(/(?<=\s)\p{Lu}[\p{L}'’-]{2,}/gu) || []);
+  if (!в.length) return '';
+  const [первое, ...фамилия] = словаИмени(имя);
+  const похоже = (м) => в.some(w => namesLikelySame(w, м));
+  if (первое && похоже(первое)) return 'свой';
+  if (фамилия.some(похоже)) return 'семья';
+  return все.some(д => д !== имя && словаИмени(д).some(похоже)) ? 'чужой' : '';
+}
 
 function главныйПерсонаж(data) {
   try { const c = window.SillyTavern?.getContext?.(); if (c && c.name2) return чистоеИмя(c.name2); } catch (_) { /* нет Таверны */ }
@@ -67,6 +155,7 @@ export function создатьКарты() {
   const гдеБыл = new Map(); // человек → ключ места в прошлом ходу
   const пары = new Map(); // «a|b» → запись
   const доверие = new Map(); // «a>b» → [{ at, n }]
+  const дома = new Map(); // человек → Map(ключ жилища → запись)
   let последнийДень = '';
 
   function учесть(data, at, день) {
@@ -103,6 +192,7 @@ export function создатьКарты() {
         места.delete(к);
         if (!места.has(м)) { з.place = показ; места.set(м, з); }
         for (const [ч, г] of гдеБыл) if (г === к) гдеБыл.set(ч, м);
+        for (const мои of дома.values()) for (const ж of мои.values()) if (ж.атлас === к) ж.атлас = м;
       }
       return м;
     };
@@ -116,20 +206,41 @@ export function создатьКарты() {
     const добавить = (имя, место, роль = '') => {
       const к = кто(имя), м = ключМеста(текст(место));
       if (!к || !значимо(м)) return;
-      присутствие.push({ к, м: канон(норма(м), м), показ: м, работа: наРаботе(текст(место), текст(роль), м) });
+      присутствие.push({ к, м: канон(норма(м), м), показ: м, работа: наРаботе(текст(место), текст(роль), м), дом: жилищеИз(текст(место)), гостевая: ГОСТЕВАЯ.test(текст(место)), своё: СВОЁ.test(текст(место)) });
     };
+    // Ночь сюжета: с 22:00 до 07:00, после полуночи — ещё прошлая ночь.
+    const ночь = (() => {
+      if (час === null || !(час >= 22 || час < 7) || !d) return null;
+      const ms = parseSceneDate(d);
+      return ms !== null ? String(час < 7 ? ms - 864e5 : ms) : (час < 7 ? '<' : '') + d;
+    })();
     for (const c of Array.isArray(data.characters) ? data.characters : []) if (c) добавить(c['Имя'], c['Место'], c['Роль']);
     if (data.user && typeof data.user === 'object') добавить(текст(data.user['Имя']) || getSafeUserName(), data.user['Место']);
     for (const { к, м, показ, работа } of присутствие) {
       let з = места.get(м);
-      if (!з) { з = { place: показ, visits: 0, turns: 0, people: {}, nights: {}, days: {}, firstAt: at, lastAt: at, lastDate: d }; места.set(м, з); }
+      if (!з) { з = { place: показ, visits: 0, turns: 0, people: {}, days: {}, firstAt: at, lastAt: at, lastDate: d }; места.set(м, з); }
       з.turns++;
       з.people[к] = (з.people[к] || 0) + 1;
-      if (час !== null && (час >= 22 || час < 7)) з.nights[к] = (з.nights[к] || 0) + 1;
       if (работа) з.days[к] = (з.days[к] || 0) + 1;
       if (гдеБыл.get(к) !== м) з.visits++;
       з.lastAt = at; з.lastDate = d || з.lastDate;
       гдеБыл.set(к, м);
+    }
+    // Жилища: когда человек там бывал и какие ночи там провёл.
+    for (const { к, м, дом, гостевая, своё } of присутствие) {
+      if (!дом) continue;
+      if (!дома.has(к)) дома.set(к, new Map());
+      const мои = дома.get(к);
+      let ж = мои.get(дом.ключ);
+      if (!ж) for (const [кл, з] of мои) if (кл.startsWith(дом.ключ + ' ') || дом.ключ.startsWith(кл + ' ')) { ж = з; break; }
+      if (!ж) { ж = { показ: дом.показ, атлас: м, ночи: new Set(), гостевые: new Set(), firstAt: at, lastAt: at, firstDate: d, lastDate: d, ночьС: null, ночьПо: null, датаС: '', датаПо: '' }; мои.set(дом.ключ, ж); }
+      ж.lastAt = at; ж.lastDate = d || ж.lastDate; if (!ж.firstDate) ж.firstDate = d;
+      if (своё) ж.своё = true;
+      if (ночь) {
+        (гостевая ? ж.гостевые : ж.ночи).add(ночь);
+        if (ж.ночьС === null) { ж.ночьС = at; ж.датаС = d; }
+        ж.ночьПо = at; ж.датаПо = d || ж.датаПо;
+      }
     }
 
     // --- Пары: вместе в одном месте ---
@@ -165,11 +276,39 @@ export function создатьКарты() {
     const имя = (к) => люди.get(к) || к;
     const moodDays = [...настроения.entries()].map(([к, дни]) => ({ name: имя(к), days: [...дни.entries()].map(([date, moods]) => ({ date, moods })) }))
       .filter(x => x.days.length).sort((а, б) => б.days.length - а.days.length);
-    const atlas = [...места.values()].map(з => {
+    // Дома и ночёвки. Свой дом (его имя в названии, «своя кровать», «съёмная
+    // квартира») — дом, даже если ночей в нём не было видно; дом семьи (одна
+    // фамилия) — с двух ночей; чужой — с пяти; без имени — с трёх ночей не в
+    // гостевой. Остальное — ночёвки. Прежний дом — тот, после которого
+    // начался другой: человек переехал.
+    const все = [...люди.values()];
+    const homes = [];
+    const поМесту = new Map();
+    const вМесто = (к, вид, x) => { if (!поМесту.has(к)) поМесту.set(к, { lives: [], lived: [], stayed: [] }); поМесту.get(к)[вид].push(x); };
+    for (const [к, мои] of дома) {
+      const человек = имя(к);
+      const свои = [], гости = [];
+      for (const ж of мои.values()) {
+        const чей = ж.своё ? 'свой' : чейДом(ж.показ, человек, все);
+        const ночей = new Set([...ж.ночи, ...ж.гостевые]).size;
+        if (чей === 'свой') свои.push({ place: ж.показ, atlas: ж.атлас, own: true, nights: ночей, fromAt: ж.firstAt, toAt: ж.lastAt, from: ж.firstDate, to: ж.lastDate });
+        // В доме своей семьи хозяин не гость: и ночь у двери гостевой — его ночь.
+        else if ((чей === 'семья' ? ночей : ж.ночи.size) >= (чей === 'семья' ? 2 : чей === 'чужой' ? 5 : 3)) свои.push({ place: ж.показ, atlas: ж.атлас, own: false, nights: ночей, fromAt: ж.ночьС, toAt: ж.ночьПо, from: ж.датаС, to: ж.датаПо });
+        else if (ночей) гости.push({ place: ж.показ, atlas: ж.атлас, nights: ночей });
+      }
+      свои.sort((а, б) => а.fromAt - б.fromAt);
+      for (const д of свои) д.past = свои.some(е => е !== д && е.fromAt > д.toAt);
+      for (const д of свои) вМесто(д.atlas, д.past ? 'lived' : 'lives', { name: человек, home: д.place, until: д.to });
+      for (const г of гости) вМесто(г.atlas, 'stayed', { name: человек, home: г.place, nights: г.nights });
+      if (свои.length || гости.length) homes.push({ name: человек, homes: свои, stays: гости.sort((а, б) => б.nights - а.nights) });
+    }
+    homes.sort((а, б) => б.homes.length - а.homes.length || б.stays.length - а.stays.length);
+    const atlas = [...места.entries()].map(([ключ, з]) => {
       const чаще = Object.entries(з.people).sort((а, б) => б[1] - а[1]).slice(0, 4).map(([к, n]) => ({ name: имя(к), turns: n }));
-      const живёт = Object.entries(з.nights).filter(([, n]) => n >= 3).sort((а, б) => б[1] - а[1]).slice(0, 3).map(([к]) => имя(к));
+      const жильё = поМесту.get(ключ) || { lives: [], lived: [], stayed: [] };
       const работает = Object.entries(з.days).filter(([, n]) => n >= 2).sort((а, б) => б[1] - а[1]).slice(0, 3).map(([к]) => имя(к));
-      return { place: з.place, visits: з.visits, turns: з.turns, people: чаще, lives: живёт, works: работает, firstAt: з.firstAt, lastAt: з.lastAt, lastDate: з.lastDate };
+      return { place: з.place, visits: з.visits, turns: з.turns, people: чаще, lives: жильё.lives.map(x => x.name), livesAt: жильё.lives, lived: жильё.lived,
+        stayed: жильё.stayed.sort((а, б) => б.nights - а.nights), works: работает, firstAt: з.firstAt, lastAt: з.lastAt, lastDate: з.lastDate };
     }).sort((а, б) => б.visits - а.visits || б.turns - а.turns);
     const ключиПар = new Set([...пары.keys()]);
     for (const к of доверие.keys()) { const [а, б] = к.split('>'); ключиПар.add([а, б].sort().join('|')); }
@@ -182,7 +321,7 @@ export function создатьКарты() {
     const встречаются = new Map();
     for (const p of pairs) for (const и of [p.a, p.b]) встречаются.set(и, (встречаются.get(и) || 0) + p.together + (p.trustAB.length || p.trustBA.length ? 1 : 0));
     const people = [...встречаются.entries()].sort((а, б) => б[1] - а[1]).slice(0, 12).map(([и]) => и);
-    return { moodDays, atlas, heat: { people, pairs: pairs.filter(p => people.includes(p.a) && people.includes(p.b)) } };
+    return { moodDays, atlas, homes, heat: { people, pairs: pairs.filter(p => people.includes(p.a) && people.includes(p.b)) } };
   }
   return { учесть, итог };
 }

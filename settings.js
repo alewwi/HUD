@@ -154,6 +154,9 @@ export const defaultSettings = {
   enableThreatDice: true,
   enablePregnancyLoss: true,
   enableBodyCues: true,
+  // Живые детали и «запущенное состояние» — и про игрока ({{user}}). Выключено —
+  // только про персонажей: игрока ведёт сам игрок.
+  bodyCuesPlayer: true,
   enableNeglect: true,
   enableWeight: true,
   enableEraHolidays: true,

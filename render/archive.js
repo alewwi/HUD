@@ -6,19 +6,19 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.86';
-import { английский } from '../i18n.js?v=23.89.86';
-import { settings } from '../settings.js?v=23.89.86';
-import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.86';
-import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.86';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.86';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.86';
-import { ссылкиТрека } from './music.js?v=23.89.86';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.86';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.86';
-import { ико } from './view-icons.js?v=23.89.86';
-import { namesLikelySame } from '../names.js?v=23.89.86';
-import { старина, стариннаяЗабота } from '../era.js?v=23.89.86';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.87';
+import { английский } from '../i18n.js?v=23.89.87';
+import { settings } from '../settings.js?v=23.89.87';
+import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.87';
+import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.87';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.87';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.87';
+import { ссылкиТрека } from './music.js?v=23.89.87';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.87';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.87';
+import { ико } from './view-icons.js?v=23.89.87';
+import { namesLikelySame } from '../names.js?v=23.89.87';
+import { старина, стариннаяЗабота } from '../era.js?v=23.89.87';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).
@@ -237,6 +237,46 @@ export function вкладкаОтношений(отчёт, поиск) {
   const список = карточки.filter(к => ф === 'all' || (ф === 'trust' ? к.вид === 'trust' : к.менялись));
   if (!список.length) return ряд + пусто(true, '');
   return ряд + порцией('relations', список.sort(новыеСверху).map(к => к.html));
+}
+
+// Репутация фракций (history-analyzer.js → reputation): вся история числа
+// каждой группы — график, путь и каждый сдвиг с причиной. В самом HUD
+// «Как менялось» — только за «Ходов назад».
+const сЗнаком = (n) => (n > 0 ? '+' : n < 0 ? '−' : '') + Math.abs(n);
+// График по своему размаху (не −100..100): сдвиг на 5 очков тоже виден.
+function графикРепутации(точки) {
+  const мин = Math.min(...точки), макс = Math.max(...точки), размах = Math.max(10, макс - мин);
+  const низ = (мин + макс - размах) / 2;
+  const x = i => (i / Math.max(1, точки.length - 1) * 200).toFixed(1);
+  const y = v => (38 - 34 * (v - низ) / размах).toFixed(1);
+  return `<svg class="hud-arc-trust" viewBox="0 0 200 42" preserveAspectRatio="none" aria-hidden="true"><path d="M${точки.map((v, i) => `${x(i)} ${y(v)}`).join('L')}"/></svg>`;
+}
+export function вкладкаРепутации(отчёт, поиск) {
+  моменты = (отчёт && отчёт.moments) || {};
+  const линии = ((отчёт && отчёт.reputation) || []).filter(л => !поиск
+    || [л.name, л.target, л.attitude, л.startWhy, ...л.changes.map(с => с.why)].join(' ').toLowerCase().includes(поиск));
+  if (!линии.length) return пусто(поиск, 'В этом отрезке нет фракций и репутации');
+  const карточки = линии.map(л => {
+    const путь = [л.start, ...л.changes.map(с => с.to)].map(сЗнаком).join(' → ');
+    const график = л.changes.length ? графикРепутации([л.start, ...л.changes.map(с => с.to)]) : '';
+    const строка = (с) => `<div class="hud-arc-row"><label class="${с.to > с.from ? 'is-up' : 'is-down'}">${с.to > с.from ? '+' : '−'}${Math.abs(с.to - с.from)}</label><div class="hud-arc-path">${сЗнаком(с.from)} → ${сЗнаком(с.to)}${с.why ? ` · ${escapeHtml(с.why)}` : ''} ${ссылка(с.at)}</div></div>`;
+    const сдвиги = л.changes.slice().reverse();
+    const лишние = сдвиги.slice(СТРОК_ОТНОШЕНИЙ);
+    const итог = (л.now ?? л.start) - л.start;
+    return { куда: итог > 0 ? 'up' : итог < 0 ? 'down' : '', ключ: л.lastSeen ?? л.firstSeen, с: л.firstSeen, html: `<div class="hud-arc-card"><div class="hud-arc-card-head"><i class="hud-arc-medal">${значок('shield')}</i><b>${escapeHtml(л.name)}</b>${л.target ? `<span class="hud-arc-tag">→&nbsp;${escapeHtml(имяБезПриставки(л.target))}</span>` : ''}</div>`
+      + график
+      + `<div class="hud-arc-row"><label>сейчас</label><div class="hud-arc-path"><b>${сЗнаком(л.now ?? л.start)}</b>${л.attitude ? ' · ' + escapeHtml(л.attitude) : ''}</div></div>`
+      + (л.changes.length ? `<div class="hud-arc-row"><label>путь</label><div class="hud-arc-path">${путь}</div></div>` : '')
+      + `<div class="hud-arc-row"><label>впервые</label><div class="hud-arc-path">${сЗнаком(л.start)}${л.startWhy ? ` · ${escapeHtml(л.startWhy)}` : ''} ${ссылка(л.firstSeen)}</div></div>`
+      + сдвиги.slice(0, СТРОК_ОТНОШЕНИЙ).map(строка).join('')
+      + (лишние.length ? `<details class="hud-arc-more"><summary>${значок('clock')}<span>Ещё</span><i class="hud-arc-count">${лишние.length}</i></summary>${лишние.map(строка).join('')}</details>` : '')
+      + `</div>` };
+  });
+  // Итог за отрезок: от первого числа до последнего.
+  const ряд = фильтрыHTML('reputation', [['all', 'Все', карточки.length], ['up', 'Выросли', карточки.filter(к => к.куда === 'up').length], ['down', 'Упали', карточки.filter(к => к.куда === 'down').length]]);
+  const список = карточки.filter(к => фильтр('reputation') === 'all' || к.куда === фильтр('reputation'));
+  if (!список.length) return ряд + пусто(true, '');
+  return ряд + порцией('reputation', список.sort(новыеСверху).map(к => к.html));
 }
 
 // Прошлые беременности: роды, выкидыши, аборты. Считает не отчёт, а записи
@@ -786,6 +826,7 @@ export function openArchiveDialog() {
         <button type="button" class="active" data-tab="secrets">${значок('lock')}<span>Секреты</span></button>
         <button type="button" data-tab="guns">${значок('target')}<span>Ружья</span></button>
         <button type="button" data-tab="relations">${значок('heart')}<span>Отношения</span></button>
+        <button type="button" data-tab="reputation">${значок('shield')}<span>Репутация</span></button>
         <button type="button" data-tab="timeline">${значок('calendar')}<span>Хронология</span></button>
         <button type="button" data-tab="moodcal">${значок('sun')}<span>Настроение</span></button>
         <button type="button" data-tab="atlas">${значок('pin')}<span>Атлас мест</span></button>
@@ -866,7 +907,7 @@ export function openArchiveDialog() {
     const поиск = ($('.hud-arc-search').value || '').trim().toLowerCase();
     вкладки.hidden = false;
     // Число записей на вкладках: видно, где что есть, не открывая.
-    const числа = { secrets: отчёт.secrets.length, guns: (отчёт.guns || []).length, atlas: ((отчёт.maps && отчёт.maps.atlas) || []).length, pregnancies: беременностиОтчёта(отчёт).эпизоды.length + беременностиОтчёта(отчёт).свободные.length };
+    const числа = { secrets: отчёт.secrets.length, guns: (отчёт.guns || []).length, reputation: (отчёт.reputation || []).length, atlas: ((отчёт.maps && отчёт.maps.atlas) || []).length, pregnancies: беременностиОтчёта(отчёт).эпизоды.length + беременностиОтчёта(отчёт).свободные.length };
     вкладки.querySelectorAll('[data-tab]').forEach(b => {
       let n = b.querySelector('.hud-arc-count');
       if (!(b.dataset.tab in числа)) return;
@@ -879,6 +920,7 @@ export function openArchiveDialog() {
       активная === 'secrets' ? вкладкаСекретов(отчёт, поиск)
       : активная === 'guns' ? вкладкаРужей(отчёт, поиск)
       : активная === 'relations' ? вкладкаОтношений(отчёт, поиск)
+      : активная === 'reputation' ? вкладкаРепутации(отчёт, поиск)
       : активная === 'timeline' ? вкладкаХронологии(отчёт, поиск)
       : активная === 'moodcal' ? вкладкаКалендаря(отчёт, поиск)
       : активная === 'atlas' ? вкладкаАтласа(отчёт, поиск)

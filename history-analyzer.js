@@ -11,20 +11,21 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.89.86';
-import { normalizeJSONData } from './schema.js?v=23.89.86';
-import { parseRelationList } from './render/relations-graph.js?v=23.89.86';
-import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.86';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.86';
-import { createDashboard, времяОтправки } from './chat-stats.js?v=23.89.86';
-import { settings } from './settings.js?v=23.89.86';
-import { статусРужья } from './codes.js?v=23.89.86';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.86';
-import { историяБеременностей } from './render/conception.js?v=23.89.86';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.86';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.86';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.86';
-import { создатьКарты } from './history-maps.js?v=23.89.86';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.87';
+import { normalizeJSONData } from './schema.js?v=23.89.87';
+import { parseRelationList } from './render/relations-graph.js?v=23.89.87';
+import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.87';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.87';
+import { createDashboard, времяОтправки } from './chat-stats.js?v=23.89.87';
+import { settings } from './settings.js?v=23.89.87';
+import { статусРужья } from './codes.js?v=23.89.87';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.87';
+import { историяБеременностей } from './render/conception.js?v=23.89.87';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.87';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.87';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.87';
+import { создатьКарты } from './history-maps.js?v=23.89.87';
+import { разобратьФракцию } from './render/factions.js?v=23.89.87';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -117,8 +118,8 @@ const чистоеИмя = (имя) => имяБезПриставки(текст
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.89.86';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.86';
+import { extractHudBlock } from './hud-block.js?v=23.89.87';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.87';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -232,6 +233,24 @@ function собратьОтношения(накоп, data, at) {
       const rel = текст(пара.rel);
       if (!прошлый || прошлый.rel.toLowerCase() !== rel.toLowerCase()) линия.changes.push({ rel, at });
     }
+  }
+}
+
+// Репутация (wd.rep): вся история числа каждой группы к каждому адресату —
+// первое появление и каждый сдвиг, с причиной. В самом HUD «Как менялось»
+// видно только за «Ходов назад», а здесь — за весь отрезок.
+function собратьРепутацию(накоп, data, at) {
+  const строки = data.world && Array.isArray(data.world.reputation) ? data.world.reputation : [];
+  for (const строка of строки) {
+    const ф = разобратьФракцию(строка);
+    if (!ф || ф.число === null) continue;
+    const кто = чистоеИмя(ф.кто), к = чистоеИмя(ф.к);
+    const k = текст(кто).toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ') + '|' + (ключИмени(к) || текст(к).toLowerCase());
+    let линия = накоп.get(k);
+    if (!линия) { линия = { name: кто, target: к, firstSeen: at, start: ф.число, startWhy: ф.почему, changes: [] }; накоп.set(k, линия); }
+    const было = линия.changes.length ? линия.changes[линия.changes.length - 1].to : линия.start;
+    линия.now = ф.число; линия.attitude = ф.как; линия.lastSeen = at;
+    if (было !== ф.число) линия.changes.push({ from: было, to: ф.число, why: ф.почему, attitude: ф.как, at });
   }
 }
 
@@ -492,6 +511,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
   const персонажи = new Map();
   const погода = new Map();
   const ружья = new Map();
+  const репутация = new Map();
   const саундтрек = [];
   const беременности = new Map();
   const исходыБеременностей = исходыЧата();
@@ -537,6 +557,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     собратьСцену(сцена, data, i);
     собратьНастроения(настроения, data, i);
     собратьРужья(ружья, data, i);
+    собратьРепутацию(репутация, data, i);
     собратьБеременности(беременности, data, i, игрок, исходыБеременностей);
     карты.учесть(data, i, деньСцены);
 
@@ -693,6 +714,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     moods: настроенияМассив,
     dashboard: дашборд.finish(),
     guns: ружьяМассив,
+    reputation: [...репутация.values()].sort((a, b) => a.firstSeen - b.firstSeen),
     soundtrack: саундтрек,
     maps: карты.итог(),
     stats: {
@@ -767,7 +789,9 @@ function ключКэша(from, to) {
 // 3: беременности делятся по исходам из записей чата.
 // 5: генерации по дням (dashboard.activity); 6: серии и детали дня.
 // 7: прежние версии ответов из летописи (свайпы, перегенерации) — не ходы.
-export const ВЕРСИЯ_ОТЧЁТА = 7;
+// 8: где кто живёт — дома по жилищу и ночам сюжета, переезды, ночёвки в гостях.
+// 9: история репутации фракций (reputation).
+export const ВЕРСИЯ_ОТЧЁТА = 9;
 export async function readCache(from, to) {
   const payload = await readEntry(ключКэша(from, to));
   if (!payload || !payload.report) return null;
