@@ -6,14 +6,14 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.89.93';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.93';
-import { G_ICONS } from './icons.js?v=23.89.93';
-import { собратьЛенту } from './msg-feed.js?v=23.89.93';
-import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.89.93';
-import { безШапокСообщения, заКадромHTML, начинаетсяСТега } from './msg-parts.js?v=23.89.93';
-import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.89.93';
-import { namesLikelySame } from '../names.js?v=23.89.93';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.89.94';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.94';
+import { G_ICONS } from './icons.js?v=23.89.94';
+import { собратьЛенту, непрочитанные, времяВСписке, разобратьСообщение, исходящееСообщение } from './msg-feed.js?v=23.89.94';
+import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.89.94';
+import { безШапокСообщения, заКадромHTML, начинаетсяСТега } from './msg-parts.js?v=23.89.94';
+import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.89.94';
+import { namesLikelySame } from '../names.js?v=23.89.94';
 
 export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, контакты = null) {
   обновитьФоныЧатов();
@@ -85,15 +85,14 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
     if (личность) displayChatName = личность.сохранён;
 
     // Пустая строка честнее выдуманного «12:00»: если во всех сообщениях
-    // времени нет, лучше не показывать никакого, чем неверное.
-    let latestTime = '', unreadCount = 0;
-    if (Array.isArray(chatObj.messages)) {
-      chatObj.messages.forEach(m => {
-        const t = msgTimeOf(m); if (t) latestTime = t;
-        if (/unread|не прочитан/i.test(m.replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]/gi, ''))) unreadCount++;
-      });
-    }
-    
+    // времени нет, лучше не показывать никакого, чем неверное. Вчерашнее —
+    // «Вчера», старое — датой: голые «20:14» вчерашнего читались сегодняшними.
+    const сообщения = Array.isArray(chatObj.messages) ? chatObj.messages : [];
+    let последнееСВременем = -1;
+    сообщения.forEach((m, i) => { if (msgTimeOf(m)) последнееСВременем = i; });
+    const latestTime = последнееСВременем >= 0 ? времяВСписке(сообщения, последнееСВременем, sceneDate) : '';
+    const unreadCount = непрочитанные(сообщения, activeOwner).length;
+
     // Превью последнего сообщения для строки списка: снимаем служебные метки,
     // отправителя и время — остаётся только сам текст.
     let preview = '';
@@ -109,6 +108,11 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
            .replace(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*([^\]]*)\]/gi, (mm, d) => '📷 Фото' + (d.trim() ? ': ' + d.trim() : ''))
            .replace(/\[(?:CALL|ЗВОНОК)\s*:?\s*([^\]]*)\]/gi, (mm, b) => /пропущ|missed/i.test(b) ? '📞 Пропущенный звонок' : '📞 Звонок')
            .replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]|✓+/gi, '').trim();
+      // Недописанное своё — «Черновик:», удалённое — «Сообщение удалено»,
+      // как в мессенджере, а не текстом, будто его отправили.
+      const послед = разобратьСообщение(lastRaw);
+      if (послед.удалено) p = '🚫 Сообщение удалено';
+      else if (послед.черновик && исходящееСообщение(послед.кто, activeOwner) && p) p = 'Черновик: ' + p;
       preview = p.length > 46 ? p.slice(0, 45) + '…' : p;
     }
     const avaColor = HUD_AVATAR_COLORS[hudHashSeed(displayChatName) % HUD_AVATAR_COLORS.length];

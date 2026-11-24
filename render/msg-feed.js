@@ -12,10 +12,10 @@
 // оказываются рядом вчерашнее «22:30» и сегодняшнее «08:30», и без подписи
 // «Вчера» это читается как один разговор подряд.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.93';
-import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.89.93';
-import { avaFace } from './phone-common.js?v=23.89.93';
-import { namesLikelySame } from '../names.js?v=23.89.93';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.94';
+import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.89.94';
+import { avaFace } from './phone-common.js?v=23.89.94';
+import { namesLikelySame } from '../names.js?v=23.89.94';
 
 // Один человек в переписке под разными подписями: «Грей» и «Профессор Грей»,
 // «Butler» и «Private Butler», «Damian» и «THE LANTERNS Damian Hartley».
@@ -243,17 +243,23 @@ function последнийОтвет(строки, owner) {
 // уведомление. Ответил в чат — значит, прочитал всё, что пришло до ответа:
 // модель нередко забывает снять пометку со старого сообщения.
 // Пометку ищем в полях после текста: слово «unread» в самом тексте — не она.
+// Так же и чужое сообщение с пометкой «прочитано»: открыл чат — прочёл всё,
+// что выше.
 export function непрочитанные(messages, owner = '') {
   const строки = Array.isArray(messages) ? messages : [];
-  const ответ = последнийОтвет(строки, owner);
+  const пометкаИз = (s, р) => { const поля = s.split('|'); return поля.length > 1 ? поля.slice(1).join('|') : р.статус; };
+  const НЕ = /unread|не\s*прочитан/i, ДА = /(?<![a-zа-яё])(?:read|seen|прочитан[а-яё]*|просмотрен[а-яё]*)(?![a-zа-яё])|✓✓/i;
+  let прочтено = последнийОтвет(строки, owner);
+  const разборы = строки.map(raw => { const s = String(raw || ''); return s.trim() ? { s, р: разобратьСообщение(s) } : null; });
+  разборы.forEach((x, i) => {
+    if (!x || исходящееСообщение(x.р.кто, owner)) return;
+    const п = пометкаИз(x.s, x.р);
+    if (!НЕ.test(п) && ДА.test(п)) прочтено = Math.max(прочтено, i);
+  });
   const out = [];
-  строки.forEach((raw, i) => {
-    const s = String(raw || '');
-    if (i <= ответ || !s.trim()) return;
-    const поля = s.split('|');
-    const р = разобратьСообщение(s);
-    const пометка = поля.length > 1 ? поля.slice(1).join('|') : р.статус;
-    if (!/unread|не\s*прочитан/i.test(пометка) || исходящееСообщение(р.кто, owner)) return;
+  разборы.forEach((x, i) => {
+    if (!x || i <= прочтено) return;
+    if (!НЕ.test(пометкаИз(x.s, x.р)) || исходящееСообщение(x.р.кто, owner)) return;
     out.push(i);
   });
   return out;

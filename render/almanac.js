@@ -16,9 +16,9 @@
 // По желанию — одна строка модели в дни многодневного поста
 // (medievalFastNote).
 
-import { settings } from '../settings.js?v=23.89.93';
-import { старина, явнаяМагия, приземлённое } from '../era.js?v=23.89.93';
-import { пасхаЗападная, пасхаПравославная, православныйМир } from './holidays.js?v=23.89.93';
+import { settings } from '../settings.js?v=23.89.94';
+import { старина, явнаяМагия, приземлённое } from '../era.js?v=23.89.94';
+import { пасхаЗападная, пасхаПравославная, православныйМир } from './holidays.js?v=23.89.94';
 
 const ДЕНЬ = 864e5;
 // Мир старых богов («Вера мира», render/medieval-life.js) — без святых и постов.

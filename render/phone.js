@@ -6,24 +6,24 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.89.93';
-import { форматВремени } from '../units.js?v=23.89.93';
-import { английский } from '../i18n.js?v=23.89.93';
-import { settings } from '../settings.js?v=23.89.93';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.89.93';
-import { G_ICONS } from './icons.js?v=23.89.93';
-import { значокПриложения, естьНабор } from './phone-icons.js?v=23.89.93';
-import { buildMessengerHTML } from './messenger.js?v=23.89.93';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.93';
-import { безШапокСообщения } from './msg-parts.js?v=23.89.93';
-import { сортироватьЧаты } from './msg-feed.js?v=23.89.93';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.89.93';
-import { buildCalendarApp } from './calendar.js?v=23.89.93';
-import { приложениеМузыки } from './music.js?v=23.89.93';
-import { временаСлухов, ключСлуха } from './rumor-times.js?v=23.89.93';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.89.94';
+import { форматВремени } from '../units.js?v=23.89.94';
+import { английский } from '../i18n.js?v=23.89.94';
+import { settings } from '../settings.js?v=23.89.94';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.89.94';
+import { G_ICONS } from './icons.js?v=23.89.94';
+import { значокПриложения, естьНабор } from './phone-icons.js?v=23.89.94';
+import { buildMessengerHTML } from './messenger.js?v=23.89.94';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.94';
+import { безШапокСообщения } from './msg-parts.js?v=23.89.94';
+import { сортироватьЧаты, непрочитанные, времяВСписке, моментПоследнего } from './msg-feed.js?v=23.89.94';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.89.94';
+import { buildCalendarApp } from './calendar.js?v=23.89.94';
+import { приложениеМузыки } from './music.js?v=23.89.94';
+import { временаСлухов, ключСлуха } from './rumor-times.js?v=23.89.94';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.89.93';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.89.94';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -152,8 +152,8 @@ function buildWalletApp(wallet, owner) {
 // --- Календарь ---------------------------------------------------------------
 // Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
 // (render/medieval.js).
-export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.89.93';
-import { ближайшиеДела } from './calendar.js?v=23.89.93';
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.89.94';
+import { ближайшиеДела } from './calendar.js?v=23.89.94';
 
 // Слухи города: то, что модель и так пишет в мир, — последние десять, свежие
 // сверху. Два раздела вкладками (радиокнопками, без скриптов): «Говорят» —
@@ -324,12 +324,10 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   }
 
   // Значок непрочитанного на иконке «Сообщения».
+  // Счёт тот же, что у строк списка и уведомлений (msg-feed.js).
+  const владелецЧата = (c) => { const o = String((c && c.owner) || '').trim(); return o && !/^(empty|none)$/i.test(o) ? o : phoneOwner; };
   let unread = 0;
-  Object.values(chatsMap || {}).forEach(c => {
-    (Array.isArray(c && c.messages) ? c.messages : []).forEach(m => {
-      if (/unread|не прочитан/i.test(String(m).replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]/gi, ''))) unread++;
-    });
-  });
+  Object.values(chatsMap || {}).forEach(c => { unread += непрочитанные(c && c.messages, владелецЧата(c)).length; });
 
   // Каждое приложение можно выключить в настройках. Выключенное не строится
   // вовсе: ни плитки на домашнем экране, ни экрана под ней. Настройка задана
@@ -386,18 +384,19 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   (on('phoneAppMessages') ? Object.keys(chatsMap || {}) : []).forEach((rawName, chatIdx) => {
     const c = chatsMap[rawName] || {};
     const msgs = Array.isArray(c.messages) ? c.messages : [];
-    let unreadHere = 0, lastTime = '', lastText = '', lastSender = '';
-    msgs.forEach(m => {
-      const s = String(m);
-      if (/unread|не прочитан/i.test(s.replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]/gi, ''))) unreadHere++;
-      const t = s.match(/\b\d{1,2}:\d{2}\b/); if (t) lastTime = t[0];
-    });
+    const непроч = непрочитанные(msgs, владелецЧата(c));
+    const unreadHere = непроч.length;
+    let lastTime = '', lastText = '', lastSender = '', момент = -Infinity;
     if (!unreadHere) return;
 
-    // Берём последнее непрочитанное — именно оно всплывает уведомлением.
-    for (let i = msgs.length - 1; i >= 0; i--) {
+    // Берём последнее непрочитанное — именно оно всплывает уведомлением, и
+    // время на карточке его. Прежде бралось первое «чч:мм» в строке, а оно
+    // бывает и в тексте («В 10:11 декан…»).
+    {
+      const i = непроч[непроч.length - 1];
       const s = String(msgs[i]);
-      if (!/unread|не прочитан/i.test(s.replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]/gi, ''))) continue;
+      lastTime = времяВСписке(msgs, i, sceneDate, { сЧасами: true });
+      момент = моментПоследнего([s], sceneDate);
       const parties = parseMsgParties(s);
       lastSender = parties.sender || '';
       let body = s.split('|')[0].replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim();
@@ -410,12 +409,11 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
                      .replace(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*[^\]]*\]/gi, '📷 Фото')
                      .replace(/\[(?:CALL|ЗВОНОК)\s*:?\s*([^\]]*)\]/gi, (_, b) => /пропущ|missed|no answer/i.test(b) ? '📞 Пропущенный звонок' : /отклон|declined|rejected/i.test(b) ? '📞 Отклонённый звонок' : '📞 Звонок')
                      .replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]|✓+/gi, '').trim();
-      break;
     }
 
     // Заголовок уведомления — тот же умный разбор, что и в списке чатов:
     // групповой чат подписывается своим именем, личный — именем собеседника.
-    const owner = String(c.owner || '').trim() || phoneOwner;
+    const owner = владелецЧата(c);
     const parts = collectCounterparts(msgs, owner);
     let title = sanitizeText(rawName).trim();
     if (!title || namesLikelySame(title, owner)) {
@@ -428,16 +426,16 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     const who = c.participants && lastSender ? какВТелефоне(lastSender) : '';
     // chatIdx связывает уведомление с конкретной перепиской: по нему открывается
     // нужный чат и снимается непрочитанное, когда в него зашли.
-    notifItems.push({ title: title || 'Сообщение', who, text: lastText, time: lastTime, count: unreadHere, target: `subchat-${uid}-${chatIdx}` });
+    notifItems.push({ title: title || 'Сообщение', who, text: lastText, time: lastTime, момент: lastTime ? момент : -Infinity, count: unreadHere, target: `subchat-${uid}-${chatIdx}` });
   });
 
   // Сколько карточек показывать на домашнем экране — настройка «Карточек
   // уведомлений». Раньше было жёстко три.
   const MAX_NOTIF = Math.max(1, Math.min(5, Number(settings.phoneNotifMax) || 3));
   // Новые сверху, как на настоящем телефоне: шли в порядке чатов, и 06:25
-  // стояло над 13:20. Без времени — в конце, порядок чатов между ними тот же.
-  const минутыУв = (t) => { const м = String(t || '').match(/(\d{1,2}):(\d{2})/); return м ? +м[1] * 60 + +м[2] : -1; };
-  notifItems.sort((a, b) => минутыУв(b.time) - минутыУв(a.time));
+  // стояло над 13:20. И с учётом дня: вчерашние 23:50 старше сегодняшних
+  // 08:00. Без времени — в конце, порядок чатов между ними тот же.
+  notifItems.sort((a, b) => (b.момент === a.момент ? 0 : b.момент > a.момент ? 1 : -1));
   const shown = notifItems.slice(0, MAX_NOTIF);
   const hiddenCount = notifItems.length - shown.length;
 

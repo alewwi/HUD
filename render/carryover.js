@@ -14,21 +14,21 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.93';
-import { проставитьДень } from './msg-feed.js?v=23.89.93';
-import { normalizeJSONData } from '../schema.js?v=23.89.93';
-import { settings } from '../settings.js?v=23.89.93';
-import { статусРужья } from '../codes.js?v=23.89.93';
-import { extractHudBlock } from '../hud-block.js?v=23.89.93';
-import { развернутьHUD } from '../offload.js?v=23.89.93';
-import { namesLikelySame } from '../names.js?v=23.89.93';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.89.93';
-import { readParsed, writeParsed } from '../store.js?v=23.89.93';
-import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.89.93';
-import { ключСлуха } from './rumor-times.js?v=23.89.93';
-import { применитьСтупени, ступениВкл } from './trust-stages.js?v=23.89.93';
-import { getSafeUserName } from '../utils.js?v=23.89.93';
-import { полеВкл } from '../deep-fields.js?v=23.89.93';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.94';
+import { проставитьДень } from './msg-feed.js?v=23.89.94';
+import { normalizeJSONData } from '../schema.js?v=23.89.94';
+import { settings } from '../settings.js?v=23.89.94';
+import { статусРужья } from '../codes.js?v=23.89.94';
+import { extractHudBlock } from '../hud-block.js?v=23.89.94';
+import { развернутьHUD } from '../offload.js?v=23.89.94';
+import { namesLikelySame } from '../names.js?v=23.89.94';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.89.94';
+import { readParsed, writeParsed } from '../store.js?v=23.89.94';
+import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.89.94';
+import { ключСлуха } from './rumor-times.js?v=23.89.94';
+import { применитьСтупени, ступениВкл } from './trust-stages.js?v=23.89.94';
+import { getSafeUserName } from '../utils.js?v=23.89.94';
+import { полеВкл } from '../deep-fields.js?v=23.89.94';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -321,6 +321,18 @@ function разобратьСообщение(строка) {
   return { тело: ключ(m ? (m[3] || '') : главная), время };
 }
 
+// Пометка о прочтении — из свежего хода. Сообщение, бывшее «Unread», модель
+// в следующих ходах пишет «Read», а склейка держала первую строку целиком:
+// уведомление и счётчик висели днями. Текст и день остаются от первого
+// появления — первый ход знает день точнее.
+export function свежийСтатус(старая, новая) {
+  const н = String(новая || '').split('|');
+  if (н.length < 3) return старая;
+  const с = String(старая || '').split('|');
+  if (с.length < 2) return старая;
+  return [...с.slice(0, 2), ...н.slice(2)].join('|');
+}
+
 // Сообщения переписки: повторы и дописанные варианты сводим в один.
 function склеитьСообщения(старое, новое, предел) {
   const принятые = [];
@@ -338,11 +350,11 @@ function склеитьСообщения(старое, новое, предел
       const п = принятые[i];
       if (!п.тело) continue;
       const тоЖеВремя = п.время === время;
-      if (п.тело === тело && (тоЖеВремя || тело.length >= ДЛИННОЕ)) { решено = true; break; }
+      if (п.тело === тело && (тоЖеВремя || тело.length >= ДЛИННОЕ)) { п.строка = свежийСтатус(п.строка, s); решено = true; break; }
       if (!тоЖеВремя) continue;
       // Один текст начинает другой — это тот же дописанный кусок.
       if (тело.startsWith(п.тело)) { принятые[i] = { строка: s, тело, время, полная: ключ(s) }; решено = true; break; }
-      if (п.тело.startsWith(тело)) { решено = true; break; }
+      if (п.тело.startsWith(тело)) { п.строка = свежийСтатус(п.строка, s); решено = true; break; }
     }
     if (!решено) принятые.push({ строка: s, тело, время, полная: ключ(s) });
   }

@@ -4,6 +4,18 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.94 — 2026-11-24
+
+### Fixed
+- **Phone: notifications and the chat list work like a real messenger.**
+  - Read messages no longer hang as notifications. The model marks a message read on a later turn, but carrying chats over from past turns kept the first "unread" mark, and the counter and notification card stayed for days.
+  - A reply in the chat, or a read message further down, means the chat was opened, so everything above it is read. Your own "unread" (the other person hasn't read it) is not a notification.
+  - The notification time is the message's own time. It used to take the first "hh:mm" in the line, which can be in the text ("At 10:11 the dean…"), or the time of another message.
+  - Notifications go newest first counting the day: yesterday's 23:50 sits below today's 08:00. Yesterday's says "Yesterday, 23:50", older ones show the date.
+  - In the chat list a chat from yesterday says "Yesterday" and an older one shows the date, not bare hours as if it were today.
+  - A draft that was later finished and sent no longer stays in the input field. The preview shows an unsent draft as "Draft: …" and a deleted message as "Message deleted".
+  - A chat you read also leaves the lock screen. Intercepts count time and unread the same way.
+
 ## 23.89.93 — 2026-11-24
 
 ### Added

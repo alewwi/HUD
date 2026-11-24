@@ -3,14 +3,14 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.89.93';
-import { фотоПоИмени } from '../avatars.js?v=23.89.93';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.89.94';
+import { фотоПоИмени } from '../avatars.js?v=23.89.94';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { собратьЛенту, моментПоследнего, тотЖеВПереписке, разобратьСообщение } from './msg-feed.js?v=23.89.93';
-import { видБлока } from './views.js?v=23.89.93';
-import { видПерехватов, строкаПротокола } from './views-diary.js?v=23.89.93';
+import { собратьЛенту, моментПоследнего, тотЖеВПереписке, разобратьСообщение, непрочитанные, полеВремени } from './msg-feed.js?v=23.89.94';
+import { видБлока } from './views.js?v=23.89.94';
+import { видПерехватов, строкаПротокола } from './views-diary.js?v=23.89.94';
 
 // Кружок отправителя в перехвате: фото (ручное, персона, карточка) фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
@@ -139,11 +139,13 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
     const targetName = sanitizeText(intercept.target || 'Unknown').trim();
     const chatName = имяСобеседника(targetName, sanitizeText(intercept.chatName || 'Chat').trim());
 
-    let latestTime = '--:--', unreadCount = 0;
+    // Время — из поля времени, а не первое «чч:мм» в строке: оно бывает и в
+    // тексте. Непрочитанное считается так же, как в телефоне (msg-feed.js).
+    let latestTime = '--:--';
+    const unreadCount = непрочитанные(intercept.messages, targetName).length;
     if (Array.isArray(intercept.messages)) {
       intercept.messages.forEach(m => {
-        let timeMatch = m.match(/\b\d{1,2}:\d{2}\b/); if (timeMatch) latestTime = timeMatch[0];
-        if (/unread|не прочитан/i.test(m.replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]/gi, ''))) unreadCount++;
+        const timeMatch = полеВремени(m).match(/\d{1,2}:\d{2}/); if (timeMatch) latestTime = timeMatch[0];
       });
     }
 
