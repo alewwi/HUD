@@ -21,11 +21,11 @@
 // «После» в следующие ходы — пока nsfwPrompt не «никогда», как нейтральная
 // история близости в prompt.js.
 
-import { settings } from './settings.js?v=23.89.96';
-import { полеВкл } from './deep-fields.js?v=23.89.96';
-import { flattenFieldValue } from './utils.js?v=23.89.96';
-import { namesLikelySame } from './names.js?v=23.89.96';
-import { старина } from './era.js?v=23.89.96';
+import { settings } from './settings.js?v=23.89.97';
+import { полеВкл } from './deep-fields.js?v=23.89.97';
+import { flattenFieldValue } from './utils.js?v=23.89.97';
+import { namesLikelySame } from './names.js?v=23.89.97';
+import { старина } from './era.js?v=23.89.97';
 
 const стр = (v) => String(flattenFieldValue(v) ?? '').trim();
 const ЗАГЛУШКА = /^(?:[\d\s.,:;%\/—–-]|empty|none|null|нет|пусто|n\/a)*$/iu;

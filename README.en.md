@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.96**:
+The latest version is **23.89.97**:
 
+- "Did anyone notice" dice: a pose after the room no longer counts as another room.
 - Social exposure: the chance is read with any dash and in brackets with a remark.
 - A "Like the Tavern" button in Customization: the HUD takes colours, borders, blur, font and rounded corners from the SillyTavern theme and follows it; "Step forward"; card corner rounding and border; a label for erotic dreams.
 - Phone: read messages no longer hang as notifications, the notification shows the message time, "Yesterday" and dates in the chat list, a sent draft leaves the input field.

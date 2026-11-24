@@ -4,6 +4,13 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.97 — 2026-11-24
+
+### Fixed
+- **The "Did anyone notice" dice see the people in the room again.** The model adds a pose to the place — "room 12, kneeling by the chest", "room 12, in an armchair by the fireplace" — and the HUD took poses for different rooms, so nobody was nearby. A pose or an object in the room no longer changes the place.
+  - Not nearby: someone in the corridor behind a closed door, outside the house, on the way to it or in another room of the same house. An open door doesn't separate people.
+  - "(room 12)" in brackets is the same place.
+
 ## 23.89.96 — 2026-11-24
 
 ### Fixed

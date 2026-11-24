@@ -5,16 +5,16 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.96';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.96';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.96';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.96';
-import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.96';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.96';
-import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.89.96';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.96';
-import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.89.96';
-import { сводкаВыключена } from './summary-fields.js?v=23.89.96';
+import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.97';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.97';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.97';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.97';
+import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.97';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.97';
+import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.89.97';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.97';
+import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.89.97';
+import { сводкаВыключена } from './summary-fields.js?v=23.89.97';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
