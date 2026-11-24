@@ -13,15 +13,15 @@
 // секрета, — «при нём об этом нельзя».
 // На узком экране сетку заменяет список по людям (container query).
 
-import { escapeHtml, getSafeUserName } from '../utils.js?v=23.89.92';
-import { settings } from '../settings.js?v=23.89.92';
-import { namesLikelySame } from '../names.js?v=23.89.92';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.92';
-import { ико, медаль } from './view-icons.js?v=23.89.92';
-import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.89.92';
-import { разобратьДуэль } from './duel.js?v=23.89.92';
-import { видБлока } from './views.js?v=23.89.92';
-import { видСеткиСекретов } from './views-plus.js?v=23.89.92';
+import { escapeHtml, getSafeUserName } from '../utils.js?v=23.89.93';
+import { settings } from '../settings.js?v=23.89.93';
+import { namesLikelySame } from '../names.js?v=23.89.93';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.93';
+import { ико, медаль } from './view-icons.js?v=23.89.93';
+import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.89.93';
+import { разобратьДуэль } from './duel.js?v=23.89.93';
+import { видБлока } from './views.js?v=23.89.93';
+import { видСеткиСекретов } from './views-plus.js?v=23.89.93';
 // Склонение по числу: склон(3, ['секрет', 'секрета', 'секретов']).
 const склон = (n, [один, два, пять]) => { const к = Math.abs(n) % 100, е = к % 10; return к > 10 && к < 20 ? пять : е === 1 ? один : е >= 2 && е <= 4 ? два : пять; };
 
@@ -148,6 +148,56 @@ export function вопросыСекретов(секретыВсе, hudData) {
   return люди.length < 2 ? 0 : Math.min(ВОПРОСОВ_СРАЗУ, предложенияСпора(секреты, люди, hudData, правки()).length);
 }
 
+// Данные отрисованных сеток: после «отметить / нет / снять» сетка
+// пересобирается на месте (обновитьСеткиСекретов), а не вся лента — прежде
+// вкладка «Память» строилась заново и прыгала прокрутка.
+const СЕТКИ = new Map();
+let номерСетки = 0;
+const ПРЕДЕЛ_СЕТОК = 24;
+function запомнитьСетку(секретыВсе, hudData) {
+  const id = 'sg' + (++номерСетки);
+  СЕТКИ.set(id, { секретыВсе, hudData });
+  while (СЕТКИ.size > ПРЕДЕЛ_СЕТОК) СЕТКИ.delete(СЕТКИ.keys().next().value);
+  return id;
+}
+// По секрету или имени, а не по всему заголовку: в нём счётчик «знают N/M»,
+// и он меняется той самой правкой.
+const надписьРаскрытого = (d) => String((d.querySelector('summary .hud-sgrid-fact > span, summary > b') || d.querySelector('summary'))?.textContent || '').replace(/\s+/g, ' ').trim();
+/**
+ * Пересобрать на месте все сетки на странице (лента, панель сбоку). Раскрытые
+ * строки остаются раскрытыми, значок вопросов на вкладке «Память» — по числу
+ * оставшихся вопросов. false — какой-то сетки уже нет в памяти: нужна полная
+ * перерисовка.
+ */
+export function обновитьСеткиСекретов(корень = document) {
+  const сетки = Array.from(корень.querySelectorAll('.hud-sgrid-wrap[data-sgrid]'));
+  if (!сетки.length || сетки.some(el => !СЕТКИ.has(el.dataset.sgrid))) return false;
+  for (const el of сетки) {
+    const { секретыВсе, hudData } = СЕТКИ.get(el.dataset.sgrid);
+    const раскрыты = Array.from(el.querySelectorAll('details[open]')).map(надписьРаскрытого);
+    const былоВопросов = el.querySelectorAll('.hud-sgrid-raise').length;
+    const шаблон = document.createElement('template');
+    шаблон.innerHTML = сеткаСекретов(секретыВсе, hudData);
+    const новая = шаблон.content.firstElementChild;
+    СЕТКИ.delete(el.dataset.sgrid);
+    if (!новая) { el.remove(); continue; }
+    новая.querySelectorAll('details').forEach(d => { if (раскрыты.includes(надписьРаскрытого(d))) d.open = true; });
+    const сталоВопросов = новая.querySelectorAll('.hud-sgrid-raise').length;
+    el.replaceWith(новая);
+    // Значок «ждёт ответа» на вкладке «Память» той же карточки.
+    const разница = сталоВопросов - былоВопросов;
+    const ярлык = разница && новая.closest('.hud-os-card')?.querySelector('.hud-tab[data-tab-id="memory"]');
+    if (ярлык) {
+      const знак = ярлык.querySelector('.hud-tab-attn');
+      const n = Math.max(0, (знак ? parseInt(знак.textContent, 10) || 0 : 0) + разница);
+      if (!n) знак?.remove();
+      else if (знак) знак.textContent = String(n);
+      else ярлык.insertAdjacentHTML('beforeend', `<span class="hud-tab-attn" title="Ждёт вашего ответа">${n}</span>`);
+    }
+  }
+  return true;
+}
+
 export function сеткаСекретов(секретыВсе, hudData) {
   const режим = settings.secretsGrid || 'auto';
   const секреты = (Array.isArray(секретыВсе) ? секретыВсе : []).filter(с => с && typeof с === 'object' && String(с.fact || '').trim());
@@ -195,7 +245,8 @@ export function сеткаСекретов(секретыВсе, hudData) {
   const подъём = предложения.slice(0, ВОПРОСОВ_СРАЗУ).map(п => `<div class="hud-sgrid-raise">${медаль('speech')}<span><small>всплыло в споре</small><b>«${escapeHtml(заголовок(п.факт))}»</b><em>при ${escapeHtml(имяКоротко(п.кто))} — отметить «${п.значение === 'known' ? 'знает' : 'подозревает'}»?</em></span>`
     + `<span class="hud-sgrid-raise-btns"><button type="button" data-sec-edit="${escapeHtml(п.путь)}" data-value="${п.значение}">отметить</button><button type="button" data-sec-edit="${escapeHtml(п.путь)}" data-value="dismissed" title="Не спрашивать про это снова">нет</button></span></div>`).join('');
   const свой = видСеткиСекретов(видБлока('secretsGridView'), { секреты, люди, клетка, лицоСетки: (имя, игрок) => лицо(имя, игрок), заголовок, уровень });
-  if (свой) return `<div class="hud-sgrid-wrap hud-v hud-v-card is-view">${итог}${предупр}${подъём}${свой}${легенда}</div>`;
-  return `<div class="hud-sgrid-wrap hud-v hud-v-card">${итог}${предупр}${подъём}<div class="hud-sgrid" style="--cols:${люди.length}" role="table" aria-label="Кто что знает">`
+  const id = запомнитьСетку(секретыВсе, hudData);
+  if (свой) return `<div class="hud-sgrid-wrap hud-v hud-v-card is-view" data-sgrid="${id}">${итог}${предупр}${подъём}${свой}${легенда}</div>`;
+  return `<div class="hud-sgrid-wrap hud-v hud-v-card" data-sgrid="${id}">${итог}${предупр}${подъём}<div class="hud-sgrid" style="--cols:${люди.length}" role="table" aria-label="Кто что знает">`
     + `<div class="hud-sgrid-top">${шапка}</div>${строки}</div><div class="hud-sgrid-people">${поЛюдям}</div>${легенда}</div>`;
 }

@@ -7896,3 +7896,6 @@ html.hud-scheme-light .hud-mw-know.is-guess { --kn: #8f6a14; }
    светлой плашке не читались — тона глубже. */
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-vp-pair-pill.is-kept small { color: #237a46; }
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-vp-pair-pill.is-overdue small { color: #b3322b; }
+
+/* «Количество партнёров: 0» — плашка «девственница / девственник» (render/character.js). */
+.hud-detail-pill.hud-virgin-pill { display: inline-block; padding: 2px 10px; margin-left: 6px; border-radius: 999px; font-size: .85em; line-height: 1.5; cursor: default; border-color: color-mix(in srgb, #e58fb0 55%, var(--hud-border)); background: color-mix(in srgb, #e58fb0 12%, transparent); white-space: nowrap; }

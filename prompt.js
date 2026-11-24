@@ -10,24 +10,24 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.92';
-import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.92';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.92';
+import { settings } from './settings.js?v=23.89.93';
+import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.93';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.93';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.92';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.92';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.92';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.92';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.92';
-import { возрастТочно } from './render/babies.js?v=23.89.92';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.92';
-import { сжатьСхему } from './compact-fields.js?v=23.89.92';
-import { короткийПромпт } from './prompt-short.js?v=23.89.92';
-import { подготовкаИдёт } from './render/holiday-lore.js?v=23.89.92';
-import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.89.92';
-import { промптРанСпутника } from './render/pet-wounds.js?v=23.89.92';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.92';
-import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.89.92';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.93';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.93';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.93';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.93';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.93';
+import { возрастТочно } from './render/babies.js?v=23.89.93';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.93';
+import { сжатьСхему } from './compact-fields.js?v=23.89.93';
+import { короткийПромпт } from './prompt-short.js?v=23.89.93';
+import { подготовкаИдёт } from './render/holiday-lore.js?v=23.89.93';
+import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.89.93';
+import { промптРанСпутника } from './render/pet-wounds.js?v=23.89.93';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.93';
+import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.89.93';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -283,7 +283,7 @@ ${settings.betsList === false ? '' : `   "Bt": "[OPTIONAL — only while a bet b
    "X": "[conflict depth as 'wy: what the conflict is about; dys: how many days it has been going on; sg: its stage — brewing, open, cold war, reconciliation']",
 ${дуэль ? `   "Vd": "[OPTIONAL — only while an argument is going on this turn: 'ini: who is winning the exchange right now and how firmly — a name, then 0-100, 50 = even; gv: who gave ground to the opponent this turn and on what, or empty; tn: спор | укол | ссора | крик | холод | примирение'. Giving ground costs position: whoever gave ground in gv does not gain on ini that turn, and a big concession hands the lead to the other side]",
 ` : ''}${интим ? `   "SxL": "[last sex: 'dt: when — date, time, place; pr: with whom and who they are to this character; ak: what exactly happened, step by step, in 2-3 sentences; en: how it ended — who came and how, and whether it was protected: a condom, pulled out in time, or finished inside with no protection (a pregnancy risk); what happened right after'. It always describes the MOST RECENT encounter: from phase 2 it already describes the one happening now (en: 'ещё не закончилось' until it ends), and the turn it ends it gets its ending. The date comes from the story's own calendar and time — never keep an older date once a newer encounter has happened, even one skipped past in a time jump]",
-   "SxC": "[sex count: lifetime number of sexual partners — a number or an honest estimate]",
+   "SxC": "[sex count: lifetime number of sexual partners — a number or an honest estimate; 0 for a virgin, kept 0 until their first time really happens in the story]",
    "SxR": "[sex regularity: how often they have sex these days and with whom, how they satisfy themselves in between, how strong their libido is and what feeds or kills it — a sentence or two]",
 ` : историяБлизости ? `   "SxL": "[the last night this character spent with someone: 'dt: date, time, place; pr: with whom, who they are to them; en: how it ended, in calm neutral words — protected (a condom, pulled out in time, the pill) or finished inside unprotected, a pregnancy risk — and what came right after'. Keep it; when another such night happens — on screen or skipped in a time jump — rewrite it to that one with the story's date. Never keep an older date after a newer night]",
 ` : ''}   "Ln": "[lines: their most characteristic lines from the recent story, verbatim in «», separated by ;, at least 3. Lines that show HOW they speak — rhythm, slang, cruelty, tenderness — not what happened. Skip until they have spoken]",

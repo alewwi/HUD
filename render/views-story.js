@@ -17,11 +17,11 @@
 // Конечный вид рисуется сразу: анимации HUD держит на паузе, пока на вид не
 // навели мышь или не нажали (css/views.css), — петли и на паузе законченны.
 
-import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.92';
-import { лицоЧеловека as лицо } from './views.js?v=23.89.92';
-import { normalizeDiaryMood } from './diary.js?v=23.89.92';
-import { relationVisualMeta, classifyRelationVisual, parseRelationList } from './relations-graph.js?v=23.89.92';
-import { namesLikelySame } from '../names.js?v=23.89.92';
+import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.93';
+import { лицоЧеловека as лицо } from './views.js?v=23.89.93';
+import { normalizeDiaryMood } from './diary.js?v=23.89.93';
+import { relationVisualMeta, classifyRelationVisual, parseRelationList } from './relations-graph.js?v=23.89.93';
+import { namesLikelySame } from '../names.js?v=23.89.93';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const ф = (n) => Number(n).toFixed(1);
@@ -303,10 +303,13 @@ function отношенияМедальоны(связи) {
 /** Записная книжка: кожаная обложка с резинкой и скрепкой, разделы по
  *  буквам с вырезными цветными вкладками на краю; у каждой записи — штамп
  *  типа связи и пометка от руки. */
+// Игрок — первым, своей буквой впереди остальных (в остальном — по алфавиту).
 function отношенияКнижка(связи) {
+  const игрок = getSafeUserName();
+  const свой = (кто) => (игрок && namesLikelySame(имя(кто), игрок) ? 1 : 0);
   const буква = (s) => (имя(s).match(/\p{L}/u) || ['#'])[0].toUpperCase();
   const поБуквам = new Map();
-  связи.slice().sort((а, б) => имя(а.кто).localeCompare(имя(б.кто), 'ru')).forEach(с => { const б = буква(с.кто); if (!поБуквам.has(б)) поБуквам.set(б, []); поБуквам.get(б).push(с); });
+  связи.slice().sort((а, б) => свой(б.кто) - свой(а.кто) || имя(а.кто).localeCompare(имя(б.кто), 'ru')).forEach(с => { const б = буква(с.кто); if (!поБуквам.has(б)) поБуквам.set(б, []); поБуквам.get(б).push(с); });
   return `<div class="hud-v hud-rl hud-rl-book"><i class="band" aria-hidden="true"></i><i class="clip" aria-hidden="true"></i><div class="pages">`
     + [...поБуквам].map(([б, список]) => `<section><h4><span>${э(б)}</span></h4>` + список.map(с => `<div class="entry g-${с.группа}"><b data-i18n-skip>${э(имя(с.кто))}</b><span class="tag">${э(с.метка)}</span><p data-i18n-skip>${э(с.что)}</p></div>`).join('') + `</section>`).join('')
     + `</div><nav class="tabs" aria-hidden="true">${[...поБуквам.keys()].map((б, i) => `<i style="--i:${i}">${э(б)}</i>`).join('')}</nav></div>`;

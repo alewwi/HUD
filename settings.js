@@ -133,6 +133,8 @@ export const defaultSettings = {
   trustStageList: null,
   // Тайный бросок «Заметили ли» под «Социальным разоблачением» (render/notice-dice.js).
   noticeDice: true,
+  // Кубик «Заметили ли» бросается и за игрока, если он в том же помещении.
+  noticeDiceUser: false,
   promisesList: true,
   // Пари между персонажами (поле Bt): ставка видна в карточках обоих.
   betsList: true,
@@ -160,6 +162,11 @@ export const defaultSettings = {
   // Живые детали близости (body-cues.js, группа cx): желание, оргазм, долгая
   // сцена, после — только когда часть про близость уходит модели.
   enableIntimacyCues: true,
+  // Первый раз (body-cues.js): у девственника — трудно сдержаться, у
+  // девственницы — боль в начале и после по кубику (шансы в процентах).
+  firstTimeCues: true,
+  firstTimePainDuring: 70,
+  firstTimePainAfter: 50,
   enableNeglect: true,
   enableWeight: true,
   enableEraHolidays: true,

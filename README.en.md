@@ -659,8 +659,11 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.92**:
+The latest version is **23.89.93**:
 
+- First time: the HUD knows a character or the player is a virgin (0 partners, a word in the card, the persona description, "rdy" in the scene) — a "🌸" plaque in the card; living details prompt: for him, hard to hold back; for her, pain at first and afterwards by a dice roll (chances in "Intimacy"), and what the text says beats the dice.
+- "Did anyone notice" dice — only for those in the same room; a "Dice for the player too" box. Social exposure is drawn as its view again when the chance sits at the end: "… (35%)".
+- The player always first in trust and relations; "lt: nc" in goals fills in the earlier goal; "Who knows what" updates without the tab jumping; the token field in the lorebook window matches the theme.
 - You choose what goes into the [HUD_SUMMARY]: a line in "Token savings" opens all HUD data as tick plaques, with an example summary and its token cost on top; whatever is off in the settings is not sent.
 - Archive: long lists are folded everywhere, newest first — relation paths ("earlier N"), atlas places in portions, moods and trust reasons under "More"; an open list collapses from its header or a button at the bottom.
 - Companion wounds as a list, like in the character card: where, stage, how far healed, when it heals, how to treat it, whether it scars, plus scars from old wounds — in every companion view. Scene: melting March snow and snowdrops, a glowing garland, pumpkins and fireworks at night, clouds in cloudy weather, a lamp in the wind, a kite on the sand and campfire embers in the rain.

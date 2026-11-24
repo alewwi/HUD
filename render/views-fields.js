@@ -12,13 +12,13 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок, flattenFieldValue, имяДляВкладки } from '../utils.js?v=23.89.92';
-import { ИКОНКИ } from './view-icons.js?v=23.89.92';
-import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.89.92';
-import { settings } from '../settings.js?v=23.89.92';
+import { escapeHtml, разбитьСписок, flattenFieldValue, имяДляВкладки } from '../utils.js?v=23.89.93';
+import { ИКОНКИ } from './view-icons.js?v=23.89.93';
+import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.89.93';
+import { settings } from '../settings.js?v=23.89.93';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
-const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());
+const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-|nc|n\/c)$/i.test(String(v).trim());
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
 const ф = (n) => (Math.round(n * 10) / 10).toString();
 let счёт = 0;

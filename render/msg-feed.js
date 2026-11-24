@@ -12,10 +12,10 @@
 // оказываются рядом вчерашнее «22:30» и сегодняшнее «08:30», и без подписи
 // «Вчера» это читается как один разговор подряд.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.92';
-import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.89.92';
-import { avaFace } from './phone-common.js?v=23.89.92';
-import { namesLikelySame } from '../names.js?v=23.89.92';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.93';
+import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.89.93';
+import { avaFace } from './phone-common.js?v=23.89.93';
+import { namesLikelySame } from '../names.js?v=23.89.93';
 
 // Один человек в переписке под разными подписями: «Грей» и «Профессор Грей»,
 // «Butler» и «Private Butler», «Damian» и «THE LANTERNS Damian Hartley».
@@ -221,15 +221,72 @@ export function разобратьСообщение(raw) {
   return { кто, текст, время: часы, статус, удалено, черновик };
 }
 
+// Своё ли сообщение: отправитель — владелец телефона или «я/вы/user».
+export function исходящееСообщение(кто, owner) {
+  if (/^(?:user|you|вы|я|player)$/i.test(String(кто || '').trim())) return true;
+  return Boolean(owner && тотЖеВПереписке(кто, owner));
+}
+
+// Номер последнего своего отправленного сообщения (не черновика), или -1.
+function последнийОтвет(строки, owner) {
+  let ответ = -1;
+  строки.forEach((raw, i) => {
+    if (!String(raw || '').trim()) return;
+    const р = разобратьСообщение(raw);
+    if (!р.черновик && !р.удалено && исходящееСообщение(р.кто, owner) && !действиеЗаКадром(р.текст)) ответ = i;
+  });
+  return ответ;
+}
+
+// Непрочитанные владельцем: номера чужих сообщений с пометкой «unread».
+// Своё «unread» значит, что не прочитал собеседник, — владельцу это не
+// уведомление. Ответил в чат — значит, прочитал всё, что пришло до ответа:
+// модель нередко забывает снять пометку со старого сообщения.
+// Пометку ищем в полях после текста: слово «unread» в самом тексте — не она.
+export function непрочитанные(messages, owner = '') {
+  const строки = Array.isArray(messages) ? messages : [];
+  const ответ = последнийОтвет(строки, owner);
+  const out = [];
+  строки.forEach((raw, i) => {
+    const s = String(raw || '');
+    if (i <= ответ || !s.trim()) return;
+    const поля = s.split('|');
+    const р = разобратьСообщение(s);
+    const пометка = поля.length > 1 ? поля.slice(1).join('|') : р.статус;
+    if (!/unread|не\s*прочитан/i.test(пометка) || исходящееСообщение(р.кто, owner)) return;
+    out.push(i);
+  });
+  return out;
+}
+
+// Время в списке чатов и в уведомлениях, как в мессенджере: сегодняшнее —
+// часами, вчерашнее — «Вчера», старое — датой. Без даты сцены — одни часы.
+// сЧасами — уведомление: «Вчера, 20:14», «20.06, 20:14».
+export function времяВСписке(messages, i, сценаСтрока, { сЧасами = false } = {}) {
+  const строки = Array.isArray(messages) ? messages : [];
+  if (строки[i] == null) return '';
+  const часы = (полеВремени(строки[i]).match(/\d{1,2}:\d{2}/) || [''])[0];
+  if (!датаСцены(сценаСтрока)) return часы;
+  const день = дниСообщений(строки, сценаСтрока)[i] || {};
+  let метка = '';
+  if (день.подпись === 'Вчера') метка = 'Вчера';
+  else if (/^abs\d+$/.test(день.ключ || '') && !/^(?:Сегодня|Завтра)$/.test(день.подпись)) {
+    const n = +день.ключ.slice(3);
+    метка = String(n % 100).padStart(2, '0') + '.' + String(Math.floor(n / 100) % 100).padStart(2, '0');
+  }
+  if (!метка) return часы;
+  return сЧасами && часы ? `${метка}, ${часы}` : метка;
+}
+
 // Отметка о доставке у своих, точка непрочитанного у чужих.
-function отметка(статус, исходящее) {
+function отметка(статус, исходящее, непрочитано = false) {
   const s = String(статус || '').toLowerCase();
   if (исходящее) {
     if (/read|прочитан|✓✓/.test(s)) return '<span class="msg-status read" style="color: #4facfe; font-weight: bold;">✓✓</span>';
     if (/delivered|доставлен/.test(s)) return '<span class="msg-status delivered" style="opacity: 0.8;">✓✓</span>';
     return '<span class="msg-status sent" style="opacity: 0.8;">✓</span>';
   }
-  return /unread|не прочитан/.test(s) ? '<span class="msg-status unread-dot"></span>' : '';
+  return непрочитано ? '<span class="msg-status unread-dot"></span>' : '';
 }
 
 // Цвета имён в группах: различимые на тёмном фоне.
@@ -254,6 +311,10 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
   // Чат продолжился после блокировки — значит, она уже не действует.
   let последняяНастоящая = -1;
   строки.forEach((raw, i) => { if (!String(raw || '').trim()) return; const р = разобратьСообщение(raw); if (!р.черновик && !действиеЗаКадром(р.текст)) последняяНастоящая = i; });
+  // Отправленное после черновика его заменило: в строке ввода черновик
+  // висел бы и после того, как его дописали и отправили.
+  const ответ = последнийОтвет(строки, owner);
+  const непроч = new Set(непрочитанные(строки, owner));
   строки.forEach((raw, i) => {
     if (!String(raw || '').trim()) return;
     const разобрано = разобратьСообщение(raw);
@@ -261,10 +322,9 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
     // Тег без отправителя: писали с телефона владельца.
     const кто = разобрано.кто === 'Unknown' && owner && /^\[BY\s*:/i.test(текст) ? owner : разобрано.кто;
     const подпись = имяНаЭкране ? имяНаЭкране(кто) : кто;
-    let исходящее = Boolean(owner && тотЖеВПереписке(кто, owner));
-    if (/^(?:user|you|вы|я|player)$/i.test(кто.trim())) исходящее = true;
+    const исходящее = исходящееСообщение(кто, owner);
 
-    if (черновик && исходящее && черновикВПоле) { draft = безШапокСообщения(текст); return; }
+    if (черновик && исходящее && черновикВПоле) { if (i > ответ) draft = безШапокСообщения(текст); return; }
 
     // Что сделали с телефоном без текста. Блокировка — вместо строки ввода,
     // пока её не сняли; остальное — закрытой строкой в ленте.
@@ -306,8 +366,8 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
     if (звонок) { html += звонок.replace(/^(\s*<\w+)/,`$1 data-msg-key="${msgKey(текст)}"`); return; }
 
     const внутри = buildBubbleInner(текст, { владелец: owner });
-    const мета = (время || отметка(статус, исходящее))
-      ? `<div class="hud-msg-meta" style="display: flex; justify-content: flex-end; align-items: center; gap: 4px; font-size: 0.75em; opacity: 0.6; margin-top: 4px;"><span class="hud-msg-time">${escapeHtml(время)}</span>${отметка(статус, исходящее)}</div>`
+    const мета = (время || отметка(статус, исходящее, непроч.has(i)))
+      ? `<div class="hud-msg-meta" style="display: flex; justify-content: flex-end; align-items: center; gap: 4px; font-size: 0.75em; opacity: 0.6; margin-top: 4px;"><span class="hud-msg-time">${escapeHtml(время)}</span>${отметка(статус, исходящее, непроч.has(i))}</div>`
       : '';
     html += `<div class="hud-msg-wrapper ${исходящее ? 'outgoing' : 'incoming'}${черновик ? ' is-draft' : ''}">
       ${!исходящее ? кружок(подпись) : ''}

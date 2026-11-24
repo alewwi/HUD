@@ -16,29 +16,29 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.92';
-import { уверены } from './confirm-erase.js?v=23.89.92';
-import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.92';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.89.92';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.92';
-import { прикрытьСырой } from './raw-guard.js?v=23.89.92';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.92';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.92';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.92';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.92';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.92';
-import { полныйПорядок } from './tabs-order.js?v=23.89.92';
-import { getWorldVotes } from './render/world.js?v=23.89.92';
-import { действиеМира } from './render/world-views.js?v=23.89.92';
-import { действиеМузыки } from './render/music.js?v=23.89.92';
-import { раскрытьПорцию } from './render/long-list.js?v=23.89.92';
-import { прогретьИсторию } from './render/carryover.js?v=23.89.92';
-import { подключитьПалитру } from './color-picker.js?v=23.89.92';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.92';
-import { замер } from './utils.js?v=23.89.92';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.92';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.92';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.92';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.93';
+import { уверены } from './confirm-erase.js?v=23.89.93';
+import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.93';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.89.93';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.93';
+import { прикрытьСырой } from './raw-guard.js?v=23.89.93';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.93';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.93';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.93';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.93';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.93';
+import { полныйПорядок } from './tabs-order.js?v=23.89.93';
+import { getWorldVotes } from './render/world.js?v=23.89.93';
+import { действиеМира } from './render/world-views.js?v=23.89.93';
+import { действиеМузыки } from './render/music.js?v=23.89.93';
+import { раскрытьПорцию } from './render/long-list.js?v=23.89.93';
+import { прогретьИсторию } from './render/carryover.js?v=23.89.93';
+import { подключитьПалитру } from './color-picker.js?v=23.89.93';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.93';
+import { замер } from './utils.js?v=23.89.93';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.93';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.93';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.93';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;

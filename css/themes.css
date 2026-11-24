@@ -1107,12 +1107,27 @@
 .hud-set-lang-file [hidden] { display: none !important; }
 .hud-modal-label { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-top: 6px; }
 .hud-modal-label i { font-style: normal; text-transform: none; letter-spacing: 0; opacity: .8; }
-.hud-modal-text, .hud-modal-keys, .hud-modal-book, .hud-modal-title {
+.hud-modal-text, .hud-modal-keys, .hud-modal-book, .hud-modal-title, .hud-modal-tokens {
   width: 100%; box-sizing: border-box;
   padding: 7px 9px; border-radius: 8px; font: inherit; font-size: 12.5px;
   color: var(--hud-text, #e6e6ee);
   background: rgba(0, 0, 0, .28);
   border: 1px solid var(--hud-border, rgba(255,255,255,.14));
+}
+/* Токены на ответ модели: без своего правила поле было белой плашкой
+   браузера даже на тёмной теме. Число — коротким полем, цифры ровно,
+   стрелки браузера в цвет схемы. */
+.hud-modal-tokens {
+  width: 10.5em; max-width: 100%; align-self: flex-start;
+  font-weight: 650; font-variant-numeric: tabular-nums; letter-spacing: .02em;
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 10%, rgba(0, 0, 0, .28));
+  border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 35%, var(--hud-border, rgba(255,255,255,.14)));
+  color-scheme: dark;
+}
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-modal-tokens { color-scheme: light; }
+.hud-modal :is(.hud-modal-text, .hud-modal-keys, .hud-modal-book, .hud-modal-title, .hud-modal-tokens):focus-visible {
+  outline: none; border-color: var(--hud-accent, #8c5ad2);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--hud-accent, #8c5ad2) 35%, transparent);
 }
 /* Нижняя граница высоты: даже при короткой записи поле остаётся полем, а
    не строкой. Верхней нет — после «Написать моделью» поле подстраивается

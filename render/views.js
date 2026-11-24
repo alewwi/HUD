@@ -7,15 +7,16 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.92';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.92';
-import { namesLikelySame } from '../names.js?v=23.89.92';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.92';
-import { settings } from '../settings.js?v=23.89.92';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.92';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.92';
-import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.89.92';
-import { плашкаСтупени, сведенияДля, ступениВкл, словоСтупени } from './trust-stages.js?v=23.89.92';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.93';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.93';
+import { namesLikelySame } from '../names.js?v=23.89.93';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.93';
+import { settings } from '../settings.js?v=23.89.93';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.93';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.93';
+import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.89.93';
+import { плашкаСтупени, сведенияДля, ступениВкл, словоСтупени } from './trust-stages.js?v=23.89.93';
+import { разобратьМаску } from './notice-dice.js?v=23.89.93';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -464,11 +465,12 @@ export function видОргазма(value, вид) {
 /* --- Разоблачение ----------------------------------------------------------- */
 
 export function видРазоблачения(value, вид) {
-  const s = String(value || '').trim();
-  const m = s.match(/^\s*(\d{1,3})\s*%?\s*[:：,—–-]?\s*([\s\S]*)$/);
-  if (!m) return '';
-  const v = огр(parseInt(m[1], 10), 0, 100);
-  const текст = m[2].trim();
+  // Шанс в начале («60% — …») или в конце («… (60%)»): с кубиком промт не
+  // говорит, где его ставить, и модель пишет его в конце (render/notice-dice.js).
+  const м = разобратьМаску(value);
+  if (!м || м.процент === null) return '';
+  const v = огр(м.процент, 0, 100);
+  const текст = м.текст;
   const слово = v >= 85 ? 'вот-вот раскроется' : v >= 60 ? 'трещит по швам' : v >= 30 ? 'есть догадки' : 'в тени';
   const id = новыйId('ex');
   const голова = `<div class="hud-v-big"><b>${v}<small>%</small></b><em>${слово}</em></div>`;

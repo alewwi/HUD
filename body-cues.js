@@ -21,11 +21,11 @@
 // «После» в следующие ходы — пока nsfwPrompt не «никогда», как нейтральная
 // история близости в prompt.js.
 
-import { settings } from './settings.js?v=23.89.92';
-import { полеВкл } from './deep-fields.js?v=23.89.92';
-import { flattenFieldValue } from './utils.js?v=23.89.92';
-import { namesLikelySame } from './names.js?v=23.89.92';
-import { старина } from './era.js?v=23.89.92';
+import { settings } from './settings.js?v=23.89.93';
+import { полеВкл } from './deep-fields.js?v=23.89.93';
+import { flattenFieldValue } from './utils.js?v=23.89.93';
+import { namesLikelySame } from './names.js?v=23.89.93';
+import { старина } from './era.js?v=23.89.93';
 
 const стр = (v) => String(flattenFieldValue(v) ?? '').trim();
 const ЗАГЛУШКА = /^(?:[\d\s.,:;%\/—–-]|empty|none|null|нет|пусто|n\/a)*$/iu;
@@ -128,12 +128,74 @@ function состояние(з, игрок, имя, общее) {
     следы: вкл('enableIntimacyExtras') && пол('Mrk') ? стр(з.Mrk) : '',
     фаза: фазаБлизости(з),
   };
+  // Первый раз (turn-notes.js): идёт сейчас — { боль, кровь }, был недавно — { боль, кровь, после }.
+  с.первый = общее.первый?.(с) || null;
+  с.первыйБыл = общее.первыйБыл?.(с) || null;
   // Пол: «Ж»/«М» в начале внешности, иначе цикл или беременность по сути —
   // «Mns: empty» у мужчины женщиной его не делает.
   с.жен = ЖЕН.test(ap) || (!МУЖ.test(ap) && (поСути(цикл) || поСути(берем)));
   с.муж = !с.жен && МУЖ.test(ap);
   с.текст = [с.ph, с.h, ill].join(' ');
   return с;
+}
+
+/* --- Девственность ------------------------------------------------------------- */
+
+// «Количество партнёров» (SxC) — 0, «нет», «ни одного» или «virgin»: опыта нет.
+// Число больше нуля — опыт есть, что бы ни говорили слова. Без SxC — слово
+// «девственница / девственник / virgin» во внешности, физиологии, статусе.
+// «Не девственница», «бывшая», «потеряла девственность», «девственная плева»,
+// «девственный лес» — не про это.
+// Каждое упоминание судим по словам перед ним: «не», «уже не», «бывшая»,
+// «потеряла», «лишил», прошедшее «была / was a» («она была девственницей» —
+// уже не), «взял / разорвал её девственницей». Хоть одно чистое — да.
+const СЛОВО_ДЕВСТВ = /(?<![\p{L}])(?:девственни(?:ц|к)\p{L}*|девственн(?:а|ы)(?![\p{L}])|девственност\p{L}*|virgin(?:ity|s)?(?![\p{L}]))/giu;
+const ПЕРЕД_НЕТ = /(?:^|[^\p{L}])(?:не|бывш\p{L}*|был\p{L}*|стал\p{L}*|потерял\p{L}*|потеря\p{L}*|лишил\p{L}*|лишени\p{L}*|отдал\p{L}*|взял\p{L}*|разорвал\p{L}*|забрал\p{L}*|not|no longer|former|was|were|had been|used to be|lost|losing|loses|took|taken|gave|giving)\s+(?:\p{L}+\s+){0,2}$/iu;
+function естьДевственность(t) {
+  for (const m of t.matchAll(СЛОВО_ДЕВСТВ)) {
+    if (!ПЕРЕД_НЕТ.test(t.slice(Math.max(0, m.index - 40), m.index))) return true;
+  }
+  return false;
+}
+/** true — опыта нет; false — есть; null — неизвестно. */
+export function девственность(sxc, ...тексты) {
+  const s = стр(sxc);
+  if (s && !/^(?:empty|none|null|nc|n\/a|[—–-])$/i.test(s)) {
+    const n = s.match(/^\s*~?\s*(\d{1,4})(?!\d)/);
+    if (n) return +n[1] === 0;
+    if (/^\s*(?:нет|ноль|ни одного|ни одной|никого|никто|zero|no one|nobody)(?![\p{L}])/iu.test(s)) return true;
+    if (естьДевственность(s)) return true;
+  }
+  for (const т of тексты) {
+    const t = стр(т);
+    if (t && естьДевственность(t)) return true;
+  }
+  return null;
+}
+/** Младше 18 по возрасту — ни плашки, ни примет: «0 партнёров» модель пишет и детям. */
+export const несовершеннолетний = (возраст) => { const m = стр(возраст).match(/(\d{1,3})/); return !!m && +m[1] < 18; };
+/**
+ * Девственность человека из HUD в кодах (cs / us): только из включённых полей.
+ * Кроме SxC, внешности, физиологии и статуса — детализация близости (W у
+ * персонажей, UW у игрока): у игрока нет «Количества партнёров», и модель
+ * часто узнаёт и пишет это только в сцене: «rdy: девственница, …».
+ */
+export function девственностьЧеловека(з, игрок) {
+  if (!з || settings.nsfwPrompt === 'never' || несовершеннолетний(з.A)) return null;
+  const пол = (п) => полеВкл(settings, (игрок ? 'us.' : 'cs.') + п);
+  const сцена = игрок ? (пол('UW') ? з.UW : '') : (пол('W') ? з.W : '');
+  return девственность(пол('SxC') ? з.SxC : '', пол('Ap') ? з.Ap : '', пол('Ph') ? з.Ph : '', пол('St') ? з.St : '', сцена, игрок ? описаниеПерсоны() : '');
+}
+/** Описание персоны Таверны: для игрока — то же, что карточка для персонажа. */
+export function описаниеПерсоны() {
+  try { return String((typeof window !== 'undefined' && window.power_user && window.power_user.persona_description) || ''); } catch (_) { return ''; }
+}
+// Боль первого раза прямо в тексте сцены: тогда кубик не нужен.
+export function больВТексте(...тексты) {
+  const t = тексты.map(стр).join(' ');
+  if (/(?:не|без|почти не|совсем не)\s+(?:больн|бол[ие]|боли)|не причинил\p{L}* боли|painless|(?:didn.t|doesn.t|did not|does not|barely)\s+hurt|no pain|without pain/iu.test(t)) return false;
+  if (/больн|(?<![\p{L}])бол(?:ь|и|ит)(?![\p{L}])|морщ\p{L}* от боли|жжени|саднит|(?<![\p{L}])но(?:ет|ют|ющ\p{L}*)(?![\p{L}])|резк\p{L}* боль|(?<![\p{L}])(?:aches?|aching)(?![\p{L}])|(?<![\p{L}])(?:pain|hurts?|hurting|sting|burning|sore)(?![\p{L}])/iu.test(t)) return true;
+  return null;
 }
 
 /* --- Таблица примет ----------------------------------------------------------- */
@@ -274,10 +336,26 @@ export const ПРИМЕТЫ = [
     [['gaze lingering a beat too long', 'aware of every brush of contact'], ['breath shallow, attention slipping']]) },
   { к: 'fetish', гр: 'cx', что: 'a turn-on in sight', где: ['calm', 'sex'], сила: (с) => (с.фаза !== 3 && фетишВКадре(с) ? 1 : 0), деталь: (с) => фетишВКадре(с) || '',
     прим: [['eyes keep coming back to it', 'loses the thread of what was said', 'a reaction they would rather hide']] },
+  // Первый раз. У него — трудно сдержаться, и чем ближе к краю, тем сильнее.
+  // У неё — боль в начале или её нет (кубик при начале сцены; что прямо сказано
+  // в тексте сцены — важнее кубика), иногда немного крови. У обоих — нервы.
+  { к: 'first', гр: 'cx', что: (с) => (с.муж ? 'his first time — hard to hold back'
+      : с.жен ? (с.первый?.боль ? 'her first time — it hurts at first' : 'her first time — less pain than she feared') : 'their first time'),
+    где: ['sex'], сила: (с) => {
+      if (с.фаза !== 2 || !с.первый) return 0;
+      if (с.муж) return Math.max(2, выше(вкл('enableIntimacyExtras') && с.пол('Org') ? число(с.з.Org) : null, [40, 60, 80]));
+      return с.жен && с.первый.боль ? 2 : 1;
+    },
+    прим: (с) => (с.муж
+      ? [['nervous, unsure hands', 'too aware of everything at once'], ['has to stop moving to keep from finishing', 'breath ragged, fighting to last'], ['can’t hold it, finishes sooner than he wanted', 'everything at once, no control left']]
+      : с.жен && с.первый.боль
+        ? [['tense with nerves', 'holds her breath at the first touch'], [`a sharp sting as he first pushes in; she tenses and needs a moment${с.первый.кровь ? ', a little blood' : ''}`, 'fingers digging in, breath held until it eases']]
+        : [[`tense with nerves more than pain${с.жен && с.первый?.кровь ? ', a little blood' : ''}`, 'surprised it is easier than feared', 'unsure, watching the other’s face for every sign']]) },
   // Готовность к оргазму — тело откликается только на высоких значениях.
+  // В первый раз у мужчины край ближе: от 40.
   { к: 'org', гр: 'cx', что: 'close to climax', где: ['sex'], сила: (с) => {
     if (с.фаза !== 2 || !вкл('enableIntimacyExtras') || !с.пол('Org')) return 0;
-    return выше(число(с.з.Org), [60, 80, 95]);
+    return выше(число(с.з.Org), с.первый && с.муж ? [40, 60, 80] : [60, 80, 95]);
   }, деталь: (с) => String(число(с.з.Org) ?? ''),
     прим: ПРИМЕР_ЖЕН(
       [['slick and swollen, wetter with every move', 'breath catching and uneven'], ['inner muscles fluttering, clenching', 'thighs trembling, toes curling'], ['pulsing, soaked, the whole body locking on the edge', 'can’t keep quiet or keep still']],
@@ -294,6 +372,13 @@ export const ПРИМЕТЫ = [
     прим: [['the belly in the way, shifting to make room', 'a hand under the bump'], ['short of breath sooner', 'needs a pillow, slower']] },
   { к: 'milk', гр: 'cx', что: 'breastfeeding', где: ['sex'], сила: (с) => (с.фаза === 2 && с.кормит ? 1 : 0),
     прим: [['milk beading at the nipples', 'breasts tender and full under touch']] },
+  // После первого раза: у неё боль после — кубиком (или как сказано в тексте),
+  // у обоих — переживают случившееся. Окраску даёт сам человек.
+  { к: 'firstafter', гр: 'cx', что: (с) => (с.жен ? 'after her first time' : с.муж ? 'after his first time' : 'after their first time'), где: ['after', 'calm'], пауза: 4,
+    сила: (с) => (!с.первыйБыл || !(с.фаза === 3 || (с.фаза === 1 && с.общее.недавноБыло?.(с))) ? 0 : с.жен && с.первыйБыл.боль ? 2 : 1),
+    прим: (с) => (с.жен && с.первыйБыл.боль
+      ? [[], [`sore and tender inside, moves carefully${с.первыйБыл.кровь ? ', a smear of blood' : ''}`, 'a dull ache low down when she sits', 'winces at a wrong step, then hides it']]
+      : [[`quiet, turning it over in ${с.жен ? 'her' : с.муж ? 'his' : 'their'} mind${с.жен && с.первыйБыл.кровь ? ', a smear of blood' : ''}`, 'shy and too aware of the other one', 'wants to be held — or to be alone for a moment']]) },
   // После: в фазе 3 и несколько ответов спустя. Не «послевкусие» — сцена могла
   // быть и не по желанию: окраску даёт сам человек.
   { к: 'after', гр: 'cx', что: 'after intimacy', где: ['after', 'calm'], пауза: 4, сила: (с) => (с.фаза === 3 && с.пол('ND') ? 2 : с.фаза === 1 && с.общее.недавноБыло?.(с) ? 1 : 0),
@@ -317,18 +402,18 @@ export function приметыЧеловека(з, игрок, имя, обще�
   const итог = [];
   for (const п of ПРИМЕТЫ) {
     const cx = п.гр === 'cx';
-    if (cx && !(п.к === 'after' && с.фаза === 1 ? общее.послеВкл : общее.nsfw)) continue;
+    if (cx && !((п.к === 'after' || п.к === 'firstafter') && с.фаза === 1 ? общее.послеВкл : общее.nsfw)) continue;
     if (!п.где.includes(вид) || !можно(п.гр || 'cue', п.к)) continue;
     const сила = Math.min(3, п.сила(с) || 0);
     if (!сила) continue;
     const наборы = typeof п.прим === 'function' ? п.прим(с) : п.прим;
-    итог.push({ к: п.к, гр: п.гр || 'cue', что: typeof п.что === 'function' ? п.что(с) : п.что, сила, деталь: п.деталь ? п.деталь(с) : '', примеры: наборы[Math.min(сила, наборы.length) - 1], пауза: п.пауза, после: п.к === 'after' });
+    итог.push({ к: п.к, гр: п.гр || 'cue', что: typeof п.что === 'function' ? п.что(с) : п.что, сила, деталь: п.деталь ? п.деталь(с) : '', примеры: наборы[Math.min(сила, наборы.length) - 1], пауза: п.пауза, после: п.к === 'after' || п.к === 'firstafter' });
   }
   return итог;
 }
 
 /** Общие сведения сцены для приметы: температура, время, одежда остальных, адреналин. */
-export function общееСцены(снимок, люди, { бой = false, nsfw = false, недавноБыло = () => false } = {}) {
+export function общееСцены(снимок, люди, { бой = false, nsfw = false, недавноБыло = () => false, первый = () => null, первыйБыл = () => null } = {}) {
   const sc = снимок?.sc || {};
   const погода = полеВкл(settings, 'sc.Wt') ? sc.Wt : '';
   const cb = вкл('enableCombat') && снимок?.cb && typeof снимок.cb === 'object' ? снимок.cb : null;
@@ -349,6 +434,6 @@ export function общееСцены(снимок, люди, { бой = false, n
       }
       return null;
     },
-    недавноБыло,
+    недавноБыло, первый, первыйБыл,
   };
 }

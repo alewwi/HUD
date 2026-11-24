@@ -4,6 +4,24 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.93 — 2026-11-24
+
+### Added
+- **First time.** The HUD knows a person can be a virgin: "Number of partners: 0" (the model writes 0 and keeps it until their first time in the story). In the card, a "🌸 virgin" plaque sits next to the zero. The player has no "Number of partners" — the HUD learns their virginity from appearance, physiology, status, the Tavern persona description and what the model writes in the scene ("rdy: virgin"); the past tense ("she was a virgin") no longer counts. The player card has its own "Experience: 🌸 virgin" line until the first time; with "all fields, like characters" it sits in the partners line, as for characters.
+  - The first time, living details prompt the model: for him, it is hard to hold back and the edge is closer (the body reacts from 40, not 60), at the edge he can't last; for her, pain at first or none, sometimes a little blood. For both, nerves and unsure hands.
+  - After the first time, for her an ache when she sits or walks, or only the feelings; for him, the feelings. The person colours it: a first time may not have been wanted.
+  - Pain is decided by a dice roll when the scene starts, the ache afterwards when it ends; what the scene text says outright ("it hurts", "doesn't hurt at all") beats the dice. The first time is recognised even when the model already rewrote the zero to one in the first turn of the scene, and it does not repeat if the model forgot to rewrite it.
+  - Settings → Intimacy: "🌸 First time" and the chances of pain at first and afterwards (70% and 50%; without pain at first, an ache afterwards is half as likely). Fine-tuning of the notes has "first time" and "after the first time" on their own.
+- **"Did anyone notice" dice — only those nearby.** It is rolled for those in the same room: the same kitchen, the same café, even if one is at the window and the other at the counter. Someone from a parallel scene — another city, house or room — does not roll. Place unknown — rolls, as before.
+- **The player first in trust and relations.** In a character card you are always at the top of the list — at 90 or at −80; the rest keep the model's order. In every view, the address book included.
+- **Dice for the player too.** A "🙋 Dice for the player too" box (off by default): your hero is among those who could notice, if in the same room. If they noticed, the model learns it, but you play the hero's reaction.
+
+### Fixed
+- **"Remember forever" window:** the "Tokens for the model reply" field was a white browser box even on dark themes — now it matches the window like the other fields, with a highlight while typing.
+- **"Who knows what" without jumps.** "Mark" and "no" in "came up in the argument" and "undo" no longer rebuild the whole Memory tab: only the grid updates, the scroll stays where it was, opened rows stay open, and the number on the tab badge goes down at once.
+- **Goals: "nc" in one part.** The model wrote "nw: …; sn: …; lt: nc" — the long-term goal had not changed — and the card showed "Someday: nc". Now the earlier long-term goal is filled in, even after dozens of turns of "lt: nc" in a row; the same for any part of a labelled field of characters, the player and babies (in the phone and the world, "Max: nc" stays text). Replies already in the chat are fixed when shown.
+- **Social exposure with the dice.** With the dice on, the model writes the chance at the end: "white knuckles (35%)". The block view did not find it, and instead of the eye, mask or bar there was plain text with "(35%)". Now the chance is found at the start and at the end ("(35%)", "— 35%", "[chance 35%]"), and the same chance goes into the roll.
+
 ## 23.89.92 — 2026-11-23
 
 ### Added

@@ -19,12 +19,12 @@
 // Хранилище — метаданные чата (tavernosHudNotice), бросок привязан к ходу
 // (mesid), свайпу и человеку. Бросок из старой сцены тоже идёт в ближайший ответ.
 
-import { settings } from '../settings.js?v=23.89.92';
-import { namesLikelySame } from '../names.js?v=23.89.92';
-import { escapeHtml, flattenFieldValue, getSafeUserName, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.89.92';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.92';
-import { extractHudBlock, естьЗаглушкаHUD } from '../hud-block.js?v=23.89.92';
-import { ико } from './view-icons.js?v=23.89.92';
+import { settings } from '../settings.js?v=23.89.93';
+import { namesLikelySame } from '../names.js?v=23.89.93';
+import { escapeHtml, flattenFieldValue, getSafeUserName, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.89.93';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.93';
+import { extractHudBlock, естьЗаглушкаHUD } from '../hud-block.js?v=23.89.93';
+import { ико } from './view-icons.js?v=23.89.93';
 
 const КЛЮЧ = 'tavernosHudNotice';
 export const кубикВкл = () => settings.noticeDice !== false;
@@ -79,12 +79,22 @@ export function переключитьРядом(кто, ход, имя) {
 
 // --- Есть ли что замечать ------------------------------------------------------
 
-/** «60% — дрожат руки…» → { процент, текст }; пусто или «empty» — null. */
+/** «60% — дрожат руки…», «дрожат руки (60%)», «дрожат руки — 60%» → { процент, текст };
+ *  пусто или «empty» — null. Число без «%» в начале — только с разделителем:
+ *  «3 бокала вина» — не 3%. С кубиком промт не говорит, где ставить шанс, и
+ *  модель пишет его в конце в скобках: прежде он не находился, и вид блока
+ *  выпадал в голый текст с «(35%)». */
+const СЛОВО_ШАНСА = String.raw`(?:(?:шанс|риск|chance|risk|вероятност)\p{L}*\s*[:：]?\s*)?`;
+const ШАНС_СЗАДИ = new RegExp(String.raw`^([\s\S]*?)\s*(?:[(\[]\s*${СЛОВО_ШАНСА}(\d{1,3})\s*%\s*[)\]]|[,;:—–-]\s*${СЛОВО_ШАНСА}(\d{1,3})\s*%)\s*\.?\s*$`, 'iu');
 export function разобратьМаску(value) {
   const s = String(Array.isArray(value) ? value.join('; ') : value ?? '').trim();
-  if (!s || /^(empty|none|нет|пусто|—|-)$/i.test(s)) return null;
-  const m = s.match(/^\s*(\d{1,3})\s*%?\s*[:：,—–-]?\s*([\s\S]*)$/);
-  return m ? { процент: Math.max(0, Math.min(100, parseInt(m[1], 10))), текст: m[2].trim() } : { процент: null, текст: s };
+  if (!s || /^(empty|none|нет|пусто|—|-|nc)$/i.test(s)) return null;
+  const пр = (n) => Math.max(0, Math.min(100, parseInt(n, 10)));
+  const спереди = s.match(/^\s*(\d{1,3})\s*(?:%\s*[:：,—–-]?|[:：—–-]|$)\s*([\s\S]*)$/);
+  if (спереди) return { процент: пр(спереди[1]), текст: спереди[2].trim() };
+  const сзади = s.match(ШАНС_СЗАДИ);
+  if (сзади && сзади[1].trim()) return { процент: пр(сзади[2] ?? сзади[3]), текст: сзади[1].trim().replace(/\s*[,;:—–-]\s*$/, '') };
+  return { процент: null, текст: s };
 }
 /** Стресс из «Состояния тела»: «str: 85 …» или «стресс: 85». */
 export function стресс(данные) {
@@ -186,9 +196,13 @@ export function заметкиКубика(чат, цель) {
   const ход = последнийОтвет(чат, цель);
   if (ход < 0) return [];
   return х.броски.filter(б => (б.после ?? б.ход) === ход && б.ход <= ход && чат[б.ход] && тотЖеХод(б, чат[б.ход])).map(б => {
-    const да = б.набл.filter(н => итог(б, н)).map(н => н.имя), нет = б.набл.filter(н => !итог(б, н)).map(н => н.имя);
+    // Игрок среди заметивших (галка «И за игрока»): реакцию его героя играет он сам.
+    const игрок = getSafeUserName();
+    const свой = (н) => !!игрок && namesLikelySame(н.имя, игрок);
+    const да = б.набл.filter(н => итог(б, н) && !свой(н)).map(н => н.имя), нет = б.набл.filter(н => !итог(б, н)).map(н => н.имя);
     const части = [];
     if (да.length) части.push(`${да.join(', ')} noticed what slipped through ${б.кто}'s mask. Let them react in their own way and time, now or later`);
+    if (б.набл.some(н => итог(б, н) && свой(н))) части.push(`${игрок} noticed it too — the player plays that reaction; never write ${игрок}'s thoughts, words or actions`);
     if (нет.length) части.push(`${нет.join(', ')} noticed nothing unusual about ${б.кто}`);
     const когда = б.ход === ход ? '' : ` In the earlier scene (message #${б.ход}).`;
     return `Hidden check, rolled by the player — never mention dice or a check:${когда} ${части.join('; ')}.${б.признак ? ' Sign: ' + б.признак + '.' : ''}`;
@@ -258,12 +272,53 @@ export function обновитьБросок(кто, ход) {
   }
 }
 
-/** Кто рядом для карточки: остальные персонажи из HUD хода. Игрок не бросает —
- *  что заметил его герой, решает он сам; у маски игрока бросают все персонажи. */
-export function рядомДля(данные, все = []) {
+// --- Кто в том же помещении ---------------------------------------------------
+// Место модель пишет от города вглубь: «Бостон, особняк Ланских, кухня, у окна».
+// Точка в комнате («у окна», «за стойкой») — та же комната. Части сравниваем
+// по основам слов; кто-то назвал место короче — сравниваем общую часть.
+// Человек из параллельной сцены — в другом городе, доме или комнате — не видит.
+const СЛУЖЕБНЫЕ = new Set('у в во на за к ко по от до из с со и о об возле около рядом напротив под над перед при посреди the a an of at in on by near next to behind beside inside'.split(' '));
+const ТОЧКА = /^(?:у|за|возле|около|рядом\s+с|напротив|под|над|перед|посреди|в\s+углу|в\s+центре|на\s+краю|near|by|at\s+the|behind|beside|next\s+to|in\s+front\s+of|under)\s/i;
+const основы = (ч) => String(ч).toLowerCase().replace(/ё/g, 'е').split(/[^\p{L}\p{N}]+/u).filter(w => w && !СЛУЖЕБНЫЕ.has(w)).map(w => w.slice(0, 5));
+function похожиЧасти(а, б) {
+  const A = new Set(основы(а)), B = new Set(основы(б));
+  if (!A.size || !B.size) return String(а).trim().toLowerCase() === String(б).trim().toLowerCase();
+  let общих = 0;
+  for (const w of A) if (B.has(w)) общих++;
+  return общих / Math.min(A.size, B.size) > 0.5;
+}
+const частиМеста = (м) => String(м ?? '').split(/[,;]/).map(x => x.trim()).filter(Boolean).filter((ч, i) => !i || !ТОЧКА.test(ч + ' '));
+const неизвестно = (м) => !String(м ?? '').trim() || /^(empty|none|null|nc|нет|пусто|unknown|неизвестно|—|-)$/i.test(String(м).trim());
+/** Видят ли друг друга: то же помещение. Место у кого-то неизвестно — да, как раньше. */
+export function тоЖеПомещение(а, б) {
+  if (неизвестно(а) || неизвестно(б)) return true;
+  let A = частиМеста(а), B = частиМеста(б);
+  if (!A.length || !B.length) return true;
+  // Один назвал город, другой нет: «Особняк, кухня» и «Бостон, особняк, кухня».
+  const j = A.findIndex(ч => похожиЧасти(ч, B[0])), k = B.findIndex(ч => похожиЧасти(ч, A[0]));
+  if (j > 0) A = A.slice(j); else if (k > 0) B = B.slice(k);
+  const n = Math.min(A.length, B.length);
+  for (let i = 0; i < n; i++) if (!похожиЧасти(A[i], B[i])) return false;
+  return true;
+}
+const местоЧел = (о) => (о && (о['Место'] ?? о.L)) || '';
+const игрокБросает = () => settings.noticeDiceUser === true;
+
+/** Кто рядом для карточки: остальные персонажи хода в том же помещении.
+ *  Игрок по умолчанию не бросает — что заметил его герой, решает он сам;
+ *  с галкой «И за игрока» кубик бросается и за него. У маски игрока
+ *  бросают персонажи рядом с ним. */
+export function рядомДля(данные, все = [], игрокДанные = null) {
   const имя = данные && данные['Имя'];
-  const люди = (Array.isArray(все) ? все : []).filter(c => c && !c.__вне && c['Имя'] && c !== данные && !namesLikelySame(c['Имя'], имя || ''));
+  const этоИгрок = !!данные && данные === игрокДанные;
+  const где = местоЧел(данные);
+  const люди = (Array.isArray(все) ? все : []).filter(c => c && !c.__вне && c['Имя'] && c !== данные && !namesLikelySame(c['Имя'], имя || '') && тоЖеПомещение(где, местоЧел(c)));
   const список = люди.map(c => ({ имя: String(c['Имя']), доверие: доверие(c, имя || getSafeUserName()) }));
+  const игрок = getSafeUserName();
+  if (!этоИгрок && игрокБросает() && игрокДанные && typeof игрокДанные === 'object' && Object.keys(игрокДанные).length && игрок
+    && !namesLikelySame(игрок, имя || '') && тоЖеПомещение(где, местоЧел(игрокДанные)) && !список.some(р => namesLikelySame(р.имя, игрок))) {
+    список.push({ имя: игрок, доверие: доверие(игрокДанные, имя || '') });
+  }
   return список;
 }
 
