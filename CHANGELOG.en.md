@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.96 — 2026-11-24
+
+### Fixed
+- **Social exposure: the chance with any dash.** "0 - …", "0% — …" and other dashes (en dash, minus, double) are understood at the start and at the end, with "%" and without. A chance in brackets is found with a remark too: "(chance to notice: 85%)", "(0% — the garden is empty)", "(chance 80% for Anna)"; the remark stays in the text, and a range "20–30%" reads as 25%. "3rd glass" written with a hyphen in Russian, "2-3 people" and a time "20:15" are no longer taken for a chance.
+
 ## 23.89.95 — 2026-11-24
 
 ### Added

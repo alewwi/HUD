@@ -12,9 +12,9 @@
 // значение, сообщение и путь; как найти блок по тексту на экране. Окно —
 // block-edit-ui.js, запись в чат — index.js.
 
-import { КАТАЛОГ } from './deep-fields.js?v=23.89.95';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.89.95';
-import { раныВкл, гуморыВкл } from './render/medieval-life.js?v=23.89.95';
+import { КАТАЛОГ } from './deep-fields.js?v=23.89.96';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.89.96';
+import { раныВкл, гуморыВкл } from './render/medieval-life.js?v=23.89.96';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const ПУСТО = /^(?:|empty|none|null|n\/a|нет|-|—)$/i;

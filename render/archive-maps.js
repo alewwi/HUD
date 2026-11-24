@@ -11,13 +11,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.95';
-import { ико } from './view-icons.js?v=23.89.95';
-import { normalizeDiaryMood, ТЕМЫ_ДНЕВНИКА } from './diary.js?v=23.89.95';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.95';
-import { английский } from '../i18n.js?v=23.89.95';
+import { escapeHtml } from '../utils.js?v=23.89.96';
+import { ико } from './view-icons.js?v=23.89.96';
+import { normalizeDiaryMood, ТЕМЫ_ДНЕВНИКА } from './diary.js?v=23.89.96';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.96';
+import { английский } from '../i18n.js?v=23.89.96';
 // Порции и «Ещё» — общие с остальными вкладками (цикл импорта: зовутся только при показе).
-import { порцией } from './archive.js?v=23.89.95';
+import { порцией } from './archive.js?v=23.89.96';
 // Подписи «Где кто живёт» — сразу на языке интерфейса (языки из таблиц — английские).
 const L = (ru, en) => (английский() ? en : ru);
 
