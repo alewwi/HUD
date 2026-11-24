@@ -684,7 +684,7 @@
 }
 
 /* Плитка NSFW на бумаге: вместо винной заливки — светлая с тёмной кромкой. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-nsfw-pill {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-nsfw-pill {
   background: var(--lt-paper-2) !important;
 }
 
@@ -748,9 +748,9 @@
   }
 }
 
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-detail-pill.is-now   .hud-pill-label { color: #9a5a12 !important; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-detail-pill.is-soon  .hud-pill-label { color: #1e5fa8 !important; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-detail-pill.is-later .hud-pill-label { color: #5c6b78 !important; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-detail-pill.is-now   .hud-pill-label { color: #9a5a12 !important; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-detail-pill.is-soon  .hud-pill-label { color: #1e5fa8 !important; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-detail-pill.is-later .hud-pill-label { color: #5c6b78 !important; }
 
 /* =========================================================================
    ЗНАЧОК МЕТКИ, ДОЛЯ ПОЛОСОЙ, КОЛИЧЕСТВО
@@ -870,7 +870,7 @@
 /* --- То же на бумажных темах --------------------------------------------
    На светлом фоне белый блик не виден, а чёрная тень грязнит бумагу.
    Блик делаем тёмным, тень мягче и холоднее. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-detail-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-inventory-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-conflict-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-nsfw-pill {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-detail-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-inventory-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-conflict-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-nsfw-pill {
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.55),
     0 1px 2px rgba(40,30,20,.12) !important;
@@ -881,7 +881,7 @@
    Светлота фиксированная, меняется только тон: строки остаются одинаково
    читаемыми, как бы ни легли цвета. */
 .hud-detail-pill.has-face .hud-pill-label { color: hsl(var(--тон, 0) 62% 78%); }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-detail-pill.has-face .hud-pill-label {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-detail-pill.has-face .hud-pill-label {
   color: hsl(var(--тон, 0) 55% 32%) !important;
 }
 
@@ -1183,7 +1183,7 @@
 /* --- Бумажные темы: тот же набор слоёв, тёмные чернила ------------------
    Плитки полупрозрачные, блёстки на бумаге не видны и не мешают, кромка и
    капсулы — в тёмно-винном. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-row.nsfw {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-row.nsfw {
   background-image:
     linear-gradient(90deg, var(--nfx-51, rgba(158,42,63,0)) 0%, var(--nfx-52, rgba(158,42,63,.35)) 28%, var(--nfx-53, rgba(158,42,63,.55)) 50%, var(--nfx-52, rgba(158,42,63,.35)) 72%, var(--nfx-51, rgba(158,42,63,0)) 100%),
     radial-gradient(circle 1.6px at 82% 11%, rgba(255,255,255,.95), rgba(255,255,255,0)),
@@ -1200,11 +1200,11 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 3px rgba(40,30,20,.12) !important;
 }
 
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-nsfw-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-kink-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-fetish-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-nogo-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-noturn-pill {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-nsfw-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-kink-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-fetish-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-nogo-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-noturn-pill {
   background: color-mix(in srgb, var(--lt-paper-2) 55%, transparent) !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 2px rgba(40,30,20,.10) !important;
 }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-nsfw-pill { border-color: var(--nfx-60, rgba(158,42,63,.30)) !important; color: var(--lt-ink) !important; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-nsfw-pill { border-color: var(--nfx-60, rgba(158,42,63,.30)) !important; color: var(--lt-ink) !important; }
 
 /* =========================================================================
    NSFW: СВЕТ СВЕЧИ, ОТСВЕТЫ, ПРОКРУТКА
@@ -1257,7 +1257,7 @@
 .hud-row.nsfw .hud-zone-name { color: var(--nfx-40, #ffd0e2); }
 .hud-row.nsfw .hud-sex-rev { color: #f3dde7; }
 
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-nsfw-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-kink-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-fetish-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-nogo-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-noturn-pill { text-shadow: none; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-nsfw-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-kink-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-fetish-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-nogo-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-noturn-pill { text-shadow: none; }
 
 /* =========================================================================
    NSFW: МЕДАЛЬОНЫ, СТЕКЛЯННЫЕ ЗНАЧЕНИЯ, СИЯНИЕ
@@ -4221,7 +4221,7 @@
 }
 
 /* Светлые темы: подпись темнее, иначе светлый цвет группы теряется на бумаге. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) :is(.hud-row[class*=" kind-"], .hud-key-block[class*="kind-"]) {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) :is(.hud-row[class*=" kind-"], .hud-key-block[class*="kind-"]) {
   --kind-ink: color-mix(in srgb, var(--kind) 58%, #1d1a16);
 }
 /* Палитра из темы уже подобрана под светлую подложку (класс ставит palette.js):
@@ -5069,8 +5069,8 @@
    Правило на «*» браузер проверяет у каждого элемента страницы при каждом
    пересчёте стилей, и на тёмных темах оно платило впустую. */
 /* Маршрут в памяти: белые подписи на белой бумаге не читались. */
-:is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-route-stop.is-current .hud-route-info b { color: var(--hud-text) !important; }
-:is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) :is(.hud-route-span, .hud-route-info small, .hud-route-info em) { color: var(--hud-text-muted, #6d5a64) !important; }
+:is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-route-stop.is-current .hud-route-info b { color: var(--hud-text) !important; }
+:is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) :is(.hud-route-span, .hud-route-info small, .hud-route-info em) { color: var(--hud-text-muted, #6d5a64) !important; }
 
 /* =========================================================================
    ЛЕНТА ПЕРЕПИСКИ: ДЕНЬ И ЧЕРНОВИК (render/msg-feed.js)
@@ -6427,8 +6427,8 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 } }
 /* cq ↑ */
 
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-cycle-ring .d0 { stop-color: color-mix(in srgb, var(--phase) 18%, #ffffff); }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-cycle-ring .d1 { stop-color: color-mix(in srgb, var(--phase) 8%, #fbf4f6); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-cycle-ring .d0 { stop-color: color-mix(in srgb, var(--phase) 18%, #ffffff); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty, .hud-tavern-light) .hud-cycle-ring .d1 { stop-color: color-mix(in srgb, var(--phase) 8%, #fbf4f6); }
 
 /* =========================================================================
    КАРТА ТЕЛА: ВИД, СЛОИ, ИСТОРИЯ (render/intimacy.js, buildHeatMap)

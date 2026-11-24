@@ -5,23 +5,24 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.94';
-import { ступениДанных, ПРИМЕР_СТУПЕНЕЙ } from './render/trust-stages.js?v=23.89.94';
-import { задатьПримерКубика, ПРИМЕР_КУБИКА } from './render/notice-dice.js?v=23.89.94';
-import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.94';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.94';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.94';
-import { ВИДЫ_БЛОКОВ, видБлока, доступныеВиды, блокДоступен } from './render/views.js?v=23.89.94';
-import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху, старина } from './era.js?v=23.89.94';
-import { порядокГрупп } from './tabs-order.js?v=23.89.94';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.94';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.94';
-import { hudБлоки } from './hud-block.js?v=23.89.94';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.94';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.94';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.94';
-import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.94';
-import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.94';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.95';
+import { кнопкаТаверныHTML, ID_ТАВЕРНЫ } from './tavern-theme.js?v=23.89.95';
+import { ступениДанных, ПРИМЕР_СТУПЕНЕЙ } from './render/trust-stages.js?v=23.89.95';
+import { задатьПримерКубика, ПРИМЕР_КУБИКА } from './render/notice-dice.js?v=23.89.95';
+import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.95';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.95';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.95';
+import { ВИДЫ_БЛОКОВ, видБлока, доступныеВиды, блокДоступен } from './render/views.js?v=23.89.95';
+import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху, старина } from './era.js?v=23.89.95';
+import { порядокГрупп } from './tabs-order.js?v=23.89.95';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.95';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.95';
+import { hudБлоки } from './hud-block.js?v=23.89.95';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.95';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.95';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.95';
+import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.95';
+import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.95';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 // Язык из таблицы переводчика: английский пример с переведёнными кусками
 // (render/sample-translate.js), пересобирается при смене языка или файла.
@@ -34,16 +35,16 @@ const пример = () => {
   return примерТаблицы;
 };
 const текстПримера = (s) => (ключЯзыкаТаблицы() ? отобразитьСтроку(s, (к) => строкаТаблицы(к) || к) : s);
-import { задатьПримерСемьи } from './render/conception.js?v=23.89.94';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.94';
-import { задатьПримерМета } from './sample-meta.js?v=23.89.94';
-import { вьючные, вестиВНовостяхВкл, раныВкл } from './render/medieval-life.js?v=23.89.94';
-import { привязатьИсторию } from './render/intimacy.js?v=23.89.94';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.94';
-import { собратьРисунок } from './render/lazy-svg.js?v=23.89.94';
-import { attachHelpMarks } from './help.js?v=23.89.94';
-import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.94';
-import { подключитьЛёгкостьОкна } from './customize-easy.js?v=23.89.94';
+import { задатьПримерСемьи } from './render/conception.js?v=23.89.95';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.95';
+import { задатьПримерМета } from './sample-meta.js?v=23.89.95';
+import { вьючные, вестиВНовостяхВкл, раныВкл } from './render/medieval-life.js?v=23.89.95';
+import { привязатьИсторию } from './render/intimacy.js?v=23.89.95';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.95';
+import { собратьРисунок } from './render/lazy-svg.js?v=23.89.95';
+import { attachHelpMarks } from './help.js?v=23.89.95';
+import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.95';
+import { подключитьЛёгкостьОкна } from './customize-easy.js?v=23.89.95';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -105,6 +106,7 @@ export function разметкаПанелиТемы() {
           <div class="hud-theme-presets-title">Готовые темы</div>
           <div class="hud-theme-presets-row">${presetRowHTML(s.themePreset)}</div>
           <div class="hud-theme-palettes-row">${paletteRowHTML(s.themePreset, s.themePalette)}</div>
+          <div class="hud-theme-tavern-row">${кнопкаТаверныHTML(settings.themePreset === ID_ТАВЕРНЫ)}</div>
           <div class="hud-theme-presets-note">Тема просто выставляет ползунки ниже — после неё всё можно править руками.</div>
           <div class="hud-theme-packs">
             ${THEME_CATEGORIES.map(c => `<label title="Показывать темы набора «${c.label}»"><input type="checkbox" data-theme-pack="${c.id}" ${(s.themePacks && s.themePacks[c.id] === false) ? '' : 'checked'}> ${c.label}</label>`).join('')}
@@ -112,6 +114,7 @@ export function разметкаПанелиТемы() {
           <div class="hud-theme-acts">
             <button type="button" class="hud-theme-act" data-theme-act="save" title="Запомнить текущие ползунки для выбранной темы">💾 Запомнить правки</button>
             <button type="button" class="hud-theme-act" data-theme-act="undo" title="Отменить последнюю правку: ползунок, цвет, смену темы или откат">↶ Шаг назад</button>
+            <button type="button" class="hud-theme-act" data-theme-act="redo" title="Вернуть то, что отменил «Шаг назад»">↷ Шаг вперёд</button>
             <button type="button" class="hud-theme-act" data-theme-act="revert" title="Вернуть теме её исходные значения">↺ Вернуть тему</button>
             <button type="button" class="hud-theme-act own" data-theme-act="mine" title="Сохранить текущие настройки отдельной темой «Своя»">★ Сохранить свою тему</button>
             ${s.customTheme ? '<button type="button" class="hud-theme-act danger" data-theme-act="forget" title="Удалить сохранённую свою тему">✕ Удалить свою</button>' : ''}
@@ -291,6 +294,8 @@ export function разметкаПанелиТемы() {
 
             <!-- БЛОК БЛЮРА И ВСТРОЕННОГО "РЕДАКТОРА" ФОНА -->
             <div class="hud-theme-row" title="Насколько размыто то, что видно сквозь полупрозрачный фон карточки."><label>Размытие за карточкой:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="backdropBlur" min="0" max="30" value="${s.backdropBlur}"> <span style="font-size:0.8em;opacity:0.7">${s.backdropBlur}px</span></div></div>
+            <div class="hud-theme-row" title="Пусто — цвет темы. Свой цвет — нажмите на квадрат."><label>Рамка карточки:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="cardBorderColor" data-auto="accent" value="${s.cardBorderColor || s.accentColor || '#8c5ad2'}"><button type="button" class="hud-theme-auto-btn" data-auto-key="cardBorderColor" title="Вернуть цвет темы">как в теме</button></div></div>
+            <div class="hud-theme-row" title="Насколько круглые углы у самой карточки. «Как в теме» — у каждой темы свои углы."><label>Скругление карточки:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="cardRadius" data-empty="12" min="0" max="24" value="${s.cardRadius === '' || s.cardRadius == null ? 12 : s.cardRadius}"> <span style="font-size:0.8em;opacity:0.7">${s.cardRadius === '' || s.cardRadius == null ? 'как в теме' : s.cardRadius + 'px'}</span><button type="button" class="hud-theme-auto-btn" data-auto-key="cardRadius" title="Вернуть скругление темы">как в теме</button></div></div>
             <div class="hud-theme-row" title="Насколько видна своя картинка фона: 0 — не видна, 100 — во всю силу."><label>Видимость картинки фона:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="bgOpacity" min="0" max="100" value="${s.bgOpacity}"> <span style="font-size:0.8em;opacity:0.7">${s.bgOpacity}%</span></div></div>
             <div class="hud-theme-row" title="Размер своей картинки фона: больше 100% — крупнее, края обрезаются."><label>Масштаб картинки фона:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="bgScale" min="50" max="200" value="${s.bgScale}"> <span style="font-size:0.8em;opacity:0.7">${s.bgScale}%</span></div></div>
             <div class="hud-theme-row" title="Какая часть своей картинки фона видна по вертикали."><label>Картинка фона: вверх-вниз:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="bgOffsetY" min="0" max="100" value="${s.bgOffsetY}"> <span style="font-size:0.8em;opacity:0.7">${s.bgOffsetY}%</span></div></div>

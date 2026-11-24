@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.94**:
+The latest version is **23.89.95**:
 
+- A "Like the Tavern" button in Customization: the HUD takes colours, borders, blur, font and rounded corners from the SillyTavern theme and follows it; "Step forward"; card corner rounding and border; a label for erotic dreams.
 - Phone: read messages no longer hang as notifications, the notification shows the message time, "Yesterday" and dates in the chat list, a sent draft leaves the input field.
 - First time: the HUD knows a character or the player is a virgin (0 partners, a word in the card, the persona description, "rdy" in the scene) — a "🌸" plaque in the card; living details prompt: for him, hard to hold back; for her, pain at first and afterwards by a dice roll (chances in "Intimacy"), and what the text says beats the dice.
 - "Did anyone notice" dice — only for those in the same room; a "Dice for the player too" box. Social exposure is drawn as its view again when the chance sits at the end: "… (35%)".

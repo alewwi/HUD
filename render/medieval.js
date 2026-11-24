@@ -12,16 +12,16 @@
 // Переключение разделов шкатулки — на радиокнопках и CSS, без скриптов:
 // карточка HUD перерисовывается целиком, и состояние не нужно восстанавливать.
 
-import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.89.94';
-import { английский } from '../i18n.js?v=23.89.94';
-import { settings } from '../settings.js?v=23.89.94';
-import { явнаяМагия, приземлённое } from '../era.js?v=23.89.94';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.94';
-import { namesLikelySame } from '../names.js?v=23.89.94';
-import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.89.94';
-import { видРазделаШкатулки, восковаяПечать, вскрытоПисьмо } from './medieval-views.js?v=23.89.94';
-import { видБлока } from './views.js?v=23.89.94';
-import { письмаСоСроком, грамотыСПравами } from './medieval-life.js?v=23.89.94';
+import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.89.95';
+import { английский } from '../i18n.js?v=23.89.95';
+import { settings } from '../settings.js?v=23.89.95';
+import { явнаяМагия, приземлённое } from '../era.js?v=23.89.95';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.95';
+import { namesLikelySame } from '../names.js?v=23.89.95';
+import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.89.95';
+import { видРазделаШкатулки, восковаяПечать, вскрытоПисьмо } from './medieval-views.js?v=23.89.95';
+import { видБлока } from './views.js?v=23.89.95';
+import { письмаСоСроком, грамотыСПравами } from './medieval-life.js?v=23.89.95';
 
 const т = (v) => defeatWI(escapeHtml(String(v ?? '')));
 

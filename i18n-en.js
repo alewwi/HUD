@@ -3918,6 +3918,21 @@ export const СЛОВАРЬ_EN = {
   "С начала сеанса правок вида не было": "No style edits since the session started",
   "Шаг назад": "Step back",
   "Можно отменить ещё": "You can undo more",
+  "↷ Шаг вперёд": "↷ Step forward",
+  "Шаг вперёд": "Step forward",
+  "Вернуть то, что отменил «Шаг назад»": "Bring back what “Step back” undid",
+  "Возвращать нечего": "Nothing to redo",
+  "Тема SillyTavern не прочиталась. Попробуйте ещё раз": "Couldn't read the SillyTavern theme. Try again",
+  "«Шаг вперёд» возвращает то, что отменил «Шаг назад»": "“Step forward” brings back what “Step back” undid",
+  "Всё отменённое возвращено": "Everything undone is back",
+  "Как в Таверне": "Like the Tavern",
+  "следит за темой SillyTavern": "follows the SillyTavern theme",
+  "Цвета, шрифт, размытие и скругления из темы SillyTavern. Сменили тему в Таверне — HUD перекрашивается следом. «↶ Шаг назад» вернёт прошлый вид": "Colours, font, blur and rounded corners from the SillyTavern theme. Switch the theme in Tavern and the HUD follows. “↶ Step back” brings the previous look back",
+  "Цвета, шрифт, размытие и скругления из темы SillyTavern. Сменили тему в Таверне — HUD перекрашивается следом": "Colours, font, blur and rounded corners from the SillyTavern theme. Switch the theme in Tavern and the HUD follows",
+  "Скругление карточки": "Card corner rounding",
+  "Рамка карточки": "Card border",
+  "Насколько круглые углы у самой карточки. «Как в теме» — у каждой темы свои углы": "How rounded the card's own corners are. “As in the theme” — every theme has its own corners",
+  "Вернуть скругление темы": "Return the theme's rounding",
   "Это была первая правка сеанса": "That was the first edit of the session",
   "Своя тема удалена": "Custom theme deleted",
   "Ряд тем вернулся к готовым": "The theme row is back to the ready-made ones",
@@ -4885,6 +4900,7 @@ export const СЛОВАРЬ_EN = {
   "Скрытая запись": "Hidden entry",
   "Записей пока нет": "No entries yet",
   "кошмар": "nightmare",
+  "эротический сон": "erotic dream",
   "воспоминание": "memory",
   "падение": "falling",
   "смерть": "death",
@@ -6967,6 +6983,7 @@ export const СЛОВАРЬ_EN = {
 };
 
 export const ШАБЛОНЫ_EN = [
+  ["^Можно вернуть ещё (\\d+)$", "You can redo $1 more"],
   ["^0 — как в Таверне · максимум (\\d+)$", "0 — as set in Tavern · max $1"],
   // Пустой или оборванный ответ в окнах генерации: с числом токенов.
   ["^модель ничего не вернула — похоже, не хватило токенов \\((\\d+)\\)$", "the model returned nothing — it probably ran out of tokens ($1)"],

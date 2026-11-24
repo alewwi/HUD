@@ -9,9 +9,9 @@
 // телефона в примере работают как обычно. Что каждая настройка есть в карте,
 // проверяет tests/unit.mjs.
 
-import { settings } from './settings.js?v=23.89.94';
-import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.94';
-import { т } from './i18n.js?v=23.89.94';
+import { settings } from './settings.js?v=23.89.95';
+import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.95';
+import { т } from './i18n.js?v=23.89.95';
 
 const ВИДЫ_ПОД_КЛАСС = {
   age: 'ageView', clothes: 'clothesView', looks: 'looksView', role: 'roleView', body: 'bodyStateView', phys: 'physView', powers: 'abilitiesView', health: 'healthView',
@@ -157,7 +157,7 @@ export const КАРТА = [
   ['.hud-world-section-horo', ['horoscopeView']],
   ['.hud-world-section', ТЕКСТ],
   // Края: тело вкладки и вся карточка.
-  ['.hud-body, .hud-tab-content', ['cardBgStart', 'cardBgAlpha', 'cardBgEnd', 'backdropBlur', 'paperAged', 'paperTorn', 'paperFolds', 'bgDragon', 'inkWash', 'peekCat', 'sceneCorner', 'bgImage', 'bgOpacity', 'bgScale', 'bgOffsetY']],
+  ['.hud-body, .hud-tab-content', ['cardBgStart', 'cardBgAlpha', 'cardBgEnd', 'backdropBlur', 'cardRadius', 'cardBorderColor', 'paperAged', 'paperTorn', 'paperFolds', 'bgDragon', 'inkWash', 'peekCat', 'sceneCorner', 'bgImage', 'bgOpacity', 'bgScale', 'bgOffsetY']],
   ['.hud-os-wrapper, .hud-os-card', ['glowColor', 'glowAlpha', 'glowSize', 'glowBreath', 'glowMobile', 'accentColor', 'glassType', 'subtextVeil', 'sceneCard', 'themeScene', 'noImages']],
 ];
 // Настройки всей карточки: у них нет своего места на примере, живут у текста.

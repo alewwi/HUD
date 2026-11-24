@@ -188,7 +188,12 @@ export function значокКонтраста(к, { норма = НОРМА_Т�
  */
 export function подложкаЧата() {
   try {
-    const v = getComputedStyle(document.body).getPropertyValue('--SmartThemeBlurTintColor').trim();
+    const стиль = getComputedStyle(document.body);
+    // «Как в Таверне» знает настоящий фон под карточкой: панели бывают тёмные,
+    // а сообщения — на светлой бумаге (index.js ставит переменную).
+    const своя = разобратьЦвет(стиль.getPropertyValue('--hud-chat-bg').trim());
+    if (своя) return вHex(своя);
+    const v = стиль.getPropertyValue('--SmartThemeBlurTintColor').trim();
     const c = разобратьЦвет(v);
     if (c) return вHex(наложить(c, разобратьЦвет(ПОДЛОЖКА_ТЁМНАЯ)));
   } catch (_) { /* не браузер */ }

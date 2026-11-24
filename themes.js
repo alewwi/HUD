@@ -18,8 +18,9 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings, defaultSettings } from './settings.js?v=23.89.94';
-import { последнийСтильHUD } from './css-loader.js?v=23.89.94';
+import { settings, defaultSettings } from './settings.js?v=23.89.95';
+import { последнийСтильHUD } from './css-loader.js?v=23.89.95';
+import { темаТаверны, ID_ТАВЕРНЫ } from './tavern-theme.js?v=23.89.95';
 
 const HUD_THEMES = [
   {
@@ -848,10 +849,13 @@ export const THEME_KEYS = [...new Set(HUD_THEMES.flatMap(t => Object.keys(t.vars
 // не сохранялись и не откатывались вовсе.
 export const ЛИЧНЫЕ_КЛЮЧИ = ['bgOpacity', 'bgScale', 'bgOffsetY', 'phoneBlur', 'phoneFont', 'phoneFontSize', 'phoneNotifAlpha', 'phoneNotifMax', 'phoneDevice', 'phoneCracks', 'phoneNotifStyle', 'phoneLockClock', 'sceneHidden',
   'sceneTextColor', 'sceneDarkness', 'fontSizeClock', 'fontSizeMain', 'fontSizeHeaders', 'fontSizeDiary', 'phoneThemeAuto', 'glowSize', 'glowBreath', 'glowMobile', 'phoneGlow',
-  'avatarFrameColor', 'avatarScale', 'avatarOffsetX', 'avatarOffsetY'].filter(k => !THEME_KEYS.includes(k));
+  'avatarFrameColor', 'avatarScale', 'avatarOffsetX', 'avatarOffsetY', 'cardRadius', 'cardBorderColor', 'phoneBubbleRadius'].filter(k => !THEME_KEYS.includes(k));
 export const КЛЮЧИ_ВИДА = [...THEME_KEYS, ...ЛИЧНЫЕ_КЛЮЧИ];
 
-// Реестр вместе с сохранённой пользователем темой, если она есть.
+// Реестр вместе с сохранённой пользователем темой, если она есть. «Как в
+// Таверне» (tavern-theme.js) сюда не входит: её значения снимаются с
+// SillyTavern замером стилей, и делать его на каждый getTheme дорого — она
+// отдельной кнопкой, и getTheme('tavern') меряет только её.
 function allThemes() {
   const list = HUD_THEMES.slice();
   const own = settings.customTheme;
@@ -865,6 +869,7 @@ function allThemes() {
 }
 
 export function getTheme(id) {
+  if (id === ID_ТАВЕРНЫ) return темаТаверны();
   return allThemes().find(t => t.id === id) || null;
 }
 
@@ -937,6 +942,8 @@ const ШРИФТ = /^[\p{L}\p{N}\s'",.-]{1,80}$/u;
 const СЛОВО = /^[a-z0-9-]{1,24}$/i;
 function значениеИзФайла(ключ, v) {
   const исх = defaultSettings[ключ];
+  // Скругление: пусто — как у темы, иначе число (ползунок пишет его строкой).
+  if (ключ === 'cardRadius') return v === '' ? '' : (typeof v === 'number' || /^[0-9]{1,2}$/.test(String(v))) && Number(v) >= 0 && Number(v) <= 40 ? Number(v) : undefined;
   if (typeof исх === 'number') return typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= 10000 ? v : undefined;
   if (typeof исх === 'boolean') return typeof v === 'boolean' ? v : undefined;
   if (typeof v !== 'string') return undefined;
@@ -978,7 +985,7 @@ const МЕТКА_CSS = 'data-hud-theme-css';
 function подключитьCSSТемы(id) {
   const head = document.head;
   if (!head) return;
-  const нужно = !id || !HUD_THEME_IDS.includes(id) ? [] : СВЕТЛЫЕ_ТЕМЫ.includes(id) ? ['light', id] : [id];
+  const нужно = светлаяТаверна(id) ? ['light'] : !id || !HUD_THEME_IDS.includes(id) ? [] : СВЕТЛЫЕ_ТЕМЫ.includes(id) ? ['light', id] : [id];
   const есть = [...head.querySelectorAll(`link[${МЕТКА_CSS}]`)];
   const уже = есть.filter(l => !l.dataset.hudThemeOld).map(l => l.getAttribute(МЕТКА_CSS));
   if (уже.join() === нужно.join()) return;
@@ -998,6 +1005,11 @@ function подключитьCSSТемы(id) {
   Promise.all(новые).then(() => есть.forEach(l => l.remove()));
 }
 
+// «Как в Таверне» на светлой теме SillyTavern: фон карточки светлый.
+function светлаяТаверна(id) {
+  return id === ID_ТАВЕРНЫ && яркость(String(settings.cardBgStart || '#000000')) > 0.55;
+}
+
 // Класс темы вешаем на <html>: правила вида :root.hud-theme-medieval
 // перебивают обычный :root, где живут переменные HUD.
 export function applyThemeClass(id) {
@@ -1005,5 +1017,8 @@ export function applyThemeClass(id) {
   if (!root) return;
   подключитьCSSТемы(id);
   HUD_THEME_IDS.forEach(t => root.classList.remove('hud-theme-' + t));
+  // Светлая тема Таверны (Bujo и подобные) берёт общий слой светлых тем
+  // (css/themes/light.css) — своего класса темы у неё нет.
+  root.classList.toggle('hud-tavern-light', светлаяТаверна(id));
   if (id && HUD_THEME_IDS.includes(id)) root.classList.add('hud-theme-' + id);
 }

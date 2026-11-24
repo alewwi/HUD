@@ -5,11 +5,16 @@
    Цвет типа — --dt; всё стоит столбиком, вбок ничего не листается.
    ========================================================================= */
 .hud-dv { display: flex; flex-direction: column; gap: 14px; margin-top: 6px; }
-.hud-dv :is(.t-nightmare) { --dt: #e0566b; --dt-bg: rgba(224, 86, 107, .10); }
-.hud-dv :is(.t-memory) { --dt: #d4b98a; --dt-bg: rgba(212, 185, 138, .09); }
-.hud-dv :is(.t-wish) { --dt: #f2cf5b; --dt-bg: rgba(242, 207, 91, .09); }
-.hud-dv :is(.t-dream) { --dt: #8fb2ff; --dt-bg: rgba(143, 178, 255, .09); }
-.hud-dv .hud-v-ico { width: 1.15em; height: 1.15em; flex: none; vertical-align: -.2em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+:is(.hud-dv .t-nightmare, .hud-dream-entry.t-nightmare) { --dt: #e0566b; --dt-bg: rgba(224, 86, 107, .10); }
+:is(.hud-dv .t-memory, .hud-dream-entry.t-memory) { --dt: #d4b98a; --dt-bg: rgba(212, 185, 138, .09); }
+:is(.hud-dv .t-wish, .hud-dream-entry.t-wish) { --dt: #f2cf5b; --dt-bg: rgba(242, 207, 91, .09); }
+:is(.hud-dv .t-dream, .hud-dream-entry.t-dream) { --dt: #8fb2ff; --dt-bg: rgba(143, 178, 255, .09); }
+:is(.hud-dv .t-erotic, .hud-dream-entry.t-erotic) { --dt: #dc80b3; --dt-bg: rgba(220,128,179,.12); }
+.hud-dream-container .hud-dream-entry { border-left-color: var(--dt); background: var(--dt-bg); }
+.hud-dream-container .hud-dream-entry:is(.is-awake, :active) { background: color-mix(in srgb, var(--dt) 16%, transparent); box-shadow: 0 0 18px color-mix(in srgb, var(--dt) 20%, transparent); }
+@media (hover: hover) and (pointer: fine) { .hud-dream-container .hud-dream-entry:hover { background: color-mix(in srgb, var(--dt) 16%, transparent); box-shadow: 0 0 15px color-mix(in srgb, var(--dt) 20%, transparent); } }
+.hud-dream-entry .hud-dv-type { vertical-align: middle; color: color-mix(in srgb, var(--dt) 55%, var(--hud-text)); }
+:is(.hud-dv, .hud-dream-entry) .hud-v-ico { width: 1.15em; height: 1.15em; flex: none; vertical-align: -.2em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .hud-dv-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; }
 .hud-dv-head > b { font-weight: 650; color: var(--hud-text, #e6e6ee); }
 .hud-dv-face {
@@ -196,6 +201,13 @@
 @keyframes hud-dv-float { from { translate: 0 0; } to { translate: 0 -4px; } }
 @keyframes hud-dv-pop { 0%, 100% { scale: 1; opacity: .7; } 30% { scale: 1.4; opacity: 1; } }
 
+/* Лепестки в облаке и розовое зарево вокруг луны. */
+.hud-dv-cloud.t-erotic .hud-dv-fx::before, .hud-dv-cloud.t-erotic .hud-dv-fx::after {
+  width: 18px; height: 11px; right: 8%; top: 8%; border-radius: 85% 10% 80% 15%;
+  background: linear-gradient(35deg, transparent, var(--dt)); transform: rotate(-22deg); opacity: .55;
+}
+.hud-dv-cloud.t-erotic .hud-dv-fx::after { right: 5%; top: 16%; transform: rotate(48deg); }
+.hud-dv-sky.t-erotic .hud-dv-fx { background: radial-gradient(ellipse at 90% 8%, color-mix(in srgb, var(--dt) 28%, transparent), transparent 65%); }
 /* Кошмар — грозовая туча: темнеет, в углу вспыхивает молния. */
 .hud-dv-cloud.t-nightmare .hud-dv-puff { background: radial-gradient(120% 90% at 30% 0%, rgba(70,40,52,.6), rgba(20,14,20,.7) 70%); }
 .hud-dv-cloud.t-nightmare .hud-dv-fx::before {

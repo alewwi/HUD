@@ -6,10 +6,11 @@
 // или воспоминание, какие образы в нём — HUD выводит из текста сам.
 // Оформление новых видов — css/dream-views.css.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.89.94';
-import { гдеУпомянут } from '../names.js?v=23.89.94';
-import { видБлока } from './views.js?v=23.89.94';
-import { ико } from './view-icons.js?v=23.89.94';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.89.95';
+import { гдеУпомянут } from '../names.js?v=23.89.95';
+import { settings } from '../settings.js?v=23.89.95';
+import { видБлока } from './views.js?v=23.89.95';
+import { ико } from './view-icons.js?v=23.89.95';
 
 function buildDreamBubblesHtml() {
   let bubbles = '';
@@ -53,6 +54,55 @@ function buildDreamGlassHtml() {
 
 // Тип сна. Кошмар проверяется первым — «кошмар о детстве» всё равно кошмар.
 const КОШМАР = { ключ: 'nightmare', имя: 'кошмар', значок: 'ghost' };
+const ЭРОТИКА = { ключ: 'erotic', имя: 'эротический сон', значок: 'hearts' };
+// Прямые слова. «Его член экипажа», «член семьи» — не они.
+const ЭРОТИКА_ПРЯМО = new RegExp(String.raw`(?<!\p{L})(?:` + [
+  String.raw`эротик|эротич|оргазм|похот|вожделе|мокр(?:ый|ые|ого|ых)\s+с(?:он|ны|на|нов)(?!\p{L})`,
+  String.raw`секс(?:ом|а|у|е)?(?!\p{L})|сексуальн\p{L}*\s+(?:желани|влечени|фантази|сон|сновидени)`,
+  String.raw`занима\p{L}*\s+любовью|(?:его|эрегированн\p{L}*|тв[её]рд\p{L}*|возбужд[её]нн\p{L}*)\s+член(?!\p{L})(?!\s+(?:экипаж|семь|семей|команд|клуб|совет|парти|обществ|стаи|стая|жюри|групп|отряд|банд|правлени|кабинет|комитет|комисси|братств|орден))`,
+  String.raw`erotic|orgasm|wet dreams?\b|(?:making|made) love\b|sexual (?:desire|fantas|dream)|(?:having|had) sex\b`,
+].join('|') + ')', 'iu');
+// «Без всякой эротики», «секса нет», "nothing erotic", "never had sex".
+const НЕ_ЭРОТИКА = /(?<!\p{L})(?:без|нет|ни|никак(?:ой|ого)|не\s+было)\s+(?:\p{L}+\s+)?(?:эротик|секс|похот|вожделе)\p{L}*|(?<!\p{L})(?:секс(?:а)?|эротики)\s+(?:\p{L}+\s+){0,2}?(?:нет|не\s+было|не\s+будет)(?!\p{L})|(?<!\p{L})не\s+занима\p{L}*\s+любовью|\b(?:no|not|nothing|without|never)\s+(?:\w+\s+)?(?:erotic\w*|sex\b|sexual\w*|had sex\b|having sex\b|made love\b|making love\b)/giu;
+// Модель чаще описывает, чем называет: тело, ласки, стоны. Один намёк ничего
+// не значит («обнажённые плечи под пледом»), нужны три разных — или близость и
+// ещё один.
+const ЭРОТИКА_НАМЁКИ = [
+  /обнаж|нагот|(?<!\p{L})наг(?:ая|ой|ую|ое|им|ие|их|ого)(?!\p{L})|раздева|раздет|\bnaked\b|\bundress/iu,
+  /б[её]др|\bthighs?\b|\bhips?\b/iu,
+  /(?<!\p{L})стон(?:ы|ет|ут|а|ов|ом|ами|ала|ал|ать)?(?!\p{L})|\bmoan/iu,
+  /выгиба|изгиба\p{L}*\s+(?:под|навстречу)|\barch(?:es|ing)\b/iu,
+  /(?:целу|поцелу|ласка|скольз)\p{L}*\s+(?:[\p{L}-]+\s+){0,3}?(?:ше[юяе]|груд|живот|ключиц|б[её]дер|б[её]др|между)|\bkiss\w*\s+(?:\w+\s+){0,2}?(?:neck|breast|chest|belly)/iu,
+  /влажн\p{L}*\s+кож|горяч\p{L}*\s+кож|кож\p{L}*\s+к\s+кож|\bskin (?:on|against) skin\b/iu,
+  /(?:спуска|опуска)\p{L}*\s+к\s+(?:груд|живот|б[её]др)|сжима\p{L}*\s+(?:е[её]\s+)?груд/iu,
+  /возбужд[её]н|возбуждени|желани\p{L}*\s+тела|\baroused?\b|\barousal\b/iu,
+  /под\s+(?:ним|ней|его\s+телом|е[её]\s+телом)(?!\p{L})|(?:сверху|верхом)\s+на\s+(?:н[её]м|ней)|\bbeneath (?:him|her)\b/iu,
+  /глубоко|толчк|\bthrust/iu,
+];
+const БЛИЗОСТЬ = /(?:входит|входя|вош[её]л|вошла|двига\p{L}*)\s+в\s+(?:не[её]|него|ней|н[её]м)(?!\p{L})|внутри\s+не[её](?!\p{L})|между\s+(?:[\p{L}]+\s+)?(?:б[её]дер|ног)(?!\p{L})|\binside (?:her|him)\b/iu;
+// Принуждение — кошмар, какими бы словами оно ни было описано.
+const НАСИЛИЕ = /насилу(?:ет|ют|я(?!\p{L}))|насилова|изнасил|против\s+(?:(?:е[её]|его|их|своей|моей|твоей)\s+)?воли|(?:принужда|заставля)\p{L}*\s+(?:(?:е[её]|его)\s+)?(?:к\s+)?(?:секс|близост|раздет|отда)|(?:бер[её]т|взял|взяла)\s+(?:(?:е[её]|его)\s+)?сил(?:ой|ком)|силой\s+(?:раздева|бер[её]т|удержива)|\brap(?:e|ed|es|ing)\b|against (?:her|his|their|my) will|\bforc(?:es|ed|ing) (?:her|him|himself|herself)\b|\bmolest/iu;
+// Ребёнку, подростку и человеку моложе 18 HUD такую метку не ставит.
+const ДЕТИ = /реб[её]н(?:ок|к)|(?<!\p{L})дет(?:и|ей|ям|ьми|ск)|девочк|мальчик|подрост|несовершеннолет|школьни[кц]|малолет|\bchild(?:ren)?\b|\bkids?\b|\bteen|underage|\bminors?\b|\bschool(?:girl|boy)/iu;
+const возрастВТексте = (т) => [...String(т).matchAll(/(?<!\d)(\d{1,2})[\s-]*(?:лет|год|year)/giu)].some(m => +m[1] < 18);
+const моложе18 = (в) => { const m = String(в ?? '').match(/(\d{1,3})/); return !!m && +m[1] < 18; };
+// Кто из людей сцены моложе 18, тот и решает: назван в сне — метки нет; в сне
+// никто не назван, а ребёнок в сцене есть — тоже нет.
+function толькоВзрослые(текст, люди, карточки) {
+  if (ДЕТИ.test(текст) || возрастВТексте(текст)) return false;
+  const младшие = (Array.isArray(карточки) ? карточки : []).filter(к => к && моложе18(к['Возраст'])).map(к => к['Имя']).filter(Boolean);
+  if (!младшие.length) return true;
+  if (младшие.some(и => позицияИмени(текст, и) >= 0)) return false;
+  return (Array.isArray(люди) ? люди : []).some(и => !младшие.includes(и) && позицияИмени(текст, и) >= 0);
+}
+/** Эротический ли сон. Экспорт — для тестов. */
+export function этоЭротика(текст) {
+  const т = String(текст || '').replace(НЕ_ЭРОТИКА, ' ');
+  if (НАСИЛИЕ.test(т)) return false;
+  if (ЭРОТИКА_ПРЯМО.test(т)) return true;
+  const намёков = ЭРОТИКА_НАМЁКИ.filter(r => r.test(т)).length;
+  return намёков >= 3 || (намёков >= 1 && БЛИЗОСТЬ.test(т));
+}
 const ТИПЫ = [
   { ключ: 'memory', имя: 'воспоминание', значок: 'film', rx: /вспомина|детств|как тогда|как в тот|прошл(?!\p{L}*\s+ноч)|памят|юност|школьн|remember|childhood|memory/iu },
   { ключ: 'wish', имя: 'мечта', значок: 'moonstar', rx: /мечта|мечтает|желани|свадьб|родил|счаст|вместе|обнима|целу|играет|смеёт|смеет|летит|летал|полёт|полет|свобод|dream of|wish/i },
@@ -98,7 +148,7 @@ const СИЛЬНЫЙ = rx([
   String.raw`перекрестн\p{L}* огон|прошит\p{L}*|оседает`,
   'пробоин', String.raw`${Б}ран(?:а|ы|у|ой|ам|ами|ение|ения|ением)${К}`,
   String.raw`вдоль вен|вскрыт\p{L}* вен|${Б}вен(?:ы|у|ам)${К}`,
-  'тонет|тонул|утону|утопа|захлеб', 'задыха|удуш|душит|души(?:л|ть)|душат',
+  `${Б}(?:у|по)?тонет|${Б}тонул|утону|утопа|захлеб`, 'задыха|удуш|душит|души(?:л|ть)|душат',
   String.raw`удержива\p{L}* под вод|под вод\p{L}* удержива|не давая\p{L}* (?:\p{L}+ )?(?:всплыть|вдохнуть|дышать)`,
   String.raw`(?:давит|давить|давила|сдавлива\p{L}*|сжима\p{L}*)\s+(?:на\s+)?(?:горл|гортан|шею|шее)`, String.raw`(?:к|до)\s+горлу|до горла`,
   'паралич|не может пошевел|не могу пошевел|не может двинуть',
@@ -155,11 +205,12 @@ export function этоКошмар(текст) {
 }
 
 /** Что HUD видит в сне: кому снится, тип, образы. Экспорт — для тестов и стенда. */
-export function разобратьСон(сон, люди = []) {
+export function разобратьСон(сон, люди = [], карточки = []) {
   const текст = пробелы(сон && сон.text || '');
   // «Сон без привычных кошмаров» — не кошмар: отрицание перед словом не считаем.
   const безОтрицаний = текст.replace(/(?<![\p{L}])(?:без|нет|ни)\s+(?:\p{L}+\s+)?(?:кошмар|страх|ужас)\p{L}*|(?<![\p{L}])(?:no|without|not a|free of)\s+(?:\p{L}+\s+)?(?:nightmares?|fear|terror|horror)/giu, '');
-  const тип = этоКошмар(текст).кошмар ? КОШМАР : (ТИПЫ.find(т => т.rx.test(безОтрицаний)) || ПРОСТО_СОН);
+  const эротика = settings.nsfwPrompt !== 'never' && этоЭротика(текст) && толькоВзрослые(текст, люди, карточки);
+  const тип = этоКошмар(текст).кошмар || НАСИЛИЕ.test(текст) ? КОШМАР : эротика ? ЭРОТИКА : (ТИПЫ.find(т => т.rx.test(безОтрицаний)) || ПРОСТО_СОН);
   const образы = ОБРАЗЫ.map(о => { const m = текст.match(о.rx); return m ? { ...о, где: m.index } : null; })
     .filter(Boolean).sort((a, b) => a.где - b.где).slice(0, 3);
   // Кому снится: первый из людей сцены, кто назван в тексте («Марку снится…»).
@@ -195,7 +246,7 @@ function видОблака(сны) {
 // Сонник: статья словаря — заглавный образ, «см. также», текст и толкование.
 // На полях — пометка читателя: у кошмара клякса, у воспоминания засушенный
 // лист, у мечты звезда, у сна — месяц. Закладка-ленточка цвета типа.
-const ПОМЕТКИ = { nightmare: 'drop', memory: 'leaf', wish: 'star', dream: 'moon' };
+const ПОМЕТКИ = { nightmare: 'drop', erotic: 'rose', memory: 'leaf', wish: 'star', dream: 'moon' };
 function видСонник(сны) {
   return `<div class="hud-dv hud-dv-book">${сны.map(с => {
     const [главный, ...ещё] = с.образы;
@@ -243,6 +294,7 @@ function обруч(с) {
     + `<path class="web" pathLength="100" d="${паутина(seed)}"/>`
     + (кошмар
       ? `<g class="knot" transform="translate(${40 + (seed % 9) - 4} ${40 + (seed % 7) - 3})"><circle r="7.5"/><path d="M-6-2C-2-7 4-6 6-1S1 7-4 4-5-4 1-3s3 4-1 4"/></g>`
+      : с.тип.ключ === 'erotic' ? `<path class="bead" d="M40 47c-3-2-8-6-8-10a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 48 37c0 4-5 8-8 10Z"/>`
       : `<circle class="bead" cx="40" cy="40" r="4.2"/>`)
     + `</svg><span class="hud-dv-hang">${перья}</span></div>`;
 }
@@ -259,7 +311,7 @@ function видЛовец(сны) {
 
 const ВИДЫ = { clouds: видОблака, book: видСонник, night: видНочь, catcher: видЛовец };
 
-export function buildDreamHTML(dreamsData, uid, isChecked, люди = []) {
+export function buildDreamHTML(dreamsData, uid, isChecked, люди = [], карточки = []) {
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-dream-container"><div class="hud-dream-moon">🌙 Z z z . . .</div>`;
   // Пустые сны («—» при «не спит») отбрасываем сразу: если других нет — как без снов.
   dreamsData = (Array.isArray(dreamsData) ? dreamsData : []).filter(d => значимо(typeof d === 'string' ? d : d && d.text));
@@ -267,13 +319,11 @@ export function buildDreamHTML(dreamsData, uid, isChecked, люди = []) {
     return html + `<div class="hud-dream-bubble"><div class="hud-dream-text">Снов пока нет</div><div class="hud-dream-meaning">Раздел активен, но в текущем HUD нет записей.</div></div></div></div>`;
   }
   const вид = ВИДЫ[видБлока('dreamsView')];
-  if (вид) {
-    const сны = dreamsData.map(d => разобратьСон(typeof d === 'string' ? { text: d } : d, люди)).filter(с => значимо(с.текст));
-    return html + вид(сны) + `</div></div>`;
-  }
-  dreamsData.filter(dream => значимо(typeof dream === 'string' ? dream : dream && dream.text)).forEach(dream => {
-    html += `<div class="hud-dream-entry" data-crack="0">${buildDreamBubblesHtml()}${buildDreamGlassHtml()}<div class="hud-dream-text">✨ ${escapeHtml(dream.text)}</div>`;
-    if (dream.meaning && dream.meaning.toLowerCase() !== 'none' && dream.meaning.toLowerCase() !== 'empty') html += `<div class="hud-dream-meaning"><span class="hud-dream-meaning-label">🔮 Смысл:</span> ${escapeHtml(dream.meaning)}</div>`;
+  const сны = dreamsData.map(d => разобратьСон(typeof d === 'string' ? { text: d } : d, люди, карточки));
+  if (вид) return html + вид(сны) + `</div></div>`;
+  сны.forEach(с => {
+    html += `<div class="hud-dream-entry t-${с.тип.ключ}" data-crack="0">${buildDreamBubblesHtml()}${buildDreamGlassHtml()}<div class="hud-dream-text">${ярлыкТипа(с.тип)} ${escapeHtml(с.текст)}</div>`;
+    if (с.смысл) html += `<div class="hud-dream-meaning"><span class="hud-dream-meaning-label">🔮 Смысл:</span> ${escapeHtml(с.смысл)}</div>`;
     html += `</div>`;
   });
   return html + `</div></div>`;

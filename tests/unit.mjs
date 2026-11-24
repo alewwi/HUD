@@ -5679,5 +5679,113 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('записная книжка: игрок первым, дальше по алфавиту', книжка.indexOf('>Мари<') < книжка.indexOf('>Аня<') && книжка.indexOf('>Аня<') < книжка.indexOf('>Борис<'), книжка.slice(0, 300));
 }
 
+// «Как в Таверне» (tavern-theme.js): тема HUD из темы SillyTavern.
+// Замеры придуманы, по образцу тем Таверны: тёмная по умолчанию, светлая
+// «бумажная», стекло поверх обоев, серая и с крупным шрифтом.
+группа('тема «Как в Таверне»');
+{
+  const Тт = await модуль('tavern-theme.js'), Кн = await модуль('contrast.js'), Тм = await модуль('themes.js');
+  const тёмная = { body: 'rgb(220, 220, 210)', em: 'rgb(145, 145, 145)', underline: 'rgb(188, 231, 207)', quote: 'rgb(225, 138, 36)',
+    blurTint: 'rgba(23, 23, 23, 1)', chatTint: 'rgba(23, 23, 23, 1)', botMes: 'rgba(60, 60, 60, 0.3)', border: 'rgba(0, 0, 0, 0.5)', blur: 10, shadowWidth: 2, fontPx: 15 };
+  const светлая = { body: 'rgba(20, 20, 20, 1)', em: 'rgba(160, 160, 160, 1)', quote: 'rgba(20, 20, 20, 1)', underline: 'rgba(0, 0, 0, 1)',
+    blurTint: 'rgba(255, 255, 255, 0.95)', chatTint: 'rgba(255, 255, 255, 0)', botMes: 'rgba(255, 255, 255, 1)', border: 'rgba(0, 0, 0, 1)', blur: 0, noShadows: true, fontPx: 15 };
+  // Свой CSS темы: светлое стекло на сообщениях и белый текст поверх обоев.
+  const стекло = { ...тёмная, mesText: 'rgb(255, 255, 255)', слои: ['rgba(0, 0, 0, 0)', 'rgba(255, 255, 255, 0.25)'], blurTint: 'rgba(28, 12, 18, 0.75)', mesBorder: 'rgba(255, 50, 50, 0.5)', radius: 15 };
+  const читаемо = (v) => Кн.контраст(v.textColor, v.cardBgStart) >= 4.5 && Кн.контраст(v.textColor, v.cardBgEnd) >= 4.5;
+  {
+    const { vars: v, светлая: св } = Тт.темаИзЗамера(тёмная);
+    проверить('тёмная тема: тёмный фон, текст читается, акцент — цвет цитат', !св && читаемо(v) && Кн.яркость(v.cardBgStart) <= 0.18 && v.accentColor === '#e18a24', JSON.stringify(v).slice(0, 300));
+    проверить('шрифт — как у Таверны (inherit), размер и размытие — от неё', v.fontMain === 'inherit' && v.fontHeaders === 'inherit' && v.fontSizeMain === 14 && v.backdropBlur === 10 && v.glassType === 'frosted');
+    проверить('приглушённый текст — курсив Таверны, читаемый (≥ 4,5:1)', Кн.контраст(v.textMutedColor, v.cardBgStart) >= 4.5 && Кн.контраст(v.textMutedColor, v.cardBgStart) < Кн.контраст(v.textColor, v.cardBgStart), v.textMutedColor);
+    проверить('все значения — ключи вида: «Шаг назад», «Сброс» и файл темы их видят', Object.keys(v).every(к => Тм.КЛЮЧИ_ВИДА.includes(к)), Object.keys(v).filter(к => !Тм.КЛЮЧИ_ВИДА.includes(к)).join());
+    проверить('цвета — #hex для полей цвета', Object.entries(v).filter(([к]) => /Color$|Accent$|Bg$|BgStart$|BgEnd$|^msgOut(Start|End)$/.test(к)).every(([, x]) => /^#[0-9a-f]{6}$/.test(x)));
+  }
+  {
+    const { vars: v, светлая: св } = Тт.темаИзЗамера(светлая);
+    проверить('светлая тема: светлый фон, тёмный текст, без размытия — прозрачное стекло', св && читаемо(v) && Кн.яркость(v.cardBgStart) > 0.6 && v.glassType === 'clear' && v.backdropBlur === 0);
+  }
+  {
+    const { vars: v, светлая: св } = Тт.темаИзЗамера(стекло);
+    проверить('стекло со своим CSS: текст — с сообщения, фон тёмный и читаемый, углы — как у сообщений', !св && v.textColor === '#ffffff' && читаемо(v) && Кн.яркость(v.cardBgStart) <= 0.18 && v.cardRadius === 15, JSON.stringify([v.cardBgStart, v.cardRadius]));
+  }
+  {
+    // Белый курсив ярче текста (как в Azure) — не приглушённый.
+    const { vars: v } = Тт.темаИзЗамера({ ...тёмная, em: 'rgb(255, 255, 255)' });
+    проверить('курсив ярче текста — приглушённый смешан из текста и фона', v.textMutedColor !== '#ffffff' && Кн.контраст(v.textMutedColor, v.cardBgStart) < Кн.контраст(v.textColor, v.cardBgStart));
+  }
+  {
+    const { vars: м, светлая: мс } = Тт.темаИзЗамера({ ...тёмная, body: 'rgb(110, 110, 110)' });
+    проверить('серый текст на тёмном фоне — тема тёмная, фон не светлеет', !мс && читаемо(м) && Кн.яркость(м.cardBgStart) <= 0.18, м.cardBgStart);
+    const { vars: ч, светлая: чс } = Тт.темаИзЗамера({ ...тёмная, body: 'rgb(50, 50, 50)' });
+    проверить('тёмный текст на чёрном фоне — светлеет текст, а не фон', !чс && читаемо(ч) && Кн.яркость(ч.cardBgStart) <= 0.18, JSON.stringify([ч.cardBgStart, ч.textColor]));
+    const { vars: мята } = Тт.темаИзЗамера({ ...тёмная, quote: 'rgb(157, 215, 198)' });
+    проверить('светлый акцент: исходящие в телефоне темнеют под белый текст', [мята.msgOutStart, мята.msgOutEnd].every(x => Кн.контраст('#ffffff', x) >= 4.5 && Кн.контраст(мята.textColor, x) >= 4.5) && мята.accentColor === '#9dd7c6', мята.msgOutStart);
+    const { vars: бум } = Тт.темаИзЗамера(светлая);
+    проверить('светлая тема: исходящие светлеют под чернила, не чёрное на чёрном', [бум.msgOutStart, бум.msgOutEnd].every(x => Кн.контраст(бум.textColor, x) >= 4.5), бум.msgOutStart);
+    const { vars: лист, светлая: лс } = Тт.темаИзЗамера({ ...тёмная, mesText: 'rgb(13, 13, 15)', слои: ['rgb(13, 13, 15)', 'rgb(233, 228, 216)'], mesBorder: 'rgb(233, 228, 216)' });
+    проверить('светлый лист сообщения в тёмном приложении — светлый HUD, рамка видна', лс && читаемо(лист) && Кн.контраст(лист.cardBorderColor, лист.cardBgStart) >= 1.15, JSON.stringify([лист.cardBgStart, лист.cardBorderColor]));
+    const { vars: кр } = Тт.темаИзЗамера({ ...стекло, mesText: 'rgb(176, 168, 168)', quote: 'rgb(176, 168, 168)' });
+    проверить('нетронутое подчёркивание Таверны не перебивает цвет самой темы', кр.accentColor === '#ff3232' && кр.glowColor !== '#bce7cf', кр.accentColor + ' ' + кр.glowColor);
+    проверить('исходящие читаются и исходным тусклым цветом темы', [кр.msgOutStart, кр.msgOutEnd].every(x => Кн.контраст('#b0a8a8', x) >= 4.5), кр.msgOutStart);
+    const { vars: нб } = Тт.темаИзЗамера({ ...тёмная, noBlur: true });
+    проверить('быстрый интерфейс Таверны — без размытия', нб.backdropBlur === 0 && нб.glassType === 'clear');
+    const { vars: ст } = Тт.темаИзЗамера(стекло);
+    проверить('рамка сообщений, нарисованная темой, — свечение и рамки HUD', ст.glowColor === '#ff3232' && /^#[0-9a-f]{6}$/.test(ст.cardBorderColor));
+    const наБелом = Кн.наложить({ ...Кн.разобратьЦвет(ст.cardBgStart), a: ст.cardBgAlpha / 100 }, { r: 255, g: 255, b: 255, a: 1 });
+    проверить('стекло поверх белых обоев — текст всё равно читается', Кн.контраст(ст.textColor, наБелом) >= 4.5, String(ст.cardBgAlpha));
+    const файл = Тм.parseThemeFile(JSON.stringify({ vars: { cardRadius: 15, cardBorderColor: '#aabbcc' } }));
+    проверить('файл темы: скругление и рамка доезжают, мусор — нет', файл.vars.cardRadius === 15 && файл.vars.cardBorderColor === '#aabbcc' && Тм.parseThemeFile(JSON.stringify({ vars: { cardRadius: '9px;x', cardBorderColor: 'red;' } })) === null);
+    const серая = { ...тёмная, quote: 'rgb(170, 170, 170)', underline: 'rgb(224, 224, 224)', border: 'rgba(120, 120, 120, 1)', em: 'rgb(120, 120, 120)' };
+    const { vars: v } = Тт.темаИзЗамера(серая);
+    проверить('серая тема остаётся серой: акцент — цвет цитат', v.accentColor === '#aaaaaa');
+    const { vars: к } = Тт.темаИзЗамера({ ...тёмная, fontPx: 18 });
+    проверить('крупный шрифт Таверны — крупнее и в HUD', к.fontSizeMain === 17 && к.fontSizeHeaders === 16);
+    const { vars: п } = Тт.темаИзЗамера({});
+    проверить('пустой замер — тема Таверны по умолчанию, читаемая', читаемо(п) && п.cardRadius === 12);
+  }
+  {
+    const н = { accentColor: '#111111', textColor: '#222222', backdropBlur: 9 };
+    const было = { accentColor: '#aaaaaa', textColor: '#bbbbbb', backdropBlur: 4 };
+    const сейчас = { accentColor: '#aaaaaa', textColor: '#ff0000', backdropBlur: 4 };
+    const пом = Тт.перенестиЗамер(сейчас, н, было);
+    проверить('смена темы Таверны: поправленное руками остаётся, остальное — новое', сейчас.textColor === '#ff0000' && сейчас.accentColor === '#111111' && сейчас.backdropBlur === 9 && пом.join() === 'accentColor,backdropBlur', JSON.stringify(сейчас));
+    const чистые = { accentColor: '#aaaaaa' };
+    Тт.перенестиЗамер(чистые, н, null);
+    проверить('без прошлого замера — всё новое', чистые.accentColor === '#111111' && чистые.textColor === '#222222');
+  }
+  {
+    // Синхронизация: снятое с Таверны у каждого устройства своё, явная правка новее — приходит.
+    const Сн = await модуль('settings-sync.js');
+    const наше = { themePreset: 'tavern', cardRadius: 20, accentColor: '#111111', savedAt: 1, keyTimes: { cardRadius: 5, accentColor: 5 } };
+    const ихнее = { themePreset: 'tavern', cardRadius: 16, accentColor: '#222222', savedAt: 9, keyTimes: { cardRadius: 5, accentColor: 8 } };
+    const итогС = Сн.слить(наше, ихнее, { своиПриРавных: new Set(['cardRadius', 'accentColor']) });
+    проверить('синхронизация: при равном времени углы остаются свои и файл не переписывается', наше.cardRadius === 20 && !итогС.пришло.includes('cardRadius') && !итогС.ушло.includes('cardRadius'), JSON.stringify(итогС));
+    проверить('синхронизация: правка руками на другом устройстве приходит', наше.accentColor === '#222222' && итогС.пришло.includes('accentColor'));
+    const ин = fs.readFileSync(path.join(КОРЕНЬ, 'index.js'), 'utf8'), тело = ин.slice(ин.indexOf('function применитьТемуТаверны('), ин.indexOf("new CustomEvent('hud-theme-sync')"));
+    проверить('смена темы Таверны — не правка игрока: без saveSettings, свой вид чату не заводится', тело.length > 300 && !/[^.]saveSettings\(\);/.test(тело) && тело.includes('видБезПравки()'));
+    const кн = Тт.кнопкаТаверныHTML(true, { vars: { accentColor: '#e18a24', glowColor: '"><b>', cardBgStart: '#101010', textColor: '#dcdcd2' } });
+    проверить('кнопка: пресет tavern, активна, образцы — только #hex', кн.includes('data-theme-preset="tavern"') && кн.includes(' active') && !кн.includes('<b>') && кн.includes('Как в Таверне'));
+    проверить('в ряду тем её нет — она отдельной кнопкой', !Тм.presetRowHTML('').includes('data-theme-preset="tavern"'));
+    const св = fs.readFileSync(path.join(КОРЕНЬ, 'css/themes/light.css'), 'utf8');
+    const списки = (св.match(/:(?:is|where)\((?:\.hud-theme-[a-z0-9-]+, )+[^)]*\)/g) || []).filter(с => с.includes('.hud-theme-teaparty'));
+    проверить('светлая тема Таверны берёт общий слой светлых тем', списки.length > 200 && списки.every(с => с.includes('.hud-tavern-light')));
+    // Во всех CSS: список, где названы все светлые темы, называет и светлую тему Таверны.
+    const светлые = Тм.СВЕТЛЫЕ_ТЕМЫ, мимоСписки = [];
+    for (const ф of fs.readdirSync(path.join(КОРЕНЬ, 'css')).filter(ф => ф.endsWith('.css'))) {
+      const текст = fs.readFileSync(path.join(КОРЕНЬ, 'css', ф), 'utf8');
+      for (const м of текст.matchAll(/:(?:is|where|not)\(([^(){}]*)\)/g)) {
+        const части = м[1].split(',').map(x => x.trim());
+        if (светлые.every(t => части.includes('.hud-theme-' + t)) && !части.includes('.hud-tavern-light') && !части.includes('.hud-scheme-light')) мимоСписки.push(ф);
+      }
+    }
+    проверить('списки светлых тем в CSS называют и .hud-tavern-light', мимоСписки.length === 0, [...new Set(мимоСписки)].join(', '));
+    проверить('у светлой темы Таверны свои бумага и чернила (--lt-*)', /:root\.hud-tavern-light \{[^}]*--lt-paper:[^}]*--lt-ink:/.test(св));
+    const ев = fs.readFileSync(path.join(КОРЕНЬ, 'events.js'), 'utf8'), кс = fs.readFileSync(path.join(КОРЕНЬ, 'customize.js'), 'utf8');
+    проверить('«Шаг вперёд» рядом с «Шагом назад», новая правка его обнуляет', кс.includes('data-theme-act="redo"') && ев.includes("act === 'redo'") && ев.includes('впередВида.length = 0'));
+    проверить('кнопка «Как в Таверне» стоит под рядом тем', кс.indexOf('hud-theme-tavern-row') > кс.indexOf('hud-theme-presets-row'));
+    проверить('уход с «Как в Таверне» возвращает свои размеры, шаг помнит замер', ев.includes('settings.tavernBefore[k]') && ев.includes("['tavernThemeVars', 'tavernBefore']"));
+  }
+}
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);
 if (провалы.length) { console.log(провалы.map(п => ' ✗ ' + п).join('\n')); process.exitCode = 1; }

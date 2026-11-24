@@ -4,13 +4,29 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.95 — 2026-11-24
+
+### Added
+- **The HUD like the Tavern theme.** Customization → a "Like the Tavern" button under the themes: the HUD takes colours, accent, borders, glow, blur, font with its size and rounded corners from the SillyTavern theme.
+  - It looks at what the theme really draws: the message background and border, the colour of quotes, the corners. Many themes paint all that with their own CSS and leave the variables at the factory values.
+  - Switch the theme in Tavern and the HUD follows. Fields edited by hand stay yours. This doesn't count as an edit: no separate look is created for the chat, and the reading doesn't go to other devices.
+  - Text stays readable: dim text gets slightly lighter (darker on a light theme), outgoing phone messages adapt to their text. The card background never turns light on a dark theme; on a light one the card and the views are light.
+  - Leave for another theme and your own font sizes, corners and border come back.
+- **"Step forward"** next to "Step back": bring back what was undone.
+- **Card corner rounding and card border** as fields of their own in Customization, with an "as in the theme" button. Theme files carry them too.
+- **Erotic dreams.** A label and colour of their own in every dream view, recognised by direct words and by description. Coercion is a nightmare; if anyone in the dream or the scene is under 18, there is no label; none either when the intimacy hints are off.
+
+### Fixed
+- **Dreams in the plain view** carry the type label and colour like the other views. The Russian word for "moans" no longer counts as "drowns" and doesn't turn a dream into a nightmare.
+- **Own theme:** its rounding and border no longer linger in the next theme.
+
 ## 23.89.94 — 2026-11-24
 
 ### Fixed
 - **Phone: notifications and the chat list work like a real messenger.**
   - Read messages no longer hang as notifications. The model marks a message read on a later turn, but carrying chats over from past turns kept the first "unread" mark, and the counter and notification card stayed for days.
   - A reply in the chat, or a read message further down, means the chat was opened, so everything above it is read. Your own "unread" (the other person hasn't read it) is not a notification.
-  - The notification time is the message's own time. It used to take the first "hh:mm" in the line, which can be in the text ("At 10:11 the dean…"), or the time of another message.
+  - The notification time is the message's own time. It used to take the first "hh:mm" in the line, which can be in the text ("Meeting at 09:15…"), or the time of another message.
   - Notifications go newest first counting the day: yesterday's 23:50 sits below today's 08:00. Yesterday's says "Yesterday, 23:50", older ones show the date.
   - In the chat list a chat from yesterday says "Yesterday" and an older one shows the date, not bare hours as if it were today.
   - A draft that was later finished and sent no longer stays in the input field. The preview shows an unsent draft as "Draft: …" and a deleted message as "Message deleted".

@@ -11,9 +11,9 @@
 // Разметку «Настроек» собираем при открытии приложения: так значения всегда
 // свежие, а каждая карточка с телефоном не тащит сотню полей.
 
-import { settings, унаследованноеТелефоном } from '../settings.js?v=23.89.94';
-import { escapeHtml, hudHashSeed } from '../utils.js?v=23.89.94';
-import { ВИДЫ_БЛОКОВ } from './views.js?v=23.89.94';
+import { settings, унаследованноеТелефоном } from '../settings.js?v=23.89.95';
+import { escapeHtml, hudHashSeed } from '../utils.js?v=23.89.95';
+import { ВИДЫ_БЛОКОВ } from './views.js?v=23.89.95';
 
 let сохранить = () => {}, применить = () => {}, перерисовать = () => {};
 export function подключитьТелефонные(связь) {
@@ -98,7 +98,7 @@ export function наполнитьНастройки(вид) {
   if (!место) return;
   место.innerHTML = разметкаНастроек();
   // Список шрифтов живёт в Кастомизации, а её модуль грузится по требованию.
-  import('../customize.js?v=23.89.94').then(м => {
+  import('../customize.js?v=23.89.95').then(м => {
     const поле = место.querySelector('[data-pset-fonts]');
     if (поле) { const с = значения(); поле.innerHTML = м.makeFontOptions(с.phoneFont); }
   }).catch(() => {});

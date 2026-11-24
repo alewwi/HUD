@@ -16,29 +16,30 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.94';
-import { уверены } from './confirm-erase.js?v=23.89.94';
-import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.94';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.89.94';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.94';
-import { прикрытьСырой } from './raw-guard.js?v=23.89.94';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.94';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.94';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.94';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.94';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.94';
-import { полныйПорядок } from './tabs-order.js?v=23.89.94';
-import { getWorldVotes } from './render/world.js?v=23.89.94';
-import { действиеМира } from './render/world-views.js?v=23.89.94';
-import { действиеМузыки } from './render/music.js?v=23.89.94';
-import { раскрытьПорцию } from './render/long-list.js?v=23.89.94';
-import { прогретьИсторию } from './render/carryover.js?v=23.89.94';
-import { подключитьПалитру } from './color-picker.js?v=23.89.94';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.94';
-import { замер } from './utils.js?v=23.89.94';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.94';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.94';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.94';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.95';
+import { уверены } from './confirm-erase.js?v=23.89.95';
+import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.95';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.89.95';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.95';
+import { прикрытьСырой } from './raw-guard.js?v=23.89.95';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.95';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.95';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.95';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.95';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.95';
+import { полныйПорядок } from './tabs-order.js?v=23.89.95';
+import { getWorldVotes } from './render/world.js?v=23.89.95';
+import { действиеМира } from './render/world-views.js?v=23.89.95';
+import { действиеМузыки } from './render/music.js?v=23.89.95';
+import { раскрытьПорцию } from './render/long-list.js?v=23.89.95';
+import { прогретьИсторию } from './render/carryover.js?v=23.89.95';
+import { подключитьПалитру } from './color-picker.js?v=23.89.95';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.95';
+import { замер } from './utils.js?v=23.89.95';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.95';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.95';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.95';
+import { ID_ТАВЕРНЫ, кнопкаТаверныHTML, сброситьСлежку } from './tavern-theme.js?v=23.89.95';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -208,9 +209,14 @@ function переключитьПодсказку(значок, ctx) {
 // «назад» пришлось бы жать по разу на каждый пиксель. Так же возвращается
 // и тема, на которую переключились случайно, не запомнив правки прошлой.
 const историяВида = [];
+// «Шаг вперёд»: то, что отменили «Шагом назад». Новая правка его обнуляет.
+const впередВида = [];
 let последнийКлюч = '', последнийМомент = 0;
 function снимокВида() {
   const о = { themePreset: settings.themePreset || '', themePalette: settings.themePalette || '' };
+  // «Как в Таверне»: без прошлого замера вернувшиеся цвета сошли бы за правки
+  // руками, и за Таверной она бы больше не следила.
+  for (const k of ['tavernThemeVars', 'tavernBefore']) о[k] = settings[k] ? structuredClone(settings[k]) : null;
   КЛЮЧИ_ВИДА.forEach(k => { о[k] = settings[k]; });
   // «Вернуть тему» меняет и оформление — «Шаг назад» возвращает и его.
   Object.keys(оформлениеТемы()).forEach(k => { о[k] = settings[k]; });
@@ -238,6 +244,18 @@ function запомнитьШаг(ключ = '') {
   последнийКлюч = ключ; последнийМомент = сейчас;
   историяВида.push(снимокВида());
   if (историяВида.length > 60) историяВида.shift();
+  впередВида.length = 0;
+}
+// Шаг назад или вперёд: значения снимка — в настройки. Ключ, которого тогда
+// не было (вид блока «как по умолчанию»), снова убираем.
+function вернутьСнимок(шаг) {
+  for (const [k, зн] of Object.entries(шаг)) { if (зн === undefined) delete settings[k]; else settings[k] = зн; }
+  // «Как в Таверне» после шага сверяется с Таверной заново: тема могла смениться.
+  сброситьСлежку();
+}
+// Значения «Как в Таверне», снятые в прошлый раз (tavern-theme.js, перенестиЗамер).
+function запомнитьЗамерТаверны(тема) {
+  if (тема && тема.tavern) settings.tavernThemeVars = { ...тема.vars };
 }
 // Значения темы «как задумано»: заводские для всех ключей вида и сама тема
 // поверх — без пользовательских правок.
@@ -252,9 +270,17 @@ const КАДР_СВОИХ_КАРТИНОК = ['bgOpacity', 'bgScale', 'bgOffsetY
 // портрета от «Ведьмы» в «Каваи». Снимаем то, что пришло из правок прошлой
 // темы и с тех пор не трогалось; кадр своих картинок остаётся.
 function снятьЛичныеПравки(id, пал) {
-  const правки = (id && settings.themeEdits && settings.themeEdits[ключПравок(id, пал || '')]) || {};
+  // Личные ключи из самой темы — у «Как в Таверне» (шрифт, скругления) и углы с
+  // рамкой у «Своей»: у готовых тем они свои, и чужие перебили бы их.
+  const изСвоей = id === 'custom' && settings.customTheme && settings.customTheme.vars ? settings.customTheme.vars : {};
+  const свои = id === ID_ТАВЕРНЫ && settings.tavernThemeVars && typeof settings.tavernThemeVars === 'object' ? settings.tavernThemeVars
+    : Object.fromEntries(['cardRadius', 'cardBorderColor'].filter(k => k in изСвоей).map(k => [k, изСвоей[k]]));
+  const правки = { ...свои, ...((id && settings.themeEdits && settings.themeEdits[ключПравок(id, пал || '')]) || {}) };
   ЛИЧНЫЕ_КЛЮЧИ.forEach(k => {
     if (!(k in правки) || КАДР_СВОИХ_КАРТИНОК.includes(k) || defaultSettings[k] === undefined) return;
+    // С «Как в Таверне» возвращаются свои размеры, какими были до неё.
+    const доНеё = id === ID_ТАВЕРНЫ && settings.tavernBefore ? settings.tavernBefore[k] : undefined;
+    if (доНеё !== undefined) { if (String(settings[k]) === String(правки[k])) settings[k] = доНеё; return; }
     if (String(settings[k]) === String(правки[k])) settings[k] = defaultSettings[k];
   });
 }
@@ -302,6 +328,8 @@ export function initGlobalEvents(ctx) {
   });
   // Облегчённая карточка пропускала правки темы, пока лежала вне документа:
   // после возврата подтягиваем её поля к текущим настройкам.
+  // «Как в Таверне» перекрасилась вслед за SillyTavern (index.js): поля окна — к новым значениям.
+  document.addEventListener('hud-theme-sync', () => { try { синхронизацияТемы?.(); } catch (_) { /* окно закрыто */ } });
   синхронизацияТемы = () => {
     syncThemeInputs();
     redrawPresets();
@@ -478,6 +506,7 @@ export function initGlobalEvents(ctx) {
         const исходная = исходнаяТема(id);
         КАДР_СВОИХ_КАРТИНОК.forEach(k => { delete исходная[k]; });
         Object.assign(settings, исходная, оформлениеТемы());
+        запомнитьЗамерТаверны(getTheme(id));
         saveSettings(); applyThemeColors(); syncThemeInputs(); redrawPalettes();
         document.dispatchEvent(new CustomEvent('hud-theme-changed', { detail: { разметка: true } }));
         showHudToast('success', 'Тема возвращена', 'Цвета и оформление — как задумано темой. «↶ Шаг назад» вернёт правки.');
@@ -535,15 +564,22 @@ export function initGlobalEvents(ctx) {
         return;
       }
 
-      if (act === 'undo') {
-        const шаг = историяВида.pop();
+      if (act === 'undo' || act === 'redo') {
+        const назад = act === 'undo';
+        const откуда = назад ? историяВида : впередВида, куда = назад ? впередВида : историяВида;
+        const шаг = откуда.pop();
         последнийКлюч = '';
-        if (!шаг) { showHudToast('error', 'Отменять нечего', 'С начала сеанса правок вида не было.'); return; }
-        // Ключ, которого тогда не было (вид блока «как по умолчанию»), снова убираем.
-        for (const [k, зн] of Object.entries(шаг)) { if (зн === undefined) delete settings[k]; else settings[k] = зн; }
+        if (!шаг) {
+          showHudToast('error', назад ? 'Отменять нечего' : 'Возвращать нечего', назад ? 'С начала сеанса правок вида не было.' : '«Шаг вперёд» возвращает то, что отменил «Шаг назад».');
+          return;
+        }
+        куда.push(снимокВида());
+        вернутьСнимок(шаг);
         saveSettings(); applyThemeColors(); redrawPresets(); syncThemeInputs();
         document.dispatchEvent(new CustomEvent('hud-theme-changed', { detail: { разметка: true } }));
-        showHudToast('success', 'Шаг назад', историяВида.length ? 'Можно отменить ещё ' + историяВида.length + '.' : 'Это была первая правка сеанса.');
+        showHudToast('success', назад ? 'Шаг назад' : 'Шаг вперёд', назад
+          ? (историяВида.length ? 'Можно отменить ещё ' + историяВида.length + '.' : 'Это была первая правка сеанса.')
+          : (впередВида.length ? 'Можно вернуть ещё ' + впередВида.length + '.' : 'Всё отменённое возвращено.'));
         return;
       }
 
@@ -591,6 +627,8 @@ export function initGlobalEvents(ctx) {
       e.stopPropagation();
       const id = presetBtn.dataset.themePreset || '';
       const theme = getTheme(id);
+      // Тему Таверны снять не вышло — не «Сброс» же вместо неё.
+      if (id === ID_ТАВЕРНЫ && !theme) { showHudToast('error', 'Не получилось', 'Тема SillyTavern не прочиталась. Попробуйте ещё раз.'); return; }
       // Правки прошлой темы, которые не запомнили: предупредим, что их
       // вернёт «Шаг назад», — молча они не пропадают.
       const прошлая = settings.themePreset || '';
@@ -598,6 +636,7 @@ export function initGlobalEvents(ctx) {
         && КЛЮЧИ_ВИДА.some(k => settings[k] !== undefined && String(settings[k]) !== String((themeVars(прошлая, settings.themePalette) || {})[k] ?? defaultSettings[k]));
       запомнитьШаг();
       снятьЛичныеПравки(прошлая, settings.themePalette);
+      if (theme && theme.tavern && прошлая !== ID_ТАВЕРНЫ) settings.tavernBefore = Object.fromEntries(ЛИЧНЫЕ_КЛЮЧИ.filter(k => k in theme.vars).map(k => [k, settings[k]]));
       // Сначала возвращаем заводские значения всех ключей, которые вообще
       // трогают темы: иначе прошлая тема оставила бы после себя хвосты —
       // например, шрифт от «Киберпанка» в «Средневековье».
@@ -609,6 +648,7 @@ export function initGlobalEvents(ctx) {
       if (!id) for (const k of ключиСброса()) { if (defaultSettings[k] !== undefined) settings[k] = structuredClone(defaultSettings[k]); else delete settings[k]; }
       // Значения темы вместе с правками пользователя поверх неё.
       if (theme) Object.assign(settings, themeVars(id));
+      запомнитьЗамерТаверны(theme);
       settings.themePreset = theme ? theme.id : '';
       settings.themePalette = '';
       saveSettings();
@@ -1204,6 +1244,13 @@ export function initGlobalEvents(ctx) {
       const k = inp.dataset.key;
       if (!k) return;
       if (settings[k] === undefined) { if (inp.tagName === 'SELECT' && ключиСброса().includes(k) && defaultSettings[k] === undefined) inp.selectedIndex = 0; return; }
+      // Пустой ползунок — «как в теме» (скругление карточки): ставим на data-empty.
+      if (inp.type === 'range' && settings[k] === '' && inp.dataset.empty) {
+        inp.value = inp.dataset.empty;
+        const подпись = inp.nextElementSibling;
+        if (подпись && подпись.tagName === 'SPAN') подпись.textContent = 'как в теме';
+        return;
+      }
       // Пустой цвет — «как в теме»: квадрат показывает цвет темы, а не чёрный.
       if (inp.type === 'color' && !settings[k]) { inp.value = settings.accentColor || '#8c5ad2'; return; }
       inp.value = String(k in телефон ? телефон[k] : settings[k]);
@@ -1228,6 +1275,9 @@ export function initGlobalEvents(ctx) {
   function redrawPresets() {
     document.querySelectorAll('.hud-theme-presets-row').forEach(row => {
       row.innerHTML = presetRowHTML(settings.themePreset);
+    });
+    document.querySelectorAll('.hud-theme-tavern-row').forEach(row => {
+      row.innerHTML = кнопкаТаверныHTML(settings.themePreset === ID_ТАВЕРНЫ);
     });
     redrawPalettes();
     document.querySelectorAll('.hud-theme-acts').forEach(box => {

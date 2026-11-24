@@ -24,16 +24,16 @@
 //
 // Картинка фона в снимок не входит: она тяжёлая (до 3 МБ) и общая.
 
-import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.94';
-import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.94';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.94';
-import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.94';
-import { escapeHtml } from './utils.js?v=23.89.94';
-import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.94';
+import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.95';
+import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.95';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.95';
+import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.95';
+import { escapeHtml } from './utils.js?v=23.89.95';
+import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.95';
 
 // Эпоха — тоже вид истории: в средневековом чате нет телефона.
 const ЭПОХА = ['era', 'fantasyMagic', 'magicPresence', 'techLevel', 'modernComms', 'eraModern', 'eraMagic'];
-const ЕЩЁ = ['themePreset', 'themePalette', 'iconSet', 'glassType', 'themeScene', 'noImages', 'headerOrnament', 'avatarDeco', 'avatarShape', 'sceneHidden', 'petPortrait',
+const ЕЩЁ = ['themePreset', 'themePalette', 'tavernThemeVars', 'tavernBefore', 'iconSet', 'glassType', 'themeScene', 'noImages', 'headerOrnament', 'avatarDeco', 'avatarShape', 'sceneHidden', 'petPortrait',
   // Вкладки (Кастомизация → Вкладки): порядок, закреплённые, скрытые.
   'tabOrder', 'tabPinned', 'tabHidden',
   // Что стояло до «Минимализма»: снять его в чате — вернуть вид этого чата.
@@ -172,6 +172,15 @@ function положить(vars) {
     else if (defaultSettings[k] !== undefined) settings[k] = копия(defaultSettings[k]);
     else if (МОЖЕТ_НЕ_БЫТЬ.has(k)) delete settings[k];
   }
+  // «Как в Таверне»: в записанном виде — цвета темы, какой Таверна была тогда.
+  // Сразу ставим нынешние, иначе чат мигал бы старыми и записывал их заново.
+  try { связь.сверитьТаверну?.(); } catch (e) { console.warn('[TavernOS HUD] тема Таверны', e); }
+}
+
+/** Вид поменялся сам — «Как в Таверне» пошла за темой SillyTavern. Это не правка
+ *  игрока: своего вида чату не заводим и в файл чата не пишем. */
+export function видБезПравки() {
+  if (начато && чатВида === idЧата()) последний = JSON.stringify(снимокВидаЧата());
 }
 
 /** Применить вид без записи его куда-либо: тема, стили, карточки, поля настроек. */
