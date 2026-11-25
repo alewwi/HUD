@@ -22,11 +22,11 @@
 // с }] }, с — номер хода. Своих строк замок не добавляет: стёртая группа не
 // возвращается.
 
-import { settings } from '../settings.js?v=23.89.98';
-import { namesLikelySame } from '../names.js?v=23.89.98';
-import { escapeHtml, getSafeUserName } from '../utils.js?v=23.89.98';
-import { полеВкл } from '../deep-fields.js?v=23.89.98';
-import { ико } from './view-icons.js?v=23.89.98';
+import { settings } from '../settings.js?v=23.89.99';
+import { namesLikelySame } from '../names.js?v=23.89.99';
+import { escapeHtml, getSafeUserName } from '../utils.js?v=23.89.99';
+import { полеВкл } from '../deep-fields.js?v=23.89.99';
+import { ико } from './view-icons.js?v=23.89.99';
 
 const КЛЮЧ = 'tavernosHudFactions';
 const ПОМЕТКА = /\s*\[(?:locked|зафикс)[^\]]*\]/gi;
@@ -65,7 +65,10 @@ function адресат(к) {
   if (/\{\{char\}\}|^(?:char|персонаж)$/iu.test(s) || (char && namesLikelySame(s, char))) return '@char';
   return норма(s);
 }
-const тотЖе = (з, кто, к) => норма(з.кто) === норма(кто)
+const безСкобок = (s) => норма(String(s ?? '').replace(/\([^()]*\)/g, ' '));
+// Имена в скобках у группы HUD срезает (faction-groups.js): замок на прежнее название остаётся.
+const таЖеГруппа = (а, б) => норма(а) === норма(б) || (/\(/.test(а) !== /\(/.test(б) && !!безСкобок(а) && безСкобок(а) === безСкобок(б));
+const тотЖе = (з, кто, к) => таЖеГруппа(String(з.кто ?? ''), String(кто ?? ''))
   && (адресат(з.к) === адресат(к) || (!!з.к && !!к && namesLikelySame(з.к, к)));
 
 // Сообщения удалили — номер хода замка больше последнего ответа: свежий ход

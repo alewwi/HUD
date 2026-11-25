@@ -4,6 +4,12 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.99 — 2026-11-25
+
+### Fixed
+- **Factions and reputation are groups only.** A university, a workplace, a country, a clan, a family as a whole — not a single character. The prompt says so outright, and a row about a character, the player or a child ("Mark Grey", "Mark and Anna") is removed by the HUD: from new replies, from earlier rows, from the card, from the archive and from what the model sees. How one person feels is in their trust and relations.
+- **One person disguised as a group.** "The Grey family (Anna Grey)" and "The Grey family (Mark Grey)" are one "The Grey family": names in brackets are cut, rows of one group are merged and the last one stays. A lock put on the old name holds the new one too. A surname ("Grey"), "Mark's clan", "Mark and his people", "Guard (northern)" stay.
+
 ## 23.89.98 — 2026-11-25
 
 ### Changed

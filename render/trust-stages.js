@@ -24,12 +24,12 @@
 // к кому», потолок и номер хода, с которого он действует. Старые ходы до
 // этого номера рисуются как модель их написала.
 
-import { settings } from '../settings.js?v=23.89.98';
-import { namesLikelySame } from '../names.js?v=23.89.98';
-import { escapeHtml, flattenFieldValue, именаГруппы, getSafeUserName } from '../utils.js?v=23.89.98';
-import { полеВкл } from '../deep-fields.js?v=23.89.98';
-import { английский, тМодели } from '../i18n.js?v=23.89.98';
-import { ико } from './view-icons.js?v=23.89.98';
+import { settings } from '../settings.js?v=23.89.99';
+import { namesLikelySame } from '../names.js?v=23.89.99';
+import { escapeHtml, flattenFieldValue, именаГруппы, getSafeUserName } from '../utils.js?v=23.89.99';
+import { полеВкл } from '../deep-fields.js?v=23.89.99';
+import { английский, тМодели } from '../i18n.js?v=23.89.99';
+import { ико } from './view-icons.js?v=23.89.99';
 
 const КЛЮЧ = 'tavernosHudTrust';
 

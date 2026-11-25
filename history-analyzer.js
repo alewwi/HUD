@@ -11,22 +11,23 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.89.98';
-import { normalizeJSONData } from './schema.js?v=23.89.98';
-import { parseRelationList } from './render/relations-graph.js?v=23.89.98';
-import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.98';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.98';
-import { createDashboard, времяОтправки } from './chat-stats.js?v=23.89.98';
-import { settings } from './settings.js?v=23.89.98';
-import { статусРужья } from './codes.js?v=23.89.98';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.98';
-import { историяБеременностей } from './render/conception.js?v=23.89.98';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.98';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.98';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.98';
-import { создатьКарты } from './history-maps.js?v=23.89.98';
-import { разобратьФракцию } from './render/factions.js?v=23.89.98';
-import { подЗамками } from './render/faction-locks.js?v=23.89.98';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.99';
+import { normalizeJSONData } from './schema.js?v=23.89.99';
+import { parseRelationList } from './render/relations-graph.js?v=23.89.99';
+import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.99';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.99';
+import { createDashboard, времяОтправки } from './chat-stats.js?v=23.89.99';
+import { settings } from './settings.js?v=23.89.99';
+import { статусРужья } from './codes.js?v=23.89.99';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.99';
+import { историяБеременностей } from './render/conception.js?v=23.89.99';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.99';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.99';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.99';
+import { создатьКарты } from './history-maps.js?v=23.89.99';
+import { разобратьФракцию } from './render/factions.js?v=23.89.99';
+import { подЗамками } from './render/faction-locks.js?v=23.89.99';
+import { людиHUD, безЛюдей, этоЧеловек } from './faction-groups.js?v=23.89.99';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -119,8 +120,8 @@ const чистоеИмя = (имя) => имяБезПриставки(текст
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.89.98';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.98';
+import { extractHudBlock } from './hud-block.js?v=23.89.99';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.99';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -240,9 +241,9 @@ function собратьОтношения(накоп, data, at) {
 // Репутация (wd.rep): вся история числа каждой группы к каждому адресату —
 // первое появление и каждый сдвиг, с причиной. В самом HUD «Как менялось»
 // видно только за «Ходов назад», а здесь — за весь отрезок.
-function собратьРепутацию(накоп, data, at) {
+function собратьРепутацию(накоп, data, at, люди = []) {
   // Замки игрока (render/faction-locks.js) — как на экране.
-  const строки = подЗамками(data.world && Array.isArray(data.world.reputation) ? data.world.reputation : [], at);
+  const строки = безЛюдей(подЗамками(data.world && Array.isArray(data.world.reputation) ? data.world.reputation : [], at), люди);
   for (const строка of строки) {
     const ф = разобратьФракцию(строка);
     if (!ф || ф.число === null) continue;
@@ -550,8 +551,11 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
   let датИзТегов = 0;
   let внеЧата = 0;
 
+  // Имена людей за весь отрезок: персонаж среди фракций в архив не идёт.
+  const людиАрхива = new Map(людиHUD([], [игрок]).map(л => [л.join(' '), л]));
   const учестьХод = (data, i, музыка = null) => {
     сОбработанным++;
+    for (const л of людиHUD([data])) людиАрхива.set(л.join(' '), л);
     отметить(i, data.scene);
     собратьСаундтрек(саундтрек, музыка, data, i);
     собратьСекреты(секреты, data, i);
@@ -559,7 +563,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     собратьСцену(сцена, data, i);
     собратьНастроения(настроения, data, i);
     собратьРужья(ружья, data, i);
-    собратьРепутацию(репутация, data, i);
+    собратьРепутацию(репутация, data, i, [...людиАрхива.values()]);
     собратьБеременности(беременности, data, i, игрок, исходыБеременностей);
     карты.учесть(data, i, деньСцены);
 
@@ -716,7 +720,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     moods: настроенияМассив,
     dashboard: дашборд.finish(),
     guns: ружьяМассив,
-    reputation: [...репутация.values()].sort((a, b) => a.firstSeen - b.firstSeen),
+    reputation: [...репутация.values()].filter(л => !этоЧеловек(л.name, [...людиАрхива.values()])).sort((a, b) => a.firstSeen - b.firstSeen),
     soundtrack: саундтрек,
     maps: карты.итог(),
     stats: {

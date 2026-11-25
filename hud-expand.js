@@ -17,8 +17,9 @@
 // в кодах (hud-snapshot.js, HUDвКодах).
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { namesLikelySame } from './names.js?v=23.89.98';
-import { блокКакБыл } from './hud-block.js?v=23.89.98';
+import { namesLikelySame } from './names.js?v=23.89.99';
+import { блокКакБыл } from './hud-block.js?v=23.89.99';
+import { людиHUD, безЛюдей } from './faction-groups.js?v=23.89.99';
 
 export const NC = /^\s*(?:nc|n\/c|no change|unchanged)\s*\.?\s*$/i;
 export const ПОЛЯ_NC = ['Ap', 'C', 'Kn', 'Ft', 'NG', 'SxL'];
@@ -181,25 +182,27 @@ const тотЖеАдресат = (а, б) => { const x = частиРепута�
 const строкиРепутации = (v) => (этоNC(v) ? [] : списком(v).filter(s => typeof s === 'string' && ключГруппы(s)));
 // замки — { применить(строки), держит(строка) }: группы, зафиксированные игроком
 // (render/faction-locks.js), — со строкой замка, и предел списка их не режет.
-export function развернутьРепутацию(hud, прошлые, замки = null) {
+// люди — имена из HUD (faction-groups.js): строка про персонажа — не фракция, убираем
+// и из ответа, и из прежних.
+export function развернутьРепутацию(hud, прошлые, замки = null, люди = []) {
   const v = объект(hud.wd) ? hud.wd.rep : undefined;
-  const свежие = строкиРепутации(v);
+  const свежие = безЛюдей(строкиРепутации(v), люди);
   const подЗамки = (строки) => (замки && typeof замки.применить === 'function' ? замки.применить(строки) : строки);
   const откуда = прошлые.find(h => h && объект(h.wd) && строкиРепутации(h.wd.rep).length);
   if (!откуда) {
     if (этоNC(v)) { hud.wd.rep = []; return true; }
-    const держим = Array.isArray(v) ? подЗамки(v) : v;
+    const держим = Array.isArray(v) ? безЛюдей(подЗамки(безЛюдей(v, люди)), люди) : v;
     if (держим === v) return false;
     hud.wd.rep = держим;
     return true;
   }
-  const итог = строкиРепутации(откуда.wd.rep).slice();
+  const итог = безЛюдей(строкиРепутации(откуда.wd.rep), люди).slice();
   for (const s of свежие) {
     const i = итог.findIndex(x => ключГруппы(x) === ключГруппы(s) && тотЖеАдресат(x, s));
     if (i >= 0) итог[i] = s; else итог.push(s);
   }
   let лишних = итог.length - ПРЕДЕЛ_РЕПУТАЦИИ;
-  const новое = подЗамки(итог.filter(s => !(лишних > 0 && !(замки && замки.держит && замки.держит(s)) && лишних--)));
+  const новое = безЛюдей(подЗамки(итог.filter(s => !(лишних > 0 && !(замки && замки.держит && замки.держит(s)) && лишних--))), люди);
   if (Array.isArray(v) && JSON.stringify(v) === JSON.stringify(новое)) return false;
   if (!объект(hud.wd)) hud.wd = {};
   hud.wd.rep = новое;
@@ -408,7 +411,7 @@ function развернутьПамять(hud, прошлые, ключи) {
  * просили писать коротко); репутация — дополнять wd.rep прежними строками;
  * nc разворачивается всегда. true — что-то поменялось.
  */
-export function развернутьКраткое(hud, прошлые, { мир = [], память = [], эпоха = [], репутация = false, замкиРепутации = null, глубже = null } = {}) {
+export function развернутьКраткое(hud, прошлые, { мир = [], память = [], эпоха = [], репутация = false, замкиРепутации = null, игрок = '', глубже = null } = {}) {
   if (!объект(hud)) return false;
   let было = false;
   const nc = (до) => {
@@ -432,7 +435,7 @@ export function развернутьКраткое(hud, прошлые, { мир
     }
   } finally { частиУбирать = true; }
   if (мир.length && развернутьМир(hud, до, мир)) было = true;
-  if (репутация && развернутьРепутацию(hud, до, замкиРепутации)) было = true;
+  if (репутация && развернутьРепутацию(hud, до, замкиРепутации, людиHUD([hud, ...до], [игрок]))) было = true;
   if (память.length && развернутьПамять(hud, до, память)) было = true;
   if (эпоха.length && развернутьЭпоху(hud, до, эпоха)) было = true;
   if (снятьПометки(hud)) было = true;

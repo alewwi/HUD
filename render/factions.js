@@ -9,13 +9,14 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.98';
-import { settings } from '../settings.js?v=23.89.98';
-import { namesLikelySame } from '../names.js?v=23.89.98';
-import { раскрывашка } from './fold.js?v=23.89.98';
-import { видМираСтарины } from './medieval-views.js?v=23.89.98';
-import { видБлока } from './views.js?v=23.89.98';
-import { подЗамками, замокСтроки, кнопкаЗамка } from './faction-locks.js?v=23.89.98';
+import { escapeHtml } from '../utils.js?v=23.89.99';
+import { settings } from '../settings.js?v=23.89.99';
+import { namesLikelySame } from '../names.js?v=23.89.99';
+import { раскрывашка } from './fold.js?v=23.89.99';
+import { видМираСтарины } from './medieval-views.js?v=23.89.99';
+import { видБлока } from './views.js?v=23.89.99';
+import { подЗамками, замокСтроки, кнопкаЗамка } from './faction-locks.js?v=23.89.99';
+import { безЛюдей } from '../faction-groups.js?v=23.89.99';
 
 /** «Гильдия | Лилиан | 80 | уважают | за что» → { кто, к, число, как, почему }. */
 export function разобратьФракцию(строка) {
@@ -217,13 +218,15 @@ function видГруппы(список, вид, uid, цель, имяЦели)
 /**
  * Раздел «Фракции и репутация» для вкладки «Мир». строки — wd.rep этого хода;
  * история — см. сдвигиФракций; uid — для переключателя двух вкладок; индекс —
- * номер хода, замки — свои замки примера (render/faction-locks.js).
+ * номер хода, замки — свои замки примера (render/faction-locks.js); люди — имена
+ * из HUD: строка про персонажа не показывается.
  */
-export function блокФракций(строки, { игрок = '', персонаж = '', история = [], uid = 'rep', индекс = Infinity, замки = null } = {}) {
+export function блокФракций(строки, { игрок = '', персонаж = '', история = [], uid = 'rep', индекс = Infinity, замки = null, люди = [] } = {}) {
   const режим = settings.factions || 'user';
   if (режим === 'off') return '';
   const ход = Number.isFinite(индекс) ? индекс : Infinity;
-  const фракции = подЗамками(Array.isArray(строки) ? строки : [], ход, замки).map(с => {
+  // Персонаж — не фракция (faction-groups.js): люди — имена из HUD.
+  const фракции = безЛюдей(подЗамками(Array.isArray(строки) ? строки : [], ход, замки), люди).map(с => {
     const ф = разобратьФракцию(с);
     if (!ф) return null;
     const замок = замокСтроки(с, ход, замки);

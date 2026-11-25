@@ -7,16 +7,16 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.98';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.98';
-import { namesLikelySame } from '../names.js?v=23.89.98';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.98';
-import { settings } from '../settings.js?v=23.89.98';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.98';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.98';
-import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.89.98';
-import { плашкаСтупени, сведенияДля, ступениВкл, словоСтупени } from './trust-stages.js?v=23.89.98';
-import { разобратьМаску } from './notice-dice.js?v=23.89.98';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.99';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.99';
+import { namesLikelySame } from '../names.js?v=23.89.99';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.99';
+import { settings } from '../settings.js?v=23.89.99';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.99';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.99';
+import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.89.99';
+import { плашкаСтупени, сведенияДля, ступениВкл, словоСтупени } from './trust-stages.js?v=23.89.99';
+import { разобратьМаску } from './notice-dice.js?v=23.89.99';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.

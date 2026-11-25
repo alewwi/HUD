@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.98**:
+The latest version is **23.89.99**:
 
+- Factions and reputation are groups only: a university, a workplace, a country, a clan; a character among the factions is removed, "Family (name)" and "Family (another name)" are one row.
 - X-ray distinguishes who leads the movement. The face profile, tongue and hands have been redrawn. The fist shows four curled fingers with the thumb resting across them.
 - HUD block selections survive sync and update open cards immediately. Memory keeps separate events that start with the same words.
 - The HUD in a separate request arrives as a stream: a long reply is no longer cut off after 6 minutes, and you see whether the model is thinking or writing; "🤔 Reasoning: less" is for models that think for a long time.

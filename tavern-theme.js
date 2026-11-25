@@ -18,7 +18,7 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { разобратьЦвет, вHex, наложить, яркость, контраст } from './contrast.js?v=23.89.98';
+import { разобратьЦвет, вHex, наложить, яркость, контраст } from './contrast.js?v=23.89.99';
 
 export const ID_ТАВЕРНЫ = 'tavern';
 

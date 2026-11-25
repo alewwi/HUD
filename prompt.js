@@ -10,25 +10,25 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.98';
-import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.98';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.98';
+import { settings } from './settings.js?v=23.89.99';
+import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.99';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.99';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.98';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.98';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.98';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.98';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.98';
-import { возрастТочно } from './render/babies.js?v=23.89.98';
-import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.89.98';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.89.98';
-import { сжатьСхему } from './compact-fields.js?v=23.89.98';
-import { короткийПромпт } from './prompt-short.js?v=23.89.98';
-import { подготовкаИдёт } from './render/holiday-lore.js?v=23.89.98';
-import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.89.98';
-import { промптРанСпутника } from './render/pet-wounds.js?v=23.89.98';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.98';
-import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.89.98';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.99';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.99';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.99';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.99';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.99';
+import { возрастТочно } from './render/babies.js?v=23.89.99';
+import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.89.99';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.89.99';
+import { сжатьСхему } from './compact-fields.js?v=23.89.99';
+import { короткийПромпт } from './prompt-short.js?v=23.89.99';
+import { подготовкаИдёт } from './render/holiday-lore.js?v=23.89.99';
+import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.89.99';
+import { промптРанСпутника } from './render/pet-wounds.js?v=23.89.99';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.99';
+import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.89.99';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -228,7 +228,7 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
 - 🧠 MEMORY AS UPDATES: in "me" write ${списокКодов(ключиПамяти)} with only what is new or changed this turn — never list again an item from the last HUD that did not change: the HUD keeps the rest by itself. To change an item, write it again starting with its id from the last HUD — '[f2] new text' (a secret — the same "id"); to remove one, write '- [f2]'. New items get no id. Nothing new — []. "lg" starts over on a new day.` : '')
     // Репутация — только сдвиги и новые группы; прежние строки HUD дополняет сам (hud-expand.js).
     + (фракции ? `
-- 🏛️ REPUTATION AS UPDATES: in "wd"."rep" write only the rows of groups whose standing changed this turn and of groups that matter for the first time — never repeat a row from the last HUD that did not change: the HUD keeps the rest by itself. Nothing changed — "rep": [].` : '');
+- 🏛️ REPUTATION AS UPDATES: in "wd"."rep" write only the rows of groups whose standing changed this turn and of groups that matter for the first time — never repeat a row from the last HUD that did not change: the HUD keeps the rest by itself. Nothing changed — "rep": []. A row is always a group of people — a university, a workplace, a country, a city, a clan, a family as a whole — never a single character and never a few people by name: how one person regards someone is their trust and relations. No members' names in brackets.` : '');
 
   // Точные данные — то, что было в сюжете на самом деле: «стремись к трём» на них
   // не действует, иначе модель дописывала и переписывала прошлое ради числа.
@@ -648,7 +648,7 @@ ${блокПисем(true)}`;
   "afs": ["[kind | title | where and when]", "events: 2-6 rows of what is on today, ${экономика ? 'fitting the era and place' : фон}; kind is one of: cinema, theatre, concert, exhibition, festival, sport, club, street, lecture"],` : ''}${город ? `
   "cty": ["[kind | what is happening]", "city services: 2-5 rows, ${экономика || афиша ? 'fitting the era and place' : фон}; kind is one of: traffic, roads, weather, transport, repairs, emergency, utilities, police, health, protest"],` : ''}
   "ad": ["[classified ad: short, in the voice of whoever posted it]", "ads: one line per ad"]${фракции ? `,
-  "rep": ["[faction or group] | [toward whom: ${целиФракций}] | [standing -100..100] | [attitude in 1-3 words, e.g. respect, despise, fear] | [why: what earned this standing or its latest shift]", "reputation: how groups that matter in the story — gangs, police, guilds, noble houses, a class at the university, a court — regard ${целиФракций}; one row per group${settings.factions === 'both' ? ' and per person' : ''}, written only when its standing shifts or the group is new (REPUTATION AS UPDATES); nothing shifted — []. The number moves only through events, by steps, never resets; on a shift, why says what caused it"]` : ''}`;
+  "rep": ["[faction or group, never a person] | [toward whom: ${целиФракций}] | [standing -100..100] | [attitude in 1-3 words, e.g. respect, despise, fear] | [why: what earned this standing or its latest shift]", "reputation: how groups that matter in the story — a university, a workplace, a country, a clan, gangs, police, guilds, noble houses, a court — regard ${целиФракций}; groups only, never an individual character; one row per group${settings.factions === 'both' ? ' for each of the two' : ''}, written only when its standing shifts or the group is new (REPUTATION AS UPDATES); nothing shifted — []. The number moves only through events, by steps, never resets; on a shift, why says what caused it"]` : ''}`;
     if (settings.showComments) {
       p += `,
   "com": ["[nickname: comment]", "comments: ordinary people of this world posting under nicknames wherever this place and era talk: a city forum, a chat, a darknet board, a tavern wall. They live in the story's world, know only what is public or leaked, argue and get things wrong; they never see private scenes or thoughts, never address the reader and do not know this is a story. One line per comment, as many as the thread gets"]`;
