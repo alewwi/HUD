@@ -111,6 +111,13 @@ export const defaultSettings = {
   enablePhone: true,
   enableIntercepts: true,
   enableDiary: true,
+  // Сколько за ход (Глубокая настройка → Сколько за ход, deep-fields.js):
+  // 0 — без числа, сколько даёт сюжет.
+  diaryAuthors: 2,
+  bodyDiaryAuthors: 0,
+  tapsPerTurn: 0,
+  chatsPerTurn: 0,
+  newsPerTurn: 0,
   enableWorld: true,
   enableDreams: true,
   enableUserBlock: true,
@@ -236,6 +243,9 @@ export const defaultSettings = {
   // фактом ('hidden') или только игроку ('off').
   enableBabies: true,
   babyGraduateYears: 3,
+  // Когда просить «Детскую»: auto — после родов или если в истории есть малыш
+  // (был до начала, приёмный); births — только после родов; always — всегда.
+  babiesOpen: 'auto',
   babyFactsToModel: 'hidden',
   enableGuns: true,
   enablePerception: true,
@@ -610,8 +620,10 @@ export const defaultSettings = {
   hudMaxTokens: 8192,
   // Лимит ответа на перегенерацию одного телефона (📱 ↻); 0 — длина ответа из Таверны.
   phoneMaxTokens: 8192,
-  // Сколько минут ждать ответа на создание/перегенерацию HUD; 0 — без предела.
+  // Сколько минут модель может молчать при создании/перегенерации HUD; 0 — без предела.
   hudRegenTimeout: 6,
+  // Рассуждения модели в этих запросах: 'same' — как в Таверне, 'low' — поменьше.
+  hudRegenReasoning: 'same',
   hudLorebooks: [],
 
   // --- РУЧНЫЕ АВАТАРКИ ---

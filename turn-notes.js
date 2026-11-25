@@ -21,23 +21,24 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.97';
-import { английский } from './i18n.js?v=23.89.97';
-import { flattenFieldValue } from './utils.js?v=23.89.97';
-import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.89.97';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.97';
-import { статусОбещания } from './hud-expand.js?v=23.89.97';
-import { полеВкл } from './deep-fields.js?v=23.89.97';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.97';
-import { namesLikelySame } from './names.js?v=23.89.97';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.97';
-import { праздникиГода } from './render/holidays.js?v=23.89.97';
-import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.97';
-import { заметкаМеста } from './render/place-lore.js?v=23.89.97';
-import { заметкаПоста } from './render/almanac.js?v=23.89.97';
-import { заметкаСил } from './render/powers.js?v=23.89.97';
-import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.97';
-import { приметыЧеловека, общееСцены, фазаБлизости, девственностьЧеловека, больВТексте } from './body-cues.js?v=23.89.97';
+import { settings } from './settings.js?v=23.89.98';
+import { английский } from './i18n.js?v=23.89.98';
+import { flattenFieldValue } from './utils.js?v=23.89.98';
+import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.89.98';
+import { заметкиЗамковФракций } from './render/faction-locks.js?v=23.89.98';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.98';
+import { статусОбещания } from './hud-expand.js?v=23.89.98';
+import { полеВкл } from './deep-fields.js?v=23.89.98';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.98';
+import { namesLikelySame } from './names.js?v=23.89.98';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.98';
+import { праздникиГода } from './render/holidays.js?v=23.89.98';
+import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.98';
+import { заметкаМеста } from './render/place-lore.js?v=23.89.98';
+import { заметкаПоста } from './render/almanac.js?v=23.89.98';
+import { заметкаСил } from './render/powers.js?v=23.89.98';
+import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.98';
+import { приметыЧеловека, общееСцены, фазаБлизости, девственностьЧеловека, больВТексте } from './body-cues.js?v=23.89.98';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -1007,6 +1008,8 @@ export function заметкиХода({ чат, снимок = null, тип = '
     строки.push(...заметкаЗамков(х, снимок, чат, цель));
     // Ступени: потолок, который игрок ещё не открыл, замки и только что открытые ступени.
     строки.push(...заметкиСтупеней(снимок));
+    // Фракции, чью репутацию игрок зафиксировал.
+    строки.push(...заметкиЗамковФракций(снимок));
 
     // Живые детали: обычные (cue) и близости (cx) — у каждой группы своя галка.
     if ((вкл('enableBodyCues') && нота('cue')) || (вкл('enableIntimacyCues') && нота('cx'))) { const д = заметкаДеталей(х, снимок, цель, игрок, { nsfw, бой: опасно }); if (д) строки.push(д); }

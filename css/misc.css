@@ -1698,6 +1698,8 @@
 /* Глубокая настройка (settings-deep.js): поле, под ним — его метки лесенкой. */
 .hud-fine-count { font-weight: 400; opacity: .65; font-size: .92em; }
 .hud-fine-tree { display: flex; flex-direction: column; gap: 4px; margin: 6px 0; }
+.hud-fine-num { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 2px 0; }
+.hud-fine-num .hud-set-num { flex: 0 0 auto; width: 52px; }
 .hud-fine-field { display: flex; flex-direction: column; gap: 3px; padding: 2px 0; }
 .hud-fine-subs { display: flex; flex-wrap: wrap; gap: 3px 12px; margin-left: 24px; padding-left: 8px; border-left: 1px solid var(--hud-border); }
 .hud-fine-subs[data-off] { opacity: .4; pointer-events: none; }

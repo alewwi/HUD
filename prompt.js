@@ -10,24 +10,25 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.97';
-import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.97';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.97';
+import { settings } from './settings.js?v=23.89.98';
+import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.98';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.98';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.97';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.97';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.97';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.97';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.97';
-import { возрастТочно } from './render/babies.js?v=23.89.97';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.97';
-import { сжатьСхему } from './compact-fields.js?v=23.89.97';
-import { короткийПромпт } from './prompt-short.js?v=23.89.97';
-import { подготовкаИдёт } from './render/holiday-lore.js?v=23.89.97';
-import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.89.97';
-import { промптРанСпутника } from './render/pet-wounds.js?v=23.89.97';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.97';
-import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.89.97';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.98';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.98';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.98';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.98';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.98';
+import { возрастТочно } from './render/babies.js?v=23.89.98';
+import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.89.98';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.89.98';
+import { сжатьСхему } from './compact-fields.js?v=23.89.98';
+import { короткийПромпт } from './prompt-short.js?v=23.89.98';
+import { подготовкаИдёт } from './render/holiday-lore.js?v=23.89.98';
+import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.89.98';
+import { промптРанСпутника } from './render/pet-wounds.js?v=23.89.98';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.98';
+import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.89.98';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -59,14 +60,32 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   if (беременность && !cacheStable) основа.сверитьРоды();
   const родыБыли = !cacheStable && беременность && роды().length > 0;
   // Снимок нужен и без родов: по его дате HUD считает срок беременности.
-  const снимокТекст = беременность && !cacheStable ? JSON.stringify(основа.последнийСнимокОбъект(тип) || {}) : '';
+  const детская = settings.enableBabies !== false;
+  const снимокО = (беременность || детская) && !cacheStable ? основа.последнийСнимокОбъект(тип) || {} : {};
+  const снимокТекст = (беременность || детская) && !cacheStable ? JSON.stringify(снимокО) : '';
   const prgВСнимке = /"Prg"\s*:\s*"(?!(?:empty|none)")(?![^"]*(?:brn|lost)\s*:)/i.test(снимокТекст);
   const беременностьВПромпт = беременность && (!родыБыли || естьЗачатия() || prgВСнимке);
 
   const порогМалышей = Math.max(1, Number(settings.babyGraduateYears) || 3) * 365;
   const датаСнимка = (() => { const m = снимокТекст.match(/"Dt"\s*:\s*"([^"]+)"/); return m ? parseSceneDate(m[1]) : null; })();
   const возрастРодов = (р) => { const д = деньРодов(р, датаСнимка); return д !== null && д !== undefined && датаСнимка !== null ? (датаСнимка - д) / 864e5 : 0; };
-  const малышиВПромпт = settings.enableBabies !== false && (cacheStable ? беременность : родыБыли && роды().some(р => возрастРодов(р) < порогМалышей));
+  // Ребёнок, о чьих родах HUD не знает (был до начала истории, приёмный):
+  // виден в последнем HUD, HUD помнит его день рождения, или его называют
+  // карточка и последние сообщения. По тексту — пока модель сама не ответила
+  // пустой «Детской»: слово в карточке могло быть про прошлое.
+  const режимДетской = ['births', 'always'].includes(settings.babiesOpen) ? settings.babiesOpen : 'auto';
+  const помнитДетей = детская && !cacheStable ? малышиБезРодов().filter(м => Number.isFinite(м.дата)) : [];
+  const детиHUD = детиСнимка(снимокО, порогМалышей, датаСнимка, new Map(помнитДетей.map(м => [м.имя, м.дата])));
+  const малышРастёт = (м) => датаСнимка !== null && м.дата <= датаСнимка && (датаСнимка - м.дата) / 864e5 < порогМалышей;
+  const малышБезРодов = () => {
+    if (детиHUD.малыши.length || детиHUD.безВозраста.length || помнитДетей.some(малышРастёт)) return true;
+    const т = основа.текстыДляДетской ? основа.текстыДляДетской(тип) : null;
+    if (!т) return false;
+    const лет = порогМалышей / 365, ответилаНет = Array.isArray(основа.последнийHUDКакЕсть(тип)?.bb);
+    return ребёнокВТексте(т.сообщения, лет) || (!ответилаНет && ребёнокВТексте(т.карточка, лет));
+  };
+  const малышиВПромпт = детская && (cacheStable ? беременность || режимДетской === 'always'
+    : (родыБыли && роды().some(р => возрастРодов(р) < порогМалышей)) || режимДетской === 'always' || (режимДетской === 'auto' && малышБезРодов()));
   const выросли = родыБыли ? роды().filter(р => возрастРодов(р) >= порогМалышей) : [];
   // Послеродовое — пока идёт восстановление и кормление: до двух лет с родов.
   const послеродовоеВПромпт = cacheStable ? беременность : родыБыли && роды().some(р => возрастРодов(р) < 730);
@@ -173,6 +192,8 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
     : 'Write your next reply exactly as the story and every instruction above require. Then, as the very last part of that same reply, append ONE [HUD] block — the state of the world AFTER the events of your reply. Nothing may follow [/HUD].';
   const чего = режим === 'regen' ? 'the latest message' : 'your reply';
   // Правила сообщений — общие для переписок и перехватов.
+  // Сколько за ход (Глубокая настройка): 0 — без числа.
+  const перехватов = сколькоЗаХод(settings, 'tapsPerTurn'), новостей = сколькоЗаХод(settings, 'newsPerTurn'), переписокЗаХод = сколькоЗаХод(settings, 'chatsPerTurn');
   const правилаСообщений = 'Keep ongoing conversations and unanswered messages alive turn to turn; incoming ones may go unanswered — busy, asleep, offline, ignoring. Unread, Deleted or Draft only when the story supports it: deleted keep their hidden text, drafts are unsent. Never invent placeholder chats or fake phone data. A message NOT from the day of sc.Dt carries its day in the time field — «Вчера, 22:30», «Позавчера, 19:05», «12.10, 14:05»; today\'s needs the clock only. Keep that day written the same way on later turns, so a chat spanning days stays sorted.';
   const тегиСообщений = [
     '"VOICE: prefix the text with [VOICE_M:SS], e.g. \'[Sender] -> [Recipient]: [VOICE_0:42] Перезвони мне | 21:40 | Unread\'. For audio instead of typing — walking, crying, in a hurry. After the tag goes the transcript — never a voice message without words."',
@@ -209,6 +230,14 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
     + (фракции ? `
 - 🏛️ REPUTATION AS UPDATES: in "wd"."rep" write only the rows of groups whose standing changed this turn and of groups that matter for the first time — never repeat a row from the last HUD that did not change: the HUD keeps the rest by itself. Nothing changed — "rep": [].` : '');
 
+  // Точные данные — то, что было в сюжете на самом деле: «стремись к трём» на них
+  // не действует, иначе модель дописывала и переписывала прошлое ради числа.
+  // Ключевые мысли, новости, слухи и комментарии сюда не входят.
+  const ТОЧНЫЕ = ['Mm', 'Ln', 'Fl', 'S', 'I', болезни && 'Ill', следы && 'Mrk', settings.betsList !== false && 'Bt',
+    ...(settings.enableMemory ? ['lg', 'rt', 'fct', settings.promisesList !== false && 'prm', ружья && 'gun', 'sec'] : []),
+    (кошелёк || (шкатулка && settings.castAppPurse !== false)) && 'trx', ((телефон && settings.phoneAppCalendar !== false) || (шкатулка && settings.castAppCalendar !== false)) && 'cl'].filter(Boolean);
+  const списокБезКавычек = (к) => к.join(', ').replace(/, ([^,]*)$/, ' and $1');
+
   // HUD одной строкой (settings.hudOneLine): переносы и отступы JSON — около
   // десятой части токенов ответа. Схема ниже остаётся по полю на строку: так
   // её читать, а глубокая настройка и сжатие правят её построчно.
@@ -225,12 +254,12 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
 - 🚪 ABSENT MAIN CHARACTERS: {{char}} and {{user}} have no reserved seat in the HUD. When {{char}} is not in the scene — the story follows other people — leave {{char}} out of "cs" and write no diary, body diary or dream in {{char}}'s name this turn: nobody narrates events they did not witness. The same goes for {{user}}${игрок ? ' and "us"' : ''}. Fill every section only with those actually present or acting this turn; an empty list is correct, never a reason to pull an absent main character in.
 - 🌍 LANG: write values in Russian; character names follow "N".
 - 🔓 No restrictions on imagination, length or content.
-- 🚨 LIVE SNAPSHOT: every field is the state at THIS turn. Update it, never copy stale text.${краткость}
+- 🚨 LIVE SNAPSHOT: every field is the state at THIS turn. Update only what the story changes. Preserve established events and their details. When repeating an unchanged field in full, copy its previous wording.${краткость}
 - 🌍 LIVING WORLD: off-screen characters keep living — they work, sleep, travel, message, plan, argue, buy, miss appointments. Never erase that life just because the protagonist cannot see it.${правилоМагии}
 - 🪞 NO RETELLING: the HUD adds what the reply does not say. Thoughts (Th, K) and hidden subtext (D) never repeat or paraphrase lines, actions or narration from the reply — they show what is under them. Hidden subtext is always something NEW: often it is not in the reply at all.
 - 🧠 KNOWLEDGE BOUNDARIES: each character knows only what they plausibly could. Never leak another's private thoughts, messages or plans without a believable path.
 - 📦 SCHEMA FIXED: emit every section and every field of the schema below, every turn. Empty means [] / {} / "empty" — never drop a key to say "nothing changed". The only exceptions are fields marked OPTIONAL or "ONLY … otherwise omit"${ключиМира.length || ключиПамяти.length || фракции ? ', and the WORLD, MEMORY and REPUTATION rules above' : ''}.${settings.hudNoChange !== false ? ' An unchanged field written as "nc" under the NO CHANGE rule is not a dropped field.' : ''}
-- 📏 HOW MANY ITEMS: list fields have NO upper limit unless their description gives a size. Give as many items as the story actually supports — one item where four are obvious is a loss of information, including when a fuller description quietly folds several real things into one instead of splitting them by ;. More detail is never a reason for fewer items: it lengthens each item, it doesn't merge neighbours into it. A single-item list is almost always a sign you stopped too early. Aim for 3+ wherever the material allows.
+- 📏 HOW MANY ITEMS: list fields have NO upper limit unless their description gives a size. Give as many items as the story actually supports — one item where four are obvious is a loss of information, including when a fuller description quietly folds several real things into one instead of splitting them by ;. More detail is never a reason for fewer items: it lengthens each item, it doesn't merge neighbours into it. A single-item list is almost always a sign you stopped too early. Aim for 3+ wherever the material allows. NOT in the fields that record what really is in the story — ${списокБезКавычек(ТОЧНЫЕ)}: there write exactly as many entries as there really are. One is right when there is one, four when there are four; never invent, split or reword an entry to reach a number, never drop a real one; when you write out an entry that stays, keep its words and change only what really changed in it — a bruise fading, an item used.${ключиПамяти.length || фракции ? ' In the update lists (MEMORY, REPUTATION) only what is new counts — one item or none is normal there.' : ''}
 - 🏷️ LABELED ITEMS: wherever a field's description shows its items as "<label>: <value>" or "code: value", write every item that way, separated by SEMICOLONS, never commas — a comma-separated list collapses into one unreadable pill. Never output a bare value without its label.
 - ⚠️ FORMATTING: use exactly these codes as keys. Quote speech and phrases inside a value with «ёлочки», never with straight double quotes — a raw " ends the JSON string and cuts the text off; if one is unavoidable, escape it as \\". Separate list items with ; — never with slashes — and never put ; inside a single item.
 
@@ -286,9 +315,9 @@ ${дуэль ? `   "Vd": "[OPTIONAL — only while an argument is going on this 
    "SxC": "[sex count: lifetime number of sexual partners — a number or an honest estimate; 0 for a virgin, kept 0 until their first time really happens in the story]",
    "SxR": "[sex regularity: how often they have sex these days and with whom, how they satisfy themselves in between, how strong their libido is and what feeds or kills it — a sentence or two]",
 ` : историяБлизости ? `   "SxL": "[the last night this character spent with someone: 'dt: date, time, place; pr: with whom, who they are to them; en: how it ended, in calm neutral words — protected (a condom, pulled out in time, the pill) or finished inside unprotected, a pregnancy risk — and what came right after'. Keep it; when another such night happens — on screen or skipped in a time jump — rewrite it to that one with the story's date. Never keep an older date after a newer night]",
-` : ''}   "Ln": "[lines: their most characteristic lines from the recent story, verbatim in «», separated by ;, at least 3. Lines that show HOW they speak — rhythm, slang, cruelty, tenderness — not what happened. Skip until they have spoken]",
+` : ''}   "Ln": "[lines: their most characteristic lines from the recent story, verbatim in «», separated by ;, 3 or more once they have said that many — only words they really said. Lines that show HOW they speak — rhythm, slang, cruelty, tenderness — not what happened. Skip until they have spoken]",
    "SS": "${интим ? `[scene state — the intimacy phase right now. Every turn is in exactly ONE phase, and it decides which intimate fields below are filled. PHASE 1, nothing sexual is happening or has just ended: 'empty', and so are ${близость ? 'Pos, Rnd, Dur, Prt, Org, Vit, Snd, ' : ''}BM, W, ND, AC, SxV${игрок ? " and the user's UW" : ''}; SxC, SxR, Kn, Ft, NG, NT stay filled, and SxL keeps describing the most recent encounter — if one ended since the previous HUD, SxL describes THAT one now, with its date. PHASE 2, during the act — foreplay, act or climax: fill W, BM${близость ? ', Pos, Rnd, Dur, Prt, Org, Vit, Snd' : ''}${игрок ? ' and UW' : ''}; ND, AC, SxV stay 'empty'. PHASE 3, from after the last climax until they move on — aftercare or afterglow: fill ND, AC, SxV and update SxL to this encounter; W${близость ? ', Pos, Org, Snd' : ''}${игрок ? ', UW' : ''} become 'empty', BM keeps only still-sensitive zones${близость ? ', Vit may stay while the body calms down, Rnd, Dur and Prt keep their final values' : ''}. A new round is phase 2 again${близость ? ': Rnd grows by one, Dur keeps counting' : ''}. Write SS as the phase number AND its stage word, never the number alone: '2 — foreplay', '2 — act', '2 — climax', '3 — aftercare', '3 — afterglow'. Never fill W and ND in the same turn. Every intimate field is a full, vivid, explicit description, never a single word — values like 'ухоженный', 'стандартно', 'влажно', 'да' are failures: say WHAT exactly, WHERE, how it looks, feels, sounds, smells and tastes, and how it is changing right now, in one to three frank, anatomical sentences, no euphemisms, no fading to black. Bad 'lb: влажно' → good 'lb: течёт так, что внутренняя сторона бёдер блестит, бельё промокло ещё в прелюдии, каждое движение отдаётся влажным звуком'. Bad 'pb: ухоженный' → good 'pb: гладко выбрита, узкая полоска светлых волос над клитором, кожа нежная после бритья'. Where a field asks for a number, the number comes first, then the description]` : `[scene state: 'empty' — nothing intimate is happening; only if intimacy begins in this reply, its phase: foreplay, act or climax]`}",${близость ? `
-   "Pos": "[position (phase 2): the current position in full — who is where, how bodies are arranged, hands/legs/weight, angle and rhythm, e.g. 'на боку, он сзади, рука на её горле, двигается медленно и глубоко']",
+   "Pos": "[position (phase 2): the current position in full — who is where, how bodies are arranged, hands/legs/weight, angle and rhythm, who moves (oral: the head bobs, licks, or hips thrust), e.g. 'на боку, он сзади, рука на её горле, двигается медленно и глубоко']",
    "Rnd": "[round (phase 2, kept in phase 3): the number of the current round in this scene, 1 for the first]",
    "Dur": "[duration (phase 2, final value kept in phase 3): in-story minutes the intimate scene has lasted so far, as a number]",
    "Prt": "[protection (phase 2, kept in phase 3), as '<type>: <what happens with it — who handled it, whether it holds, how they feel about the risk>'. Type: condom, pill, iud, withdrawal, none — e.g. 'condom: порвался на втором заходе, заметили не сразу', 'none: оба знают и идут на риск']",
@@ -342,7 +371,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
   if (settings.enableMemory) {
     p += `,
  "me": {
-  "lg": ["[HH:MM] - [an event of today]", "log: one line per event, up to 5, today only, chronological; people by their real names, never 'Вы', 'User' or 'главный персонаж'"],
+  "lg": ["[HH:MM] - [an event of today]", "log: one line per event${ключиПамяти.length ? ' of this turn, never a line already in the last HUD' : ', up to 5, today only, chronological'}; people by their real names, never 'Вы', 'User' or 'главный персонаж'"],
   "md": {
    "us": {"nw": "[current mood of {{user}} in a word or two — mood and route track ONLY {{user}} and {{char}}; 'empty' for whoever is absent from the scene]", "hs": ["[HH:MM] - [mood at that time]", "history: a new line every time the mood shifts, up to 12"]},
    "chr": {"nw": "[current mood of {{char}} in a word or two]", "hs": ["[HH:MM] - [mood at that time]", "history: a new line every time the mood shifts, up to 12"]}
@@ -420,7 +449,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
     "[Sender] -> [Recipient]: [Message] | [Time] | [Read / Unread / Deleted / Draft]",
     "${правилаСообщений}",
     ${тегиСообщений.join(',\n    ')},
-    "One line per message, as many lines as the conversation has — no limit on chats or on messages inside a chat."
+    "One line per message, as many lines as the conversation has — no limit on chats or on messages inside a chat. A conversation is an exchange — question, answer, second thought — not one line; people outside the scene write on their own initiative, for their own reasons.${переписокЗаХод ? ` About ${переписокЗаХод} chats get something new each turn, unless nobody would plausibly write.` : ''} Reach for voice, photo, call or reply tags wherever a real person would."
    ]
   }
  }`;
@@ -435,8 +464,8 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
     p += `,
  "tp": [
   {
-   "tg": "[target: the NPC whose phone is intercepted — a conversation between people other than ${телефон ? 'the phone owner' : '{{char}}'}; one object per intercepted chat. Never invent an intercept just to hand the protagonist information — it must be a conversation those people would plausibly have on their own]",
-   "cn": "[chat name: the NPC-to-NPC or group chat title]",
+   "tg": "[target: the NPC whose phone is intercepted — a conversation between people other than ${телефон ? 'the phone owner' : '{{char}}'}; one object per intercepted chat${перехватов ? `, about ${перехватов} each turn between different people` : ', as many as are going on'}. Intercepts are the OFF-SCREEN story: what others plan, fear, hide, trade or gossip about while the reply follows someone else. They may have nothing to do with this scene, pick up their own threads from earlier turns and move on without it; never a retelling of the reply. Never invent an intercept just to hand the protagonist information — it must be a conversation those people would plausibly have on their own]",
+   "cn": "[chat name: the NPC-to-NPC or group chat title — the same one every turn for the same conversation]",
    "pp": "[participants: ONLY for a group of 3+, separated by ;; omit for private chats]",
    "ms": [
     "[Sender] -> [Recipient]: [Msg] | [Time] | [Read / Unread / Deleted / Draft]",
@@ -504,11 +533,24 @@ ${блокПисем(true)}`;
  ]`;
   }
 
+  // Дневник ведёт не один {{char}}: запись — от каждого, кого ход задел, в
+  // пределах настройки. Одной фразы «сколько пишут сегодня» моделям мало —
+  // они почти всегда писали одну запись, от главного.
+  const авторов = авторовДневника(settings);
+  const авторыДневника = авторов === 1
+    ? "ONE character's name, the one this turn touched most — not necessarily {{char}}; NEVER {{user}}, and never someone absent from this turn's events. Exactly one entry"
+    : `a character's name — NEVER {{user}}, and never someone absent from this turn's events. The diary is not {{char}}'s alone: every character old enough to write keeps their own. ${авторов ? `Up to ${авторов} entries` : 'One entry for each character with something to write'}, one object per author, every author different; when two or more characters took part in this turn, at least two of them write${авторов ? ' — those the turn touched most, {{char}} gets no priority' : ''}. Each author knows only what they saw, heard or were told, sees the same events their own way and has their own voice; entries never repeat or retell each other`;
+  // Дневник тела — у каждого, кто участвует, кроме игрока: двое персонажей без
+  // игрока или группа давали одну запись на всех.
+  const авторовТела = сколькоЗаХод(settings, 'bodyDiaryAuthors');
+  const авторыТела = авторовТела === 1
+    ? "ONE character's name, of those who take part in the intimacy; NEVER {{user}}, and never someone absent from this turn's events. Exactly one entry"
+    : `a character's name — NEVER {{user}}, and never someone absent from this turn's events. Every character who takes part in the intimacy writes their own entry, one object per author${авторовТела ? `, up to ${авторовТела} entries` : ', as many entries as participants'}: one partner of {{user}} — one entry, two characters together without {{user}} — two, a group — one each; a mere witness writes none. Every entry is that person's own body and view of the same moment, never a copy of another's`;
   if (settings.enableDiary) {
     p += `,
  "dy": [
   {
-   "au": "[author: a character's name — NEVER {{user}}, and never someone absent from this turn's events; one object per entry, as many characters as write today]",
+   "au": "[author: ${авторыДневника}]",
    "tm": "[time: date and time of the entry]",
    "tx": "[text: a real diary entry the author sits down to write — never a single thought, a note or a one-line musing. 6-10 full sentences in 2-3 short paragraphs separated by a line break: what happened today told in their own words with concrete details (a place, words someone said, a small gesture they can't stop replaying); what they felt and why; what they doubt, regret, hope for or are ashamed of; what they decide to do next. Their own voice and habits of speech — they may address the diary, contradict themselves, cross a phrase out with ~~like this~~, stress a word with **bold**, *italics* or __underline__ (sparingly) or break off mid-thought. Longer when the day was heavy. Private writing about their own life, never a scene summary, never an omniscient narrator.]",
    "ab": "[about {{user}}: a separate private first-person passage about {{user}} only, 2-4 full sentences — what the author feels, wants, fears, notices and remembers about them today, the things they would never say aloud. 'empty' if nothing meaningful this turn.]",
@@ -517,7 +559,7 @@ ${блокПисем(true)}`;
  ]${интим ? `,
  "bd": [
   {
-   "au": "[author: a character's name — NEVER {{user}}, and never someone absent from this turn's events; one object per entry]",
+   "au": "[author: ${авторыТела}]",
    "tm": "[time: date and time of the entry]",
    "tx": "[body diary, written EVERY turn of intimacy phases 2 and 3, and in phase 1 only while the body still clearly carries the encounter (soreness, marks, the memory of touch next morning); otherwise leave this array empty. A first-person entry about the body at THIS moment of the scene: during — what it wants, what it gets, where it burns; after — what aches, what lingers, which marks it finds, what surprised it, what it is ashamed of. Frank, physical, no euphemisms. 3-6 sentences.]",
    "md": "[mood: one word — desire, shame, tenderness, emptiness, triumph or anxiety]"
@@ -576,7 +618,7 @@ ${блокПисем(true)}`;
     const точные = датаСнимка === null ? [] : [
       ...роды().map(р => { const д = деньРодов(р, датаСнимка); if (д === null || д > датаСнимка) return ''; const дн = Math.round((датаСнимка - д) / 864e5);
         return `${р.число > 1 ? (р.число === 2 ? 'twins' : 'triplets') : 'a baby'} born ${дм(д)} — ${т(возрастТочно(дн, датаСнимка))}`; }),
-      ...малышиБезРодов().map(м => м.дата <= датаСнимка ? `${м.имя} born ${дм(м.дата)} — ${т(возрастТочно(Math.round((датаСнимка - м.дата) / 864e5), датаСнимка))}` : ''),
+      ...малышиБезРодов().filter(малышРастёт).map(м => м.дата <= датаСнимка ? `${м.имя} born ${дм(м.дата)} — ${т(возрастТочно(Math.round((датаСнимка - м.дата) / 864e5), датаСнимка))}` : ''),
     ].filter(Boolean);
     // Игрок сказал, что модель ошиблась в возрасте ребёнка: называем ей верный.
     const поправки = датаСнимка === null ? [] : спорыВозраста().filter(с => с.ошибся === 'model' && Number.isFinite(с.рождHUD) && с.рождHUD <= датаСнимка)
@@ -584,15 +626,20 @@ ${блокПисем(true)}`;
     var возрастМалышей = (поправки.length ? `CORRECTION: ${поправки.join('; ')} — write exactly this age. ` : '') + (точные.length ? `exact, the HUD counts it from the birth date: ${точные.join('; ')} (on the scene date of the last HUD; add the days that pass). Never invent another age or birthday` : "days, weeks or months since birth, e.g. '12 дней', '3 месяца'");
     p += `,
  "bb": [
-  {"N": "[the child's name — one object per child younger than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years, born in the story or not; such a child is never in cs; older children go to cs as regular characters]", "sx": "[boy or girl]", "A": "[age: ${возрастМалышей}]", "C": "[what the child is wearing or wrapped in right now]", "Ap": "[appearance: size, hair, eyes, skin, marks — a baby's look changes month to month]", "R": "[who the child is to the family, e.g. 'дочь Веры и Глеба']",${промптБрака('baby')} "B": "[body and mood right now in a phrase — sleepy, fussy, calm, giggling, teething]",${состояниеТела ? ` "Bs": "[the baby's body state, numbers 0-100 each followed by a word: 'eng: energy; awk: alertness — drops toward the next nap; sat: satiety — 100 right after feeding, falls until the next one; str: fussiness — crying, colic, teething raise it; slp: last night's sleep — hours and how many wakings']",` : ''} "H": "[health in a phrase]", "Ill": "[illnesses, ONLY if any — same format as for characters]", "Mrk": "[visible marks, ONLY if any — rash, bruise, scratch, birthmark]", "Nds": "[needs: 'fed: time of the last feeding HH:MM and what — breast, ${заботаСтарины ? 'wet nurse, gruel' : 'bottle, purée'}; slp: asleep or awake and since when HH:MM; dpr: time of the last diaper change HH:MM']", "L": "[where the child is right now and with whom]", "Th": "[the baby's thought right now, in the baby's own voice and simple world. A newborn feels rather than thinks: warmth, hunger, mother's heartbeat, light and sounds. An older baby thinks in short, funny, childlike phrases. 1-2 sentences, first person, no adult vocabulary]", "K": "[what occupies the child right now — impressions, each with an emoji; at least 2; separate by ;]", "I": "[the child's things nearby — toys, ${заботаСтарины ? 'rag teat, swaddling' : 'pacifier, blanket'} — each '<item>: <state>'; separate by ;]", "S": "[the child's routine ahead — feeding, nap, bath, walk, ${заботаСтарины ? 'midwife' : 'doctor'} — each '<time> - <event>'; separate by ;]", "Rl": "[how the child reacts to each person — calms with whom, smiles at whom; '<name>: <reaction>'; separate by ;]", "Tr": "[attachment 0-100 to each person: '<name>: <0-100>'; separate by ;]", "Fr": "[fears, ONLY if any — loud noises, strangers, the dark: '<what>: <low | moderate | high | panic>']", "Ln": "[ONLY once the child really speaks — words or short phrases they say, in «», separated by ;. Omit before that]"}
+  {"N": "[the child's name — one object per child younger than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years, born in the story or before it, own or adopted; such a child is never in cs — if the last HUD has one there, move them here in full; [] when there is no such child; older children go to cs as regular characters]", "sx": "[boy or girl]", "A": "[age: ${возрастМалышей}]", "C": "[what the child is wearing or wrapped in right now]", "Ap": "[appearance: size, hair, eyes, skin, marks — a baby's look changes month to month]", "R": "[who the child is to the family, e.g. 'дочь Веры и Глеба']",${промптБрака('baby')} "B": "[body and mood right now in a phrase — sleepy, fussy, calm, giggling, teething]",${состояниеТела ? ` "Bs": "[the baby's body state, numbers 0-100 each followed by a word: 'eng: energy; awk: alertness — drops toward the next nap; sat: satiety — 100 right after feeding, falls until the next one; str: fussiness — crying, colic, teething raise it; slp: last night's sleep — hours and how many wakings']",` : ''} "H": "[health in a phrase]", "Ill": "[illnesses, ONLY if any — same format as for characters]", "Mrk": "[visible marks, ONLY if any — rash, bruise, scratch, birthmark]", "Nds": "[needs: 'fed: time of the last feeding HH:MM and what — breast, ${заботаСтарины ? 'wet nurse, gruel' : 'bottle, purée'}; slp: asleep or awake and since when HH:MM; dpr: time of the last diaper change HH:MM']", "L": "[where the child is right now and with whom]", "Th": "[the baby's thought right now, in the baby's own voice and simple world. A newborn feels rather than thinks: warmth, hunger, mother's heartbeat, light and sounds. An older baby thinks in short, funny, childlike phrases. 1-2 sentences, first person, no adult vocabulary]", "K": "[what occupies the child right now — impressions, each with an emoji; at least 2; separate by ;]", "I": "[the child's things nearby — toys, ${заботаСтарины ? 'rag teat, swaddling' : 'pacifier, blanket'} — each '<item>: <state>'; separate by ;]", "S": "[the child's routine ahead — feeding, nap, bath, walk, ${заботаСтарины ? 'midwife' : 'doctor'} — each '<time> - <event>'; separate by ;]", "Rl": "[how the child reacts to each person — calms with whom, smiles at whom; '<name>: <reaction>'; separate by ;]", "Tr": "[attachment 0-100 to each person: '<name>: <0-100>'; separate by ;]", "Fr": "[fears, ONLY if any — loud noises, strangers, the dark: '<what>: <low | moderate | high | panic>']", "Ln": "[ONLY once the child really speaks — words or short phrases they say, in «», separated by ;. Omit before that]"}
  ]`;
   }
 
   if (settings.enableWorld) {
     const фон = 'matching the setting\'s era and place — a medieval town has bread prices and a travelling troupe, not the dollar and cinemas; background colour and a source of scene hooks, never something the story must follow';
+    // Новости — закадровая история: то, чего нет в ответе модели.
+    const вести = промптВестей();
+    const строкаНовостей = вести
+      ? (новостей ? вести.replace('one line per piece of news that reached this place', (всё) => всё + ', about ' + новостей) : вести)
+      : `"[headline] | [article text, 2-3 sentences]", "news: the life of the world BEYOND the scene — politics, business, crime, science, culture, accidents, people the reply never mentions, the echo of off-screen events that reached the press; each on its own topic, never a recap of this turn, private scenes never make the news; one line per article, ${новостей ? `about ${новостей}` : 'as many as the world gives'}"`;
     p += `,
  "wd": {
-  "nws": [${промптВестей() || '"[headline] | [article text, 2-3 sentences]", "news: one line per article, as many as the world gives"'}],
+  "nws": [${строкаНовостей}],
   "rm": ["[rumor: what people whisper about, true or not]", "rumors: one line per rumor"],
   "fc": ["[morning | clear | +7°C | short note — exactly 4 rows 'period | weather | temperature | note'. Period: morning, day, evening, night. Weather: clear, sunny, cloudy, overcast, rain, downpour, drizzle, storm, snow, blizzard, fog, windy. Matches sc.Wt for the current part of the day]", "[day | ... ]", "[evening | ... ]", "[night | ... ]"],${гороскоп ? `
   "zd": ["[aries | what today holds for the sign | lucky]", "horoscope: ALL 12 SIGNS, one row each — aries, taurus, gemini, cancer, leo, virgo, libra, scorpio, sagittarius, capricorn, aquarius, pisces; tone: lucky, unlucky, even. Back-page entertainment, playful, never a directive — nothing in the story comes true because of it"],
@@ -627,6 +674,7 @@ ${блокПисем(true)}`;
   // Скрытые факты: итог «кубика» зачатия. Знает автор, персонажи — нет,
   // пока нет теста или признаков (render/conception.js).
   if (беременность && !cacheStable) p += скрытыеФактыЗачатия(датаСнимка, основа.последнийHUDКакЕсть(тип));
+  if (детиHUD.выросли.length && режимДетской !== 'births') p += `\n\n## 👶 GROWN OUT OF THE NURSERY\n${детиHUD.выросли.join(', ')}: older than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years now — track in cs as regular characters, never in bb.`;
   if (выросли.length) p += `\n\n## 👶 GROWN CHILDREN\nChildren born${выросли.map(р => р.когда || 'earlier').join(', ')} are now older than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years: track them in cs as regular characters, never in bb.`;
 
   // Снимок — макросом {{hudLast}}: блок исчезает целиком, когда прошлого HUD
@@ -635,12 +683,12 @@ ${блокПисем(true)}`;
   const канон = режим === 'regen' ? '' : `
 It is also canon for the prose of your reply: do not contradict it — what people wear, their injuries and health, who is where, relationships, who knows which secret (people in hd do NOT know it and must not act on it), open threads in gun.`;
   p += `\n\n{{if hudLast}}## 📸 LAST HUD — the state before ${чего}
-To save space, empty fields are left out, and the texts written fresh every turn (Th, K, Ex, D, diary, dreams, horoscope, comments) are cut down to "<new this turn>". That mark means the opposite of optional: the field is REQUIRED in your HUD, written anew and in full in the schema's format. The schema above, not this copy, decides which fields you write. Memory items here start with [id · age]: the age is how long ago it first came up in story time, so never call older things "yesterday"; never copy the [ … ] part into your HUD.
+To save space, empty fields are left out, and the texts written fresh every turn (Th, K, Ex, D, diary, dreams, horoscope, comments) are cut down to "<new this turn>". That mark means the opposite of optional: the field is REQUIRED in your HUD, written anew and in full in the schema's format. The schema above, not this copy, decides which fields you write.${settings.enableDiary && (авторов !== 1 || (интим && авторовТела !== 1)) ? ` One mark in ${[авторов !== 1 ? '"dy"' : '', интим && авторовТела !== 1 ? '"bd"' : ''].filter(Boolean).join(' or ')} stands for all of this turn's entries there, not for a single one.` : ''} Memory items here start with [id · age]: the age is how long ago it first came up in story time, so never call older things "yesterday"; never copy the [ … ] part into your HUD.
 Codes: {{hudLastKeys}}
 \`\`\`json
 {{hudLast}}
 \`\`\`${канон}
-Update it to match ${чего}: keep what is still true, change what ${чего} changes, remove what has ended or faded, add what is new. Never copy it back unchanged when the story has moved on. Replace every "<new this turn>" with real content — never skip a field because it is short or missing above${краткоВЦелом ? `. What did not change is written the short way the rules above allow (${[settings.hudNoChange !== false ? '"nc"' : '', ключиМира.length ? 'world keys left out' : '', ключиПамяти.length ? 'memory as updates only' : '', фракции ? 'reputation as updates only' : ''].filter(Boolean).join(', ')}) — never copied out in full` : '; however long the chat, the HUD is written in full every turn'}.{{/if}}`;
+Update it to match ${чего}: keep what is still true, change what ${чего} changes, remove what has ended or faded, add what is new. Never copy it back unchanged when the story has moved on. Replace every "<new this turn>" with real content — never skip a field because it is short or missing above${краткоВЦелом ? `. What did not change is written the short way the rules above allow (${[settings.hudNoChange !== false ? '"nc"' : '', ключиМира.length ? 'world keys left out' : '', ключиПамяти.length ? 'memory as updates only' : '', фракции ? 'reputation as updates only' : ''].filter(Boolean).join(', ')}). Write other unchanged fields in full using their previous wording` : '; however long the chat, the HUD is written in full every turn'}.{{/if}}`;
   if (cacheStable) {
     // No scene-dependent macros or state in the reusable prefix.
     p = p.replace(/\{\{if hudLast\}\}[\s\S]*?\{\{\/if\}\}/g, '')

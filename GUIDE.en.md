@@ -157,7 +157,7 @@ The list is built from the "🔬 Fine tuning" catalog and the question-mark dict
 - **The model contradicts everyday life** (ate an hour ago, yet writes "hungry") — turn on the contradiction check in 🤖 How the HUD is made → 🩺 Reply check.
 
 ### HUD regeneration does not work
-- **"The provider did not reply within N min"** — reasoning models think for a long time: raise "Wait for a reply" or lower "HUD token limit".
+- **"The provider did not reply within N min"** (in the provider's log — "499, client closed the request") — reasoning models think for a long time: raise "Wait for a reply" or set "🤔 Reasoning: less". A large "HUD token limit" does not help here: with Claude and Gemini it also gives more room for reasoning.
 - **Regeneration writes off-target or empty.** Pick a separate connection profile for it (it can be cheaper than the main one) and check how many history messages it gets.
 - **Local model (KoboldCpp, text completion).** For profiles with a local model HUD uses the profile's instruct template; if the reply is odd — check the template in the profile itself.
 

@@ -659,8 +659,14 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.97**:
+The latest version is **23.89.98**:
 
+- X-ray distinguishes who leads the movement. The face profile, tongue and hands have been redrawn. The fist shows four curled fingers with the thumb resting across them.
+- HUD block selections survive sync and update open cards immediately. Memory keeps separate events that start with the same words.
+- The HUD in a separate request arrives as a stream: a long reply is no longer cut off after 6 minutes, and you see whether the model is thinking or writing; "🤔 Reasoning: less" is for models that think for a long time.
+- Past events are not replaced by a retelling, characters who return to the scene keep their items and memories; exact data is not pushed to "three or more", and compact values do not shorten what is recorded.
+- A reputation lock for factions; "🔢 How many per turn" for diary authors, intercepts, chats and news; the Nursery also for children who were there before the story.
+- On Android a settings change is saved at once when the tab is closed.
 - "Did anyone notice" dice: a pose after the room no longer counts as another room.
 - Social exposure: the chance is read with any dash and in brackets with a remark.
 - A "Like the Tavern" button in Customization: the HUD takes colours, borders, blur, font and rounded corners from the SillyTavern theme and follows it; "Step forward"; card corner rounding and border; a label for erotic dreams.

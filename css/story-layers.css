@@ -159,7 +159,16 @@
   .hud-bet .stake > span { grid-column: 1 / -1; }
 } }
 /* cq ↑ */
-/* Две вкладки: к игроку / к персонажу. */
+/* Замок на репутации (render/faction-locks.js): кнопка та же, что у доверия
+   (css/trust-stages.css). У «Щитов» — рядом с заголовком, а не в нём: он сам кнопка. */
+.hud-rep-lock { --tst-acc: var(--rep, var(--hud-accent, #c9a0ff)); position: relative; }
+/* Под палец: нажимается шире, чем нарисовано. */
+.hud-rep-lock::after { content: ''; position: absolute; inset: -8px; border-radius: 50%; }
+.hud-rep-card { position: relative; }
+.hud-rep-card > .hud-rep-lock { position: absolute; top: 7px; right: 36px; margin: 0; }
+.hud-rep-card.is-static > .hud-rep-lock { right: 11px; }
+.hud-rep-card .name { padding-right: 30px; }
+.hud-rep-card.is-locked { border-color: color-mix(in srgb, #e3b34e 62%, transparent); }
 .hud-rep-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 8px; }
 .hud-rep-tabs label { padding: 4px 10px; border-radius: 999px; font-size: 11.5px; cursor: pointer; border: 1px solid rgba(127, 127, 127, .35); }
 .hud-rep.is-two .pane-c { display: none; }
@@ -167,6 +176,15 @@
 .hud-rep-r.c:checked ~ .pane-c { display: flex; }
 .hud-rep-r.u:checked ~ .hud-rep-tabs label[for$="-rep-u"],
 .hud-rep-r.c:checked ~ .hud-rep-tabs label[for$="-rep-c"] { background: color-mix(in srgb, var(--hud-accent, #c31f38) 28%, transparent); border-color: color-mix(in srgb, var(--hud-accent, #c31f38) 60%, transparent); }
+
+.hud-rep-legend .n .hud-rep-lock { margin: 0 0 0 7px; vertical-align: -5px; }
+.hud-rep-legend > li.is-locked, .hud-rep-plant.is-locked .spot { --lock-ring: color-mix(in srgb, #e3b34e 60%, transparent); }
+.hud-rep-legend > li.is-locked { outline: 1px solid var(--lock-ring); outline-offset: -1px; }
+.hud-rep-hemi .seat.is-locked circle { stroke: #e3b34e; stroke-width: 2.2; }
+.hud-rep-plant .spot > .hud-rep-lock { position: absolute; z-index: 2; top: 0; right: 2px; margin: 0; }
+.hud-rep-plant.is-locked .rp-tag { stroke: #b07c22; stroke-width: 1.3; }
+.hud-mv .hud-rep-lock { --tst-acc: var(--gold, #c9a24e); float: right; margin: 1px 0 4px 8px; }
+.hud-mv .arc-constellation .hud-rep-lock { --tst-acc: var(--gem, #9fb0ff); margin: 5px 9px 4px 8px; }
 
 /* --- Архив: календарь настроения -------------------------------------------- */
 .hud-arc-mood-row { display: grid; grid-template-columns: minmax(70px, 120px) 1fr; gap: 8px; align-items: center; margin: 6px 0; }

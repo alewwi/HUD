@@ -5,16 +5,18 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.97';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.97';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.97';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.97';
-import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.97';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.97';
-import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.89.97';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.97';
-import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.89.97';
-import { сводкаВыключена } from './summary-fields.js?v=23.89.97';
+import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.89.98';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.89.98';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.98';
+import { заметкиКубика } from './render/notice-dice.js?v=23.89.98';
+import { заметкиСтупеней } from './render/trust-stages.js?v=23.89.98';
+import { заметкиЗамковФракций, естьЗамкиФракций } from './render/faction-locks.js?v=23.89.98';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.98';
+import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.89.98';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.98';
+import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.89.98';
+import { пометитьПамятьСнимка } from './memory-age.js?v=23.89.98';
+import { сводкаВыключена } from './summary-fields.js?v=23.89.98';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -188,6 +190,125 @@ export function обрывПоЛимиту(data) {
   return причина === 'length' || причина === 'max_tokens';
 }
 
+// --- Ответ потоком -------------------------------------------------------------
+// HUD отдельным запросом раньше ждали одним куском: рассуждающая модель думает и
+// пишет минутами, соединение всё это время молчит, и его рвёт тот, у кого первым
+// кончится терпение, — наш предел ожидания (он мерил всё время ответа, а не
+// молчание), браузер или прокси. В журнале провайдера это «499: клиент
+// отключился». Потоком видно, что модель жива, и предел меряет именно молчание.
+
+const текстЧастей = (v) => (Array.isArray(v) ? v.filter(x => x && x.type !== 'thinking').map(x => (typeof x === 'string' ? x : x.text || '')).join('') : typeof v === 'string' ? v : '');
+/** Кусок потока любого источника: { текст, мысли, причина, ошибка }. */
+export function кусокПотока(d) {
+  const пусто = { текст: '', мысли: '', причина: '', ошибка: null };
+  if (!d || typeof d !== 'object') return пусто;
+  if (d.error) return { ...пусто, ошибка: d.error };
+  // Gemini: мысли — части с thought.
+  if (Array.isArray(d.candidates)) {
+    const части = (d.candidates[0] && d.candidates[0].content && d.candidates[0].content.parts) || [];
+    return { ...пусто, текст: части.filter(p => p && !p.thought).map(p => p.text || '').join(''), мысли: части.filter(p => p && p.thought).map(p => p.text || '').join(''), причина: String((d.candidates[0] && d.candidates[0].finishReason) || '') };
+  }
+  const ch = Array.isArray(d.choices) ? d.choices[0] : null;
+  if (ch) {
+    // Второй вариант ответа (n > 1) — не продолжение первого.
+    if (ch.index > 0) return пусто;
+    const из = ch.delta || ch.message || {};
+    const мысли = из.reasoning_content || из.reasoning;
+    return { ...пусто, текст: текстЧастей(из.content) || (typeof ch.text === 'string' ? ch.text : ''), мысли: typeof мысли === 'string' ? мысли : Array.isArray(из.content) ? ' '.repeat(из.content.filter(x => x && x.type === 'thinking').length) : '', причина: String(ch.finish_reason || '') };
+  }
+  // Claude и Cohere: delta на верхнем уровне.
+  const дельта = d.delta;
+  if (дельта && typeof дельта === 'object') {
+    const сообщение = дельта.message && дельта.message.content;
+    return { ...пусто, текст: typeof дельта.text === 'string' ? дельта.text : (сообщение && сообщение.text) || '', мысли: дельта.thinking || (сообщение && сообщение.thinking) || '', причина: String(дельта.stop_reason || дельта.finish_reason || '') };
+  }
+  return пусто;
+}
+
+export const ОБРЫВ_СВЯЗИ = 'соединение оборвалось раньше, чем модель дописала HUD; попробуй ещё раз или другое подключение';
+const закрытыйHUD = (т) => hudБлоки(String(т || '')).some(б => hudCloseRe().test(б.full));
+/**
+ * Ответ сервера Таверны на запрос с stream: true. Возвращает то же, что пришло
+ * бы одним куском: { choices: [{ message, finish_reason }] }, { error } — или
+ * разобранный JSON, если провайдер потоком не умеет. живой() — на каждый
+ * пришедший кусок, ход({ текст, мысли }) — сколько символов уже есть.
+ */
+export async function прочитатьПоток(ответ, { живой = () => {}, ход = () => {} } = {}) {
+  if (!ответ.body || typeof ответ.body.getReader !== 'function') return ответ.json();
+  const читатель = ответ.body.getReader(), декодер = new TextDecoder();
+  let хвост = '', сырое = '', событий = 0, текст = '', мыслей = 0, причина = '', ошибка = null, конец = false;
+  const событие = (строка) => {
+    const данные = строка.trim();
+    if (!данные) return;
+    событий++;
+    if (данные === '[DONE]') { конец = true; return; }
+    let d; try { d = JSON.parse(данные); } catch (_) { return; }
+    const к = кусокПотока(d);
+    if (к.ошибка) { ошибка = к.ошибка; конец = true; return; }
+    текст += к.текст; мыслей += к.мысли.length;
+    if (к.причина) причина = к.причина;
+    if (d.type === 'message_stop' || d.type === 'message-end') конец = true;
+  };
+  // Строки «data:» до пустой строки — одно событие.
+  let данныеСобытия = [];
+  const строка = (с) => {
+    if (с === '') { if (данныеСобытия.length) { const д = данныеСобытия.join('\n'); данныеСобытия = []; событие(д); } return; }
+    if (с.startsWith('data:')) данныеСобытия.push(с.slice(5).replace(/^ /, ''));
+  };
+  for (;;) {
+    const { done, value } = await читатель.read();
+    if (!done) живой();
+    const кусок = done ? декодер.decode() : декодер.decode(value, { stream: true });
+    if (!событий && сырое.length < 2e6) сырое += кусок;
+    хвост += кусок;
+    const строки = хвост.split(/\r\n|\n|\r(?!$)/);
+    хвост = done ? '' : строки.pop();
+    for (const с of строки) { строка(с); if (конец) break; }
+    if (done) строка('');
+    ход({ текст: текст.length, мысли: мыслей });
+    if (done || конец) break;
+  }
+  if (конец) { try { читатель.cancel().catch(() => {}); } catch (_) { /* уже закрыт */ } }
+  if (ошибка) return { error: ошибка };
+  // Не поток: провайдер ответил обычным JSON — ответом или ошибкой.
+  if (!событий) { try { return JSON.parse(сырое); } catch (_) { return { choices: [{ message: { content: '' }, finish_reason: '' }] }; } }
+  // Поток кончился без слова о конце, и HUD не дописан — это обрыв связи.
+  if (!конец && !причина && текст.trim() && !закрытыйHUD(текст)) throw new Error(ОБРЫВ_СВЯЗИ);
+  return { choices: [{ message: { content: текст, reasoning_content: мыслей ? '…' : '' }, finish_reason: причина.toLowerCase() === 'max_tokens' ? 'length' : причина.toLowerCase() }] };
+}
+
+/**
+ * Поток профиля Connection Manager — генератор { text, state }. Причины конца в
+ * нём нет: HUD, оборванный на полуслове (или одни рассуждения), считаем обрывом
+ * по лимиту.
+ */
+export async function собратьПоток(генератор, { живой = () => {}, ход = () => {} } = {}) {
+  let текст = '', мыслей = 0;
+  for await (const к of генератор) {
+    живой();
+    if (к && typeof к.text === 'string') текст = к.text;
+    мыслей = String((к && к.state && к.state.reasoning) || '').length;
+    ход({ текст: текст.length, мысли: мыслей });
+  }
+  if (!текст.trim() && !мыслей) return { choices: [{ message: { content: '' }, finish_reason: '' }] };
+  const оборван = текст.trim() ? !закрытыйHUD(текст) && !/[}`\]]\s*$/.test(текст) : мыслей > 0;
+  return { choices: [{ message: { content: текст, reasoning_content: мыслей ? '…' : '' }, finish_reason: оборван ? 'length' : 'stop' }] };
+}
+/** Пустой ответ без ошибки: поток провайдеру не дался — есть смысл спросить без него. */
+export const пустойПоток = (data) => !!data && !data.error && Array.isArray(data.choices) && !!data.choices[0] && !!data.choices[0].message
+  && !String(data.choices[0].message.content || '').trim() && !data.choices[0].message.reasoning_content && !data.choices[0].finish_reason;
+const ПРО_ПОТОК = /stream/i;
+
+/**
+ * «Меньше рассуждений» (hudRegenReasoning: 'low'): HUD — заполнение полей, долгих
+ * раздумий ему не нужно. Значение — в тех словах, в каких его ждёт сервер Таверны:
+ * у Claude и Gemini «min» — самый малый запас, у DeepSeek меньшего нет, прочим — 'low'.
+ */
+export function меньшеРассуждений(источник) {
+  if (источник === 'deepseek') return undefined;
+  return ['claude', 'makersuite', 'vertexai'].includes(источник) ? 'min' : 'low';
+}
+
 /** Ошибка профиля Connection Manager: Таверна заворачивает её в «API request failed». */
 export function текстОшибки(err) {
   const своё = String((err && err.message) || err || '');
@@ -235,12 +356,18 @@ export async function handleHudRegenButton(regenBtn) {
       const ключГенерации = String(mesEl && mesEl.getAttribute('mesid'));
       основа.генерацииHUD.set(ключГенерации, отмена);
       const отменено = () => отмена.signal.aborted;
-      // Предел ожидания ответа (Настройки → Генерация → Перегенерация HUD).
-      // Без него медленный провайдер или рассуждающая модель крутили кнопку
-      // бесконечно и без единой ошибки. 0 — ждать сколько угодно.
+      // Предел ожидания (Настройки → Как HUD получается → Перегенерация HUD):
+      // сколько модель может молчать. Каждый кусок потока и каждый новый запрос
+      // отсчёт начинают заново; без потока (generateRaw) молчание — весь ответ.
+      // 0 — ждать сколько угодно.
       const пределМин = Math.max(0, Number(settings.hudRegenTimeout ?? 6) || 0);
       let вышлоВремя = false;
-      const таймерОжидания = пределМин ? setTimeout(() => { вышлоВремя = true; отмена.abort(); }, пределМин * 60000) : 0;
+      let таймерОжидания = 0;
+      const живой = () => {
+        if (таймерОжидания) clearTimeout(таймерОжидания);
+        таймерОжидания = пределМин && !отменено() ? setTimeout(() => { вышлоВремя = true; отмена.abort(); }, пределМин * 60000) : 0;
+      };
+      живой();
       let loadingToast = основа.showHudToast('loading', 'Загрузка', телефон ? 'Телефон генерируется. Подождите.' : 'HUD генерируется. Подождите.');
       const убратьИндикатор = настройка('genIndicator') === 'on' ? основа.показатьИндикаторHUD(mesEl) : null;
       if (loadingToast) {
@@ -248,6 +375,20 @@ export async function handleHudRegenButton(regenBtn) {
         место.insertAdjacentHTML('beforeend', '<button type="button" class="hud-toast-cancel">Отменить</button>');
         место.querySelector('.hud-toast-cancel').addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); отмена.abort(); });
       }
+      // Ход генерации в уведомлении: думает модель или уже пишет и сколько идёт.
+      const началось = Date.now();
+      let этап = 'Жду ответа модели', написано = 0;
+      const ход = ({ текст, мысли }) => { написано = текст; этап = текст ? 'Модель пишет HUD' : мысли ? 'Модель думает' : этап; };
+      const показатьХод = () => {
+        const где = loadingToast && loadingToast.querySelector('.hud-toast-msg');
+        if (!где) return;
+        if (!где.querySelector('.hud-toast-stage')) где.innerHTML = '<span class="hud-toast-stage"></span> <span class="hud-toast-time"></span>';
+        const с = Math.round((Date.now() - началось) / 1000);
+        const метка = где.querySelector('.hud-toast-stage');
+        if (метка.dataset.stage !== этап) { метка.dataset.stage = этап; метка.textContent = этап; }
+        где.querySelector('.hud-toast-time').textContent = `${Math.floor(с / 60)}:${String(с % 60).padStart(2, '0')}${написано ? ' · ' + (написано / 1000).toFixed(1) + 'k' : ''}`;
+      };
+      const таймерХода = setInterval(показатьХод, 1000);
 
       try {
           const mesId = mesEl.getAttribute('mesid');
@@ -414,7 +555,7 @@ export async function handleHudRegenButton(regenBtn) {
           // выключало снимок, а в обычном ответе снимок был.
           const развёрнутыхРеген = (() => { const n = parseInt(settings.hudsToKeep, 10); return isNaN(n) || n < 0 ? (defaultSettings.hudsToKeep ?? 1) : n; })();
           const соСнимком = settings.hudSnapshot !== false && развёрнутыхРеген > 0;
-          if (соСнимком || (!телефон && settings.trustLocks !== false)) {
+          if (соСнимком || (!телефон && (settings.trustLocks !== false || естьЗамкиФракций()))) {
               for (let j = mesIdNum - 1; j >= 0 && !объектСнимкаРеген; j--) {
                   const m = chatData[j];
                   if (!m || m.is_user || m.is_system) continue;
@@ -432,8 +573,8 @@ export async function handleHudRegenButton(regenBtn) {
           const инструкцияРеген = buildDynamicPrompt({ nsfw: nsfwРеген, режим: 'regen', бой: решитьБой(объектСнимкаРеген, последниеТекстыЧата(chatData, mesIdNum + 1)) });
           const инструкция = телефон ? промптТелефона(инструкцияРеген) : инструкцияРеген;
           if (!инструкция) throw new Error('телефон выключен в настройках — перегенерировать нечего');
-          const факты = телефон ? [] : [...заметкиСтупеней(объектСнимкаРеген), ...заметкиКубика(chatData, mesIdNum)];
-          const strictBasePrompt = [основа.раскрытьИнструкцию(инструкция, соСнимком && объектСнимкаРеген ? строкаСнимка(объектСнимкаРеген, nsfwРеген) : ''), ...факты].join('\n');
+          const факты = телефон ? [] : [...заметкиСтупеней(объектСнимкаРеген), ...заметкиЗамковФракций(объектСнимкаРеген), ...заметкиКубика(chatData, mesIdNum)];
+          const strictBasePrompt = [основа.раскрытьИнструкцию(инструкция, соСнимком && объектСнимкаРеген ? строкаСнимка(объектСнимкаРеген, nsfwРеген, { толькоПометки: true, пометить: (к) => пометитьПамятьСнимка(к, chatData.slice(0, mesIdNum)) }) : ''), ...факты].join('\n');
 
           for (let i = startIndex; i <= mesIdNum; i++) {
           let msg = chatData[i];
@@ -566,7 +707,7 @@ export async function handleHudRegenButton(regenBtn) {
       ['frequency_penalty', 'presence_penalty'].forEach(k => { if (k in hudRequestBody) hudRequestBody[k] = 0; });
       if ('repetition_penalty' in hudRequestBody) hudRequestBody.repetition_penalty = 1;
       hudRequestBody.messages = freshMessages;
-      hudRequestBody.stream = false;
+      hudRequestBody.stream = true;
       if (requestModel) hudRequestBody.model = requestModel;
       const hudSource = String(currentSource || reqBody?.chat_completion_source || '');
       if (hudSource) hudRequestBody.chat_completion_source = hudSource;
@@ -589,6 +730,11 @@ export async function handleHudRegenButton(regenBtn) {
       }
       if (Object.prototype.hasOwnProperty.call(hudRequestBody, 'max_new_tokens')) hudRequestBody.max_new_tokens = hudMaxTokens;
       else hudRequestBody.max_tokens = hudMaxTokens;
+      const меньше = settings.hudRegenReasoning === 'low';
+      if (меньше) {
+          const усилие = меньшеРассуждений(hudSource);
+          if (усилие) hudRequestBody.reasoning_effort = усилие; else delete hudRequestBody.reasoning_effort;
+      }
 
       // Страховка от НЕИЗВЕСТНЫХ текстовых полей. Список HUD_PROMPT_FIELDS
       // перечисляет то, что мы знаем сегодня; завтра ST или провайдер могут
@@ -625,14 +771,27 @@ export async function handleHudRegenButton(regenBtn) {
           // Completion profile (a local model) ST formats the messages with the
           // profile's instruct template; without it they were glued into plain
           // text with no roles. Chat Completion ignores the flag.
+          const черезСлужбу = (лимит, потоком) => служба.sendRequest(
+              settings.regenProfileId,
+              freshMessages,
+              лимит,
+              { stream: потоком, includePreset: false, includeInstruct: true, extractData: false, signal: отмена.signal },
+              меньше ? { reasoning_effort: меньшеРассуждений(hudSource) ?? 'low' } : {}
+          );
           запросить = async (лимит) => {
               try {
-                  return await служба.sendRequest(
-                      settings.regenProfileId,
-                      freshMessages,
-                      лимит,
-                      { stream: false, includePreset: false, includeInstruct: true, extractData: false, signal: отмена.signal }
-                  );
+                  // Ошибку провайдера в потоке Таверна отдаёт без текста, а кто-то
+                  // потоком не умеет вовсе: тогда тот же запрос одним куском.
+                  try {
+                      const поток = await черезСлужбу(лимит, true);
+                      const data = typeof поток === 'function' ? await собратьПоток(поток(), { живой, ход }) : поток;
+                      if (!пустойПоток(data)) return data;
+                  } catch (e) {
+                      if (отменено() || (e && e.name === 'AbortError')) throw e;
+                      console.warn('[TavernOS HUD] профиль: поток не вышел, без него', e);
+                  }
+                  живой();
+                  return await черезСлужбу(лимит, false);
               } catch (e) {
                   if (отменено() || (e && e.name === 'AbortError')) throw e;
                   throw new Error('профиль подключения — ' + текстОшибки(e));
@@ -651,12 +810,22 @@ export async function handleHudRegenButton(regenBtn) {
           запросить = async (лимит) => {
               if (Object.prototype.hasOwnProperty.call(hudRequestBody, 'max_new_tokens')) hudRequestBody.max_new_tokens = лимит;
               else hudRequestBody.max_tokens = лимит;
-              const res = await fetch(requestUrl, { method: 'POST', headers: requestHeaders, cache: 'no-cache', body: JSON.stringify(hudRequestBody), signal: отмена.signal });
-              if (!res.ok) {
-                  const apiError = await основа.readHudApiError(res);
-                  throw new Error(`API Error ${apiError.status}: ${пояснитьОшибку(apiError, hudSource)}`);
+              const отправить = () => fetch(requestUrl, { method: 'POST', headers: requestHeaders, cache: 'no-cache', body: JSON.stringify(hudRequestBody), signal: отмена.signal });
+              for (;;) {
+                  const res = await отправить();
+                  живой();
+                  if (!res.ok) {
+                      const apiError = await основа.readHudApiError(res);
+                      // Модель потоком не отвечает — тем же запросом одним куском.
+                      if (hudRequestBody.stream && ПРО_ПОТОК.test(String(apiError.message || ''))) { hudRequestBody.stream = false; continue; }
+                      throw new Error(`API Error ${apiError.status}: ${пояснитьОшибку(apiError, hudSource)}`);
+                  }
+                  if (!hudRequestBody.stream) return res.json();
+                  const data = await прочитатьПоток(res, { живой, ход });
+                  const сказано = data && data.error ? String(data.error.message || data.error) : '';
+                  if (пустойПоток(data) || (сказано && ПРО_ПОТОК.test(сказано))) { hudRequestBody.stream = false; живой(); continue; }
+                  return data;
               }
-              return res.json();
           };
       }
       if (запросить) {
@@ -667,6 +836,7 @@ export async function handleHudRegenButton(regenBtn) {
           if (нуженЛимитБольше(data, извлечь) && hudMaxTokens < HUD_MAX_TOKENS_CAP && !отменено()) {
               const больше = лимитПовтора(hudMaxTokens);
               основа.showHudToast('info', 'HUD', 'Ответ оборвался по лимиту токенов — повторяю с удвоенным лимитом.');
+              живой();
               data = await запросить(больше);
           }
           оборвался = обрывПоЛимиту(data);
@@ -762,7 +932,7 @@ export async function handleHudRegenButton(regenBtn) {
               loadingToast.classList.add('hide');
               setTimeout(() => loadingToast.remove(), 400);
           }
-          if (вышлоВремя) основа.showHudToast('error', 'Нет ответа', `Провайдер не ответил за ${пределМин} мин — HUD не записан. Рассуждающие модели думают долго: увеличь «Ждать ответа» или уменьши «Лимит токенов HUD» (Как HUD получается → Перегенерация HUD).`);
+          if (вышлоВремя) основа.showHudToast('error', 'Нет ответа', `Провайдер не ответил за ${пределМин} мин — HUD не записан. Рассуждающие модели думают долго: увеличь «Ждать ответа» или поставь «Рассуждения: поменьше» (Как HUD получается → Перегенерация HUD).`);
           else if (отменено() || (err && err.name === 'AbortError')) основа.showHudToast('success', 'Отменено', телефон ? 'Генерация телефона остановлена, сообщение не изменилось.' : 'Генерация HUD остановлена, сообщение не изменилось.');
           else {
             // У телефона свой лимит — и совет поднимать его, а не лимит HUD.
@@ -771,6 +941,7 @@ export async function handleHudRegenButton(regenBtn) {
             основа.showHudToast('error', 'Ошибка', (телефон ? 'Не удалось обновить телефон: ' : 'Не удалось обновить HUD: ') + текстОшибки);
           }
       } finally {
+          clearInterval(таймерХода);
           if (таймерОжидания) clearTimeout(таймерОжидания);
           if (основа.генерацииHUD.get(ключГенерации) === отмена) основа.генерацииHUD.delete(ключГенерации);
           if (убратьИндикатор) убратьИндикатор();

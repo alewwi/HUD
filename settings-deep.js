@@ -10,17 +10,17 @@
 // Дерево глубокой настройки большое (две с половиной сотни галочек), поэтому
 // собирается при первом раскрытии, а не вместе со всеми настройками.
 
-import { settings } from './settings.js?v=23.89.97';
-import { escapeHtml, mapKey } from './utils.js?v=23.89.97';
-import { т, английский } from './i18n.js?v=23.89.97';
-import { уверены } from './confirm-erase.js?v=23.89.97';
-import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.89.97';
-import { КАТАЛОГ_СЖАТИЯ, ПУТИ_СЖАТИЯ, лимитПоля, подписьЛимита, очиститьЛимиты, МАКС_СЛОВ, МАКС_ПУНКТОВ } from './compact-fields.js?v=23.89.97';
-import { КАТАЛОГ_СВОДКИ, ОСНОВА_СВОДКИ, ПУТИ_СВОДКИ, выборСводки, выборСвой, имяПункта, пунктВыключен } from './summary-fields.js?v=23.89.97';
-import { hudБлоки } from './hud-block.js?v=23.89.97';
-import { карточкаСводки } from './render/summary-card.js?v=23.89.97';
-import { оценкаТокенов } from './token-budget.js?v=23.89.97';
-import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.89.97';
+import { settings } from './settings.js?v=23.89.98';
+import { escapeHtml, mapKey } from './utils.js?v=23.89.98';
+import { т, английский } from './i18n.js?v=23.89.98';
+import { уверены } from './confirm-erase.js?v=23.89.98';
+import { КАТАЛОГ, списокВыключенного, каталогДляНастроек, ЧИСЛА_ХОДА, сколькоЗаХод } from './deep-fields.js?v=23.89.98';
+import { КАТАЛОГ_СЖАТИЯ, ПУТИ_СЖАТИЯ, лимитПоля, подписьЛимита, очиститьЛимиты, МАКС_СЛОВ, МАКС_ПУНКТОВ } from './compact-fields.js?v=23.89.98';
+import { КАТАЛОГ_СВОДКИ, ОСНОВА_СВОДКИ, ПУТИ_СВОДКИ, выборСводки, выборСвой, имяПункта, пунктВыключен } from './summary-fields.js?v=23.89.98';
+import { hudБлоки } from './hud-block.js?v=23.89.98';
+import { карточкаСводки } from './render/summary-card.js?v=23.89.98';
+import { оценкаТокенов } from './token-budget.js?v=23.89.98';
+import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.89.98';
 
 // --- Глубокая настройка -------------------------------------------------------
 
@@ -44,7 +44,7 @@ export function разметкаГлубокой() {
 function деревоГлубокой() {
   const выкл = new Set(списокВыключенного(settings));
   const галка = (путь, имя, класс = '') => `<label class="hud-set-check hud-fine-item${класс}"><input type="checkbox" data-deep="${путь}" ${выкл.has(путь) ? '' : 'checked'}> <span>${escapeHtml(имя)}</span></label>`;
-  return каталогДляНастроек(settings).map(р => {
+  return разделЧисел() + каталогДляНастроек(settings).map(р => {
     const группы = р.группы.map(г => {
       const поля = г.поля.map(([к, имя, под]) => {
         const путь = (г.код || р.код) + '.' + к;
@@ -56,6 +56,14 @@ function деревоГлубокой() {
     }).join('');
     return `<details class="hud-set-group hud-set-sub hud-fine-sec" data-sec="${[...new Set(р.группы.map(г => г.код || р.код))].join(' ')}"><summary>${escapeHtml(р.имя)} <span class="hud-fine-count"></span></summary><div class="hud-set-body">${группы}</div></details>`;
   }).join('');
+}
+
+// Сколько записей, переписок и новостей за ход (deep-fields.js, prompt.js).
+function разделЧисел() {
+  return `<details class="hud-set-group hud-set-sub hud-fine-nums"><summary>🔢 Сколько за ход</summary><div class="hud-set-body">
+    <div class="hud-set-note">0 — без числа: сколько даёт сюжет. Число модель держит как цель, но ничего не выдумывает, если писать не о чем.</div>
+    ${ЧИСЛА_ХОДА.map(ч => `<label class="hud-set-check hud-fine-num" title="${escapeHtml(ч.о)}."><span>${escapeHtml(ч.имя)}</span><input type="number" class="hud-set-num" data-per-turn="${ч.ключ}" min="0" max="${ч.макс}" step="1" value="${сколькоЗаХод(settings, ч.ключ)}"></label>`).join('')}
+  </div></details>`;
 }
 
 const выклСколько = (n) => (n ? (английский() ? `(${n} off)` : `(${n} выкл.)`) : '');
@@ -340,6 +348,14 @@ export function подключитьРазделы(основа) {
     глубокая.addEventListener('toggle', () => { if (глубокая.open && !дерево.firstChild) собрать(); });
     счётчики(глубокая);
     дерево.addEventListener('change', (e) => {
+      const число = e.target.closest('input[data-per-turn]');
+      if (число) {
+        const ключ = число.dataset.perTurn;
+        settings[ключ] = сколькоЗаХод({ [ключ]: число.value }, ключ);
+        число.value = settings[ключ];
+        основа.saveSettings();
+        return;
+      }
       const г = e.target.closest('input[data-deep]');
       if (!г) return;
       const выкл = new Set(списокВыключенного(settings));

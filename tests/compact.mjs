@@ -53,6 +53,89 @@ p = промт();
 settings.hudOneLine = true;
 проверить('перегенерация HUD тоже просит одну строку', P.buildDynamicPrompt({ nsfw: true, режим: 'regen' }).includes('Write the JSON on ONE line'));
 
+// --- Дневник: сколько персонажей пишут -----------------------------------------
+{
+  const было = settings.diaryAuthors, короткий = settings.hudPromptShort;
+  const DF = await м('deep-fields.js');
+  const строкаАвтора = () => (промт().match(/"dy": \[\s*\{\s*"au": "([^\n]*)/) || [])[1] || '';
+  проверить('дневник: по умолчанию до двух авторов', S0.diaryAuthors === 2 && DF.авторовДневника({}) === 2);
+  for (const к of [false, true]) {
+    settings.hudPromptShort = к;
+    settings.diaryAuthors = 2;
+    проверить('дневник: 2 — до двух разных авторов, дневник не только у {{char}}' + (к ? ' (короткий промт)' : ''), /Up to 2 entries/.test(строкаАвтора()) && /every author different/.test(строкаАвтора()) && /at least two of them write/.test(строкаАвтора()), строкаАвтора());
+    settings.diaryAuthors = 1;
+    проверить('дневник: 1 — ровно одна запись' + (к ? ' (короткий промт)' : ''), /Exactly one entry/.test(строкаАвтора()) && !/Up to/.test(строкаАвтора()), строкаАвтора());
+    settings.diaryAuthors = 0;
+    проверить('дневник: 0 — без предела' + (к ? ' (короткий промт)' : ''), /One entry for each character/.test(строкаАвтора()) && !/Up to/.test(строкаАвтора()), строкаАвтора());
+  }
+  проверить('дневник: в строке автора нет кириллицы', [0, 1, 4].every(n => { settings.diaryAuthors = n; return !/[а-яё]/i.test(строкаАвтора()); }));
+  проверить('дневник: мусор и края', DF.авторовДневника({ diaryAuthors: 'x' }) === 2 && DF.авторовДневника({ diaryAuthors: '' }) === 2 && DF.авторовДневника({ diaryAuthors: -3 }) === 0 && DF.авторовДневника({ diaryAuthors: 99 }) === 10 && DF.авторовДневника({ diaryAuthors: '3' }) === 3);
+  settings.diaryAuthors = было; settings.hudPromptShort = короткий;
+}
+
+// --- Детская: ребёнок, который был до начала истории --------------------------------
+{
+  const KW = await м('kids-watch.js');
+  const да = ['У него новорождённая дочь.', 'На руках спал младенец.', 'годовалый сын Орина', 'её двухлетняя дочка', 'шестимесячная — нет, 6-месячная дочь', 'Дочери 8 месяцев.', 'Сыну два года, он боится собак.', 'a two-year-old boy', 'her 7-month-old son', 'The toddler laughed.'];
+  const нет = ['Он спит как младенец.', 'Она помнила это с младенчества.', 'slept like a newborn', 'двухлетний контракт', 'Сын 2 года назад уехал.', 'его пятилетняя дочь', 'a three-year-old girl', 'сын двенадцати лет', 'infantry regiment', 'Они вместе два года.', 'дочь 12 лет', ''];
+  проверить('детская: малыш в тексте узнаётся', да.every(т => KW.ребёнокВТексте(т, 3)), да.filter(т => !KW.ребёнокВТексте(т, 3)).join(' | '));
+  проверить('детская: сравнения, сроки и старшие дети — не малыш', нет.every(т => !KW.ребёнокВТексте(т, 3)), нет.filter(т => KW.ребёнокВТексте(т, 3)).join(' | '));
+  проверить('детская: порог из настроек', KW.ребёнокВТексте('его пятилетняя дочь', 6) && !KW.ребёнокВТексте('её двухлетняя дочка', 2));
+  const былоНастройки = { b: settings.enableBabies, o: settings.babiesOpen, p: settings.enablePregnancy };
+  Object.assign(settings, { enableBabies: true, babiesOpen: 'auto', enablePregnancy: true });
+  const собрать = (снимок, тексты = { карточка: '', сообщения: '' }, какЕсть = null) => {
+    P.подключить({ сверитьРоды() {}, последнийСнимокОбъект: () => снимок, последнийHUDКакЕсть: () => какЕсть, текстыДляДетской: () => тексты });
+    const т = P.buildDynamicPrompt({ nsfw: false });
+    P.подключить({ сверитьРоды() {}, последнийСнимокОбъект: () => ({}), последнийHUDКакЕсть: () => null });
+    return т;
+  };
+  const есть = (т) => /\n "bb": \[/.test(т);
+  const сц = { Dt: '05.03.2030' };
+  проверить('детская: без малыша раздела нет', !есть(собрать({ sc: сц, cs: [{ N: 'Орин', A: '31, 02.02.1999' }] })));
+  проверить('детская: малыш в cs словами — раздел есть', есть(собрать({ sc: сц, cs: [{ N: 'Тави', A: '8 месяцев' }] })));
+  проверить('детская: малыш в cs «2, дата рождения» — раздел есть', есть(собрать({ sc: сц, cs: [{ N: 'Тави', A: '2, 01.02.2028' }] })));
+  проверить('детская: ребёнок старше порога в cs — раздела нет', !есть(собрать({ sc: сц, cs: [{ N: 'Тави', A: '5 лет' }] })));
+  проверить('детская: малыш уже в bb — раздел остаётся', есть(собрать({ sc: сц, bb: [{ N: 'Тави', A: '1 год 2 месяца' }] })));
+  const выросла = собрать({ sc: сц, bb: [{ N: 'Тави', A: '4 года' }] });
+  проверить('детская: вырос — раздела нет, модели сказано вести его в cs', !есть(выросла) && /GROWN OUT OF THE NURSERY\nТави:/.test(выросла));
+  проверить('детская: малыш назван в карточке — раздел есть с первого хода', есть(собрать({}, { карточка: 'У неё годовалый сын.', сообщения: '' })));
+  проверить('детская: модель ответила пустой «Детской» — карточка больше не открывает, сообщения открывают', !есть(собрать({ sc: сц }, { карточка: 'У неё годовалый сын.', сообщения: '' }, { bb: [] })) && есть(собрать({ sc: сц }, { карточка: '', сообщения: 'Она взяла на руки годовалого сына.' }, { bb: [] })));
+  settings.babiesOpen = 'births';
+  проверить('детская: «только после родов» — как раньше', !есть(собрать({ sc: сц, cs: [{ N: 'Тави', A: '8 месяцев' }] })));
+  settings.babiesOpen = 'always';
+  проверить('детская: «всегда» — раздел без малыша, пустой список разрешён', есть(собрать({})) && /\[\] when there is no such child/.test(собрать({})));
+  Object.assign(settings, { babiesOpen: 'auto', enablePregnancy: false });
+  проверить('детская: беременность выключена — малыш всё равно в «Детской»', есть(собрать({ sc: сц, cs: [{ N: 'Тави', A: '8 месяцев' }] })));
+  settings.enableBabies = false;
+  проверить('детская: выключена — раздела нет', !есть(собрать({ sc: сц, cs: [{ N: 'Тави', A: '8 месяцев' }] })));
+  Object.assign(settings, { enableBabies: былоНастройки.b, babiesOpen: былоНастройки.o, enablePregnancy: былоНастройки.p });
+}
+
+// --- Сколько за ход: дневник тела, перехваты, переписки, новости -----------------------
+{
+  const DF = await м('deep-fields.js');
+  const было = Object.fromEntries(DF.ЧИСЛА_ХОДА.map(ч => [ч.ключ, settings[ч.ключ]])), эра = settings.era;
+  проверить('сколько за ход: умолчания в настройках те же, что в таблице', DF.ЧИСЛА_ХОДА.every(ч => S0[ч.ключ] === ч.умолч));
+  Object.assign(settings, { enableIntercepts: true, bodyDiaryAuthors: 0, tapsPerTurn: 0, chatsPerTurn: 0, newsPerTurn: 0 });
+  const тело = () => (промт().match(/"bd": \[\s*\{\s*"au": "([^\n]*)/) || [])[1] || '';
+  проверить('дневник тела: 0 — записей столько же, сколько участников', /as many entries as participants/.test(тело()) && /two characters together without \{\{user\}\} — two/.test(тело()) && /NEVER \{\{user\}\}/.test(тело()), тело());
+  settings.bodyDiaryAuthors = 2;
+  проверить('дневник тела: число — предел', /up to 2 entries/.test(тело()), тело());
+  settings.bodyDiaryAuthors = 1;
+  проверить('дневник тела: 1 — одна запись', /Exactly one entry/.test(тело()), тело());
+  settings.bodyDiaryAuthors = 0;
+  let т = промт();
+  проверить('перехваты и новости — закадровая история, без чисел', /Intercepts are the OFF-SCREEN story/.test(т) && /as many as are going on/.test(т) && /life of the world BEYOND the scene/.test(т) && /as many as the world gives/.test(т) && /A conversation is an exchange/.test(т) && !/About \d+ chats/.test(т));
+  Object.assign(settings, { tapsPerTurn: 3, chatsPerTurn: 4, newsPerTurn: 5 });
+  т = промт();
+  проверить('перехваты, переписки, новости: числа из настройки в промте', /about 3 each turn between different people/.test(т) && /About 4 chats get something new/.test(т) && /one line per article, about 5"/.test(т));
+  settings.era = 'medieval';
+  проверить('новости: число и в средневековых вестях', /reached this place, about 5"/.test(промт()) || /one line per article, about 5"/.test(промт()));
+  settings.era = эра;
+  Object.assign(settings, было);
+  проверить('сколько за ход: мусор и края', DF.сколькоЗаХод({ tapsPerTurn: 99 }, 'tapsPerTurn') === 10 && DF.сколькоЗаХод({ newsPerTurn: -1 }, 'newsPerTurn') === 0 && DF.сколькоЗаХод({}, 'chatsPerTurn') === 0 && DF.сколькоЗаХод({ tapsPerTurn: 'x' }, 'tapsPerTurn') === 0);
+}
+
 // --- Разбор: одна строка = с отступами --------------------------------------------
 const блок = (json) => '[HUD]\n```json\n' + json + '\n```\n[/HUD]';
 const красиво = блок(JSON.stringify(ПРИМЕР_HUD, null, 1));
@@ -146,6 +229,7 @@ const строкаПоля = (текст, раздел, код) => { const i = �
 проверить('у игрока — те же размеры', строкаПоля(p, 'us', 'Rl').includes('LIMIT: at most 8 words per item, as many items as without a limit'));
 проверить('журнал дня — в описании списка, а не в образце', /"lg": \["\[HH:MM\] - \[an event of today\]", "log:[^"]*LIMIT: at most 5 items, 10 words each"\]/.test(p), строкаПоля(p, 'me', 'lg'));
 проверить('дневник — до 80 слов', строкаПоля(p, 'dy', 'tx').includes('LIMIT: at most 80 words'));
+проверить('сжатие точных данных: размер — новым записям, прежние своими словами', /In fields that record the story \(Mm, [^)]*fct[^)]*\) the size is for NEW entries: an entry from the last HUD that stays keeps its wording/.test(p) && !/record the story \([^)]*\b(?:K|nws|rm|com)\b/.test(p));
 проверить('правило о размерах — одно, после FORMATTING', (p.match(/COMPACT VALUES/g) || []).length === 1 && p.indexOf('COMPACT VALUES') > p.indexOf('⚠️ FORMATTING'));
 проверить('схема с метками — всё ещё JSON-подобна: строки полей целы', !/LIMIT[^\n]*LIMIT/.test(p) && (p.match(/LIMIT:/g) || []).length > 40);
 settings.compactOff = ['cs.Th'];

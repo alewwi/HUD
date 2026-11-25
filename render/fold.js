@@ -9,11 +9,12 @@
 
 const СТРЕЛКА = '<svg class="hud-fold-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>';
 
-/** Плашка: голова (видна всегда) и подробности (скрыты до нажатия). */
-export function раскрывашка(класс, голова, подробности, атрибуты = '') {
-  if (!подробности) return `<div class="hud-fold is-static ${класс}"${атрибуты}><div class="hud-fold-head">${голова}</div></div>`;
+/** Плашка: голова (видна всегда) и подробности (скрыты до нажатия). хвост — своё
+ *  управление рядом с головой: голова — кнопка, внутрь неё другую кнопку не положить. */
+export function раскрывашка(класс, голова, подробности, атрибуты = '', хвост = '') {
+  if (!подробности) return `<div class="hud-fold is-static ${класс}"${атрибуты}><div class="hud-fold-head">${голова}</div>${хвост}</div>`;
   return `<div class="hud-fold ${класс}"${атрибуты}><button type="button" class="hud-fold-head" aria-expanded="false">${голова}${СТРЕЛКА}</button>`
-    + `<div class="hud-fold-body"><div class="hud-fold-in">${подробности}</div></div></div>`;
+    + `<div class="hud-fold-body"><div class="hud-fold-in">${подробности}</div></div>${хвост}</div>`;
 }
 
 if (typeof document !== 'undefined' && typeof document.addEventListener === 'function' && !globalThis.__hudFoldBound) {

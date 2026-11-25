@@ -51,7 +51,7 @@ export function отметитьИзменения(s, прошлые, сейча
     const о = k in s ? отпечаток(s[k]) : undefined;
     if (о === прошлые.get(k)) continue;
     if (о === undefined) прошлые.delete(k); else прошлые.set(k, о);
-    if (!ПО_ЧАТАМ.has(k)) s.keyTimes[k] = сейчас;
+    if (!ПО_ЧАТАМ.has(k)) s.keyTimes[k] = Math.max(сейчас, (Number(s.keyTimes[k]) || 0) + 1);
     изменены.push(k);
   }
   return изменены;
@@ -92,7 +92,11 @@ export function слить(свои, чужие, { исключить = null, с
     if (СЛУЖЕБНЫЕ.has(k) || ПО_ЧАТАМ.has(k) || безКартинок.has(k) || (исключить && исключить.has(k))) continue;
     const у = k in свои, ч = k in чужие;
     const tу = Number(тС[k]) || 0, tч = Number(тЧ[k]) || 0;
-    if (у === ч && (!у || отпечаток(свои[k]) === отпечаток(чужие[k]))) { if (tч > tу) тС[k] = tч; continue; }
+    if (у === ч && (!у || отпечаток(свои[k]) === отпечаток(чужие[k]))) {
+      if (tч > tу) тС[k] = tч;
+      if (tу > tч) ушло.push(k);
+      continue;
+    }
     if (tч === tу && своиПриРавных && своиПриРавных.has(k)) continue;
     // Ключ пропал у них — удаляем, только если его там убрали позже нашей правки.
     const ихВерх = tч > tу || (tч === tу && чужиеПозже && ч);
@@ -110,6 +114,20 @@ export function слить(свои, чужие, { исключить = null, с
   свои.chatLooks = виды; свои.chatLooksGone = ушли;
   if (отпечаток(виды) !== отпечаток(объект(чужие.chatLooks)) || отпечаток(ушли) !== отпечаток(объект(чужие.chatLooksGone))) ушло.push('chatLooks');
   return { пришло, ушло };
+}
+
+/** Выбрать настройки при загрузке страницы. Локальная копия получена из JSON. */
+export function приЗагрузке(локальные, сервер, исключить) {
+  if (!локальные && !сервер) return { выбранные: null, отправить: false };
+  const выбранные = локальные || { ...сервер };
+  let отправить = !!локальные && (!сервер || (Number(локальные.savedAt) || 0) > (Number(сервер.savedAt) || 0));
+  if (локальные && сервер) {
+    const { ушло } = слить(выбранные, сервер, { исключить });
+    выбранные.savedAt = Math.max(Number(локальные.savedAt) || 0, Number(сервер.savedAt) || 0);
+    отправить ||= ушло.length > 0 || !выбранные.savedAt;
+  }
+  delete выбранные.localOnly;
+  return { выбранные, отправить };
 }
 
 // --- Файл и расписание ------------------------------------------------------------
@@ -153,17 +171,19 @@ export function синхронизировать() {
       return;
     }
     const s = связь.settings;
+    const прежниеМетки = отпечаток(s.keyTimes);
+    const первыйЗапуск = s.hudFirstRun === true;
     const { пришло, ушло } = чужие ? слить(s, чужие, { исключить: связь.исключить(), своиПриРавных: связь.своиПриРавных ? связь.своиПриРавных() : null }) : { пришло: [], ушло: ['*'] };
     // Первый запуск сверен: дальше эти значения — свои.
     delete s.hudFirstRun;
-    if (пришло.length) {
+    if (пришло.length || первыйЗапуск || прежниеМетки !== отпечаток(s.keyTimes)) {
       if (чужие && Number(чужие.savedAt) > (Number(s.savedAt) || 0)) s.savedAt = Number(чужие.savedAt);
       try { связь.принять(пришло); } catch (e) { console.warn('[TavernOS HUD] синхронизация настроек: не принято', e); }
     }
     if (ушло.length) {
       const данные = связь.копия();
       try { await записать(данные); } catch (e) { console.warn('[TavernOS HUD] синхронизация настроек: файл не записан', e); }
-      try { связь.наСервер(данные); } catch (_) { /* в другой раз */ }
+      try { связь.наСервер(связь.копия()); } catch (_) { /* в другой раз */ }
     }
   })().finally(() => { идёт = null; if (ещё) { ещё = false; запланировать(300); } });
   return идёт;
@@ -173,7 +193,7 @@ export function синхронизировать() {
 export function запланировать(мс = 1500) {
   if (!связь) return;
   clearTimeout(таймер);
-  таймер = setTimeout(() => { void синхронизировать(); }, мс);
+  таймер = setTimeout(() => { таймер = 0; void синхронизировать(); }, мс);
 }
 
 /** Подключить: при возвращении на вкладку и раз в минуту, пока она на виду. */
@@ -181,6 +201,12 @@ export function подключитьСинхронизацию(с) {
   связь = с;
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
   const вернулись = () => { if (!document.hidden && Date.now() - последняя > 3000) void синхронизировать(); };
+  // Уходят со страницы (на Android вкладку могут выгрузить сразу): отложенное
+  // сохранение не ждёт своей секунды. Запись в браузере там тоже может не успеть
+  // лечь на диск, и настройка вернулась бы к прежней.
+  const уходят = () => { if (!таймер) return; clearTimeout(таймер); таймер = 0; void синхронизировать(); };
+  document.addEventListener('visibilitychange', () => { if (document.hidden) уходят(); });
+  window.addEventListener('pagehide', уходят);
   document.addEventListener('visibilitychange', вернулись);
   window.addEventListener('focus', вернулись);
   setInterval(() => { if (!document.hidden) void синхронизировать(); }, 60000);

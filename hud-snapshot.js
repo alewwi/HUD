@@ -12,21 +12,22 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.89.97';
+import { settings } from './settings.js?v=23.89.98';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { тМодели as т } from './i18n.js?v=23.89.97';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.97';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.89.97';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.97';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.89.97';
-import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.89.97';
-import { упомянутВТексте } from './names.js?v=23.89.97';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.97';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.97';
-import { доверияБезПричин } from './turn-notes.js?v=23.89.97';
-import { ступениВСнимке } from './render/trust-stages.js?v=23.89.97';
+import { тМодели as т } from './i18n.js?v=23.89.98';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.98';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.89.98';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.98';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.89.98';
+import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.89.98';
+import { упомянутВТексте } from './names.js?v=23.89.98';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.98';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.98';
+import { доверияБезПричин } from './turn-notes.js?v=23.89.98';
+import { ступениВСнимке } from './render/trust-stages.js?v=23.89.98';
+import { замкиВСнимке } from './render/faction-locks.js?v=23.89.98';
 const имяИгрокаСнимка = () => { try { return window.SillyTavern?.getContext?.()?.name1 || ''; } catch (_) { return ''; } };
-import { почиститьСнимок } from './render/medieval-life.js?v=23.89.97';
+import { почиститьСнимок } from './render/medieval-life.js?v=23.89.98';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -281,6 +282,8 @@ export function собратьСнимок(текстБлока) {
     if (выкл('enableEvents')) убрать(к.wd, ['afs']);
     if (выкл('enableCity')) убрать(к.wd, ['cty']);
     if (settings.factions === 'off') убрать(к.wd, ['rep']);
+    // Репутация под замком игрока — зафиксированное число и пометка [locked].
+    замкиВСнимке(к);
     if (выкл('showComments')) убрать(к.wd, ['com']);
   }
   const поПерсонажам = (ключи) => { (Array.isArray(к.cs) ? к.cs : []).forEach(c => убрать(c, ключи)); убрать(к.us, ключи); };
@@ -465,11 +468,11 @@ export function строкаСнимка(снимок, nsfw, сцена = null) 
   if (сцена && typeof сцена.пометить === "function") { try { сцена.пометить(копия); } catch (_) { /* без пометок */ } }
   // Вне сцены — живое без кадра; близость у них не идёт (её нет в кадре),
   // от неё — только «когда и с кем», как вне сцены у всех.
-  const вне = сцена ? внеСцены(копия, сцена) : [];
+  const вне = сцена && !сцена.толькоПометки ? внеСцены(копия, сцена) : [];
   // Вернулись в сцену — в прошлом HUD были записаны коротко, теперь в кадре.
   // Кто был коротким, считает вызывающий до того, как вернёт им карточку из
   // истории (index.js, дополнитьКарточкиСнимка); без этого — по самой копии.
-  const короткие = сцена ? (Array.isArray(сцена.короткие) ? сцена.короткие : короткиеВСнимке(копия)) : [];
+  const короткие = сцена && !сцена.толькоПометки ? (Array.isArray(сцена.короткие) ? сцена.короткие : короткиеВСнимке(копия)) : [];
   const вернулись = короткие.filter(н => !вне.includes(н) && (Array.isArray(копия.cs) ? копия.cs : []).some(c => объект(c) && String(c.N) === н));
   const когдаИСКем = (v) => String(Array.isArray(v) ? v.join('; ') : v || '').split(';').map(s => s.trim()).filter(s => /^(dt|pr|en)\s*[:：]/i.test(s)).join('; ');
   if (вне.length) (Array.isArray(копия.cs) ? копия.cs : []).forEach(c => {

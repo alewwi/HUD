@@ -23,12 +23,12 @@
 // (hud-expand.js разворачивает из прошлого хода). Показ — карточки во вкладке
 // «Мир» (блокиЭпохи), промт — промптЭпохи и поля к грамотам, письмам, спутникам.
 
-import { settings } from '../settings.js?v=23.89.97';
-import { старина, магияСкрыта, заклинанияВМире, дарыВМире } from '../era.js?v=23.89.97';
-import { escapeHtml } from '../utils.js?v=23.89.97';
-import { английский } from '../i18n.js?v=23.89.97';
-import { видБлока } from './views.js?v=23.89.97';
-import { видЖизни, естьВидЖизни } from './world-life-views.js?v=23.89.97';
+import { settings } from '../settings.js?v=23.89.98';
+import { старина, магияСкрыта, заклинанияВМире, дарыВМире } from '../era.js?v=23.89.98';
+import { escapeHtml } from '../utils.js?v=23.89.98';
+import { английский } from '../i18n.js?v=23.89.98';
+import { видБлока } from './views.js?v=23.89.98';
+import { видЖизни, естьВидЖизни } from './world-life-views.js?v=23.89.98';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);

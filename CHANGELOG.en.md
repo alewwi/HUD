@@ -4,6 +4,27 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.98 — 2026-11-25
+
+### Changed
+- X-ray distinguishes who leads the movement. The face profile, tongue and hands have been redrawn. The fist shows four curled fingers with the thumb resting across them.
+- **X-ray: touch on the outside** — a tongue and fingers on the clitoris and folds move in their own way, not as thrusts, and the tempo under the scene counts them separately. A woman's hand is slimmer (in scenes of two men it stays as before), semen in anal follows the bend, and the pills are readable under a light Tavern theme.
+- HUD block selections survive sync and update open cards immediately. Memory keeps separate events that start with the same words.
+- **The HUD in a separate request arrives as a stream.** "Wait for a reply" measures how long the model stays silent, not the whole reply: the HUD used to cut a long reply off after 6 minutes, and the provider's log showed "499, client closed the request". The notification shows whether the model is thinking or already writing and for how long. If the provider cannot stream, the request goes as before.
+- **Exact data: as much as there was in the story.** Memories, lines, facts, events of the day, secrets, promises, items, schedule, marks, spending and the calendar are no longer pushed to "three or more", so the prompt does not nudge the model to invent or rewrite. Key thoughts, news, rumors and comments work as before.
+- **Compact values do not shorten what is already recorded.** For exact data the size applies to new entries; earlier ones keep their words.
+- **The diary is kept by more than one character**: up to two authors per turn by default, each writing only about what they know themselves. Intercepts and news are the off-screen life of the world, not a retelling of the turn.
+
+### Added
+- **A reputation lock for factions.** While it is on, the group's number, attitude and reason do not change, whatever the model writes.
+- **"🔢 How many per turn"** (What the HUD shows → Fine tuning): diary and body diary authors, intercepts, chats with new messages and news. 0 means no number.
+- **The Nursery for children who were there before the story.** "🧸 Open the Nursery": by itself (after a birth or when there is a baby in the story), only after a birth, or always.
+- **"🤔 Reasoning" for separate HUD requests** (How the HUD is made → HUD regeneration): "less", when the model thinks for a long time and never gets to the HUD.
+
+### Fixed
+- **Past events are not replaced.** If the model retells the log of the day, what was recorded stays as it was and is not pushed out. Characters who return to the scene keep their items, memories, marks and fears. Entries removed from memory do not come back after a reload. In a separate HUD request memory entries in the snapshot are numbered as in an ordinary reply, so the model edits the entry it meant.
+- **Settings on Android.** A change is saved at once when the tab is closed or put in the background.
+
 ## 23.89.97 — 2026-11-24
 
 ### Fixed

@@ -46,6 +46,18 @@ let р = С.слить(тел, файл);
 р = С.слить(пк, structuredClone(тел));
 проверить('более поздняя правка побеждает', пк.limit === 3 && р.ушло.includes('limit'));
 
+const послеЗагрузки = С.приЗагрузке({ savedAt: 50, enablePhone: false, keyTimes: { enablePhone: 50 }, bg: 'data:local' },
+  { savedAt: 100, enablePhone: true, enableMemory: false, keyTimes: { enablePhone: 20, enableMemory: 100 }, localOnly: ['bg'] });
+проверить('загрузка сохраняет обе правки и локальную картинку', послеЗагрузки.отправить && послеЗагрузки.выбранные.enablePhone === false && послеЗагрузки.выбранные.enableMemory === false && послеЗагрузки.выбранные.bg === 'data:local');
+
+const отстаёт = { enableMemory: true, keyTimes: { enableMemory: 900 } };
+const до = structuredClone(отстаёт), след = new Map();
+С.запомнитьВсе(отстаёт, след);
+отстаёт.enableMemory = false;
+С.отметитьИзменения(отстаёт, след, 500);
+С.слить(отстаёт, до);
+проверить('правка после синхронизации переживает отстающие часы', отстаёт.enableMemory === false);
+
 // Без времени у обоих — как раньше: у копии, сохранённой позже, но ключ не удаляется.
 const а = { savedAt: 10, x: 1, y: 'старое', своё: 7 }, б = { savedAt: 20, x: 2, y: 'новое' };
 р = С.слить(а, б);
@@ -101,6 +113,49 @@ const о = { savedAt: 1, obj: { a: 1 }, gone: 1 }; const п = new Map(); С.за
 const из = С.отметитьИзменения(о, п, 77);
 проверить('правка внутри объекта и удалённый ключ отмечены', из.includes('obj') && из.includes('gone') && о.keyTimes.gone === 77);
 проверить('виды чатов времени правки не получают (сливаются по чатам)', (() => { const р2 = { chatLooks: {} }; const п2 = new Map(); С.запомнитьВсе(р2, п2); р2.chatLooks.X = { at: 1 }; С.отметитьИзменения(р2, п2, 5); return !('chatLooks' in р2.keyTimes); })());
+
+// Пока общий файл загружается на сервер, игрок успевает переключить блок ещё раз.
+{
+  const состояние = { enableWorld: true, keyTimes: { enableWorld: 20 } };
+  let завершитьЗапись, начатьЗапись, копияНаСервере;
+  const записьНачата = new Promise(resolve => { начатьЗапись = resolve; });
+  const исходныйFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = async (_url, opts) => {
+      if (opts.method !== 'POST') return { ok: true, json: async () => ({ enableWorld: false, keyTimes: { enableWorld: 10 } }) };
+      начатьЗапись();
+      return new Promise(resolve => { завершитьЗапись = () => resolve({ ok: true }); });
+    };
+    С.подключитьСинхронизацию({ settings: состояние, контекст: () => null, исключить: () => null,
+      копия: () => structuredClone(состояние), принять() {}, наСервер: копия => { копияНаСервере = копия; } });
+    const готово = С.синхронизировать();
+    await записьНачата;
+    состояние.enableWorld = false;
+    состояние.keyTimes.enableWorld = 30;
+    завершитьЗапись();
+    await готово;
+    проверить('завершение загрузки не возвращает старую галочку в settings.json', копияНаСервере.enableWorld === false && копияНаСервере.keyTimes.enableWorld === 30);
+  } finally { globalThis.fetch = исходныйFetch; }
+}
+
+// Уходят со страницы: отложенное сохранение уходит сразу, без ожидания — на Android вкладку могут выгрузить.
+{
+  const слушатели = {}, былиD = globalThis.document, былиW = globalThis.window, fetchБыл = globalThis.fetch, siБыл = globalThis.setInterval;
+  const д = { hidden: false, addEventListener: (т, f) => { (слушатели[т] ||= []).push(f); } };
+  globalThis.document = д; globalThis.window = { addEventListener: (т, f) => { (слушатели[т] ||= []).push(f); } };
+  globalThis.setInterval = () => 0;
+  const запросы = [];
+  globalThis.fetch = async (u, о) => { запросы.push((о && о.method) || 'GET'); return { ok: true, status: 200, json: async () => ({}) }; };
+  const s = { a: 1, keyTimes: { a: 5 } };
+  С.подключитьСинхронизацию({ settings: s, контекст: () => null, копия: () => ({ ...s }), наСервер() {}, исключить: () => null, принять() {} });
+  д.hidden = true; слушатели.visibilitychange.forEach(f => f());
+  проверить('ушли со страницы без правок — запросов нет', запросы.length === 0, запросы.join());
+  С.запланировать(60000);
+  слушатели.visibilitychange.forEach(f => f());
+  await new Promise(r => setTimeout(r, 20));
+  проверить('ушли со страницы с правкой — сохранена сразу', запросы.includes('POST'), запросы.join());
+  globalThis.document = былиD; globalThis.window = былиW; globalThis.fetch = fetchБыл; globalThis.setInterval = siБыл;
+}
 
 // Связка в коде.
 const инд = fs.readFileSync(path.join(КОРЕНЬ, 'index.js'), 'utf8');

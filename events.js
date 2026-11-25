@@ -16,30 +16,30 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.97';
-import { уверены } from './confirm-erase.js?v=23.89.97';
-import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.97';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.89.97';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.97';
-import { прикрытьСырой } from './raw-guard.js?v=23.89.97';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.97';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.97';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.97';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.97';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.97';
-import { полныйПорядок } from './tabs-order.js?v=23.89.97';
-import { getWorldVotes } from './render/world.js?v=23.89.97';
-import { действиеМира } from './render/world-views.js?v=23.89.97';
-import { действиеМузыки } from './render/music.js?v=23.89.97';
-import { раскрытьПорцию } from './render/long-list.js?v=23.89.97';
-import { прогретьИсторию } from './render/carryover.js?v=23.89.97';
-import { подключитьПалитру } from './color-picker.js?v=23.89.97';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.97';
-import { замер } from './utils.js?v=23.89.97';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.97';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.97';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.97';
-import { ID_ТАВЕРНЫ, кнопкаТаверныHTML, сброситьСлежку } from './tavern-theme.js?v=23.89.97';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.98';
+import { уверены } from './confirm-erase.js?v=23.89.98';
+import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.98';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.89.98';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.98';
+import { прикрытьСырой } from './raw-guard.js?v=23.89.98';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.98';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.98';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.98';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.98';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.98';
+import { полныйПорядок } from './tabs-order.js?v=23.89.98';
+import { getWorldVotes } from './render/world.js?v=23.89.98';
+import { действиеМира } from './render/world-views.js?v=23.89.98';
+import { действиеМузыки } from './render/music.js?v=23.89.98';
+import { раскрытьПорцию } from './render/long-list.js?v=23.89.98';
+import { прогретьИсторию } from './render/carryover.js?v=23.89.98';
+import { подключитьПалитру } from './color-picker.js?v=23.89.98';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.98';
+import { замер } from './utils.js?v=23.89.98';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.98';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.98';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.98';
+import { ID_ТАВЕРНЫ, кнопкаТаверныHTML, сброситьСлежку } from './tavern-theme.js?v=23.89.98';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;

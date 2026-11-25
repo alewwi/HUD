@@ -68,7 +68,7 @@
 .hud-tempo-head .bpm { font-size: .8em; color: color-mix(in srgb, currentColor 72%, transparent); }
 .hud-tempo-head .bpm strong { font-size: 1.7em; font-weight: 800; color: color-mix(in srgb, var(--tc) 40%, #fff); margin-right: 4px; text-shadow: 0 0 10px color-mix(in srgb, var(--tc) 60%, transparent); }
 .hud-tempo .chips { display: flex; flex-wrap: wrap; gap: 4px; }
-.hud-tempo .chips i { font-style: normal; font-size: .78em; font-weight: 700; padding: 1px 9px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--tc) 22%, transparent); }
+.hud-tempo .chips i { color: inherit; font-style: normal; font-size: .78em; font-weight: 700; padding: 1px 9px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--tc) 22%, transparent); }
 .hud-tempo-meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
 .hud-tempo-meter s { height: 5px; border-radius: 4px; background: color-mix(in srgb, currentColor 10%, transparent); text-decoration: none; }
 .hud-tempo-meter s.on { background: linear-gradient(90deg, color-mix(in srgb, var(--tc) 50%, transparent), var(--tc)); box-shadow: 0 0 6px color-mix(in srgb, var(--tc) 50%, transparent); }
@@ -230,7 +230,9 @@
 /* Кончик — между губ, а не во входе: на 4 px назад, у входа вдавливается
    на 1,6 px. Дальше он заходил во вход, и через преддверие просвечивало
    отверстие уретры — та самая «чёрная штучка» у головки. */
-.hud-xray-row.is-rub .xr-move:is(.p-penis, .p-toy, .is-body) { transform: translate(calc(-4px + (1 - var(--ry, 0)) * 1.6px + var(--tx, 0) * 1px), calc(var(--ry, 0) * var(--rub, 0) * .35px)); }
+/* Язык и пальцы — тоже: раньше по губам ходило только лицо, а язык стоял.
+   --lift — доля подъёма у всего тела: 1 — если поворачиваться не вокруг чего. */
+.hud-xray-row.is-rub .xr-move:is(.p-penis, .p-toy, .p-tongue, .p-fingers, .p-fist, .is-body) { transform: translate(calc(-4px + (1 - var(--ry, 0)) * 1.6px + var(--tx, 0) * 1px), calc(var(--ry, 0) * var(--rub, 0) * var(--lift, .35) * 1px)); }
 .hud-xray-row.is-rub .xr-meatus, .hud-xray-row.is-rub .xr-precum, .hud-xray-row.is-rub .xr-ripple, .hud-xray-row.is-rub .xr-hit, .hud-xray-row.is-rub .xr-splash { display: none; }
 /* Губы обнимают кончик головки, пока она прижата: без тёмного просвета
    между круглой головкой и плоской губой. Едут вверх вместе с головкой;

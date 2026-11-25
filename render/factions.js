@@ -9,12 +9,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.97';
-import { settings } from '../settings.js?v=23.89.97';
-import { namesLikelySame } from '../names.js?v=23.89.97';
-import { раскрывашка } from './fold.js?v=23.89.97';
-import { видМираСтарины } from './medieval-views.js?v=23.89.97';
-import { видБлока } from './views.js?v=23.89.97';
+import { escapeHtml } from '../utils.js?v=23.89.98';
+import { settings } from '../settings.js?v=23.89.98';
+import { namesLikelySame } from '../names.js?v=23.89.98';
+import { раскрывашка } from './fold.js?v=23.89.98';
+import { видМираСтарины } from './medieval-views.js?v=23.89.98';
+import { видБлока } from './views.js?v=23.89.98';
+import { подЗамками, замокСтроки, кнопкаЗамка } from './faction-locks.js?v=23.89.98';
 
 /** «Гильдия | Лилиан | 80 | уважают | за что» → { кто, к, число, как, почему }. */
 export function разобратьФракцию(строка) {
@@ -108,7 +109,7 @@ function карточка(ф, сдвиги) {
     + `${n === null ? '' : `<span class="num">${n > 0 ? '+' : ''}${n}</span>`}${полоса}`;
   const подробно = (ф.почему ? `<p class="why"><small>За что</small><span>${escapeHtml(ф.почему)}</span></p>` : '')
     + какМенялось(сдвиги);
-  return раскрывашка(`hud-rep-card ${тон(n)}`, голова, подробно);
+  return раскрывашка(`hud-rep-card ${тон(n)}${ф.замок ? ' is-locked' : ''}`, голова, подробно, '', ф.кнопка || '');
 }
 
 /* --- Вид «Зал совета» ------------------------------------------------------
@@ -148,15 +149,15 @@ function залСовета(список, uid, цель, имяЦели) {
     const было = с[с.length - 1].было, [x1, y1] = точка(было, м.r), [x2, y2] = точка(м.ф.число, м.r);
     return `<circle class="ghost" cx="${x1}" cy="${y1}" r="6.5"/><path class="trail" d="M${x1} ${y1}A${м.r} ${м.r} 0 0 ${м.ф.число > было ? 1 : 0} ${x2} ${y2}" marker-end="url(#${стрелка})"/>`;
   }).join('');
-  const кружки = места.map(м => { const [x, y] = точка(м.ф.число, м.r); return `<g class="seat ${тон(м.ф.число)}"><title>${escapeHtml(м.ф.кто)}: ${м.ф.число > 0 ? '+' : ''}${м.ф.число}</title><circle cx="${x}" cy="${y}" r="8.5"/><text x="${x}" y="${ф1(y + 3.2)}">${м.номер}</text></g>`; }).join('');
+  const кружки = места.map(м => { const [x, y] = точка(м.ф.число, м.r); return `<g class="seat ${тон(м.ф.число)}${м.ф.замок ? ' is-locked' : ''}"><title>${escapeHtml(м.ф.кто)}: ${м.ф.число > 0 ? '+' : ''}${м.ф.число}</title><circle cx="${x}" cy="${y}" r="8.5"/><text x="${x}" y="${ф1(y + 3.2)}">${м.номер}</text></g>`; }).join('');
   // Трибуна в центре: к кому относятся.
   const трибуна = `<path class="podium" d="M104 118h32l-4-14h-24Z"/><text class="podium-l" x="120" y="131">${escapeHtml(имяЦели)}</text>`;
   const svg = `<svg class="hud-rep-hemi" viewBox="-12 -10 264 148" role="img" aria-label="Зал совета"><defs><marker id="${стрелка}" viewBox="0 0 8 8" refX="6" refY="4" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0 0L8 4L0 8Z" class="arw"/></marker></defs>`
     + `${полоса}${кресла}${засечки}<text class="side-l is-bad" x="8" y="135">враги</text><text class="side-l is-good" x="232" y="135">свои</text>${пути}${кружки}${трибуна}</svg>`;
   const легенда = список.map((п, i) => {
     const ф = п.ф, шаг = шагСдвига(п.сдвиги);
-    return `<li class="${тон(ф.число)}"><i class="no">${i + 1}</i><span class="t"><b>${escapeHtml(ф.кто)}</b>${ф.как ? `<em>${escapeHtml(ф.как)}</em>` : ''}${чипСдвига(шаг)}</span>`
-      + `${ф.число === null ? '' : `<span class="n">${ф.число > 0 ? '+' : ''}${ф.число}</span>`}${ф.почему ? `<small class="why">${escapeHtml(ф.почему)}</small>` : ''}${свёрнутаяИстория(п.сдвиги)}</li>`;
+    return `<li class="${тон(ф.число)}${ф.замок ? ' is-locked' : ''}"><i class="no">${i + 1}</i><span class="t"><b>${escapeHtml(ф.кто)}</b>${ф.как ? `<em>${escapeHtml(ф.как)}</em>` : ''}${чипСдвига(шаг)}</span>`
+      + `<span class="n">${ф.число === null ? '' : `${ф.число > 0 ? '+' : ''}${ф.число}`}${ф.кнопка || ''}</span>${ф.почему ? `<small class="why">${escapeHtml(ф.почему)}</small>` : ''}${свёрнутаяИстория(п.сдвиги)}</li>`;
   }).join('');
   return `<div class="hud-rep-council">${svg}<ol class="hud-rep-legend">${легенда}</ol></div>`;
 }
@@ -198,7 +199,7 @@ function растение(n, кл) {
 function оранжерея(список) {
   return `<div class="hud-rep-greenhouse"><ul class="hud-rep-garden">${список.map(п => {
     const ф = п.ф, кл = тон(ф.число), шаг = шагСдвига(п.сдвиги);
-    return `<li class="hud-rep-plant ${кл}"><span class="spot">${растение(ф.число, кл)}</span>`
+    return `<li class="hud-rep-plant ${кл}${ф.замок ? ' is-locked' : ''}"><span class="spot">${растение(ф.число, кл)}${ф.кнопка || ''}</span>`
       + `<span class="t"><b>${escapeHtml(ф.кто)}</b>${ф.как ? `<em>${escapeHtml(ф.как)}</em>` : ''}${чипСдвига(шаг)}</span>`
       + `${ф.почему ? `<small class="why">${escapeHtml(ф.почему)}</small>` : ''}${свёрнутаяИстория(п.сдвиги)}</li>`;
   }).join('')}</ul></div>`;
@@ -215,12 +216,19 @@ function видГруппы(список, вид, uid, цель, имяЦели)
 
 /**
  * Раздел «Фракции и репутация» для вкладки «Мир». строки — wd.rep этого хода;
- * история — см. сдвигиФракций; uid — для переключателя двух вкладок.
+ * история — см. сдвигиФракций; uid — для переключателя двух вкладок; индекс —
+ * номер хода, замки — свои замки примера (render/faction-locks.js).
  */
-export function блокФракций(строки, { игрок = '', персонаж = '', история = [], uid = 'rep' } = {}) {
+export function блокФракций(строки, { игрок = '', персонаж = '', история = [], uid = 'rep', индекс = Infinity, замки = null } = {}) {
   const режим = settings.factions || 'user';
   if (режим === 'off') return '';
-  const фракции = (Array.isArray(строки) ? строки : []).map(разобратьФракцию).filter(Boolean);
+  const ход = Number.isFinite(индекс) ? индекс : Infinity;
+  const фракции = подЗамками(Array.isArray(строки) ? строки : [], ход, замки).map(с => {
+    const ф = разобратьФракцию(с);
+    if (!ф) return null;
+    const замок = замокСтроки(с, ход, замки);
+    return { ...ф, замок: !!замок, кнопка: кнопкаЗамка(ф, замок) };
+  }).filter(Boolean);
   if (!фракции.length) return '';
   const сдвиги = сдвигиФракций(история, игрок, персонаж, режим);
   const вид = ВИДЫ_ФРАКЦИЙ.includes(settings.factionsView) ? settings.factionsView : 'classic';

@@ -13,8 +13,8 @@
 // Вид живёт в обёртке .hud-mv .hud-wl: лист прозрачный и с размытием, как у
 // остальных средневековых видов (css/world-life-views.css).
 
-import { escapeHtml } from '../utils.js?v=23.89.97';
-import { engravings as art, householdRooms } from './world-life-art.js?v=23.89.97';
+import { escapeHtml } from '../utils.js?v=23.89.98';
+import { engravings as art, householdRooms } from './world-life-art.js?v=23.89.98';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const есть = (v) => v !== undefined && v !== null && String(v).trim() !== '';

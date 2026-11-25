@@ -21,10 +21,10 @@
 // — Цена блока: сколько токенов он добавляет к инструкции HUD.
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { settings, defaultSettings } from './settings.js?v=23.89.97';
-import { escapeHtml } from './utils.js?v=23.89.97';
-import { оценкаТокенов, коротко } from './token-budget.js?v=23.89.97';
-import { т } from './i18n.js?v=23.89.97';
+import { settings, defaultSettings } from './settings.js?v=23.89.98';
+import { escapeHtml } from './utils.js?v=23.89.98';
+import { оценкаТокенов, коротко } from './token-budget.js?v=23.89.98';
+import { т } from './i18n.js?v=23.89.98';
 
 // --- Сколько HUD ---------------------------------------------------------------
 // [ключ, поле в панели, лёгкий, обычный]. Полный — заводские значения.
@@ -195,8 +195,8 @@ export const ЗАВИСИМЫЕ = [
   ['hud-user-all-fields', 'hud-enable-user', 1],
   ['hud-cycle-libido', 'hud-enable-menstruation', 1],
   ['hud-preg-serious', 'hud-enable-pregnancy', 1], ['hud-preg-reveal', 'hud-enable-pregnancy', 1], ['hud-enable-exams', 'hud-enable-pregnancy', 1],
-  ['hud-enable-threat', 'hud-enable-pregnancy', 1], ['hud-enable-loss', 'hud-enable-pregnancy', 1], ['hud-enable-babies', 'hud-enable-pregnancy', 1],
-  ['hud-baby-years', 'hud-enable-babies', 1], ['hud-baby-facts', 'hud-enable-babies', 1],
+  ['hud-enable-threat', 'hud-enable-pregnancy', 1], ['hud-enable-loss', 'hud-enable-pregnancy', 1],
+  ['hud-baby-years', 'hud-enable-babies', 1], ['hud-babies-open', 'hud-enable-babies', 1], ['hud-baby-facts', 'hud-enable-babies', 1],
   ['hud-life-to-model', 'hud-enable-life', 1], ['hud-sleep-norm', 'hud-enable-life', 1], ['hud-consistency-check', 'hud-enable-life', 0],
   ['hud-combat-prompt', 'hud-enable-combat', 1],
   ['hud-enable-economy', 'hud-enable-world', 1], ['hud-enable-events', 'hud-enable-world', 1], ['hud-factions', 'hud-enable-world', 1],
@@ -250,7 +250,7 @@ function обновитьРяды(корень) {
 
 // --- Тонкая настройка: спрятана в «Основных» ---------------------------------------------------
 export const ТОНКИЕ = ['hud-secrets-grid', 'hud-secrets-raise', 'hud-family-depth', 'hud-enable-invites', 'hud-enable-deadlines', 'hud-cycle-libido',
-  'hud-preg-serious', 'hud-preg-reveal', 'hud-enable-exams', 'hud-enable-threat', 'hud-enable-loss', 'hud-baby-years', 'hud-baby-facts',
+  'hud-preg-serious', 'hud-preg-reveal', 'hud-enable-exams', 'hud-enable-threat', 'hud-enable-loss', 'hud-baby-years', 'hud-babies-open', 'hud-baby-facts',
   'hud-life-to-model', 'hud-sleep-norm', 'hud-nsfw-prompt', 'hud-enable-rest', 'hud-enable-sceneclock', 'hud-combat-prompt',
   'hud-holiday-reminder', 'hud-holiday-prep', 'hud-powers-body', 'hud-knowledge-line', 'hud-trust-locks', 'hud-user-all-fields',
   'hud-table-lang-values', 'hud-wind-unit', 'hud-chat-translation', 'hud-summary-cards', 'hud-memory-max-height', 'hud-tab-max-height',

@@ -13,16 +13,16 @@
 // попадают — hud-expand.js снимает их, если модель всё-таки их переписала.
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { разобратьХод } from './render/carryover.js?v=23.89.97';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.97';
-import { безМетки, безДавности } from './hud-expand.js?v=23.89.97';
+import { разобратьХод } from './render/carryover.js?v=23.89.98';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.98';
+import { безОбломков, безМетки, безДавности } from './hud-expand.js?v=23.89.98';
 
-export { МЕТКА_ЗАПИСИ, безМетки, безДавности } from './hud-expand.js?v=23.89.97';
+export { МЕТКА_ЗАПИСИ, безМетки, безДавности } from './hud-expand.js?v=23.89.98';
 
 const ДЕНЬ = 864e5;
 const объект = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
 const норма = (s) => String(s ?? '').toLowerCase().replace(/ё/g, 'е').replace(/[«»"'`.,;:!?()\[\]—–-]/g, ' ').replace(/\s+/g, ' ').trim();
-// Тот же признак «той же записи», что у памяти обновлениями: первые пять слов.
+// Для приблизительной давности журнал хранит первые пять слов.
 const ключ = (s) => норма(s).split(' ').slice(0, 5).join(' ');
 const текстРужья = (s) => String(s ?? '').split('|')[0];
 const текстОбещания = (s) => String(s ?? '').split('|').slice(0, 2).join(' ');
@@ -127,13 +127,15 @@ export function пометитьПамятьСнимка(снимок, chat) {
   const метка = (номер, сколько) => `[${номер}${сколько ? ' · ' + сколько : ''}] `;
   const me = объект(снимок.me) ? снимок.me : null;
   if (me) {
+    // Нумеруем те же записи, к которым развернутьПоле применит правку.
+    for (const к of ['fct', 'prm', 'gun', 'sec']) if (Array.isArray(me[к])) me[к] = безОбломков(me[к]);
     if (Array.isArray(me.fct)) me.fct = me.fct.map((s, i) => typeof s === 'string' ? метка('f' + (i + 1), давность(даты && даты.fct, s)) + безМетки(s) : s);
     if (Array.isArray(me.prm)) me.prm = me.prm.map((s, i) => typeof s === 'string' ? метка('p' + (i + 1), давность(даты && даты.prm, текстОбещания(безМетки(s)))) + безМетки(s) : s);
     if (Array.isArray(me.gun)) me.gun = me.gun.map((s, i) => typeof s === 'string' ? метка('g' + (i + 1), давность(даты && даты.gun, текстРужья(безМетки(s)))) + безМетки(s) : s);
     if (Array.isArray(me.sec)) me.sec = me.sec.map((s, i) => {
       if (!объект(s)) return s;
       const сколько = давность(даты && даты.sec, s.f);
-      return { id: 's' + (i + 1), ...(сколько ? { age: сколько } : {}), ...s };
+      return { ...s, id: 's' + (i + 1), ...(сколько ? { age: сколько } : {}) };
     });
   }
   if (даты && сейчас !== null && сейчас !== undefined) for (const c of Array.isArray(снимок.cs) ? снимок.cs : []) {
