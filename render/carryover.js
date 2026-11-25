@@ -14,21 +14,21 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.99';
-import { проставитьДень } from './msg-feed.js?v=23.89.99';
-import { normalizeJSONData } from '../schema.js?v=23.89.99';
-import { settings } from '../settings.js?v=23.89.99';
-import { статусРужья } from '../codes.js?v=23.89.99';
-import { extractHudBlock } from '../hud-block.js?v=23.89.99';
-import { развернутьHUD } from '../offload.js?v=23.89.99';
-import { namesLikelySame } from '../names.js?v=23.89.99';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.89.99';
-import { readParsed, writeParsed } from '../store.js?v=23.89.99';
-import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.89.99';
-import { ключСлуха } from './rumor-times.js?v=23.89.99';
-import { применитьСтупени, ступениВкл } from './trust-stages.js?v=23.89.99';
-import { getSafeUserName } from '../utils.js?v=23.89.99';
-import { полеВкл } from '../deep-fields.js?v=23.89.99';
+import { parseHUDComplex } from '../hud-parser.js?v=23.90.0';
+import { проставитьДень } from './msg-feed.js?v=23.90.0';
+import { normalizeJSONData } from '../schema.js?v=23.90.0';
+import { settings } from '../settings.js?v=23.90.0';
+import { статусРужья } from '../codes.js?v=23.90.0';
+import { extractHudBlock } from '../hud-block.js?v=23.90.0';
+import { развернутьHUD } from '../offload.js?v=23.90.0';
+import { namesLikelySame } from '../names.js?v=23.90.0';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.90.0';
+import { readParsed, writeParsed } from '../store.js?v=23.90.0';
+import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.90.0';
+import { ключСлуха } from './rumor-times.js?v=23.90.0';
+import { применитьСтупени, ступениВкл } from './trust-stages.js?v=23.90.0';
+import { getSafeUserName } from '../utils.js?v=23.90.0';
+import { полеВкл } from '../deep-fields.js?v=23.90.0';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -934,7 +934,9 @@ function прежнийЦикл(chat, индекс, кто, имя, деньСе
     if (!сообщение || сообщение.is_user || !ЕСТЬ_ЦИКЛ.test(текст(сообщение.mes))) continue;
     const ход = разобратьХод(сообщение);
     if (!ход) continue;
-    const человек = кто === 'user' ? ход.user : (Array.isArray(ход.characters) ? ход.characters : []).find(c => namesLikelySame(текст(c && c['Имя']), имя));
+    // Сначала точное имя: «Ян» с нечётким сравнением находил цикл «Яны».
+    const люди = Array.isArray(ход.characters) ? ход.characters : [];
+    const человек = кто === 'user' ? ход.user : (люди.find(c => текст(c && c['Имя']) === имя) || люди.find(c => namesLikelySame(текст(c && c['Имя']), имя)));
     const значение = человек && человек['Цикл'];
     if (пустоЗначение(значение)) continue;
     const тогда = деньСцены(ход.scene && ход.scene['Дата']);

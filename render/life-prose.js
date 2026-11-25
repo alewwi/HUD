@@ -11,7 +11,7 @@
 //     воспоминание («вспомнил свой душ», «знала, почему он рванул в душ»),
 //     вопрос и чужое тело («смывала акварель с их щёк»).
 
-import { extractHudBlock } from '../hud-block.js?v=23.89.99';
+import { extractHudBlock } from '../hud-block.js?v=23.90.0';
 
 const сл = (rx) => new RegExp('(?<![\\p{L}])(?:' + rx + ')', 'iu');
 

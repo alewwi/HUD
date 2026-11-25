@@ -22,11 +22,11 @@
 // с }] }, с — номер хода. Своих строк замок не добавляет: стёртая группа не
 // возвращается.
 
-import { settings } from '../settings.js?v=23.89.99';
-import { namesLikelySame } from '../names.js?v=23.89.99';
-import { escapeHtml, getSafeUserName } from '../utils.js?v=23.89.99';
-import { полеВкл } from '../deep-fields.js?v=23.89.99';
-import { ико } from './view-icons.js?v=23.89.99';
+import { settings } from '../settings.js?v=23.90.0';
+import { namesLikelySame } from '../names.js?v=23.90.0';
+import { escapeHtml, getSafeUserName } from '../utils.js?v=23.90.0';
+import { полеВкл } from '../deep-fields.js?v=23.90.0';
+import { ико } from './view-icons.js?v=23.90.0';
 
 const КЛЮЧ = 'tavernosHudFactions';
 const ПОМЕТКА = /\s*\[(?:locked|зафикс)[^\]]*\]/gi;

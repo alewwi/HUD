@@ -12,23 +12,24 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.89.99';
+import { settings } from './settings.js?v=23.90.0';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { тМодели as т } from './i18n.js?v=23.89.99';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.99';
-import { mapKey, имяБезПриставки, getSafeUserName } from './utils.js?v=23.89.99';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.99';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.89.99';
-import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.89.99';
-import { упомянутВТексте } from './names.js?v=23.89.99';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.99';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.99';
-import { доверияБезПричин } from './turn-notes.js?v=23.89.99';
-import { ступениВСнимке } from './render/trust-stages.js?v=23.89.99';
-import { замкиВСнимке } from './render/faction-locks.js?v=23.89.99';
-import { людиHUD, безЛюдей } from './faction-groups.js?v=23.89.99';
+import { тМодели as т } from './i18n.js?v=23.90.0';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.90.0';
+import { mapKey, имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.0';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.90.0';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.90.0';
+import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.90.0';
+import { упомянутВТексте } from './names.js?v=23.90.0';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.0';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.90.0';
+import { доверияБезПричин } from './turn-notes.js?v=23.90.0';
+import { ступениВСнимке } from './render/trust-stages.js?v=23.90.0';
+import { замкиВСнимке } from './render/faction-locks.js?v=23.90.0';
+import { людиHUD, безЛюдей } from './faction-groups.js?v=23.90.0';
 const имяИгрокаСнимка = () => { try { return window.SillyTavern?.getContext?.()?.name1 || ''; } catch (_) { return ''; } };
-import { почиститьСнимок } from './render/medieval-life.js?v=23.89.99';
+import { составСнимка } from './cast.js?v=23.90.0';
+import { почиститьСнимок } from './render/medieval-life.js?v=23.90.0';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -466,6 +467,8 @@ export function строкаСнимка(снимок, nsfw, сцена = null) 
   const копия = JSON.parse(JSON.stringify(снимок));
   // Правки игрока (snapshot-edits.js): «отметил, что Лена знает» — модели.
   try { наложитьНаСнимок(копия); } catch (_) { /* без правок */ }
+  // Состав по настройке и пол: цикл и беременность мужчине модель не видит (cast.js).
+  try { составСнимка(копия); } catch (_) { /* как было */ }
   // Номер и давность у записей памяти (memory-age.js) — после правок игрока:
   // те сверяют записи по тексту, а пометка его меняет.
   if (сцена && typeof сцена.пометить === "function") { try { сцена.пометить(копия); } catch (_) { /* без пометок */ } }

@@ -7,13 +7,13 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.99';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.99';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.99';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.99';
-import { settings } from '../settings.js?v=23.89.99';
-import { ответыПроДядей } from './family-asks.js?v=23.89.99';
-import { законностьДляДрева } from './medieval-life.js?v=23.89.99';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.90.0';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.0';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame, запомнитьРазныхЛюдей } from '../names.js?v=23.90.0';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.90.0';
+import { settings } from '../settings.js?v=23.90.0';
+import { ответыПроДядей } from './family-asks.js?v=23.90.0';
+import { законностьДляДрева } from './medieval-life.js?v=23.90.0';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -41,9 +41,17 @@ export function parseRelationList(raw) {
     .flatMap(item => (именаГруппы(item.target) || [item.target]).map(target => ({ target, rel: item.rel })));
 }
 
+// Метка пола в начале «Внешности»: «М, …» / «Ж, …» (M/F по-английски).
+const меткаПола = (c) => { const m = String((c && (c.Ap ?? c['Внешность'])) ?? '').match(/^\s*([МЖMF])(?=$|[\s,.;:·—–-])/u); return m ? (/[МM]/u.test(m[1]) ? 'm' : 'f') : ''; };
+
 export function mergeCharacterRecords(characters) {
   const merged = [];
-  for (const original of Array.isArray(characters) ? characters : []) {
+  // Два человека одного HUD — «Ян» и «Яна», «Евгений» и «Евгения» — разные
+  // люди, хотя по буквам второе имя — падеж первого. Без этого «Ян» получал
+  // её поля, и цикл в том числе (names.js, запомнитьРазныхЛюдей).
+  const список = Array.isArray(characters) ? characters : [];
+  try { запомнитьРазныхЛюдей(список.map(c => c && typeof c === 'object' ? String(c.N || c['Имя'] || c.name || c.Name || '') : '')); } catch (_) { /* как было */ }
+  for (const original of список) {
     if (!original || typeof original !== 'object') continue;
     const current = { ...original };
     const rawName = current.N || current['Имя'] || current.name || current.Name || '';
@@ -51,7 +59,9 @@ export function mergeCharacterRecords(characters) {
       merged.push(current);
       continue;
     }
-    const existing = merged.find(x => namesLikelySame(rawName, x.N || x['Имя'] || x.name || x.Name || ''));
+    // Разные метки «М» и «Ж» — точно два человека, как бы ни были похожи имена.
+    const пол = меткаПола(current);
+    const existing = merged.find(x => namesLikelySame(rawName, x.N || x['Имя'] || x.name || x.Name || '') && !(пол && меткаПола(x) && пол !== меткаПола(x)));
     if (!existing) {
       current.N = rawName;
       merged.push(current);

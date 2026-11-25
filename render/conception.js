@@ -17,10 +17,11 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { namesLikelySame } from '../names.js?v=23.89.99';
-import { settings } from '../settings.js?v=23.89.99';
-import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.89.99';
-import { полеВкл } from '../deep-fields.js?v=23.89.99';
+import { namesLikelySame } from '../names.js?v=23.90.0';
+import { settings } from '../settings.js?v=23.90.0';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.90.0';
+import { полеВкл } from '../deep-fields.js?v=23.90.0';
+import { безМатки } from '../cast.js?v=23.90.0';
 
 const КЛЮЧ = 'tavernosHudConception';
 
@@ -163,12 +164,20 @@ function соседиПоОкну(х, кто, день, сам = '') {
   return Object.entries(х.броски).filter(([к, б]) => к !== сам && к !== решено && б && б.кто === кто && (() => { const д = датаБроска(б); return д !== null && Math.abs(д - день) <= ОКНО_ЗАЧАТИЯ; })());
 }
 
+// Человек снимка по имени: сперва точное, потом нечёткое.
+function человекСнимка(снимок, имя) {
+  const cs = Array.isArray(снимок && снимок.cs) ? снимок.cs : [];
+  return cs.find(c => c && String(c.N || '').trim() === имя) || cs.find(c => c && namesLikelySame(String(c.N || '').trim(), имя));
+}
+
 // Имя персонажа модель пишет по-разному («Isadora», «Исидора»): ищем уже
 // заведённую запись по нечёткому совпадению, чтобы не завести вторую.
 function своёИмя(х, кто) {
   if (!х || кто === 'user' || !String(кто).startsWith('char:')) return кто;
   const имя = String(кто).slice(5);
   const все = new Set([...Object.keys(х.зачатие || {}), ...Object.keys(х.плоды || {}), ...Object.values(х.броски || {}).map(б => б && б.кто), ...(х.потери || []).map(п => п && п.кто)].filter(Boolean));
+  // Своя запись под тем же именем — она: «Ян» не должен брать запись «Яны».
+  if (все.has(кто)) return кто;
   for (const к of все) if (String(к).startsWith('char:') && namesLikelySame(String(к).slice(5), имя)) return к;
   return кто;
 }
@@ -345,14 +354,22 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
   const имя = (кто) => кто === 'user' ? '{{user}}' : String(кто).replace(/^char:/, '');
   const при = (когда) => когда ? ` (the encounter «${когда}»)` : '';
   const строки = [];
+  // Мужчина не беременеет: запись, заведённая на него до починки пола, модели не уходит.
+  const мужчина = (кто) => {
+    if (!снимок || typeof снимок !== 'object' || !кто) return false;
+    const люди = [...(Array.isArray(снимок.cs) ? снимок.cs : []), ...(снимок.us && typeof снимок.us === 'object' ? [снимок.us] : [])];
+    const з = кто === 'user' ? снимок.us : человекСнимка(снимок, String(кто).replace(/^char:/, ''));
+    try { return !!з && безМатки(з, кто === 'user' ? { люди, игрок: true } : { люди }); } catch (_) { return false; }
+  };
   const прг = (кто) => {
     if (!снимок || typeof снимок !== 'object') return '';
     const имя2 = String(кто).replace(/^char:/, '');
-    const з = кто === 'user' ? снимок.us : (Array.isArray(снимок.cs) ? снимок.cs : []).find(c => c && namesLikelySame(String(c.N || '').trim(), имя2));
+    const з = кто === 'user' ? снимок.us : человекСнимка(снимок, имя2);
     const текст = String((з && з.Prg) ?? '').trim();
     return /^(?:empty|none)$/i.test(текст) ? '' : текст;
   };
   for (const [кто, з] of Object.entries(х.зачатие || {})) {
+    if (мужчина(кто)) continue;
     if (!з.проверено || /(?:^|;)\s*wk\s*[:：]/i.test(прг(кто))) continue;
     const зачMs = датаИзТекста(з.когда);
     const срок = зачMs !== null && Number.isFinite(сценаMs) && сценаMs >= зачMs
@@ -363,6 +380,7 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
   const беременныВСюжете = new Set();
   if (Number.isFinite(сценаMs)) {
     for (const [кто, б] of Object.entries(х.беременности || {})) {
+      if (мужчина(кто)) continue;
       if (!Number.isFinite(б.lmp) || (х.зачатие[кто] && !х.зачатие[кто].проверено)) continue;
       // Уже родила после начала этого срока — беременность позади.
       if (х.роды.some(р => р.кто === кто && (деньРодов(р) ?? 0) > б.lmp)) continue;
@@ -377,6 +395,7 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
   // Потеря: модель могла её не заметить (кнопка в HUD), а в её снимке ещё
   // живёт Prg. Говорим прямо, пока тело восстанавливается, потом молчим.
   for (const кто of new Set((х.потери || []).map(п => п && п.кто).filter(Boolean))) {
+    if (мужчина(кто)) continue;
     const п = закрывшаяПотеря(кто, сценаMs);
     if (!п || (Number.isFinite(сценаMs) && Number.isFinite(п.циклК) && сценаMs > п.циклК + 14 * ДЕНЬ_МС)) continue;
     if (потеряЗаписана(п, кто, снимок, сценаMs)) continue;
@@ -390,6 +409,7 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
   }
   // Один из двойни или тройни: беременность идёт дальше.
   for (const п of х.потери || []) {
+    if (п && мужчина(п.кто)) continue;
     if (!п || п.отменена || !п.часть || потеряЧья(п.кто) || !х.плоды[п.кто]) continue;
     // Малыши родились или это уже другая беременность: история закрыта.
     const б = (х.беременности || {})[п.кто];
@@ -400,6 +420,7 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
   }
   // Осмотры: только то, что игрок уже открыл.
   for (const [кто, список] of settings.enablePregnancyExams === false ? [] : Object.entries(х.осмотры || {})) {
+    if (мужчина(кто)) continue;
     if (потеряЧья(кто)) continue;
     for (const о of Array.isArray(список) ? список : []) {
       if (!осмотрОткрытЗдесь(о) || о.снято || !полеВкл(settings, 'ui.exam.' + о.порог)) continue;
@@ -410,6 +431,7 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
   }
   // Исход угрозы: только после того, как игрок его узнал.
   for (const [кто, у] of settings.enableThreatDice === false || !полеВкл(settings, 'ui.thr') ? [] : Object.entries(х.угрозы || {})) {
+    if (мужчина(кто)) continue;
     if (!у || !у.проверено || потеряЧья(кто) || (Number.isFinite(сценаMs) && Number.isFinite(у.видели) && сценаMs > у.видели + 14 * ДЕНЬ_МС)) continue;
     const итог = у.судьба || у.итог;
     строки.push(итог === 'keep' ? `${имя(кто)}'s threatened pregnancy SURVIVES: the danger passes in the coming days, whatever the doctors fear. Do not write lost.`
@@ -425,6 +447,7 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
   // Беременной в сюжете «не беременна» не пишем: кубик близостей во время
   // беременности ничего не значит — второй раз забеременеть нельзя.
   for (const [кто, когда] of Object.entries(нет)) {
+    if (мужчина(кто)) continue;
     if (беременныВСюжете.has(кто)) continue;
     // Кубик времён прошлой беременности после родов ничего не значит: про
     // кормление и возвращение цикла модели говорит «После родов» (Pp).
@@ -440,6 +463,7 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
   // Число и пол малышей — если игрок не выключил это в настройках.
   if (settings.babyFactsToModel !== 'off') {
     for (const [кто, з] of Object.entries(х.плоды || {})) {
+      if (мужчина(кто)) continue;
       const п = плодыОт(кто);
       const зач = (х.зачатие || {})[кто];
       if (!п || !((зач && зач.проверено) || з.вСюжете) || потеряЧья(кто)) continue;
@@ -721,7 +745,7 @@ const СЛОВА_ПОТЕРИ = /выкидыш|аборт|прерыван|по
 export function потеряЗаписана(п, кто, снимок, сценаMs = null) {
   if (!снимок || typeof снимок !== 'object') return false;
   const имя = String(кто).replace(/^char:/, '');
-  const з = кто === 'user' ? снимок.us : (Array.isArray(снимок.cs) ? снимок.cs : []).find(c => c && namesLikelySame(String(c.N || '').trim(), имя));
+  const з = кто === 'user' ? снимок.us : человекСнимка(снимок, имя);
   if (!з || typeof з !== 'object') return true;
   const prg = String(з.Prg ?? '').trim();
   if (МЕТКА_ПОТЕРИ.test(prg)) return true;

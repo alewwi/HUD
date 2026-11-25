@@ -21,24 +21,24 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.99';
-import { английский } from './i18n.js?v=23.89.99';
-import { flattenFieldValue } from './utils.js?v=23.89.99';
-import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.89.99';
-import { заметкиЗамковФракций } from './render/faction-locks.js?v=23.89.99';
-import { заметкиКубика } from './render/notice-dice.js?v=23.89.99';
-import { статусОбещания } from './hud-expand.js?v=23.89.99';
-import { полеВкл } from './deep-fields.js?v=23.89.99';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.99';
-import { namesLikelySame } from './names.js?v=23.89.99';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.99';
-import { праздникиГода } from './render/holidays.js?v=23.89.99';
-import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.89.99';
-import { заметкаМеста } from './render/place-lore.js?v=23.89.99';
-import { заметкаПоста } from './render/almanac.js?v=23.89.99';
-import { заметкаСил } from './render/powers.js?v=23.89.99';
-import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.89.99';
-import { приметыЧеловека, общееСцены, фазаБлизости, девственностьЧеловека, больВТексте } from './body-cues.js?v=23.89.99';
+import { settings } from './settings.js?v=23.90.0';
+import { английский } from './i18n.js?v=23.90.0';
+import { flattenFieldValue } from './utils.js?v=23.90.0';
+import { ступени, заметкиСтупеней } from './render/trust-stages.js?v=23.90.0';
+import { заметкиЗамковФракций } from './render/faction-locks.js?v=23.90.0';
+import { заметкиКубика } from './render/notice-dice.js?v=23.90.0';
+import { статусОбещания } from './hud-expand.js?v=23.90.0';
+import { полеВкл } from './deep-fields.js?v=23.90.0';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.90.0';
+import { namesLikelySame } from './names.js?v=23.90.0';
+import { датаИзТекста, дм } from './render/conception.js?v=23.90.0';
+import { праздникиГода } from './render/holidays.js?v=23.90.0';
+import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи, заметкаПодготовки } from './render/holiday-lore.js?v=23.90.0';
+import { заметкаМеста } from './render/place-lore.js?v=23.90.0';
+import { заметкаПоста } from './render/almanac.js?v=23.90.0';
+import { заметкаСил } from './render/powers.js?v=23.90.0';
+import { спор, спрашивать, заметкаСпоров } from './disputes.js?v=23.90.0';
+import { приметыЧеловека, общееСцены, фазаБлизости, девственностьЧеловека, больВТексте } from './body-cues.js?v=23.90.0';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;

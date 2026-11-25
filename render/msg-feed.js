@@ -12,10 +12,10 @@
 // оказываются рядом вчерашнее «22:30» и сегодняшнее «08:30», и без подписи
 // «Вчера» это читается как один разговор подряд.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.99';
-import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.89.99';
-import { avaFace } from './phone-common.js?v=23.89.99';
-import { namesLikelySame } from '../names.js?v=23.89.99';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.90.0';
+import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.90.0';
+import { avaFace } from './phone-common.js?v=23.90.0';
+import { namesLikelySame } from '../names.js?v=23.90.0';
 
 // Один человек в переписке под разными подписями: «Грей» и «Профессор Грей»,
 // «Butler» и «Private Butler», «Damian» и «THE LANTERNS Damian Hartley».

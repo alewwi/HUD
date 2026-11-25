@@ -120,6 +120,10 @@ export const defaultSettings = {
   newsPerTurn: 0,
   enableWorld: true,
   enableDreams: true,
+  // Карточки персонажей (cast.js): all — все, кто в сцене; main — только
+  // {{char}} (в группе — участники) и имена из castExtra через запятую.
+  castMode: 'all',
+  castExtra: '',
   enableUserBlock: true,
   // Игроку — все поля персонажей (роль, мысли, инвентарь, доверие, близость…),
   // а не только облик, здоровье и отношения. Тонко — в «Глубокой настройке».

@@ -4,6 +4,17 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.90.0 — 2026-11-26
+
+### Added
+- **"👥 Character cards: main characters only"** (What the HUD shows → 👤 Characters). Only the character of the card (in a group chat, each member) and those you list in "➕ Also" get a card. Everyone else lives in the prose, relationships and memory but gets no card: the model doesn't create one, the HUD hides extra ones, and they don't go into the snapshot for the model. Fewer tokens and less confusion when there are many NPCs. If the card is a narrator or a whole world, list the heroes in "Also".
+
+### Fixed
+- **A cycle and a pregnancy only for someone with a uterus.** For a man the HUD no longer shows a cycle, a pregnancy or postpartum, doesn't carry them over from earlier turns, doesn't roll the conception dice and doesn't send them to the model in the snapshot. The HUD takes the sex from the "M/F" mark in "Appearance", from the sex the person already had in this chat, from other people's "Relationships" ("Ian: husband"), the role and words about the person, and without those from common names and pronouns in the card and the persona. By a name or the card alone only the cycle is removed; when the signs disagree nothing is touched. Omegaverse, mpreg, trans and intersex characters stay as the model writes them.
+- **A wife's pregnancy no longer goes to her husband.** The prompt says it plainly: a pregnancy belongs only to the one who carries the baby; the father is named in "fa" and gets no pregnancy of his own. A hidden "pregnant" fact recorded for a man earlier no longer reaches the model.
+- **"Yan" and "Yana" are two people.** Name matching took "Yana", "Ivana", "Alexandra", "Evgenia" for case forms of the male name, and records of one HUD merged: the man got her cycle and pregnancy, she got his items. Now people with such names who stand in the same HUD stay separate (in earlier turns too), and namesakes marked "M" and "F" get their own cards. A case form without such a pair is recognised as before.
+- The "M" or "F" mark in "Appearance" is required every turn: it tells the HUD who has a cycle. "M-shaped scar" is not a mark.
+
 ## 23.89.99 — 2026-11-25
 
 ### Fixed
