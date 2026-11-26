@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.90.2';
-import { mapKey } from './utils.js?v=23.90.2';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.90.2';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.2';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.90.2';
+import { settings } from './settings.js?v=23.90.3';
+import { mapKey } from './utils.js?v=23.90.3';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.90.3';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.3';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.90.3';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.

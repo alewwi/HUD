@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.90.3 — 2026-11-26
+
+- **Trust notifications.** A red number badge appears only on the character’s tab at the top of the HUD. It counts relationships awaiting approval to advance to the next trust stage and disappears after the last decision.
+- **Trust stages.** Approving a stage or toggling the lock updates the trust section in place. The selected row keeps its position. On narrow screens, an expanded list of four or more characters stays open, even after several approvals in a row.
+
 ## 23.90.2 — 2026-11-26
 
 - **Manual sex correction.** In the pregnancy, menstrual cycle and postpartum sections, click the pencil, section icon or title to open the correction dialog. This works across all 16 layouts and when the cycle is paused, on both character and player cards.

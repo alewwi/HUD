@@ -14,21 +14,21 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.90.2';
-import { проставитьДень } from './msg-feed.js?v=23.90.2';
-import { normalizeJSONData } from '../schema.js?v=23.90.2';
-import { settings } from '../settings.js?v=23.90.2';
-import { статусРужья } from '../codes.js?v=23.90.2';
-import { extractHudBlock } from '../hud-block.js?v=23.90.2';
-import { развернутьHUD } from '../offload.js?v=23.90.2';
-import { namesLikelySame } from '../names.js?v=23.90.2';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.90.2';
-import { readParsed, writeParsed } from '../store.js?v=23.90.2';
-import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.90.2';
-import { ключСлуха } from './rumor-times.js?v=23.90.2';
-import { применитьСтупени, ступениВкл } from './trust-stages.js?v=23.90.2';
-import { getSafeUserName } from '../utils.js?v=23.90.2';
-import { полеВкл } from '../deep-fields.js?v=23.90.2';
+import { parseHUDComplex } from '../hud-parser.js?v=23.90.3';
+import { проставитьДень } from './msg-feed.js?v=23.90.3';
+import { normalizeJSONData } from '../schema.js?v=23.90.3';
+import { settings } from '../settings.js?v=23.90.3';
+import { статусРужья } from '../codes.js?v=23.90.3';
+import { extractHudBlock } from '../hud-block.js?v=23.90.3';
+import { развернутьHUD } from '../offload.js?v=23.90.3';
+import { namesLikelySame } from '../names.js?v=23.90.3';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.90.3';
+import { readParsed, writeParsed } from '../store.js?v=23.90.3';
+import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.90.3';
+import { ключСлуха } from './rumor-times.js?v=23.90.3';
+import { применитьСтупени, ступениВкл } from './trust-stages.js?v=23.90.3';
+import { getSafeUserName } from '../utils.js?v=23.90.3';
+import { полеВкл } from '../deep-fields.js?v=23.90.3';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -1029,6 +1029,7 @@ export function сдвигиДоверия(data, messageElement) {
     const { значение, сведения } = применитьСтупени(имя, о['Доверие'], индекс, { последний });
     if (!сведения) return о;
     const копия = копияКарточки(о);
+    Object.defineProperty(копия, '__исходноеДоверие', { value: о['Доверие'], configurable: true });
     копия['Доверие'] = значение;
     Object.defineProperty(копия, '__ступениДоверия', { value: сведения, configurable: true });
     return копия;

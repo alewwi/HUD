@@ -13,13 +13,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.90.2';
-import { settings } from '../settings.js?v=23.90.2';
-import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.90.2';
-import { праздникиГода } from './holidays.js?v=23.90.2';
-import { раскрывашка } from './fold.js?v=23.90.2';
-import { старина } from '../era.js?v=23.90.2';
-import { примерМета } from '../sample-meta.js?v=23.90.2';
+import { escapeHtml } from '../utils.js?v=23.90.3';
+import { settings } from '../settings.js?v=23.90.3';
+import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.90.3';
+import { праздникиГода } from './holidays.js?v=23.90.3';
+import { раскрывашка } from './fold.js?v=23.90.3';
+import { старина } from '../era.js?v=23.90.3';
+import { примерМета } from '../sample-meta.js?v=23.90.3';
 
 const КЛЮЧ = 'tavernosHudHolidays';
 const ДЕНЬ = 864e5;
@@ -556,7 +556,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
       if (шаг.dataset.hudPrepdrop !== undefined) {
         // Окно подтверждения (confirm-erase.js): подготовка уходит совсем.
         const ключ = шаг.dataset.hudPrepdrop;
-        import('../confirm-erase.js?v=23.90.2').then(м => м.уверены({
+        import('../confirm-erase.js?v=23.90.3').then(м => м.уверены({
           что: `«${шаг.dataset.name || ''}»`, текст: 'Подготовка уберётся совсем: модель перестанет её получать, а список шагов пропадёт.', кнопка: 'Убрать',
         })).then(да => {
           if (!да) return;
@@ -592,7 +592,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
       let данные = null;
       try { данные = JSON.parse(плашка.dataset.holPrep || 'null'); } catch (_) { данные = null; }
       if (!данные) return;
-      import('./holiday-prep.js?v=23.90.2').then(м => м.открытьПодготовку(данные))
+      import('./holiday-prep.js?v=23.90.3').then(м => м.открытьПодготовку(данные))
         .catch(err => console.error('[TavernOS HUD] окно подготовки не загрузилось:', err));
       return;
     }

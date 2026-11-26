@@ -17,12 +17,12 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { namesLikelySame } from '../names.js?v=23.90.2';
-import { settings } from '../settings.js?v=23.90.2';
-import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.90.2';
-import { полеВкл } from '../deep-fields.js?v=23.90.2';
-import { ручнойПол } from '../manual-gender.js?v=23.90.2';
-import { безМатки } from '../cast.js?v=23.90.2';
+import { namesLikelySame } from '../names.js?v=23.90.3';
+import { settings } from '../settings.js?v=23.90.3';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.90.3';
+import { полеВкл } from '../deep-fields.js?v=23.90.3';
+import { ручнойПол } from '../manual-gender.js?v=23.90.3';
+import { безМатки } from '../cast.js?v=23.90.3';
 
 const КЛЮЧ = 'tavernosHudConception';
 
