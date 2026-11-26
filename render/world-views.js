@@ -14,10 +14,10 @@
 // пустить эфир, оторвать листок, поставить галочку, лайкнуть. Отметки живут
 // в памяти страницы (как голоса в новостях) и переживают перерисовку карточки.
 
-import { escapeHtml, hudHashSeed } from '../utils.js?v=23.90.0';
-import { ико, ИКОНКИ } from './view-icons.js?v=23.90.0';
-import { знакЗодиака } from '../i18n.js?v=23.90.0';
-import { видМираСтарины } from './medieval-views.js?v=23.90.0';
+import { escapeHtml, hudHashSeed } from '../utils.js?v=23.90.1';
+import { ико, ИКОНКИ } from './view-icons.js?v=23.90.1';
+import { знакЗодиака } from '../i18n.js?v=23.90.1';
+import { видМираСтарины } from './medieval-views.js?v=23.90.1';
 // Заголовок без значка и разметки — для видов старины.
 const безЗначка = (з) => String(з || '').replace(/<[^>]*>/g, '').replace(/^[^\p{L}]+/u, '').trim();
 const старинный = (вид) => вид === 'medieval' || вид === 'enchanted';

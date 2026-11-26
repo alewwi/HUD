@@ -11,23 +11,24 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.90.0';
-import { normalizeJSONData } from './schema.js?v=23.90.0';
-import { parseRelationList } from './render/relations-graph.js?v=23.90.0';
-import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.90.0';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.90.0';
-import { createDashboard, времяОтправки } from './chat-stats.js?v=23.90.0';
-import { settings } from './settings.js?v=23.90.0';
-import { статусРужья } from './codes.js?v=23.90.0';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.90.0';
-import { историяБеременностей } from './render/conception.js?v=23.90.0';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.90.0';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.90.0';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.90.0';
-import { создатьКарты } from './history-maps.js?v=23.90.0';
-import { разобратьФракцию } from './render/factions.js?v=23.90.0';
-import { подЗамками } from './render/faction-locks.js?v=23.90.0';
-import { людиHUD, безЛюдей, этоЧеловек } from './faction-groups.js?v=23.90.0';
+import { ручнойПол, полДляМодели } from './manual-gender.js?v=23.90.1';
+import { parseHUDComplex } from './hud-parser.js?v=23.90.1';
+import { normalizeJSONData } from './schema.js?v=23.90.1';
+import { parseRelationList } from './render/relations-graph.js?v=23.90.1';
+import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.90.1';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.90.1';
+import { createDashboard, времяОтправки } from './chat-stats.js?v=23.90.1';
+import { settings } from './settings.js?v=23.90.1';
+import { статусРужья } from './codes.js?v=23.90.1';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.90.1';
+import { историяБеременностей } from './render/conception.js?v=23.90.1';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.90.1';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.90.1';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.90.1';
+import { создатьКарты } from './history-maps.js?v=23.90.1';
+import { разобратьФракцию } from './render/factions.js?v=23.90.1';
+import { подЗамками } from './render/faction-locks.js?v=23.90.1';
+import { людиHUD, безЛюдей, этоЧеловек } from './faction-groups.js?v=23.90.1';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -120,8 +121,8 @@ const чистоеИмя = (имя) => имяБезПриставки(текст
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.90.0';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.90.0';
+import { extractHudBlock } from './hud-block.js?v=23.90.1';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.90.1';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -409,6 +410,7 @@ function собратьБеременности(накоп, data, at, игрок
   const дата = текст(data.scene && data.scene['Дата']);
   const датаMs = значимо(дата) ? parseSceneDate(дата) : null;
   for (const c of люди) {
+    if (ручнойПол(c?.__игрок ? 'user' : 'char:' + текст(c?.Имя || c?.N)) === 'm') continue;
     const поле = c && c['Беременность'];
     if (!значимо(поле)) continue;
     const имя = чистоеИмя(c['Имя'] || c.N || c.name);
@@ -766,7 +768,7 @@ export function chatSignature() {
   const last = текст(chat.length ? (chat[chat.length - 1].mes || '') : '');
   // Пополнилась летопись (HUD вычищенных сообщений) — прошлый отчёт устарел.
   const летопись = летописьЕсли();
-  return chat.length + ':' + last.length + ':' + last.slice(-40).replace(/\s+/g, ' ') + ':' + (летопись ? летопись.size : 0);
+  return chat.length + ':' + last.length + ':' + last.slice(-40).replace(/\s+/g, ' ') + ':' + (летопись ? летопись.size : 0) + ':' + полДляМодели();
 }
 
 function ключКэша(from, to) {

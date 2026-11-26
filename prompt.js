@@ -10,26 +10,27 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.90.0';
-import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.90.0';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.90.0';
+import { settings } from './settings.js?v=23.90.1';
+import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.90.1';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.90.1';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.90.0';
-import { промптНаАнглийском } from './prompt-en.js?v=23.90.0';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.90.0';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.90.0';
-import { parseSceneDate } from './history-analyzer.js?v=23.90.0';
-import { возрастТочно } from './render/babies.js?v=23.90.0';
-import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.90.0';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.90.0';
-import { сжатьСхему } from './compact-fields.js?v=23.90.0';
-import { короткийПромпт } from './prompt-short.js?v=23.90.0';
-import { подготовкаИдёт } from './render/holiday-lore.js?v=23.90.0';
-import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.90.0';
-import { промптРанСпутника } from './render/pet-wounds.js?v=23.90.0';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.90.0';
-import { правилоСостава } from './cast.js?v=23.90.0';
-import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.90.0';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.90.1';
+import { промптНаАнглийском } from './prompt-en.js?v=23.90.1';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.90.1';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.90.1';
+import { parseSceneDate } from './history-analyzer.js?v=23.90.1';
+import { возрастТочно } from './render/babies.js?v=23.90.1';
+import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.90.1';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.90.1';
+import { сжатьСхему } from './compact-fields.js?v=23.90.1';
+import { короткийПромпт } from './prompt-short.js?v=23.90.1';
+import { подготовкаИдёт } from './render/holiday-lore.js?v=23.90.1';
+import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.90.1';
+import { промптРанСпутника } from './render/pet-wounds.js?v=23.90.1';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.90.1';
+import { полДляМодели } from './manual-gender.js?v=23.90.1';
+import { правилоСостава } from './cast.js?v=23.90.1';
+import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.90.1';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -674,6 +675,7 @@ ${блокПисем(true)}`;
   p += промптСвоихСтатов(settings, { игрок });
   // Скрытые факты: итог «кубика» зачатия. Знает автор, персонажи — нет,
   // пока нет теста или признаков (render/conception.js).
+  if (!cacheStable && полДляМодели()) p += '\n' + полДляМодели();
   if (беременность && !cacheStable) p += скрытыеФактыЗачатия(датаСнимка, основа.последнийHUDКакЕсть(тип));
   if (детиHUD.выросли.length && режимДетской !== 'births') p += `\n\n## 👶 GROWN OUT OF THE NURSERY\n${детиHUD.выросли.join(', ')}: older than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years now — track in cs as regular characters, never in bb.`;
   if (выросли.length) p += `\n\n## 👶 GROWN CHILDREN\nChildren born${выросли.map(р => р.когда || 'earlier').join(', ')} are now older than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years: track them in cs as regular characters, never in bb.`;

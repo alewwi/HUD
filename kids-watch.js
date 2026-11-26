@@ -8,7 +8,7 @@
 // входе, ответ «кто это» — на выходе. Решает prompt.js.
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { возрастПерсонажа } from './render/babies.js?v=23.90.0';
+import { возрастПерсонажа } from './render/babies.js?v=23.90.1';
 
 const объект = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
 const имя = (о) => String((о && о.N) || '').trim();

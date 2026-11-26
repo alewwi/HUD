@@ -13,11 +13,11 @@
 // Пополняется сама: при открытии чата — фоном, по кусочку, все HUD, которых в
 // летописи ещё нет; после каждого ответа, свайпа и правки — последние ходы.
 
-import { прочитатьЛетопись, дописатьЛетопись, выжимкаHUD, ключСообщения, КЛЮЧ_ЛЕТОПИСИ } from './chronicle.js?v=23.90.0';
-import { extractHudBlock } from './hud-block.js?v=23.90.0';
-import { развернутьHUD } from './offload.js?v=23.90.0';
-import { parseHUDComplex } from './hud-parser.js?v=23.90.0';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.90.0';
+import { прочитатьЛетопись, дописатьЛетопись, выжимкаHUD, ключСообщения, КЛЮЧ_ЛЕТОПИСИ } from './chronicle.js?v=23.90.1';
+import { extractHudBlock } from './hud-block.js?v=23.90.1';
+import { развернутьHUD } from './offload.js?v=23.90.1';
+import { parseHUDComplex } from './hud-parser.js?v=23.90.1';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.90.1';
 
 const кэш = new Map();   // имя файла → { хранилище: { [КЛЮЧ_ЛЕТОПИСИ]: … }, карта, загрузка, таймер }
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };
@@ -327,11 +327,13 @@ export async function стеретьВЛетописи(правка) {
   const имя = свойФайлЛетописи();
   if (!имя) return;
   const карта = (await запись(имя).загрузка).карта;
+  if (имя !== свойФайлЛетописи()) throw new Error('чат сменился');
   const новые = new Map();
-  for (const [к, в] of карта) { const стало = правка(в); if (стало) новые.set(к, стало); }
+  for (const [к, в] of карта) { const стало = правка(в, к); if (стало) новые.set(к, стало); }
   if (!новые.size) return;
   await дописатьВЛетопись(новые);
-  await сохранитьЛетописьСейчас();
+  if (имя !== свойФайлЛетописи()) throw new Error('чат сменился');
+  if (!await сохранитьЛетописьСейчас()) throw new Error('Не удалось сохранить летопись');
 }
 
 /** Выжимка HUD сообщения (с музыкой хода, если она подобрана) или null. */

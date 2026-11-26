@@ -22,11 +22,12 @@
 //    Не понять — ничего не трогаем. Омегаверс, mpreg, трансгендерность и
 //    интерсекс-тела — исключение: там решает модель.
 
-import { settings } from './settings.js?v=23.90.0';
-import { namesLikelySame, normalizeNameText, запомнитьРазныхЛюдей } from './names.js?v=23.90.0';
-import { полПерсонажа, МЕТКА_ПОЛА } from './render/scene-body.js?v=23.90.0';
-import { текущаяГруппа } from './group-cards.js?v=23.90.0';
-import { имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.0';
+import { ручнойПол, очиститьКарточку } from './manual-gender.js?v=23.90.1';
+import { settings } from './settings.js?v=23.90.1';
+import { namesLikelySame, normalizeNameText, запомнитьРазныхЛюдей } from './names.js?v=23.90.1';
+import { полПерсонажа, МЕТКА_ПОЛА } from './render/scene-body.js?v=23.90.1';
+import { текущаяГруппа } from './group-cards.js?v=23.90.1';
+import { имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.1';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const строка = (v) => {
@@ -195,6 +196,8 @@ function разборПола(о, { люди = [], имя = '', игрок = fal
   const нет = { пол: '', сила: 0 };
   if (!объект(о)) return нет;
   const кто = имя || поле(о, ...ИМЯ) || (игрок ? getSafeUserName() : '');
+  const вручную = ручнойПол(игрок ? 'user' : 'char:' + кто);
+  if (вручную) return { пол: вручную, сила: 4 };
   const ключ = (игрок ? 'u:' : 'c:') + ключИмени(кто);
   const карта = память();
   const явно = явныйПол(о);
@@ -213,7 +216,10 @@ export function полЧеловека(о, опции = {}) { return разбо�
 const МОЖЕТ = (о) => МОЖЕТ_НОСИТЬ.test([поле(о, ...ВНЕШНОСТЬ), поле(о, ...РОЛЬ), поле(о, ...ТЕЛО), поле(о, ...ФИЗИОЛОГИЯ), поле(о, ...NSFW)].join(' '));
 /** Точно мужчина (метка, память, родство, роль), у которого не бывает цикла и беременности. */
 export function безМатки(о, опции = {}) {
-  if (!объект(о) || МОЖЕТ(о)) return false;
+  if (!объект(о)) return false;
+  const вручную = ручнойПол(опции.игрок ? 'user' : 'char:' + (опции.имя || поле(о, ...ИМЯ)));
+  if (вручную) return вручную === 'm';
+  if (МОЖЕТ(о)) return false;
   const р = разборПола(о, опции);
   return р.пол === 'm' && р.сила >= 2;
 }
@@ -292,9 +298,21 @@ export function составДляПоказа(data) {
   const игрок = объект(data.user) ? data.user : null;
   try { запомнитьРазныхЛюдей([...все.map(c => поле(c, ...ИМЯ)), getSafeUserName()]); } catch (_) { /* без имён */ }
   const люди = [...все, ...(игрок ? [игрок] : [])];
-  const cs = отобратьОсновных(все).map(c => { const л = лишнее(c, { люди }); return л ? безПолей(c, л) : c; });
-  const лu = игрок && лишнее(игрок, { люди, игрок: true, имя: getSafeUserName() });
-  const u = лu ? безПолей(игрок, лu) : игрок;
+  const карточка = (о, опции) => {
+    if (!о) return о;
+    const кто = опции.игрок ? 'user' : 'char:' + поле(о, ...ИМЯ);
+    const пол = ручнойПол(кто);
+    if (пол) {
+      const копия = Object.defineProperties({}, Object.getOwnPropertyDescriptors(о));
+      if (пол === 'm') очиститьКарточку(копия, кто);
+      if (typeof копия.Внешность === 'string') копия.Внешность = копия.Внешность.replace(МЕТКА_ПОЛА, м => м.replace(/[МЖMF]/u, пол === 'm' ? 'М' : 'Ж'));
+      return копия;
+    }
+    const лишние = лишнее(о, опции);
+    return лишние ? безПолей(о, лишние) : о;
+  };
+  const cs = отобратьОсновных(все).map(c => карточка(c, { люди }));
+  const u = карточка(игрок, { люди, игрок: true, имя: getSafeUserName() });
   const другиеЛюди = cs.length !== все.length || cs.some((c, i) => c !== все[i]);
   if (!другиеЛюди && u === игрок) return data;
   const итог = { ...data };
@@ -310,7 +328,19 @@ export function составСнимка(снимок) {
   const все = Array.isArray(снимок.cs) ? снимок.cs : [];
   try { запомнитьРазныхЛюдей([...все.map(c => поле(c, 'N')), getSafeUserName()]); } catch (_) { /* без имён */ }
   const люди = [...все, ...(объект(снимок.us) ? [снимок.us] : [])];
-  const чистить = (о, опции) => { const л = лишнее(о, { люди, ...опции }); if (л) for (const к of л) delete о[к]; };
+  const чистить = (о, опции) => {
+    if (!объект(о)) return;
+    const кто = опции.игрок ? 'user' : 'char:' + поле(о, ...ИМЯ);
+    const пол = ручнойПол(кто);
+    if (пол) {
+      if (пол === 'm') очиститьКарточку(о, кто);
+      if (typeof о.Ap === 'string') о.Ap = о.Ap.replace(МЕТКА_ПОЛА, м => м.replace(/[МЖMF]/u, пол === 'm' ? 'M' : 'F'));
+      if ('sx' in о) о.sx = пол;
+      return;
+    }
+    const л = лишнее(о, { люди, ...опции });
+    if (л) for (const к of л) delete о[к];
+  };
   все.forEach(c => чистить(c, {}));
   чистить(снимок.us, { игрок: true, имя: getSafeUserName() });
   if (Array.isArray(снимок.cs)) снимок.cs = отобратьОсновных(все, (c) => поле(c, 'N'));

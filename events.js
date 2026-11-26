@@ -16,30 +16,30 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.90.0';
-import { уверены } from './confirm-erase.js?v=23.90.0';
-import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.90.0';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.90.0';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.90.0';
-import { прикрытьСырой } from './raw-guard.js?v=23.90.0';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.90.0';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.90.0';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.90.0';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.90.0';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.90.0';
-import { полныйПорядок } from './tabs-order.js?v=23.90.0';
-import { getWorldVotes } from './render/world.js?v=23.90.0';
-import { действиеМира } from './render/world-views.js?v=23.90.0';
-import { действиеМузыки } from './render/music.js?v=23.90.0';
-import { раскрытьПорцию } from './render/long-list.js?v=23.90.0';
-import { прогретьИсторию } from './render/carryover.js?v=23.90.0';
-import { подключитьПалитру } from './color-picker.js?v=23.90.0';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.90.0';
-import { замер } from './utils.js?v=23.90.0';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.90.0';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.90.0';
-import { пометитьЭффекты } from './render/fx.js?v=23.90.0';
-import { ID_ТАВЕРНЫ, кнопкаТаверныHTML, сброситьСлежку } from './tavern-theme.js?v=23.90.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.90.1';
+import { уверены } from './confirm-erase.js?v=23.90.1';
+import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.90.1';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.90.1';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.90.1';
+import { прикрытьСырой } from './raw-guard.js?v=23.90.1';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.90.1';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.90.1';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.90.1';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.90.1';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.90.1';
+import { полныйПорядок } from './tabs-order.js?v=23.90.1';
+import { getWorldVotes } from './render/world.js?v=23.90.1';
+import { действиеМира } from './render/world-views.js?v=23.90.1';
+import { действиеМузыки } from './render/music.js?v=23.90.1';
+import { раскрытьПорцию } from './render/long-list.js?v=23.90.1';
+import { прогретьИсторию } from './render/carryover.js?v=23.90.1';
+import { подключитьПалитру } from './color-picker.js?v=23.90.1';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.90.1';
+import { замер } from './utils.js?v=23.90.1';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.90.1';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.90.1';
+import { пометитьЭффекты } from './render/fx.js?v=23.90.1';
+import { ID_ТАВЕРНЫ, кнопкаТаверныHTML, сброситьСлежку } from './tavern-theme.js?v=23.90.1';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -2163,11 +2163,11 @@ function окноВкладки(с) {
   return (тело && parseFloat(getComputedStyle(тело).maxHeight)) || 0;
 }
 function ужатьСписки() { замер('ужатьСписки', ужатьСпискиСразу); }
-function ужатьСпискиСразу() {
+function ужатьСпискиСразу(карточки = null) {
   if (typeof window.matchMedia !== 'function' || !document.querySelectorAll) return;
   const широкий = window.matchMedia('(min-width: 601px)').matches;
   // 1. Чтения: видимые дети, видим ли сам список, ширина.
-  const раскрытые = [...document.querySelectorAll('.hud-os-card')].filter(к => к.querySelector(':scope > .hud-toggle-input:checked'));
+  const раскрытые = (карточки || [...document.querySelectorAll('.hud-os-card')]).filter(к => к.querySelector(':scope > .hud-toggle-input:checked'));
   const план = [...new Set(раскрытые.flatMap(к => [...к.querySelectorAll(СПИСКИ)]))].map(с => ({
     с,
     дети: [...с.children].filter(x => { if (x.nodeType !== 1 || x.matches(НЕ_ПУНКТ)) return false; const ст = getComputedStyle(x); return ст.display !== 'none' && ст.position !== 'absolute'; }),
@@ -2248,6 +2248,19 @@ function ужатьСпискиСразу() {
 // в него, то мимо. Теперь у него нет своей прокрутки: видно три плашки, остальное
 // — кнопкой, а раскрытый список листается вместе со всем HUD.
 const убратьКнопкуСписка = (с) => { const к = с.nextElementSibling; if (к && к.matches('.hud-cap-more')) к.remove(); };
+// До возврата scrollTop: свёрнутый список временно уменьшает высоту вкладки.
+export function вернутьРаскрытыеСписки(card, списки) {
+  if (!списки.length) return;
+  ужатьСпискиСразу([card]);
+  for (const список of списки) {
+    const кнопка = список?.nextElementSibling;
+    if (!кнопка?.matches('.hud-cap-more')) continue;
+    список.classList.add('is-cap-open');
+    список.style.maxHeight = 'none';
+    кнопка.classList.add('is-open');
+    кнопка.setAttribute('aria-expanded', 'true');
+  }
+}
 // Кнопка честно пишет, сколько скрыто и сколько всего: «Ещё 9 из 12»;
 // раскрыто — «Свернуть 9». Стрелка поворачивается вместе со списком.
 const СТРЕЛКА_СПИСКА = '<svg class="hud-cap-chev" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 4.5l3 3 3-3"/></svg>';

@@ -1,5 +1,13 @@
 ﻿english,translation,context,kind,notes
 @language,,"Name of your language as shown in the language menu, e.g. 中文 or Español",name,
+Correct character sex,,Уточнить пол персонажа,text,
+The model added this block and the HUD displayed it. Which sex should the HUD remember for this character?,,"Модель добавила этот блок, и HUD показал его в карточке. Какой пол запомнить для этого персонажа?",text,
+"remember this character as male and remove his cycle, pregnancy and postpartum records from the HUD, archive and model prompts",,"запомнить мужской пол и убрать цикл, беременность и послеродовые записи этого персонажа из HUD, архива и подсказок модели",text,
+remember this character as female and keep the records,,запомнить женский пол и сохранить записи,text,
+Undo either choice using ↶ in the HUD header,,Оба решения можно отменить через ↶ в шапке HUD,text,
+Choice saved. Use ↶ to undo it,,Выбор сохранён. Отменить его можно через ↶,text,
+Correction saved in chat. The archive file could not be updated,,"Правка сохранена в чате, но файл архива обновить не удалось",text,
+Manual sex correction,,Ручная правка пола,text,
 Sworn enemies,,Заклятые враги,text,
 Enemies,,Враги,text,
 Hostile,,Неприязнь,text,

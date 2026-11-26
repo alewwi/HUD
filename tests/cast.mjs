@@ -134,6 +134,91 @@ const тёзки = mergeCharacterRecords([{ N: 'Саша', Ap: 'М, 180' }, { N:
 проверить('тёзки с метками М и Ж — двое', тёзки.length === 2 && !('Prg' in тёзки[0]));
 проверить('одно имя дважды — по-прежнему одна запись', mergeCharacterRecords([{ N: 'Мира', A: '20' }, { N: 'Мира', C: 'платье' }]).length === 1);
 
+// Ручная правка: два свайпа становятся одинаковыми после удаления.
+const E = await м('hud-erase.js');
+const G = await м('manual-gender.js');
+const T = await м('render/trust-stages.js');
+ctx = { name1: 'Игрок', chatMetadata: {}, chat: [], saveChat: async () => {} };
+const создатьУзел = document.createElement;
+document.createElement = tag => tag === 'textarea' ? { set innerHTML(v) { this.value = v; } } : создатьУзел(tag);
+const блок = неделя => '[HUD]' + JSON.stringify({ sc: { T: '12:00' }, cs: [
+  { N: 'Кай', Ap: 'Ж, омега', Mns: 'cyd: 4', Prg: 'wk: ' + неделя, Pp: 'bf: mixed', Ph: 'беременность; болит рука' },
+  { N: 'Кай Рид', Prg: 'wk: 28' }], us: { Prg: 'wk: 17' },
+  me: { sec: [{ f: 'Кай беременна' }, { f: 'Кай Рид беременна' }, { f: 'Мира беременна', knw: ['Кай'] }] } }) + '[/HUD]';
+const a = блок(5), b = блок(11);
+ctx.chat.push({ send_date: 'A', mes: a, swipe_id: 0, swipes: [a, b], extra: { display_text: a, hud_versions: [{ hud: b }] } });
+const до = JSON.stringify(ctx.chat);
+const Л = await м('chronicle-store.js');
+const файлы = new Map();
+globalThis.fetch = async (url, options) => {
+  if (url === '/api/files/upload') {
+    const { name, data } = JSON.parse(options.body);
+    файлы.set(name, JSON.parse(Buffer.from(data, 'base64').toString('utf8')));
+    return { ok: true };
+  }
+  const файл = файлы.get(url.split('/').pop());
+  return { ok: !!файл, json: async () => файл };
+};
+ctx.chatId = 'gender-test';
+const старыйХод = { scene: {}, characters: [{ Имя: 'Кай', Беременность: 'wk: 3' }, { Имя: 'Кай Рид', Беременность: 'wk: 21' }], memory: { secrets: [{ fact: 'Кай беременна' }], guns: [] } };
+старыйХод.characters[0].Физиология = 'беременность; болит рука';
+await Л.дописатьВЛетопись(new Map([['archive-only', старыйХод]]));
+const архивнаяСтрока = async () => (await Л.летописьЧата()).get('archive-only');
+ctx.chatMetadata.tavernosHudConception = { роды: [{ кто: 'char:Кай', когда: 'вчера' }, { кто: 'char:Кай Рид', когда: 'раньше' }] };
+ctx.chatMetadata.tavernosHudNotes = { разовые: { детали: { текст: 'Кай is pregnant', цель: 1 } } };
+const цель = { вид: 'gender', кто: 'char:Кай', пол: 'm', имяИгрока: 'Игрок' };
+await E.стеретьИзЧата(цель);
+const после = ctx.chat[0].mes;
+проверить('архив сохраняет соседнюю деталь в том же поле', (await архивнаяСтрока()).characters[0].Физиология === 'болит рука');
+const одиночная = { cs: { N: 'Кай', Prg: 'wk: 6' } };
+проверить('одиночная карточка из старого формата очищается', G.применитьРучнойПол(одиночная) && !('Prg' in одиночная.cs));
+проверить('переписан архивный ход, которого больше нет в сообщениях', !(await архивнаяСтрока()).characters[0].Беременность && !(await архивнаяСтрока()).memory.secrets.length && (await архивнаяСтрока()).characters[1].Беременность === 'wk: 21');
+проверить('удалены только свои роды и сброшена старая подсказка', ctx.chatMetadata.tavernosHudConception.роды.length === 1 && ctx.chatMetadata.tavernosHudConception.роды[0].кто === 'char:Кай Рид' && !ctx.chatMetadata.tavernosHudNotes.разовые.детали);
+
+проверить('удаление трёх полей и своих симптомов, сосед и игрок сохранены',
+  !/cyd: 4|bf: mixed|wk: 5|беременность;/.test(после) && /wk: 28/.test(после) && /wk: 17/.test(после) && /болит рука/.test(после));
+проверить('память: субъект, а не свидетель или начало другого имени', !после.includes('Кай беременна') && после.includes('Кай Рид беременна') && после.includes('Мира беременна'));
+проверить('выбор старше метки модели и исключения омегаверса', К.безМатки({ N: 'Кай', Ap: 'Ж, омега' }));
+проверить('свайпы очищены', ctx.chat[0].swipes[0] === ctx.chat[0].swipes[1]);
+const выжимка = { characters: [{ Имя: 'Кай', Беременность: 'wk: 5' }, { Имя: 'Кай Рид', Беременность: 'wk: 28' }], user: { Беременность: 'wk: 17' } };
+const архив = E.выжимкаБез(выжимка, цель);
+проверить('архив: только выбранная карточка', !архив.characters[0].Беременность && архив.characters[1].Беременность === 'wk: 28' && архив.user.Беременность === 'wk: 17');
+const следующий = { cs: [{ N: 'Кай', Ap: 'F, 177 cm', Prg: 'again', Mns: 'again', Pp: 'again' }], me: { fct: ['Кай беременна'] } };
+G.применитьРучнойПол(следующий);
+К.составСнимка(следующий);
+проверить('следующий ошибочный ответ очищается, снимок учитывает выбор', JSON.stringify(следующий.cs) === '[{"N":"Кай","Ap":"M, 177 cm"}]' && !следующий.me.fct.length);
+await E.вернутьУдаление(E.журналУдалений().at(-1).id);
+проверить('откат возвращает исходное смешанное поле архива', (await архивнаяСтрока()).characters[0].Физиология === 'беременность; болит рука');
+проверить('откат восстанавливает роды, архив и секрет из архивного хода', ctx.chatMetadata.tavernosHudConception.роды.length === 2 && (await архивнаяСтрока()).characters[0].Беременность === 'wk: 3' && (await архивнаяСтрока()).memory.secrets[0].fact === 'Кай беременна');
+проверить('откат возвращает каждый свайп, версию и карточку как было', JSON.stringify(ctx.chat) === до && !G.ручнойПол('char:Кай'));
+await E.стеретьИзЧата({ ...цель, пол: 'f' });
+проверить('оставить сохраняет данные и переопределяет мужскую метку', до === JSON.stringify(ctx.chat) && К.полЧеловека({ N: 'Кай', Ap: 'М' }) === 'f');
+await E.стеретьИзЧата({ вид: 'pregnancy', кто: 'char:Кай' });
+проверить('обычная корзина сохраняет ручной пол и цикл', G.ручнойПол('char:Кай') === 'f' && ctx.chat[0].mes.includes('cyd: 4'));
+await E.вернутьУдаление(E.журналУдалений()[0].id);
+проверить('откат более ранней правки сохраняет последующее обычное удаление', !G.ручнойПол('char:Кай') && !ctx.chat[0].mes.includes('wk: 5'));
+const дубль = { cs: [{ N: 'Кай', Prg: 'mine' }, { N: 'Кай', Prg: 'other' }] };
+let остановлено = false;
+try { E.убратьИзHUD(дубль, цель); } catch { остановлено = true; }
+проверить('две карточки с одинаковым полным именем — отмена до записи', остановлено && дубль.cs.every(c => c.Prg));
+ctx.chat = [{ send_date: 'swipe-switch', swipe_id: 0, mes: a, swipes: [a, b] }];
+await E.стеретьИзЧата(цель);
+ctx.chat[0].swipe_id = 1;
+ctx.chat[0].mes = ctx.chat[0].swipes[1];
+await E.вернутьУдаление(E.журналУдалений().at(-1).id);
+проверить('откат после переключения свайпа возвращает выбранный вариант', ctx.chat[0].mes === b && ctx.chat[0].swipes[0] === a);
+const UI = await м('render/character.js');
+const html = UI.buildCharacterHTML({ Имя: 'Кай & Ли', Цикл: 'cyd: 5; cyl: 28', Беременность: 'wk: 9', Послеродовое: 'bf: mixed' }, 'test', true, false);
+проверить('все три блока имеют отдельную кнопку и точного владельца', ['Менструальный цикл', 'Беременность', 'После родов'].every(блок =>
+  html.includes('data-hud-gender="' + блок + '" data-kto="char:Кай &amp; Ли"')));
+const пары = { A: { ждёт: {} }, B: { ждёт: {} } };
+const счёт = () => T.вопросыДоверия({ __ступениДоверия: пары }, 'cs.Tr');
+проверить('два решения на карточке', счёт() === 2);
+пары.A.ждёт = null;
+проверить('после одного решения остаётся одно', счёт() === 1);
+пары.B.замок = true;
+проверить('закрепление последней пары снимает значок', счёт() === 0);
+
 // --- Промпт ---
 const пр = fs.readFileSync(path.join(КОРЕНЬ, 'prompt.js'), 'utf8');
 проверить('промпт: беременность не у мужа', /Never on a man: her husband, partner or the father gets no Prg/.test(пр));

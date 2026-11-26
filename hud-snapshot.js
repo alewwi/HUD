@@ -12,34 +12,35 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.90.0';
+import { settings } from './settings.js?v=23.90.1';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { тМодели as т } from './i18n.js?v=23.90.0';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.90.0';
-import { mapKey, имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.0';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.90.0';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.90.0';
-import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.90.0';
-import { упомянутВТексте } from './names.js?v=23.90.0';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.0';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.90.0';
-import { доверияБезПричин } from './turn-notes.js?v=23.90.0';
-import { ступениВСнимке } from './render/trust-stages.js?v=23.90.0';
-import { замкиВСнимке } from './render/faction-locks.js?v=23.90.0';
-import { людиHUD, безЛюдей } from './faction-groups.js?v=23.90.0';
+import { тМодели as т } from './i18n.js?v=23.90.1';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.90.1';
+import { mapKey, имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.1';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.90.1';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.90.1';
+import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.90.1';
+import { упомянутВТексте } from './names.js?v=23.90.1';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.1';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.90.1';
+import { доверияБезПричин } from './turn-notes.js?v=23.90.1';
+import { ступениВСнимке } from './render/trust-stages.js?v=23.90.1';
+import { замкиВСнимке } from './render/faction-locks.js?v=23.90.1';
+import { людиHUD, безЛюдей } from './faction-groups.js?v=23.90.1';
 const имяИгрокаСнимка = () => { try { return window.SillyTavern?.getContext?.()?.name1 || ''; } catch (_) { return ''; } };
-import { составСнимка } from './cast.js?v=23.90.0';
-import { почиститьСнимок } from './render/medieval-life.js?v=23.90.0';
+import { применитьРучнойПол } from './manual-gender.js?v=23.90.1';
+import { составСнимка } from './cast.js?v=23.90.1';
+import { почиститьСнимок } from './render/medieval-life.js?v=23.90.1';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 // Коды полей в том виде, в каком их просит промт.
 const ПОЛЯ_СЦЕНЫ = ['T', 'Wt', 'Dt', 'At', 'Md', 'Tw'];
-const ПОЛЯ_ПЕРСОНАЖА = ['N', 'A', 'C', 'Ap', 'R', 'Mrg', 'Lgt', 'B', 'H', 'Ill', 'Prg', 'Mns', 'Ph', 'Bs', 'L', 'Th', 'K', 'Ex', 'D', 'I', 'G', 'S', 'Rl', 'Mm', 'Fl',
+const ПОЛЯ_ПЕРСОНАЖА = ['N', 'A', 'C', 'Ap', 'R', 'Mrg', 'Lgt', 'B', 'H', 'Ill', 'Prg', 'Pp', 'Mns', 'Ph', 'Bs', 'L', 'Th', 'K', 'Ex', 'D', 'I', 'G', 'S', 'Rl', 'Mm', 'Fl',
   'Jl', 'Bt', 'St', 'Eo', 'X', 'SxL', 'SxC', 'SxR', 'Ln', 'Tr', 'Fr', 'SS', 'Pos', 'Rnd', 'Dur', 'Prt', 'Org', 'Vit', 'Snd', 'BM', 'W', 'Kn', 'Ft',
   'NG', 'NT', 'ND', 'Mrk', 'AC', 'SxV', 'Ab', 'Ef'];
 // Игрок ведёт те же поля, что и персонажи; вместо W — своя близость UW.
-const ПОЛЯ_ИГРОКА = [...ПОЛЯ_ПЕРСОНАЖА.filter(к => к !== 'N' && к !== 'W'), 'Pp', 'UW'];
+const ПОЛЯ_ИГРОКА = [...ПОЛЯ_ПЕРСОНАЖА.filter(к => к !== 'N' && к !== 'W'), 'UW'];
 
 // Поля близости. Вне сцены их нет ни в схеме, ни в снимке; устойчивые черты
 // (кинки, фетиши, последний секс) HUD на экране берёт из прошлых ходов.
@@ -228,6 +229,7 @@ export function снимокПоверхОбрывка(снимок, чат, т�
 export function собратьСнимок(текстБлока) {
   const к = HUDвКодах(текстБлока);
   if (!к) return null;
+  применитьРучнойПол(к);
   // Глубокая настройка: выключенное модель не видит и в снимке.
   убратьВыключенное(к, выключеноВОтвете(settings));
 
@@ -468,6 +470,7 @@ export function строкаСнимка(снимок, nsfw, сцена = null) 
   // Правки игрока (snapshot-edits.js): «отметил, что Лена знает» — модели.
   try { наложитьНаСнимок(копия); } catch (_) { /* без правок */ }
   // Состав по настройке и пол: цикл и беременность мужчине модель не видит (cast.js).
+  применитьРучнойПол(копия);
   try { составСнимка(копия); } catch (_) { /* как было */ }
   // Номер и давность у записей памяти (memory-age.js) — после правок игрока:
   // те сверяют записи по тексту, а пометка его меняет.

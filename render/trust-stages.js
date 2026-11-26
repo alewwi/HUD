@@ -24,12 +24,12 @@
 // к кому», потолок и номер хода, с которого он действует. Старые ходы до
 // этого номера рисуются как модель их написала.
 
-import { settings } from '../settings.js?v=23.90.0';
-import { namesLikelySame } from '../names.js?v=23.90.0';
-import { escapeHtml, flattenFieldValue, именаГруппы, getSafeUserName } from '../utils.js?v=23.90.0';
-import { полеВкл } from '../deep-fields.js?v=23.90.0';
-import { английский, тМодели } from '../i18n.js?v=23.90.0';
-import { ико } from './view-icons.js?v=23.90.0';
+import { settings } from '../settings.js?v=23.90.1';
+import { namesLikelySame } from '../names.js?v=23.90.1';
+import { escapeHtml, flattenFieldValue, именаГруппы, getSafeUserName } from '../utils.js?v=23.90.1';
+import { полеВкл } from '../deep-fields.js?v=23.90.1';
+import { английский, тМодели } from '../i18n.js?v=23.90.1';
+import { ико } from './view-icons.js?v=23.90.1';
 
 const КЛЮЧ = 'tavernosHudTrust';
 
@@ -227,6 +227,12 @@ export function переключитьЗамок(кто, к, v, индекс) {
 }
 
 // --- Для модели ---------------------------------------------------------------
+
+/** Столько пар на этой карточке сейчас показывают кнопку «Разрешить». */
+export function вопросыДоверия(о, поле) {
+  if (settings.enableAttnBadges === false || !полеВкл(settings, поле)) return 0;
+  return Object.values(о?.__ступениДоверия || {}).filter(пара => пара.ждёт && !пара.замок).length;
+}
 
 /** Строка ступеней для описания Tr: «-100 Заклятые враги, -80 Враги, …». */
 export function ступениДляПромпта() {

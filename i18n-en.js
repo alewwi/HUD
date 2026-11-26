@@ -6,6 +6,14 @@
 // Шаблоны — для строк с числами и вставками («3 трека», «с хода 5»).
 
 export const СЛОВАРЬ_EN = {
+  "Уточнить пол персонажа": "Correct character sex",
+  "Модель добавила этот блок, и HUD показал его в карточке. Какой пол запомнить для этого персонажа?": "The model added this block and the HUD displayed it. Which sex should the HUD remember for this character?",
+  "запомнить мужской пол и убрать цикл, беременность и послеродовые записи этого персонажа из HUD, архива и подсказок модели": "remember this character as male and remove his cycle, pregnancy and postpartum records from the HUD, archive and model prompts",
+  "запомнить женский пол и сохранить записи": "remember this character as female and keep the records",
+  "Оба решения можно отменить через ↶ в шапке HUD": "Undo either choice using ↶ in the HUD header",
+  "Выбор сохранён. Отменить его можно через ↶": "Choice saved. Use ↶ to undo it",
+  "Правка сохранена в чате, но файл архива обновить не удалось": "Correction saved in chat. The archive file could not be updated",
+  "Ручная правка пола": "Manual sex correction",
   // Ступени доверия и тайный бросок «Заметили ли»
   "Заклятые враги": "Sworn enemies",
   "Враги": "Enemies",

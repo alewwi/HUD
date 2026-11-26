@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.90.1 — 2026-11-26
+
+- **Manual sex correction.** Select ✎ in the cycle, pregnancy or postpartum section. The dialog shows the character’s name and the selected section. “Delete” records the character as male in this chat and removes all three sections from their card. The HUD clears related entries from its archive, memory and model input. “Keep” records the character as female and keeps the sections. Close the dialog with × or undo a saved choice with ↶. The existing pregnancy trash button still removes a single pregnancy without changing the character’s sex.
+- **Trust notifications.** A white bell on a red badge beside a character’s name counts trust-stage advances waiting for approval. Each approval lowers the count by one. The badge disappears after the last approval. The card keeps its scroll position and the expanded character list stays open.
+
 ## 23.90.0 — 2026-11-26
 
 ### Added

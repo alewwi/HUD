@@ -24,9 +24,9 @@
 // Файлы: user/files/hud-offload-<персонаж>-<0…f>.json, 16 кусков по первой
 // цифре ключа: при возврате одного хода читается одна шестнадцатая.
 
-import { hudБлоки, extractHudBlock, заглушкиHUD, заглушкаHUD, развернутьЗаглушки, естьЗаглушкаHUD } from './hud-block.js?v=23.90.0';
+import { hudБлоки, extractHudBlock, заглушкиHUD, заглушкаHUD, развернутьЗаглушки, естьЗаглушкаHUD } from './hud-block.js?v=23.90.1';
 
-import { settings } from './settings.js?v=23.90.0';
+import { settings } from './settings.js?v=23.90.1';
 
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };
 
@@ -119,11 +119,11 @@ export function ячейки(m) {
   const out = [];
   if (!m || typeof m !== 'object') return out;
   const sid = Array.isArray(m.swipes) && Number.isInteger(m.swipe_id) ? m.swipe_id : -1;
-  const поле = (о, к, активная) => { if (о && typeof о === 'object' && typeof о[к] === 'string') out.push({ взять: () => о[к], поставить: (т) => { о[к] = т; }, активная }); };
-  поле(m, 'mes', true);
-  поле(m.extra, 'display_text', true);
-  if (Array.isArray(m.swipes)) m.swipes.forEach((_, k) => поле(m.swipes, k, k === sid));
-  if (Array.isArray(m.swipe_info)) m.swipe_info.forEach((и, k) => поле(и && и.extra, 'display_text', k === sid));
+  const поле = (о, к, активная, путь) => { if (о && typeof о === 'object' && typeof о[к] === 'string') out.push({ взять: () => о[к], поставить: (т) => { о[к] = т; }, активная, путь }); };
+  поле(m, 'mes', true, sid >= 0 ? 'mes:' + sid : 'mes');
+  поле(m.extra, 'display_text', true, sid >= 0 ? 'active-display:' + sid : 'display');
+  if (Array.isArray(m.swipes)) m.swipes.forEach((_, k) => поле(m.swipes, k, k === sid, 'swipe:' + k));
+  if (Array.isArray(m.swipe_info)) m.swipe_info.forEach((и, k) => поле(и && и.extra, 'display_text', k === sid, 'display:' + k));
   return out;
 }
 
@@ -236,11 +236,12 @@ async function блокиВФайл(основа, записи) {
  * текст с новыми; в её свойстве метки — [новый ключ, прежний ключ, прежняя
  * сводка] для возврата. Сообщения здесь не меняются.
  */
-export async function подготовитьВыгруженные(чат, правка, сводка = () => '') {
+export async function подготовитьВыгруженные(чат, правка, сводка = () => '', требоватьВсе = false) {
   const ключи = ключиВЧате(чат);
   const замены = new Map();
   if (ключи.size) {
-    await подгрузитьКлючи(ключи);
+    const пропущено = await подгрузитьКлючи(ключи);
+    if (пропущено && требоватьВсе) throw new Error('Не удалось прочитать все выгруженные HUD. Проверьте доступ к файлам чата и повторите правку.');
     for (const к of ключи) {
       const было = блоки.get(к);
       if (было === undefined) continue;
@@ -279,8 +280,8 @@ export async function разгрузитьЧат({ оставить = ОСТАВ
 
   // 1. Летопись — до разгрузки: архив по истории берёт из неё ходы, если
   //    файла с блоками почему-то не окажется.
-  const Л = await import('./chronicle-store.js?v=23.90.0');
-  const { ключСообщения } = await import('./chronicle.js?v=23.90.0');
+  const Л = await import('./chronicle-store.js?v=23.90.1');
+  const { ключСообщения } = await import('./chronicle.js?v=23.90.1');
   await Л.пополнитьЛетопись({ все: true });
   if (!(await Л.сохранитьЛетописьСейчас())) throw new Error('летопись не сохранилась');
   const летопись = await Л.летописьЧата();

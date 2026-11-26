@@ -21,11 +21,12 @@
 // «После» в следующие ходы — пока nsfwPrompt не «никогда», как нейтральная
 // история близости в prompt.js.
 
-import { settings } from './settings.js?v=23.90.0';
-import { полеВкл } from './deep-fields.js?v=23.90.0';
-import { flattenFieldValue } from './utils.js?v=23.90.0';
-import { namesLikelySame } from './names.js?v=23.90.0';
-import { старина } from './era.js?v=23.90.0';
+import { ручнойПол } from './manual-gender.js?v=23.90.1';
+import { settings } from './settings.js?v=23.90.1';
+import { полеВкл } from './deep-fields.js?v=23.90.1';
+import { flattenFieldValue } from './utils.js?v=23.90.1';
+import { namesLikelySame } from './names.js?v=23.90.1';
+import { старина } from './era.js?v=23.90.1';
 
 const стр = (v) => String(flattenFieldValue(v) ?? '').trim();
 const ЗАГЛУШКА = /^(?:[\d\s.,:;%\/—–-]|empty|none|null|нет|пусто|n\/a)*$/iu;
@@ -108,9 +109,10 @@ function состояние(з, игрок, имя, общее) {
   const тело = вкл('enableBodyState') && пол('Bs');
   const bs = (код) => (тело && пол('Bs.' + код) ? метка(з.Bs, код) : null);
   const ill = вкл('enableIllness') && пол('Ill') ? стр(з.Ill) : '';
-  const цикл = вкл('enableMenstruation') && пол('Mns') ? стр(з.Mns) : '';
-  const берем = вкл('enablePregnancy') && пол('Prg') ? стр(з.Prg) : '';
-  const pp = вкл('enablePregnancy') && пол('Pp') ? стр(з.Pp) : '';
+  const вручную = ручнойПол(игрок ? 'user' : 'char:' + String(з.N || имя).trim());
+  const цикл = вручную !== 'm' && вкл('enableMenstruation') && пол('Mns') ? стр(з.Mns) : '';
+  const берем = вручную !== 'm' && вкл('enablePregnancy') && пол('Prg') ? стр(з.Prg) : '';
+  const pp = вручную !== 'm' && вкл('enablePregnancy') && пол('Pp') ? стр(з.Pp) : '';
   const ap = пол('Ap') ? стр(з.Ap) : '';
   const фазаЦикла = цикл && пол('Mns.phs') ? текстМетки(цикл, 'phs').toLowerCase() : '';
   const с = {
@@ -133,8 +135,8 @@ function состояние(з, игрок, имя, общее) {
   с.первыйБыл = общее.первыйБыл?.(с) || null;
   // Пол: «Ж»/«М» в начале внешности, иначе цикл или беременность по сути —
   // «Mns: empty» у мужчины женщиной его не делает.
-  с.жен = ЖЕН.test(ap) || (!МУЖ.test(ap) && (поСути(цикл) || поСути(берем)));
-  с.муж = !с.жен && МУЖ.test(ap);
+  с.жен = вручную ? вручную === 'f' : ЖЕН.test(ap) || (!МУЖ.test(ap) && (поСути(цикл) || поСути(берем)));
+  с.муж = вручную ? вручную === 'm' : !с.жен && МУЖ.test(ap);
   с.текст = [с.ph, с.h, ill].join(' ');
   return с;
 }
