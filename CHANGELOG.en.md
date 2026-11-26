@@ -4,6 +4,12 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.90.4 — 2026-11-26
+
+- **Scars and trust.** A “More” button appears at the fourth entry in lists of permanent marks, trust scars, trust changes and their reasons. Each list expands independently. On wide screens you can also scroll a collapsed list. The Kintsugi bowl and Patches heart stay visible.
+- **Protection detection.** The HUD now recognizes descriptions of protected sex in the encounter’s ending when calculating the in-game conception chance. It distinguishes unprotected sex and condom failure, and honors an explicit “none” in the Protection field. At 0%, even a roll of 1 gives a negative result.
+- **Saved rolls.** When the HUD previously missed a protected encounter, it can correct the stored chance and threshold while keeping the original die roll. This applies to a single round with a negative result, no other encounters in the same conception window and no manual override.
+
 ## 23.90.3 — 2026-11-26
 
 - **Trust notifications.** A red number badge appears only on the character’s tab at the top of the HUD. It counts relationships awaiting approval to advance to the next trust stage and disappears after the last decision.

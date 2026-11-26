@@ -6,9 +6,9 @@
 // прежний, его рисуют сами блоки; здесь только новые. Данные те же —
 // модель ничего нового не пишет. Оформление — css/views-plus.css.
 
-import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяДляВкладки } from '../utils.js?v=23.90.3';
-import { лицоЧеловека as лицо } from './views.js?v=23.90.3';
-import { ико } from './view-icons.js?v=23.90.3';
+import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяДляВкладки } from '../utils.js?v=23.90.4';
+import { лицоЧеловека as лицо } from './views.js?v=23.90.4';
+import { ико } from './view-icons.js?v=23.90.4';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -59,12 +59,12 @@ function шрамыКинцуги(шрамы, кнопка) {
     + '<g class="cracks" style="--au:url(#' + id + 'au)">' + трещины + '</g></svg>';
   const список = шрамы.map(з => '<li class="hud-vp-kin-item"><i class="hud-vp-kin-dot" aria-hidden="true"></i><div><b>' + э(з.кому) + '</b>'
     + '<span>' + (з.почему ? applyTooltips(з.почему) : 'шрам') + '</span></div><em title="Доверие упало с ' + э(з.было) + ' до ' + э(з.стало) + '">' + э(з.было) + '<i aria-hidden="true">→</i>' + э(з.стало) + '</em>' + кнопка(з) + '</li>').join('');
-  return '<div class="hud-v hud-vp-kin hud-v-card">' + чаша + '<div class="hud-vp-kin-side"><span class="hud-vp-cap">склеено золотом</span><ul>' + список + '</ul></div></div>';
+  return '<div class="hud-v hud-vp-kin hud-v-card">' + чаша + '<div class="hud-vp-kin-side"><span class="hud-vp-cap">склеено золотом</span><ul class="hud-trust-scar-list" data-hud-list="scars">' + список + '</ul></div></div>';
 }
 
 /** Швы: зашитый разрез под каждой обидой — чем глубже падение, тем длиннее шов. */
 function шрамыШвы(шрамы, кнопка) {
-  return `<div class="hud-v hud-vp-seams">` + шрамы.map((з, i) => {
+  return `<div class="hud-v hud-vp-seams" data-hud-list="scars">` + шрамы.map((з, i) => {
     const падение = Math.max(0, (з.было ?? 0) - (з.стало ?? 0));
     const стежков = огр(Math.round(падение / 4), 3, 14);
     const r = сид(з.id || з.почему, i);
@@ -99,7 +99,7 @@ function шрамыЗаплатки(шрамы, кнопка) {
     + '<path class="gloss" d="M20 24 C22 16 28 12 34 12"/>' + заплатки + '</g></svg>';
   const список = шрамы.map((з, i) => '<li><b class="hud-vp-heart-n">' + (i + 1) + '</b><div><b>' + э(з.кому) + '</b><span>' + (з.почему ? applyTooltips(з.почему) : 'шрам') + '</span></div>'
     + '<em title="Доверие упало с ' + э(з.было) + ' до ' + э(з.стало) + '">−' + Math.max(0, (з.было ?? 0) - (з.стало ?? 0)) + '</em>' + кнопка(з) + '</li>').join('');
-  return '<div class="hud-v hud-vp-patches hud-v-card">' + сердце + '<div class="hud-vp-patches-side"><span class="hud-vp-cap">заштопано</span><ul>' + список + '</ul></div></div>';
+  return '<div class="hud-v hud-vp-patches hud-v-card">' + сердце + '<div class="hud-vp-patches-side"><span class="hud-vp-cap">заштопано</span><ul class="hud-trust-scar-list" data-hud-list="scars">' + список + '</ul></div></div>';
 }
 
 export function видШрамов(шрамы, вид, кнопка = () => '') {

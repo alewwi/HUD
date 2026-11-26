@@ -559,11 +559,12 @@
 /* =========================================================================
    СДВИГИ ДОВЕРИЯ: видны при наведении или нажатии
    ========================================================================= */
-.hud-trust-meta { display: flex; flex-wrap: wrap; gap: 5px; max-height: 0; opacity: 0; overflow: hidden; margin-top: 0; font: 11px 'Courier New', monospace; transition: max-height .3s ease, opacity .3s ease, margin-top .3s ease; }
-.hud-row:focus-within > .hud-trust-meta, .hud-row.is-meta-open > .hud-trust-meta { max-height: 120px; opacity: .9; margin-top: 8px; }
-@media (hover: hover) and (pointer: fine) { .hud-row:hover > .hud-trust-meta { max-height: 120px; opacity: .9; margin-top: 8px; } }
-.hud-trust-meta span { padding: 1px 8px; border-radius: 99px; border: 1px solid color-mix(in srgb, var(--hud-text, #eee) 25%, transparent); white-space: nowrap; }
-.hud-trust-meta span b { font-weight: 700; }
+.hud-trust-deltas { display: flex; flex-wrap: wrap; gap: 5px; }
+.hud-trust-meta { max-height: 0; opacity: 0; overflow: hidden; margin-top: 0; font: 11px 'Courier New', monospace; transition: opacity .3s ease, margin-top .3s ease; }
+.hud-row:focus-within > .hud-trust-meta, .hud-row.is-meta-open > .hud-trust-meta { max-height: none; opacity: .9; margin-top: 8px; }
+@media (hover: hover) and (pointer: fine) { .hud-row:hover > .hud-trust-meta { max-height: none; opacity: .9; margin-top: 8px; } }
+.hud-trust-deltas > span { padding: 1px 8px; border-radius: 99px; border: 1px solid color-mix(in srgb, var(--hud-text, #eee) 25%, transparent); white-space: nowrap; }
+.hud-trust-deltas > span b { font-weight: 700; }
 .hud-trust-meta .up { color: #8fd49a; border-color: rgba(143,212,154,.45); }
 .hud-trust-meta .down { color: #ef8a8a; border-color: rgba(239,138,138,.45); }
 

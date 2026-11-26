@@ -26,6 +26,12 @@
 .hud-os-card .is-capped.is-cap-more { overflow: hidden !important; padding-bottom: 0 !important; }
 .hud-os-card .is-capped.is-cap-more.is-cap-open { overflow: visible !important; -webkit-mask: none; mask: none; padding-bottom: 2px !important; }
 .hud-os-card .hud-cap-more { display: block; align-self: center; grid-column: 1 / -1; width: fit-content; min-height: 36px; margin: 6px auto 0; padding: 4px 16px; }
+/* Длинные списки шрамов и доверия сохраняют оформление каждой записи. */
+.hud-os-card :is(.hud-trust-scars, .hud-trust-why, .hud-trust-deltas).is-capped { flex-flow: column nowrap; align-items: flex-start; }
+.hud-os-card .hud-scars-list.is-capped { grid-template-columns: 1fr; }
+@media (min-width: 601px) {
+  .hud-os-card [data-hud-list].is-capped.is-cap-more:not(.is-cap-open):not(.is-cap-anim) { overflow-y: auto !important; }
+}
 /* Раскрытие и сворачивание едут по высоте (events.js, раскрытьСписок). */
 .hud-os-card .is-capped.is-cap-more.is-cap-anim { overflow: hidden !important; transition: max-height .36s cubic-bezier(.22, .72, .2, 1); }
 @media (prefers-reduced-motion: reduce) { .hud-os-card .is-capped.is-cap-more.is-cap-anim { transition: none; } }

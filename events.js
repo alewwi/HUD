@@ -16,30 +16,30 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.90.3';
-import { уверены } from './confirm-erase.js?v=23.90.3';
-import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.90.3';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.90.3';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.90.3';
-import { прикрытьСырой } from './raw-guard.js?v=23.90.3';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.90.3';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.90.3';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.90.3';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.90.3';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.90.3';
-import { полныйПорядок } from './tabs-order.js?v=23.90.3';
-import { getWorldVotes } from './render/world.js?v=23.90.3';
-import { действиеМира } from './render/world-views.js?v=23.90.3';
-import { действиеМузыки } from './render/music.js?v=23.90.3';
-import { раскрытьПорцию } from './render/long-list.js?v=23.90.3';
-import { прогретьИсторию } from './render/carryover.js?v=23.90.3';
-import { подключитьПалитру } from './color-picker.js?v=23.90.3';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.90.3';
-import { замер } from './utils.js?v=23.90.3';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.90.3';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.90.3';
-import { пометитьЭффекты } from './render/fx.js?v=23.90.3';
-import { ID_ТАВЕРНЫ, кнопкаТаверныHTML, сброситьСлежку } from './tavern-theme.js?v=23.90.3';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.90.4';
+import { уверены } from './confirm-erase.js?v=23.90.4';
+import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.90.4';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.90.4';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.90.4';
+import { прикрытьСырой } from './raw-guard.js?v=23.90.4';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.90.4';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.90.4';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.90.4';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.90.4';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.90.4';
+import { полныйПорядок } from './tabs-order.js?v=23.90.4';
+import { getWorldVotes } from './render/world.js?v=23.90.4';
+import { действиеМира } from './render/world-views.js?v=23.90.4';
+import { действиеМузыки } from './render/music.js?v=23.90.4';
+import { раскрытьПорцию } from './render/long-list.js?v=23.90.4';
+import { прогретьИсторию } from './render/carryover.js?v=23.90.4';
+import { подключитьПалитру } from './color-picker.js?v=23.90.4';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.90.4';
+import { замер } from './utils.js?v=23.90.4';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.90.4';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.90.4';
+import { пометитьЭффекты } from './render/fx.js?v=23.90.4';
+import { ID_ТАВЕРНЫ, кнопкаТаверныHTML, сброситьСлежку } from './tavern-theme.js?v=23.90.4';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -2125,7 +2125,7 @@ document.addEventListener('click', (e) => {
 // разной высоты. На широком экране — вбок, по три в ряд. Скрытые вкладки
 // меряем, когда откроют.
 // ВБОК — плашки и карточки: пилюли, виды блоков, поля персонажа.
-const ВБОК = '.hud-vertical-container, .hud-inventory-grid, .hud-life-items, .hud-bodymap, .hud-ill-list, .hud-marks, .hud-guns, .hud-scars-list, .hud-schedule-container, .hud-lines, .hud-perc-list, .hud-life-wounds, .hud-life-timers, .hud-life-wlist, '
+const ВБОК = '.hud-vertical-container, .hud-inventory-grid, .hud-life-items, .hud-bodymap, .hud-ill-list, .hud-marks, .hud-guns, .hud-schedule-container, .hud-lines, .hud-perc-list, .hud-life-wounds, .hud-life-timers, .hud-life-wlist, '
   + '.hud-v-bm-legend, .hud-v-vaults, .hud-v-envs, .hud-v-files, .hud-v-webs, .hud-v-secbars, .hud-v-inv.is-cards, .hud-v-inv.is-groups, .hud-v-inv.is-weight, .hud-v-trust:not(.is-spectrum):not(.is-orbit), .hud-v-fears, .hud-v-kinks, .hud-v-mem.is-polaroid, .hud-v-board, .hud-v-fuses, .hud-v-imp.is-bookmarks, .hud-v-tickets, '
   + '.hud-f-clothes, .hud-f-key, .hud-f-sched, .hud-f-lines, .hud-f > .rack, .hud-f > .cork, .hud-f > .book';
 // Только вниз и на широком экране: лист бумаги или ось, которые вбок не лягут.
@@ -2133,7 +2133,7 @@ const ВБОК = '.hud-vertical-container, .hud-inventory-grid, .hud-life-items,
 // подписи сжимались в столбик по букве. Он только вниз.
 // Память: таймлайн дня (ось), обещания (в узкой колонке вбок текст рвался
 // по слогам) и люди в «Кто что знает» (строки раскрываются).
-const ВНИЗ = '.hud-timeline-container, .hud-promises, .hud-sgrid-people, .hud-heat-list, .hud-v-scroll > ol, .hud-v-notebook, .hud-v-drum-legend, .hud-v-gun-col, .hud-v-beads, .hud-v-receipt ol, .hud-v-menu, .hud-f > ol, .hud-f > ul, .hud-f .page, .hud-f .form, .hud-f .grid ul, .hud-f .subs, .hud-mood-history'
+const ВНИЗ = '[data-hud-list], .hud-timeline-container, .hud-promises, .hud-sgrid-people, .hud-heat-list, .hud-v-scroll > ol, .hud-v-notebook, .hud-v-drum-legend, .hud-v-gun-col, .hud-v-beads, .hud-v-receipt ol, .hud-v-menu, .hud-f > ol, .hud-f > ul, .hud-f .page, .hud-f .form, .hud-f .grid ul, .hud-f .subs, .hud-mood-history'
   // Виды таймлайна, эмоций и отношений (render/views-story.js) — как прежние списки памяти.
   + ', .hud-tl-log .page, .hud-tl-st-list, .hud-tl-board .strip, .hud-tl-ruler ol, .hud-em-gl-list, .hud-em-pl-list, .hud-em-sw-set .fan, .hud-rl-ivy ol, .hud-rl-toc ol, .hud-rl-locket, .hud-rl-book .pages';
 const СПИСКИ = ВБОК + ', ' + ВНИЗ;
@@ -2163,16 +2163,17 @@ function окноВкладки(с) {
   return (тело && parseFloat(getComputedStyle(тело).maxHeight)) || 0;
 }
 function ужатьСписки() { замер('ужатьСписки', ужатьСпискиСразу); }
-function ужатьСпискиСразу(карточки = null) {
+function ужатьСпискиСразу(карточки = null, область = null) {
   if (typeof window.matchMedia !== 'function' || !document.querySelectorAll) return;
   const широкий = window.matchMedia('(min-width: 601px)').matches;
   // 1. Чтения: видимые дети, видим ли сам список, ширина.
   const раскрытые = (карточки || [...document.querySelectorAll('.hud-os-card')]).filter(к => к.querySelector(':scope > .hud-toggle-input:checked'));
-  const план = [...new Set(раскрытые.flatMap(к => [...к.querySelectorAll(СПИСКИ)]))].map(с => ({
+  const план = [...new Set(раскрытые.flatMap(к => [...(область || к).querySelectorAll(СПИСКИ)]))].map(с => ({
     с,
     дети: [...с.children].filter(x => { if (x.nodeType !== 1 || x.matches(НЕ_ПУНКТ)) return false; const ст = getComputedStyle(x); return ст.display !== 'none' && ст.position !== 'absolute'; }),
     виден: !!с.offsetParent,
     сетка: с.matches(СЕТКИ),
+    сКнопкой: !широкий || с.hasAttribute('data-hud-list'),
     // В узкой панели лента стоит столбиком, как на телефоне: её тоже ужимаем.
     столбиком: с.matches(ЛЕНТЫ) && getComputedStyle(с).flexDirection === 'column',
     ширина: с.clientWidth,
@@ -2183,7 +2184,7 @@ function ужатьСпискиСразу(карточки = null) {
   // Свёрнутый граф отношений в карточке уже 760px: граф 1000px сжат вдвое, и
   // подписи двух десятков связей сливались в кашу. Там подпись видна только у
   // выбранной связи (css/base.css, .is-narrow); в развёрнутом — все.
-  const графы = раскрытые.flatMap(к => [...к.querySelectorAll('.hud-rel-graph:not(.is-expanded)')]).map(г => [г, г.clientWidth]);
+  const графы = область ? [] : раскрытые.flatMap(к => [...к.querySelectorAll('.hud-rel-graph:not(.is-expanded)')]).map(г => [г, г.clientWidth]);
   for (const [г, ш] of графы) if (ш) г.classList.toggle('is-narrow', ш < 760);
   // 2. Записи: классы; у тех, что будем мерить, снимаем потолок.
   const мерить = [], ленты = [];
@@ -2206,7 +2207,7 @@ function ужатьСпискиСразу(карточки = null) {
     }
     if (!п.виден) continue;
     // Раскрытый игроком список не сворачиваем обратно; едущий — не трогаем.
-    if (!широкий && (с.classList.contains('is-cap-open') || с.classList.contains('is-cap-anim'))) continue;
+    if (п.сКнопкой && (с.classList.contains('is-cap-open') || с.classList.contains('is-cap-anim'))) continue;
     п.ключ = дети.length + '|' + п.ширина + '|' + п.окно;
     if (с.classList.contains('is-capped') && с.dataset.cap === п.ключ) continue;
     с.classList.remove('is-capped-x', 'is-x2', 'is-fit');
@@ -2242,16 +2243,16 @@ function ужатьСпискиСразу(карточки = null) {
   for (const п of мерить) { п.с.style.maxHeight = п.высота + 'px'; п.с.style.setProperty('--cap-fade', п.краешек + 'px'); п.с.dataset.cap = п.ключ; п.с.dataset.capH = п.высота + 'px'; }
   // 5. Чтения, потом записи: долистан ли список до конца.
   const концы = мерить.map(п => п.с.scrollHeight - п.с.clientHeight < 4);
-  мерить.forEach((п, i) => { п.с.classList.toggle('is-end', концы[i]); if (!широкий) кнопкаСписка(п.с, п.скрыто || п.дети.length - 3, п.дети.length, концы[i]); });
+  мерить.forEach((п, i) => { п.с.classList.toggle('is-end', концы[i]); if (п.сКнопкой) кнопкаСписка(п.с, п.скрыто || п.дети.length - 3, п.дети.length, концы[i]); });
 }
 // Телефон: вложенный список листался отдельно от вкладки, и палец попадал то
 // в него, то мимо. Теперь у него нет своей прокрутки: видно три плашки, остальное
 // — кнопкой, а раскрытый список листается вместе со всем HUD.
 const убратьКнопкуСписка = (с) => { const к = с.nextElementSibling; if (к && к.matches('.hud-cap-more')) к.remove(); };
 // До возврата scrollTop: свёрнутый список временно уменьшает высоту вкладки.
-export function вернутьРаскрытыеСписки(card, списки) {
-  if (!списки.length) return;
-  ужатьСпискиСразу([card]);
+export function вернутьРаскрытыеСписки(card, списки, область = null) {
+  if (!списки.length && !область) return;
+  ужатьСпискиСразу([card], область);
   for (const список of списки) {
     const кнопка = список?.nextElementSibling;
     if (!кнопка?.matches('.hud-cap-more')) continue;
