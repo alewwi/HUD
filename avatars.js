@@ -10,10 +10,10 @@
 // реально добавляются новые сообщения (см. invalidateAvatarCache()).
 // Ручные аватарки читаются прямо из настроек: модуль и так знает про DOM
 // и глобали SillyTavern, ещё одна зависимость ничего не усложняет.
-import { корейскаяФамилия } from './korean-names.js?v=23.90.5';
-import { settings } from './settings.js?v=23.90.5';
-import { getSafeUserName } from './utils.js?v=23.90.5';
-import { namesLikelySame } from './names.js?v=23.90.5';
+import { нужноПолноеИмя } from './korean-names.js?v=23.90.6';
+import { settings } from './settings.js?v=23.90.6';
+import { getSafeUserName } from './utils.js?v=23.90.6';
+import { namesLikelySame } from './names.js?v=23.90.6';
 
 /**
  * Палитра для плейсхолдеров аватарок: цвет выбирается по хэшу имени.
@@ -48,7 +48,7 @@ function nameMatches(target, list) {
   const t = normName(target);
   if (!t) return false;
   const tFirst = t.split(' ')[0];
-  return list.some(nm => (корейскаяФамилия(t) || корейскаяФамилия(nm)) ? namesLikelySame(nm, t) : nm === t || nm.split(' ')[0] === tFirst);
+  return list.some(nm => (нужноПолноеИмя(t) || нужноПолноеИмя(nm)) ? namesLikelySame(nm, t) : nm === t || nm.split(' ')[0] === tFirst);
 }
 
 // Имя закреплено за {{char}}? Тогда никакой другой персонаж не должен
@@ -120,7 +120,7 @@ function resolveAvatarUrl(characterName, isPrimary) {
   // сводилась к «the» и приклеивала чужую аватарку.
   const слова = словаИмени(characterName);
   const всеСловаЕсть = (другое) => {
-    if (корейскаяФамилия(characterName)) return namesLikelySame(characterName, другое);
+    if (нужноПолноеИмя(characterName)) return namesLikelySame(characterName, другое);
     if (!слова.length) return false;
     const там = new Set(словаИмени(другое));
     return слова.every(w => там.has(w));
@@ -142,7 +142,7 @@ function resolveAvatarUrl(characterName, isPrimary) {
   // фолбэк «взять аватарку из последнего сообщения бота» пропускаем: именно
   // он и приклеивал фото персонажа первому попавшемуся NPC.
   if (isPrimary && hasPinnedCharNames() && !isPinnedCharName(characterName)) return null;
-  if (isPrimary && !корейскаяФамилия(characterName)) {
+  if (isPrimary && !нужноПолноеИмя(characterName)) {
       const botMsgs = Array.from(document.querySelectorAll('.mes:not([is_user="true"]):not([is_system="true"]) .avatar img'));
       if (botMsgs.length > 0) {
           const lastBotMsg = botMsgs[botMsgs.length - 1];
@@ -153,10 +153,10 @@ function resolveAvatarUrl(characterName, isPrimary) {
   if (!карточки) return null;
   const целое = словаИмени(characterName).join(' ');
   let char = карточки.find(c => c.name && словаИмени(c.name).join(' ') === целое);
-  if (!char && целое && !корейскаяФамилия(characterName)) char = карточки.find(c => c.name && словаИмени(c.name).join(' ').includes(целое));
+  if (!char && целое && !нужноПолноеИмя(characterName)) char = карточки.find(c => c.name && словаИмени(c.name).join(' ').includes(целое));
   if (!char) char = карточки.find(c => c.name && всеСловаЕсть(c.name));
   const номер = номерКарточкиST();
-  if (!char && isPrimary && !корейскаяФамилия(characterName) && номер !== undefined && номер !== null) char = карточки[номер];
+  if (!char && isPrimary && !нужноПолноеИмя(characterName) && номер !== undefined && номер !== null) char = карточки[номер];
   if (!char || !char.avatar || char.avatar === 'none') return null;
 
   let file = char.avatar;

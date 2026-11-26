@@ -19,10 +19,10 @@
 // картинок (names.js: алиасыИмени). Чего нет ни в карточке, ни в лорбуках —
 // берётся из истории чата.
 
-import { корейскаяФамилия } from '../korean-names.js?v=23.90.5';
-import { settings } from '../settings.js?v=23.90.5';
-import { namesLikelySame, алиасыИмени } from '../names.js?v=23.90.5';
-import { имяБезПриставки } from '../utils.js?v=23.90.5';
+import { нужноПолноеИмя } from '../korean-names.js?v=23.90.6';
+import { settings } from '../settings.js?v=23.90.6';
+import { namesLikelySame, алиасыИмени } from '../names.js?v=23.90.6';
+import { имяБезПриставки } from '../utils.js?v=23.90.6';
 
 const контекст = () => { try { return window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext(); } catch (_) { return null; } };
 const чистоеИмя = (н) => имяБезПриставки(String(н || '')).trim();
@@ -42,7 +42,7 @@ export function тотЖеГерой(а, б) {
 // (если оно не короче трёх букв: «Ал» слишком часто встречается внутри слов).
 function упоминание(текст, имя) {
   const полное = чистоеИмя(имя), первое = первоеСлово(имя);
-  const варианты = [полное, !корейскаяФамилия(полное) && первое.length >= 3 ? первое : ''].filter(Boolean);
+  const варианты = [полное, !нужноПолноеИмя(полное) && первое.length >= 3 ? первое : ''].filter(Boolean);
   try { алиасыИмени(полное).forEach(а => а && а.length >= 3 && варианты.push(а)); } catch (_) { /* без алиасов */ }
   const экр = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   return варианты.some(в => new RegExp('(?<![\\p{L}])' + экр(в) + '(?![\\p{L}])', 'iu').test(String(текст || '')));

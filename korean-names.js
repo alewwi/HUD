@@ -19,3 +19,23 @@ export function корейскаяФамилия(имя) {
   const первое = String(имя || '').trim().toLowerCase().split(/\s+/, 1)[0];
   return фамилии.get(первое) || '';
 }
+
+const фамилииКитаяИЯпонии = new Set((
+  'ван wang ли li чжан zhang лю liu чэнь chen ян yang хуан huang чжао zhao у wu чжоу zhou сюй xu сунь sun ма ma чжу zhu линь lin ' +
+  'го guo хэ he ло luo лян liang сян xiang фан fang фэн feng шэнь shen сяо xiao е ye су su лэй lei оуян ouyang сыма sima ' +
+  'чжэн zheng сюн xiong тянь tian цао cao цай cai цзян jiang цяо qiao юань yuan дэн deng ху hu хань han ' +
+  'сато sato satō судзуки suzuki такахаси takahashi танака tanaka ватанабэ watanabe ито ito itō ямамото yamamoto ' +
+  'накамура nakamura кобаяси kobayashi като kato katō ёсида yoshida ямада yamada сасаки sasaki ямагути yamaguchi ' +
+  'мацумото matsumoto иноуэ inoue кимура kimura хаяси hayashi симидзу shimizu сайто saito saitō такахаши кобаяши'
+).split(/\s+/));
+
+export const иероглифыИКана = текст => /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u.test(текст);
+const вСловаре = слово => фамилииКитаяИЯпонии.has(слово.toLowerCase().normalize('NFD').replace(/\p{M}/gu, ''));
+export const известнаяФамилия = слово => !!корейскаяФамилия(слово) || вСловаре(String(слово));
+
+export function нужноПолноеИмя(имя) {
+  const s = String(имя || '').trim();
+  if (иероглифыИКана(s) || /[가-힣]/u.test(s)) return true;
+  const слова = s.split(/\s+/);
+  return известнаяФамилия(слова[0]) || (слова.length > 1 && вСловаре(слова.at(-1)));
+}

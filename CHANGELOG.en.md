@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.90.6 — 2026-11-26
+
+- **Chinese and Japanese names.** Zhang Wei and Zhang Ming now get separate cards, as do Aoi Tanaka and Aoi Yamada. The HUD uses full names written in Han characters or kana and recognizes common surnames in Latin and Cyrillic spellings. Each character keeps their own trust, avatar, phone contact and inventory across turns.
+- **Grouped entries.** The HUD separates names in entries such as “田中葵、山田葵” and “张伟，张明”. It recognizes full names in Han characters with or without a space after the surname.
+
 ## 23.90.5 — 2026-11-26
 
 - **Trust toward the player.** The player stays first when opening a card and after approving a trust stage, including when the model groups several people in one entry. Trust changes, reasons and scars also show the player first. Other people keep their order.

@@ -7,14 +7,14 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { корейскаяФамилия } from '../korean-names.js?v=23.90.5';
-import { имяДляВкладки, escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.90.5';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.5';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame, запомнитьРазныхЛюдей } from '../names.js?v=23.90.5';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.90.5';
-import { settings } from '../settings.js?v=23.90.5';
-import { ответыПроДядей } from './family-asks.js?v=23.90.5';
-import { законностьДляДрева } from './medieval-life.js?v=23.90.5';
+import { нужноПолноеИмя } from '../korean-names.js?v=23.90.6';
+import { имяДляВкладки, escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.90.6';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.6';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame, запомнитьРазныхЛюдей } from '../names.js?v=23.90.6';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.90.6';
+import { settings } from '../settings.js?v=23.90.6';
+import { ответыПроДядей } from './family-asks.js?v=23.90.6';
+import { законностьДляДрева } from './medieval-life.js?v=23.90.6';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -90,7 +90,7 @@ export function mergeCharacterRecords(characters) {
 }
 
 function nameIdentityKey(name) {
-  if (корейскаяФамилия(name)) return normalizeNameText(name);
+  if (нужноПолноеИмя(name)) return normalizeNameText(name);
   const s = namePhoneticLatin(name);
   return s || nameLettersOnly(name) || normalizeNameText(name);
 }

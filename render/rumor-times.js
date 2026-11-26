@@ -12,7 +12,7 @@
 //    переноса. Новые записи получают время своего, нового хода.
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { hudHashSeed } from '../utils.js?v=23.90.5';
+import { hudHashSeed } from '../utils.js?v=23.90.6';
 
 const КЛЮЧ_ХРАНИЛИЩА = 'tavernosHudRumorTimes';
 const ПРЕДЕЛ = 600;

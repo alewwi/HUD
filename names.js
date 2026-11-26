@@ -10,8 +10,8 @@
 // "Майкл Смит", "Michael Smith" и т.п. Граф сначала собирает все реальные
 // имена, затем пытается сопоставить каждую ссылку с уже существующим узлом,
 // и только после этого создаёт новый узел.
-import { корейскаяФамилия } from './korean-names.js?v=23.90.5';
-import { settings } from './settings.js?v=23.90.5';
+import { корейскаяФамилия, известнаяФамилия, нужноПолноеИмя, иероглифыИКана } from './korean-names.js?v=23.90.6';
+import { settings } from './settings.js?v=23.90.6';
 
 export function normalizeNameText(name) {
   return String(name ?? '')
@@ -171,7 +171,7 @@ function поСпискамАватарок(A, B) {
     const н = имя.toLowerCase(), первое = н.split(' ')[0], зв = namePhoneticLatin(первое);
     return список.some(x => {
       const xп = x.split(' ')[0];
-      const совпали = сравнитьКорейские(н, x);
+      const совпали = сравнитьПолныеИмена(н, x);
       if (совпали !== null) return совпали;
       if (x === н || xп === первое) return true;
       const зx = namePhoneticLatin(xп);
@@ -313,13 +313,14 @@ export function namesLikelySame(a, b) {
 function безПриставки(имя) {
   const слова = String(имя ?? '').trim().split(/\s+/).filter(Boolean);
   let i = 0;
-  while (i < слова.length - 1 && !корейскаяФамилия(слова[i]) && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
+  while (i < слова.length - 1 && !известнаяФамилия(слова[i]) && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
   return слова.slice(i).join(' ');
 }
-function сравнитьКорейские(a, b) {
+function сравнитьПолныеИмена(a, b) {
   if (/^[가-힣\s]+$/u.test(a) && /^[가-힣\s]+$/u.test(b)) return a.replace(/\s/g, '') === b.replace(/\s/g, '');
+  if (иероглифыИКана(a) || иероглифыИКана(b)) return a.replace(/\s/g, '') === b.replace(/\s/g, '');
   const фа = корейскаяФамилия(a), фб = корейскаяФамилия(b);
-  if (!фа && !фб && !/[가-힣]/u.test(a + b)) return null;
+  if (!фа && !фб && !/[가-힣]/u.test(a + b)) return нужноПолноеИмя(a) || нужноПолноеИмя(b) ? a === b : null;
   // У одиночного «Ян» нет признака порядка фамилия–имя.
   if ((!фа || !фб) && !/[\s가-힣]/u.test(a + b)) return null;
   if (a === b) return true;
@@ -339,7 +340,7 @@ function сравнитьИмена(a, b) {
   const сказано = поСпискамАватарок(A, B);
   if (сказано !== null) return сказано;
   if (разныеЛюди(a, b)) return false;
-  const корейское = сравнитьКорейские(A, B);
+  const корейское = сравнитьПолныеИмена(A, B);
   if (корейское !== null) return корейское;
   if (nameVariants(A).has(nameVariants(B).values().next().value)) return true;
 
@@ -470,7 +471,7 @@ export function найтиПоИмени(имя, имена) {
   (имена || []).forEach((другое, i) => {
     const первоеДругого = String(другое || '').trim().split(/\s+/)[0] || '';
     let счёт = 0;
-    if (корейскаяФамилия(имя) || корейскаяФамилия(другое) || /[가-힣]/u.test(имя + другое)) {
+    if (нужноПолноеИмя(имя) || нужноПолноеИмя(другое)) {
       счёт = namesLikelySame(имя, другое) ? 3 : 0;
     } else for (const ф of формы) {
       const первое = ф.split(/\s+/)[0];
@@ -495,7 +496,7 @@ export function алиасыИмени(имя) {
   try { группы = группыАватарок(); } catch (_) { группы = []; }
   const первое = н.split(' ')[0];
   const out = new Set([н]);
-  for (const г of группы) if (г.some(x => сравнитьКорейские(x, н) ?? (x === н || x.split(' ')[0] === первое))) г.forEach(x => out.add(x));
+  for (const г of группы) if (г.some(x => сравнитьПолныеИмена(x, н) ?? (x === н || x.split(' ')[0] === первое))) г.forEach(x => out.add(x));
   return [...out];
 }
 
@@ -511,9 +512,11 @@ export function гдеУпомянут(текст, имя) {
   let позиция = -1;
   const короткие = [];
   for (const а of алиасы) {
-    if (!корейскаяФамилия(а) && !/[가-힣]/u.test(а)) { короткие.push(а.split(' ')[0]); continue; }
-    if (!а.includes(' ') && корейскаяФамилия(а)) continue;
-    const шаблон = а.replace(/[.*+?^$(){}|[\]\\]/g, '\\$&').replace(/ +/g, '\\s+');
+    if (!нужноПолноеИмя(а)) { короткие.push(а.split(' ')[0]); continue; }
+    if (!а.includes(' ') && (известнаяФамилия(а) || [...а].length === 1)) continue;
+    const шаблон = /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}ー\s]+$/u.test(а)
+      ? [...а.replace(/\s/g, '')].join('\\s*')
+      : а.replace(/[.*+?^$(){}|[\]\\]/g, '\\$&').replace(/ +/g, '\\s+');
     const м = new RegExp('(?<![\\p{L}-])' + шаблон + '(?![\\p{L}-])', 'iu').exec(s);
     if (м && (позиция < 0 || м.index < позиция)) позиция = м.index;
   }

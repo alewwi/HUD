@@ -4,11 +4,11 @@
 // сообщения и сбор собеседников по строкам переписки. Лежит отдельно,
 // чтобы ни один из двух модулей не пришлось объявлять главным.
 
-import { корейскаяФамилия } from '../korean-names.js?v=23.90.5';
-import { escapeHtml, defeatWI, инициалыИмени } from '../utils.js?v=23.90.5';
-import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.90.5';
-import { namesLikelySame } from '../names.js?v=23.90.5';
-import { G_ICONS } from './icons.js?v=23.90.5';
+import { нужноПолноеИмя } from '../korean-names.js?v=23.90.6';
+import { escapeHtml, defeatWI, инициалыИмени } from '../utils.js?v=23.90.6';
+import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.90.6';
+import { namesLikelySame } from '../names.js?v=23.90.6';
+import { G_ICONS } from './icons.js?v=23.90.6';
 
 // Обращения без адресата: такие имена в собеседники не годятся.
 const GENERIC_PARTY = /^(все|всем|all|everyone|группа|group|чат|chat|вы|you|user|я|me)$/i;
@@ -54,7 +54,7 @@ const настоящееИмяЗаписи = (c) => { const v = String((c && c.r
 // только целиком, одно слово — только если оно есть в настоящем имени.
 const словаИмени = (s) => String(s || '').toLowerCase().replace(/ё/g, 'е').split(/\s+/).filter(Boolean);
 const этоОнПоИмени = (настоящее, имя) => {
-  if (корейскаяФамилия(настоящее) || корейскаяФамилия(имя)) return namesLikelySame(настоящее, имя);
+  if (нужноПолноеИмя(настоящее) || нужноПолноеИмя(имя)) return namesLikelySame(настоящее, имя);
   const н = словаИмени(настоящее), и = словаИмени(имя);
   if (!н.length || !и.length) return false;
   return н.join(' ') === и.join(' ') || (и.length === 1 && н.includes(и[0])) || (н.length === 1 && и.includes(н[0]));

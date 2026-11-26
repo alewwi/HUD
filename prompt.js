@@ -10,27 +10,27 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.90.5';
-import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.90.5';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.90.5';
+import { settings } from './settings.js?v=23.90.6';
+import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.90.6';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.90.6';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.90.5';
-import { промптНаАнглийском } from './prompt-en.js?v=23.90.5';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.90.5';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.90.5';
-import { parseSceneDate } from './history-analyzer.js?v=23.90.5';
-import { возрастТочно } from './render/babies.js?v=23.90.5';
-import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.90.5';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.90.5';
-import { сжатьСхему } from './compact-fields.js?v=23.90.5';
-import { короткийПромпт } from './prompt-short.js?v=23.90.5';
-import { подготовкаИдёт } from './render/holiday-lore.js?v=23.90.5';
-import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.90.5';
-import { промптРанСпутника } from './render/pet-wounds.js?v=23.90.5';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.90.5';
-import { полДляМодели } from './manual-gender.js?v=23.90.5';
-import { правилоСостава } from './cast.js?v=23.90.5';
-import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.90.5';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.90.6';
+import { промптНаАнглийском } from './prompt-en.js?v=23.90.6';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.90.6';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.90.6';
+import { parseSceneDate } from './history-analyzer.js?v=23.90.6';
+import { возрастТочно } from './render/babies.js?v=23.90.6';
+import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.90.6';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.90.6';
+import { сжатьСхему } from './compact-fields.js?v=23.90.6';
+import { короткийПромпт } from './prompt-short.js?v=23.90.6';
+import { подготовкаИдёт } from './render/holiday-lore.js?v=23.90.6';
+import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.90.6';
+import { промптРанСпутника } from './render/pet-wounds.js?v=23.90.6';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.90.6';
+import { полДляМодели } from './manual-gender.js?v=23.90.6';
+import { правилоСостава } from './cast.js?v=23.90.6';
+import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.90.6';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
