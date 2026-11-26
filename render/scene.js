@@ -3,9 +3,9 @@
 // Домен «Сцена»: SVG молнии и сезонные декорации (снег, дождь, роса, листья).
 // Чистые генераторы разметки — модуль ни от чего не зависит.
 
-import { деталиСезона, снеговикSvg, замокSvg, кострSvg, цветокSvg, ёжSvg, нораSvg } from './scene-plus.js?v=23.90.6';
-export { огниСезона, облакаНеба } from './scene-plus.js?v=23.90.6';
-import { голоеДеревоSvg, ёлкаSvg, скворечникSvg, скворецSvg, дятелSvg, тыкваФонарьSvg, талыйСнегSvg, избаSvg, замокДальнийSvg, снеговикСтаринныйSvg, чайкаSvg, весенниеПоляSvg, хуторSvg, мельницаSvg } from './scene-art.js?v=23.90.6';
+import { деталиСезона, снеговикSvg, замокSvg, кострSvg, цветокSvg, ёжSvg, нораSvg } from './scene-plus.js?v=23.90.7';
+export { огниСезона, облакаНеба } from './scene-plus.js?v=23.90.7';
+import { голоеДеревоSvg, ёлкаSvg, скворечникSvg, скворецSvg, дятелSvg, тыкваФонарьSvg, талыйСнегSvg, избаSvg, замокДальнийSvg, снеговикСтаринныйSvg, чайкаSvg, весенниеПоляSvg, хуторSvg, мельницаSvg } from './scene-art.js?v=23.90.7';
 
 export function buildLightningSvg() {
   return `<svg viewBox="0 0 140 140" preserveAspectRatio="none" class="hud-bolt-svg">

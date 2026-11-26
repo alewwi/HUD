@@ -1890,6 +1890,13 @@
 }
 .hud-row.full-width { grid-column: 1 / -1; }
 
+/* Вкладки персонажа и игрока прокручивают список целиком. Высоту каждого
+   ряда задаёт его содержимое, в том числе при ограниченной высоте вкладки. */
+.hud-tab-content[data-who] > .hud-body { grid-auto-rows: max-content; }
+/* Некоторые темы Таверны принудительно переносят все flex-контейнеры
+   сообщения. В вертикальном поле перенос разносит подпись и значение по колонкам. */
+#chat .mes .hud-os-card .hud-tab-content[data-who] > .hud-body > .hud-row { flex-wrap: nowrap !important; }
+
 .hud-key { font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); margin-bottom: 4px; text-transform: uppercase; }
 .hud-value { color: var(--hud-text); font-size: 0.95em; }
 

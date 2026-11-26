@@ -10,8 +10,8 @@
 // "Майкл Смит", "Michael Smith" и т.п. Граф сначала собирает все реальные
 // имена, затем пытается сопоставить каждую ссылку с уже существующим узлом,
 // и только после этого создаёт новый узел.
-import { корейскаяФамилия, известнаяФамилия, нужноПолноеИмя, иероглифыИКана } from './korean-names.js?v=23.90.6';
-import { settings } from './settings.js?v=23.90.6';
+import { корейскаяФамилия, известнаяФамилия, нужноПолноеИмя, иероглифыИКана } from './korean-names.js?v=23.90.7';
+import { settings } from './settings.js?v=23.90.7';
 
 export function normalizeNameText(name) {
   return String(name ?? '')

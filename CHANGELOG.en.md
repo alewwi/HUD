@@ -4,6 +4,10 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.90.7 — 2026-11-26
+
+- **Character and player cards in Yami Kawaii Creamy Light.** Each row takes the height its contents need. Labels stay with their values, and the list scrolls to the last field.
+
 ## 23.90.6 — 2026-11-26
 
 - **Chinese and Japanese names.** Zhang Wei and Zhang Ming now get separate cards, as do Aoi Tanaka and Aoi Yamada. The HUD uses full names written in Han characters or kana and recognizes common surnames in Latin and Cyrillic spellings. Each character keeps their own trust, avatar, phone contact and inventory across turns.

@@ -17,13 +17,13 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { нужноПолноеИмя } from '../korean-names.js?v=23.90.6';
-import { namesLikelySame } from '../names.js?v=23.90.6';
-import { settings } from '../settings.js?v=23.90.6';
-import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.90.6';
-import { полеВкл } from '../deep-fields.js?v=23.90.6';
-import { ручнойПол } from '../manual-gender.js?v=23.90.6';
-import { безМатки } from '../cast.js?v=23.90.6';
+import { нужноПолноеИмя } from '../korean-names.js?v=23.90.7';
+import { namesLikelySame } from '../names.js?v=23.90.7';
+import { settings } from '../settings.js?v=23.90.7';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.90.7';
+import { полеВкл } from '../deep-fields.js?v=23.90.7';
+import { ручнойПол } from '../manual-gender.js?v=23.90.7';
+import { безМатки } from '../cast.js?v=23.90.7';
 
 const КЛЮЧ = 'tavernosHudConception';
 

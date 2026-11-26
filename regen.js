@@ -5,18 +5,18 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.90.6';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.90.6';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.90.6';
-import { заметкиКубика } from './render/notice-dice.js?v=23.90.6';
-import { заметкиСтупеней } from './render/trust-stages.js?v=23.90.6';
-import { заметкиЗамковФракций, естьЗамкиФракций } from './render/faction-locks.js?v=23.90.6';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.90.6';
-import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.90.6';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.90.6';
-import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.90.6';
-import { пометитьПамятьСнимка } from './memory-age.js?v=23.90.6';
-import { сводкаВыключена } from './summary-fields.js?v=23.90.6';
+import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.90.7';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.90.7';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.90.7';
+import { заметкиКубика } from './render/notice-dice.js?v=23.90.7';
+import { заметкиСтупеней } from './render/trust-stages.js?v=23.90.7';
+import { заметкиЗамковФракций, естьЗамкиФракций } from './render/faction-locks.js?v=23.90.7';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.90.7';
+import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.90.7';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.90.7';
+import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.90.7';
+import { пометитьПамятьСнимка } from './memory-age.js?v=23.90.7';
+import { сводкаВыключена } from './summary-fields.js?v=23.90.7';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
