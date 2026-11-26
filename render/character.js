@@ -9,49 +9,49 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.90.1';
-import { иконка } from './hud-icons.js?v=23.90.1';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.90.1';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.1';
-import { разобратьСилуСтраха, страхиБезГолойСилы, стадияБолезни } from '../codes.js?v=23.90.1';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.90.2';
+import { иконка } from './hud-icons.js?v=23.90.2';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.90.2';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.2';
+import { разобратьСилуСтраха, страхиБезГолойСилы, стадияБолезни } from '../codes.js?v=23.90.2';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  блокТемпаСцены, активныеСледы, карточкаСледа, группаНавсегда, разобратьСледы, видСледа, тотЖеВред, повязкаНаРане, тоЖеМесто, видПодШрамом, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия, почемуРиск } from './intimacy.js?v=23.90.1';
-import { часыСцены } from './scene-clock.js?v=23.90.1';
-import { полПерсонажа } from './scene-body.js?v=23.90.1';
-import { buildUnderwear } from './underwear.js?v=23.90.1';
-import { buildDuel } from './duel.js?v=23.90.1';
-import { ЗНАЧОК_КОРЗИНЫ, кнопкаПодсказки } from './erase-button.js?v=23.90.1';
-import { ручнойПол } from '../manual-gender.js?v=23.90.1';
-import { buildPregnancy } from './pregnancy.js?v=23.90.1';
-import { мешаетБлизости, больноПриБлизости } from './rest-hint.js?v=23.90.1';
-import { buildPostpartum } from './postpartum.js?v=23.90.1';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, попыткиЗачатия, зарегистрироватьРоды, зарегистрироватьПотерю, закрывшаяПотеря, послеПотери, видПотери, словаПотери, частьПотери, датаИзТекста, дм as деньМесяц, датаЗачатия, чертыРодителей } from './conception.js?v=23.90.1';
-import { блокПотери, кнопкаПотери } from './pregnancy-loss.js?v=23.90.1';
-import { доверияБезПричин, чистаяПричина, шрамыЧеловека, запущенноеУ, весЧеловека, сдвигВеса, срокСдвигаВеса, историяВеса } from '../turn-notes.js?v=23.90.1';
-import { видШрамов, видНеЗнает, видВеса } from './views-plus.js?v=23.90.1';
-import { видОтношений } from './views-story.js?v=23.90.1';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.90.1';
-import { parseSceneDate } from '../history-analyzer.js?v=23.90.1';
-import { settings, настройка } from '../settings.js?v=23.90.1';
-import { старина, стариннаяЗабота } from '../era.js?v=23.90.1';
-import { знакРода } from './heraldry.js?v=23.90.1';
-import { бракВкл, раныВкл, тонРаны, каплаГумора } from './medieval-life.js?v=23.90.1';
-import { полеВкл } from '../deep-fields.js?v=23.90.1';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.90.1';
-import { видСостоянияТела } from './extras.js?v=23.90.1';
-import { видСпособностей, видЧар, ступеньОтдачи, лесенкаОтдачи, СТУПЕНИ_ОТДАЧИ, силыНаЭкране, имяЧар } from './powers.js?v=23.90.1';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом, знакПоДатеРождения } from './views-fields.js?v=23.90.1';
-import { parseRelationList } from './relations-graph.js?v=23.90.1';
-import { раскладкаСтатов, пометитьСтроку } from '../custom-stats.js?v=23.90.1';
-import { плашкаПоследствий } from './consequences.js?v=23.90.1';
-import { карточкиПари } from './bets.js?v=23.90.1';
-import { отложитьРисунок } from './lazy-svg.js?v=23.90.1';
-import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.90.1';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.90.1';
-import { плашкаСтупени, сведенияДля, ступениВкл, словоСтупени, вопросыДоверия } from './trust-stages.js?v=23.90.1';
-import { блокКубика } from './notice-dice.js?v=23.90.1';
-import { девственность, несовершеннолетний, описаниеПерсоны } from '../body-cues.js?v=23.90.1';
-import { девственностьВЗаметках } from '../turn-notes.js?v=23.90.1';
+  блокТемпаСцены, активныеСледы, карточкаСледа, группаНавсегда, разобратьСледы, видСледа, тотЖеВред, повязкаНаРане, тоЖеМесто, видПодШрамом, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия, почемуРиск } from './intimacy.js?v=23.90.2';
+import { часыСцены } from './scene-clock.js?v=23.90.2';
+import { полПерсонажа } from './scene-body.js?v=23.90.2';
+import { buildUnderwear } from './underwear.js?v=23.90.2';
+import { buildDuel } from './duel.js?v=23.90.2';
+import { ЗНАЧОК_КОРЗИНЫ, кнопкаПодсказки } from './erase-button.js?v=23.90.2';
+import { ручнойПол } from '../manual-gender.js?v=23.90.2';
+import { buildPregnancy } from './pregnancy.js?v=23.90.2';
+import { мешаетБлизости, больноПриБлизости } from './rest-hint.js?v=23.90.2';
+import { buildPostpartum } from './postpartum.js?v=23.90.2';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, попыткиЗачатия, зарегистрироватьРоды, зарегистрироватьПотерю, закрывшаяПотеря, послеПотери, видПотери, словаПотери, частьПотери, датаИзТекста, дм as деньМесяц, датаЗачатия, чертыРодителей } from './conception.js?v=23.90.2';
+import { блокПотери, кнопкаПотери } from './pregnancy-loss.js?v=23.90.2';
+import { доверияБезПричин, чистаяПричина, шрамыЧеловека, запущенноеУ, весЧеловека, сдвигВеса, срокСдвигаВеса, историяВеса } from '../turn-notes.js?v=23.90.2';
+import { видШрамов, видНеЗнает, видВеса } from './views-plus.js?v=23.90.2';
+import { видОтношений } from './views-story.js?v=23.90.2';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.90.2';
+import { parseSceneDate } from '../history-analyzer.js?v=23.90.2';
+import { settings, настройка } from '../settings.js?v=23.90.2';
+import { старина, стариннаяЗабота } from '../era.js?v=23.90.2';
+import { знакРода } from './heraldry.js?v=23.90.2';
+import { бракВкл, раныВкл, тонРаны, каплаГумора } from './medieval-life.js?v=23.90.2';
+import { полеВкл } from '../deep-fields.js?v=23.90.2';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.90.2';
+import { видСостоянияТела } from './extras.js?v=23.90.2';
+import { видСпособностей, видЧар, ступеньОтдачи, лесенкаОтдачи, СТУПЕНИ_ОТДАЧИ, силыНаЭкране, имяЧар } from './powers.js?v=23.90.2';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом, знакПоДатеРождения } from './views-fields.js?v=23.90.2';
+import { parseRelationList } from './relations-graph.js?v=23.90.2';
+import { раскладкаСтатов, пометитьСтроку } from '../custom-stats.js?v=23.90.2';
+import { плашкаПоследствий } from './consequences.js?v=23.90.2';
+import { карточкиПари } from './bets.js?v=23.90.2';
+import { отложитьРисунок } from './lazy-svg.js?v=23.90.2';
+import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.90.2';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.90.2';
+import { плашкаСтупени, сведенияДля, ступениВкл, словоСтупени, вопросыДоверия } from './trust-stages.js?v=23.90.2';
+import { блокКубика } from './notice-dice.js?v=23.90.2';
+import { девственность, несовершеннолетний, описаниеПерсоны } from '../body-cues.js?v=23.90.2';
+import { девственностьВЗаметках } from '../turn-notes.js?v=23.90.2';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела', 'способности', 'чары'];
@@ -1389,10 +1389,10 @@ export function матьЗнает(о, имя, отMs = null) {
 }
 
 // кто — 'user' или 'char:Имя'; имя — как в сюжете (для «мать знает»).
-function правкаПола(кто, поле) {
-  const блок = { 'цикл': 'Менструальный цикл', 'беременность': 'Беременность', 'послеродовое': 'После родов' }[поле];
-  if (!блок || !кто || кто === 'char:') return '';
-  return `<button type="button" class="hud-gender-edit" data-hud-gender="${escapeHtml(блок)}" data-kto="${escapeHtml(кто)}" title="Уточнить пол персонажа" aria-label="Уточнить пол персонажа">✎</button>`;
+function правкаПола(кто, блок, значок = '') {
+  const подпись = значок + escapeHtml(блок);
+  if (!кто || кто === 'char:') return подпись;
+  return `<button type="button" class="hud-gender-edit" data-hud-gender="${escapeHtml(блок)}" data-kto="${escapeHtml(кто)}" title="Уточнить пол персонажа"><span class="hud-gender-pencil" aria-hidden="true">✎</span>${подпись}</button>`;
 }
 
 function плашкаБеременности(о, кто = 'user', имя = '') {
@@ -1409,7 +1409,7 @@ function плашкаБеременности(о, кто = 'user', имя = '') 
   const дней = от !== null && до !== null && до >= от ? Math.round((до - от) / 86400000) : null;
   const срок = дней === null ? (стариннаяЗабота() ? 'повитуха: «да»' : 'тест «+»') : дней ? `${дней} дн. с близости` : 'сегодня';
   return `<div class="hud-state-plaque is-preg" role="status"><i aria-hidden="true">🤰</i>`
-    + `<div><b>Беременность</b>${правкаПола(кто, 'беременность')}<small>${стариннаяЗабота() ? 'Повитуха в HUD сказала «да»' : 'Тест в HUD положительный'}. Это напоминание для тебя — в сюжете пока никто не знает.</small></div>`
+    + `<div><b>${правкаПола(кто, 'Беременность')}</b><small>${стариннаяЗабота() ? 'Повитуха в HUD сказала «да»' : 'Тест в HUD положительный'}. Это напоминание для тебя — в сюжете пока никто не знает.</small></div>`
     + `<span class="hud-state-timer">${escapeHtml(срок)}</span>`
     + кнопкаПотери(кто)
     // Беременности нет в HUD сообщений, только в кубике: убрать её можно отсюда.
@@ -1512,7 +1512,7 @@ export function buildUserHTML(userData, uid, isChecked, characters, свои = [
 
     // Значок берём из той же таблицы, что и карточка персонажа: поля
     // здесь те же самые, и разнобой бросался бы в глаза при переключении.
-    const значок = значокПоля(label.toLowerCase()) + правкаПола('user', label.toLowerCase());
+    const значок = значокПоля(label.toLowerCase());
     if (shortKey === 'H' || shortKey === 'Ill' || shortKey === 'Mrk') {
       if (!здоровье) здоровье = собратьЗдоровье(userData, вБлизости);
       if (!здоровьеПоказано) { здоровьеПоказано = true; rows += строкаЗдоровья(здоровье, rowClass, значокПоля('здоровье')); }
@@ -1529,13 +1529,13 @@ export function buildUserHTML(userData, uid, isChecked, characters, свои = [
     } else if (shortKey === 'Ab' || shortKey === 'Ef') {
       // Вне фэнтези силы игрока не показываем.
     } else if (label.toLowerCase() === 'цикл' && циклНаПаузе(userData, value, 'user')) {
-      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}Менструальный цикл:</span> ${циклНаПаузе(userData, value, 'user')}</div>`;
+      rows += `<div class="${rowClass} full-width"><span class="hud-key">${правкаПола('user', 'Менструальный цикл', значок)}:</span> ${циклНаПаузе(userData, value, 'user')}</div>`;
     } else if (label.toLowerCase() === 'цикл') {
-      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}Менструальный цикл:</span> ${buildCycle(value, { ...контекстЗачатия(userData, characters, getSafeUserName()), ...плодовитостьЧеловека(userData, 'user', getSafeUserName(), characters), кто: 'user', сцена: userData && userData.__датаСцены, владелец: userData })}${пометкаЦикла(userData)}</div>`;
+      rows += `<div class="${rowClass} full-width"><span class="hud-key">${правкаПола('user', 'Менструальный цикл', значок)}:</span> ${buildCycle(value, { ...контекстЗачатия(userData, characters, getSafeUserName()), ...плодовитостьЧеловека(userData, 'user', getSafeUserName(), characters), кто: 'user', сцена: userData && userData.__датаСцены, владелец: userData })}${пометкаЦикла(userData)}</div>`;
     } else if (label.toLowerCase() === 'послеродовое') {
-      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}После родов:</span> ${buildPostpartum(value, { кто: 'user', сцена: userData.__датаСцены, время: userData.__времяСцены })}</div>`;
+      rows += `<div class="${rowClass} full-width"><span class="hud-key">${правкаПола('user', 'После родов', значок)}:</span> ${buildPostpartum(value, { кто: 'user', сцена: userData.__датаСцены, время: userData.__времяСцены })}</div>`;
     } else if (label.toLowerCase() === 'беременность') {
-      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${buildPregnancy(value, { сцена: userData && userData.__датаСцены, ход: userData && userData.__ход, ...контекстБеременности(userData, 'user', value, (userData && userData.__соседи) || (Array.isArray(characters) ? characters.map(c => ({ имя: c && c['Имя'], данные: c })) : [])) })}</div>`;
+      rows += `<div class="${rowClass} full-width"><span class="hud-key">${правкаПола('user', 'Беременность', значок)}:</span> ${buildPregnancy(value, { сцена: userData && userData.__датаСцены, ход: userData && userData.__ход, ...контекстБеременности(userData, 'user', value, (userData && userData.__соседи) || (Array.isArray(characters) ? characters.map(c => ({ имя: c && c['Имя'], данные: c })) : [])) })}</div>`;
     } else {
       rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${значениеПоля(label.toLowerCase(), value, 'hud-value')}</div>`;
     }
@@ -1608,6 +1608,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary, свои
 // нет в его собственном порядке (buildUserHTML): они выглядят так же, как у
 // персонажей. игрок — без пометки «вне сцены» и плашек: их рисует сам игрок.
 export function строкиКарточки(charData, charName, uid, свои = [], { игрок = false } = {}) {
+  const владелец = игрок ? 'user' : 'char:' + String(charData['Имя'] || '').trim();
   let html = '';
   // Вне сцены (render/carryover.js, пометитьВнеСцены): модель пишет только
   // живое, остальное карточка может взять из прошлых ходов — такие строки
@@ -1615,7 +1616,7 @@ export function строкиКарточки(charData, charName, uid, свои =
   const вне = !игрок && charData && charData.__вне;
   if (вне) html += `<div class="hud-away-note"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 14V3.5a1 1 0 0 1 1-1h5l4 2v9.5"/><path d="M9 2.5v12"/><circle cx="11.2" cy="8.6" r=".7"/></svg><span><b>Вне сцены</b>${вне.поля.length ? ` · из прошлых ходов: ${escapeHtml(вне.поля.map(п => п.toLowerCase()).join(', '))}` : ' · только то, что изменилось вдали'}</span></div>`;
   // Тест «+» у героини с циклом — то же напоминание, что у {{user}}.
-  if (!игрок) html += плашкаБеременности(charData, 'char:' + String(charData['Имя'] || '').trim(), charName) + плашкиСостояния(charData, charName);
+  if (!игрок) html += плашкаБеременности(charData, владелец, charName) + плашкиСостояния(charData, charName);
 
   // Фаза, поза, раунд и длительность рисуются одной полосой — один раз.
   let сценаПоказана = false;
@@ -1694,7 +1695,7 @@ export function строкиКарточки(charData, charName, uid, свои =
     }
     rowClass += видСтроки(lowerKey, rowClass);
 
-    const icon = значокПоля(lowerKey) + правкаПола(игрок ? 'user' : 'char:' + String(charData['Имя'] || '').trim(), lowerKey);
+    const icon = значокПоля(lowerKey);
 
     let valueClass = TRUNCATE_KEYS.some(k => lowerKey.includes(k)) ? 'hud-value hud-truncate' : 'hud-value';
 
@@ -1759,14 +1760,14 @@ export function строкиКарточки(charData, charName, uid, свои =
       if (!здоровье) здоровье = собратьЗдоровье(charData, вБлизости);
       if (!здоровьеПоказано) { здоровьеПоказано = true; html += строкаЗдоровья(здоровье, rowClass.replace(' full-width', ''), значокПоля('здоровье')); }
       if (lowerKey === 'следы на теле' && здоровье.следы) html += `<div class="${rowClass}${классСледов()}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${здоровье.следы}</div>`;
-    } else if (lowerKey === 'цикл' && циклНаПаузе(charData, value, 'char:' + String(charData['Имя'] || '').trim())) {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}Менструальный цикл:</span> ${циклНаПаузе(charData, value, 'char:' + String(charData['Имя'] || '').trim())}</div>`;
+    } else if (lowerKey === 'цикл' && циклНаПаузе(charData, value, владелец)) {
+      html += `<div class="${rowClass}"><span class="hud-key">${правкаПола(владелец, 'Менструальный цикл', icon)}:</span> ${циклНаПаузе(charData, value, владелец)}</div>`;
     } else if (lowerKey === 'цикл') {
       // Близость часто записана только у партнёра («pr: Беатрис» в его «Последнем
       // сексе»), а у неё самой поля нет — тогда теста не было вовсе. Соседи по
       // сцене — партнёры: их запись берётся, только если она названа в ней.
       const соседи = (Array.isArray(charData.__соседи) ? charData.__соседи : []).map(с => с.данные).filter(д => д && д !== charData);
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}Менструальный цикл:</span> ${buildCycle(value, { ...контекстЗачатия(charData, соседи, charData['Имя']), ...плодовитостьЧеловека(charData, 'char:' + String(charData['Имя'] || '').trim(), charData['Имя']), кто: 'char:' + String(charData['Имя'] || '').trim(), сцена: charData.__датаСцены, владелец: charData })}${пометкаЦикла(charData)}</div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${правкаПола(владелец, 'Менструальный цикл', icon)}:</span> ${buildCycle(value, { ...контекстЗачатия(charData, соседи, charData['Имя']), ...плодовитостьЧеловека(charData, владелец, charData['Имя']), кто: владелец, сцена: charData.__датаСцены, владелец: charData })}${пометкаЦикла(charData)}</div>`;
     } else if (lowerKey === 'карта тела') {
       // Картинкой: силуэт спереди и сзади, зоны залиты по силе, на них — следы.
       // Выключено в настройках — прежний список зон со шкалами.
@@ -1778,9 +1779,9 @@ export function строкиКарточки(charData, charName, uid, свои =
         : видКарты === 'list' ? '' : видКартыТела(value, видКарты);
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${карта || `<div class="hud-bodymap">${buildBodyMap(value)}</div>`}</div>`;
     } else if (lowerKey === 'послеродовое') {
-      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}После родов:</span> ${buildPostpartum(value, { кто: 'char:' + String(charData['Имя'] || '').trim(), сцена: charData.__датаСцены, время: charData.__времяСцены })}</div>`;
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${правкаПола(владелец, 'После родов', icon)}:</span> ${buildPostpartum(value, { кто: владелец, сцена: charData.__датаСцены, время: charData.__времяСцены })}</div>`;
     } else if (lowerKey === 'беременность') {
-      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildPregnancy(value, { сцена: charData.__датаСцены, ход: charData.__ход, ...контекстБеременности(charData, 'char:' + String(charData['Имя'] || '').trim(), value) })}</div>`;
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${правкаПола(владелец, 'Беременность', icon)}:</span> ${buildPregnancy(value, { сцена: charData.__датаСцены, ход: charData.__ход, ...контекстБеременности(charData, владелец, value) })}</div>`;
     } else if (lowerKey === 'ключ') {
       const items = String(value).split(';').filter(i => i.trim().length > 0).map(i => `<div class="hud-key-item">${formatKeyValue(i.trim())}</div>`).join('');
       html += `<div class="hud-key-block full-width kind-mind${простойВид() ? '' : ' f-key'}"><span class="hud-key-label">${escapeHtml(key)}:</span> <div class="hud-vertical-container hud-key-list">${items}</div></div>`;

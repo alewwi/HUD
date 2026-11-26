@@ -13,11 +13,11 @@
 // выключить (настройка summaryCards). Если в том же сообщении есть полная
 // карточка HUD, нажатие на сводку раскрывает её.
 
-import { escapeHtml } from '../utils.js?v=23.90.1';
-import { значокЧасов, значокПогоды, значокДаты } from './topbar-icons.js?v=23.90.1';
-import { settings } from '../settings.js?v=23.90.1';
-import { т, тМодели, кодЯзыка } from '../i18n.js?v=23.90.1';
-import { меткиСводки } from '../summary-fields.js?v=23.90.1';
+import { escapeHtml } from '../utils.js?v=23.90.2';
+import { значокЧасов, значокПогоды, значокДаты } from './topbar-icons.js?v=23.90.2';
+import { settings } from '../settings.js?v=23.90.2';
+import { т, тМодели, кодЯзыка } from '../i18n.js?v=23.90.2';
+import { меткиСводки } from '../summary-fields.js?v=23.90.2';
 
 // Метки пунктов сводки, выбранных игроком сверх основы («Мысли: …»): по-русски,
 // на языке интерфейса и на языке модели (сводку пишет тМодели). Список

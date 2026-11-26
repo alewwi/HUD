@@ -14,10 +14,10 @@
 // фон. Кожа на портретах остаётся живой. Только свой набор в своей теме с
 // родными цветами показывается как нарисован.
 
-import { settings } from '../settings.js?v=23.90.1';
-import { эпоха, явнаяМагия } from '../era.js?v=23.90.1';
-import { видБлока } from './views.js?v=23.90.1';
-import { getTheme } from '../themes.js?v=23.90.1';
+import { settings } from '../settings.js?v=23.90.2';
+import { эпоха, явнаяМагия } from '../era.js?v=23.90.2';
+import { видБлока } from './views.js?v=23.90.2';
+import { getTheme } from '../themes.js?v=23.90.2';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const НАБОРЫ = ['kawaii', 'academia', 'vamp', 'cyberpunk', 'noir', 'medieval', 'fantasy', 'mafia', 'web1', 'cottage', 'ice', 'ocean', 'steampunk', 'dieselpunk', 'solarpunk', 'biopunk', 'spaceopera', 'japan', 'egypt', 'western', 'pirate', 'witch', 'voodoo', 'spacehorror', 'darkroom', 'teaparty', 'bujo'];

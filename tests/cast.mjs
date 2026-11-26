@@ -211,6 +211,29 @@ const UI = await м('render/character.js');
 const html = UI.buildCharacterHTML({ Имя: 'Кай & Ли', Цикл: 'cyd: 5; cyl: 28', Беременность: 'wk: 9', Послеродовое: 'bf: mixed' }, 'test', true, false);
 проверить('все три блока имеют отдельную кнопку и точного владельца', ['Менструальный цикл', 'Беременность', 'После родов'].every(блок =>
   html.includes('data-hud-gender="' + блок + '" data-kto="char:Кай &amp; Ли"')));
+// Каждый вид должен оставить карандаш и название внутри одной кнопки.
+// Цикл проверяем отдельно от беременности, иначе рисуется только его пауза.
+const видыПравки = [
+  ['pregnancyView', 'Беременность', 'Беременность', 'wk: 10', { classic: 'hud-prg-head', mobile: 'hud-pg-mobile', knit: 'hud-pg-knit', sprout: 'hud-pg-sprout', week: 'hud-pg-week' }],
+  ['cycleView', 'Цикл', 'Менструальный цикл', 'cyd: 4; cyl: 28', { ring: 'hud-cycle-ring', strip: 'v-strip', calendar: 'v-calendar', moon: 'v-moon', hormones: 'v-hormones', capsule: 'v-capsule', flower: 'v-flower' }],
+  ['postpartumView', 'Послеродовое', 'После родов', 'bf: mixed', { classic: 'hud-pp-head', journal: 'hud-ppv-journal', rings: 'hud-ppv-rings', bottles: 'hud-ppv-bottles' }],
+];
+for (const [настройка, поле, название, значение, виды] of видыПравки) {
+  const раньше = settings[настройка];
+  for (const [вид, класс] of Object.entries(виды)) {
+    settings[настройка] = вид;
+    const данные = { Имя: 'Софи', [поле]: значение };
+    for (const [кто, карточка] of [
+      ['user', UI.buildUserHTML(данные, 'test-user', true, [])],
+      ['char:Софи', UI.buildCharacterHTML(данные, 'test-char', true, false)],
+    ]) {
+      const кнопка = карточка.match(/<button\b[^>]*data-hud-gender="[^"]+"[^>]*>[\s\S]*?<\/button>/u)?.[0] || '';
+      проверить(название + ' / ' + вид + ' / ' + кто, карточка.includes(класс) &&
+        кнопка.includes('data-kto="' + кто + '"') && кнопка.includes('hud-gender-pencil') && кнопка.endsWith(название + '</button>'));
+    }
+  }
+  settings[настройка] = раньше;
+}
 const пары = { A: { ждёт: {} }, B: { ждёт: {} } };
 const счёт = () => T.вопросыДоверия({ __ступениДоверия: пары }, 'cs.Tr');
 проверить('два решения на карточке', счёт() === 2);
