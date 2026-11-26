@@ -17,17 +17,18 @@
 // Конечный вид рисуется сразу, без анимации появления: HUD держит анимации
 // на паузе, пока на вид не навели мышь или не нажали (css/views.css).
 
-import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.90.4';
-import { лицоЧеловека as лицо } from './views.js?v=23.90.4';
-import { ико } from './view-icons.js?v=23.90.4';
-import { градусы } from '../units.js?v=23.90.4';
+import { имяДляВкладки } from '../utils.js?v=23.90.5';
+import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.90.5';
+import { лицоЧеловека as лицо } from './views.js?v=23.90.5';
+import { ико } from './view-icons.js?v=23.90.5';
+import { градусы } from '../units.js?v=23.90.5';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
 const ф = (n) => Number(n).toFixed(1);
 const сид = (s, i = 0) => { let h = hudHashSeed(String(s) + '#' + i) >>> 0; return () => { h = (Math.imul(h, 1103515245) + 12345) >>> 0; return (h >>> 8) / 16777216; }; };
 const имя = (s) => имяБезПриставки(String(s || '').trim());
-const первое = (s) => имя(s).split(/\s+/)[0] || '';
+const первое = (s) => имяДляВкладки(имя(s)) || '';
 // Слова модели и имена — мимо английского словаря (i18n.js): data-i18n-skip.
 const свои = (s) => `<span data-i18n-skip>${э(s)}</span>`;
 

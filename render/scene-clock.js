@@ -16,10 +16,11 @@
 // Полоса появляется, только когда есть что сказать, и не про сдвиг меньше
 // порога (settings.sceneClockMin, по умолчанию 15 минут).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.90.4';
-import { settings } from '../settings.js?v=23.90.4';
-import { namesLikelySame } from '../names.js?v=23.90.4';
-import { ико, медаль } from './view-icons.js?v=23.90.4';
+import { имяДляВкладки } from '../utils.js?v=23.90.5';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.90.5';
+import { settings } from '../settings.js?v=23.90.5';
+import { namesLikelySame } from '../names.js?v=23.90.5';
+import { ико, медаль } from './view-icons.js?v=23.90.5';
 
 const МИН = 60000;
 const поле = (о, имя) => {
@@ -57,7 +58,7 @@ function моментПункта(п, начало) {
   return t;
 }
 
-const имяКоротко = (имя) => String(имя || '').replace(/^.*\s{2,}/, '').trim().split(/\s+/)[0] || '';
+const имяКоротко = (имя) => имяДляВкладки(String(имя || '').replace(/^.*\s{2,}/, '')) || '';
 // «встреча с Дамианом» упоминает «THE LANTERNS  Damian Hartley»: слова с
 // заглавной сравниваем с именем без приставки карточки, с учётом латиницы и
 // падежей (names.js). Окончания не обрезаем: «Кристин» сошла бы за Damian.

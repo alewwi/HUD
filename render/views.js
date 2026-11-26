@@ -7,16 +7,17 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.90.4';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.90.4';
-import { namesLikelySame } from '../names.js?v=23.90.4';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.90.4';
-import { settings } from '../settings.js?v=23.90.4';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.90.4';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.90.4';
-import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.90.4';
-import { плашкаСтупени, сведенияДля, ступениВкл, словоСтупени } from './trust-stages.js?v=23.90.4';
-import { разобратьМаску } from './notice-dice.js?v=23.90.4';
+import { имяДляВкладки } from '../utils.js?v=23.90.5';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.90.5';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.90.5';
+import { namesLikelySame } from '../names.js?v=23.90.5';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.90.5';
+import { settings } from '../settings.js?v=23.90.5';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.90.5';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.90.5';
+import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.90.5';
+import { поИгрокуВперёд, плашкаСтупени, сведенияДля, ступениВкл, словоСтупени } from './trust-stages.js?v=23.90.5';
+import { разобратьМаску } from './notice-dice.js?v=23.90.5';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -158,7 +159,7 @@ const огр = (v, a, b) => Math.max(a, Math.min(b, v));
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const число = (s) => { const m = String(s ?? '').replace(',', '.').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
 const инициалы = (имя) => инициалыИмени(имя || '?');
-const первое = (имя) => имяБезПриставки(String(имя || '').trim()).split(/\s+/)[0];
+const первое = (имя) => имяДляВкладки(имя);
 // Id внутри SVG: карточек на странице много, у градиентов свои имена.
 let счётId = 0;
 const новыйId = (п) => `hud-v-${п}-${(++счётId).toString(36)}`;
@@ -234,7 +235,7 @@ function разбитыеСердца(v, всего = 5) {
 }
 
 export function видДоверия(value, вид, сведения = null) {
-  const люди = разобратьДоверие(value);
+  const люди = поИгрокуВперёд(разобратьДоверие(value), ч => ч.кто);
   if (!люди.length) return '';
   const счёт = люди.filter(ч => ч.v !== null);
   // Ступень, замок и «разрешить» — плашкой в карточке человека (render/trust-stages.js).

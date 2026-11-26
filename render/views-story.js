@@ -17,18 +17,19 @@
 // Конечный вид рисуется сразу: анимации HUD держит на паузе, пока на вид не
 // навели мышь или не нажали (css/views.css), — петли и на паузе законченны.
 
-import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.90.4';
-import { лицоЧеловека as лицо } from './views.js?v=23.90.4';
-import { normalizeDiaryMood } from './diary.js?v=23.90.4';
-import { relationVisualMeta, classifyRelationVisual, parseRelationList } from './relations-graph.js?v=23.90.4';
-import { namesLikelySame } from '../names.js?v=23.90.4';
+import { имяДляВкладки } from '../utils.js?v=23.90.5';
+import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.90.5';
+import { лицоЧеловека as лицо } from './views.js?v=23.90.5';
+import { normalizeDiaryMood } from './diary.js?v=23.90.5';
+import { relationVisualMeta, classifyRelationVisual, parseRelationList } from './relations-graph.js?v=23.90.5';
+import { namesLikelySame } from '../names.js?v=23.90.5';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const ф = (n) => Number(n).toFixed(1);
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
 const сид = (s, i = 0) => { let h = hudHashSeed(String(s) + '#' + i) >>> 0; return () => { h = (Math.imul(h, 1103515245) + 12345) >>> 0; return (h >>> 8) / 16777216; }; };
 const имя = (s) => имяБезПриставки(String(s || '').trim());
-const первое = (s) => имя(s).split(/\s+/)[0] || '';
+const первое = (s) => имяДляВкладки(имя(s)) || '';
 // Слова модели и имена — мимо английского словаря (i18n.js).
 const свои = (s) => `<span data-i18n-skip>${э(s)}</span>`;
 const склон = (n, a, b, c) => { const k = Math.abs(n) % 100, d = k % 10; return k > 10 && k < 20 ? c : d === 1 ? a : d >= 2 && d <= 4 ? b : c; };
@@ -739,7 +740,7 @@ const СТОРОНА = { ally: 'свой', enemy: 'враг', neutral: 'нейт
 const ДИСТ = { close: 'вплотную', step: 'шаг', room: 'через комнату', far: 'далеко' };
 const ВЫДЕРЖКА_СЛОВО = ['действует', 'дрожит', 'замер', 'паникует', 'бежит'];
 function бойцы(б) {
-  const тот = (a, c) => a && c && namesLikelySame(первое(a), первое(c));
+  const тот = (a, c) => a && c && namesLikelySame(a, c);
   return б.участники.map(п => ({
     ...п, hp: ЗДОРОВЬЕ[п.состояние] ?? 100,
     ад: (б.адреналин.find(а => тот(а.имя, п.имя)) || {}).уровень ?? null,
@@ -830,10 +831,10 @@ function бойШахматы(б) {
   const РЯД = { ally: { close: 4, step: 5, room: 6, far: 7 }, enemy: { close: 3, step: 2, room: 1, far: 0 } };
   const занято = new Set(), фигуры = [], взятые = [];
   const стор = { ally: 0, enemy: 0 };
-  const естьИгрок = бб.some(x => x.сторона === 'ally' && namesLikelySame(первое(x.имя), первое(игрок)));
+  const естьИгрок = бб.some(x => x.сторона === 'ally' && namesLikelySame(x.имя, игрок));
   бб.filter(п => п.сторона !== 'neutral').forEach(п => {
     const номер = стор[п.сторона]++;
-    const король = п.сторона === 'ally' ? namesLikelySame(первое(п.имя), первое(игрок)) || (номер === 0 && !естьИгрок) : номер === 0;
+    const король = п.сторона === 'ally' ? namesLikelySame(п.имя, игрок) || (номер === 0 && !естьИгрок) : номер === 0;
     const вид = король ? 'king' : ЗАСТАВА[(номер - 1 + ЗАСТАВА.length) % ЗАСТАВА.length];
     if (п.состояние === 'out') { взятые.push({ п, вид }); return; }
     const ряд = РЯД[п.сторона][п.дист];

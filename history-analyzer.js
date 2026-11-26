@@ -11,24 +11,25 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { ручнойПол, полДляМодели } from './manual-gender.js?v=23.90.4';
-import { parseHUDComplex } from './hud-parser.js?v=23.90.4';
-import { normalizeJSONData } from './schema.js?v=23.90.4';
-import { parseRelationList } from './render/relations-graph.js?v=23.90.4';
-import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.90.4';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.90.4';
-import { createDashboard, времяОтправки } from './chat-stats.js?v=23.90.4';
-import { settings } from './settings.js?v=23.90.4';
-import { статусРужья } from './codes.js?v=23.90.4';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.90.4';
-import { историяБеременностей } from './render/conception.js?v=23.90.4';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.90.4';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.90.4';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.90.4';
-import { создатьКарты } from './history-maps.js?v=23.90.4';
-import { разобратьФракцию } from './render/factions.js?v=23.90.4';
-import { подЗамками } from './render/faction-locks.js?v=23.90.4';
-import { людиHUD, безЛюдей, этоЧеловек } from './faction-groups.js?v=23.90.4';
+import { корейскаяФамилия } from './korean-names.js?v=23.90.5';
+import { ручнойПол, полДляМодели } from './manual-gender.js?v=23.90.5';
+import { parseHUDComplex } from './hud-parser.js?v=23.90.5';
+import { normalizeJSONData } from './schema.js?v=23.90.5';
+import { parseRelationList } from './render/relations-graph.js?v=23.90.5';
+import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.90.5';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.90.5';
+import { createDashboard, времяОтправки } from './chat-stats.js?v=23.90.5';
+import { settings } from './settings.js?v=23.90.5';
+import { статусРужья } from './codes.js?v=23.90.5';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.90.5';
+import { историяБеременностей } from './render/conception.js?v=23.90.5';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.90.5';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.90.5';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.90.5';
+import { создатьКарты } from './history-maps.js?v=23.90.5';
+import { разобратьФракцию } from './render/factions.js?v=23.90.5';
+import { подЗамками } from './render/faction-locks.js?v=23.90.5';
+import { людиHUD, безЛюдей, этоЧеловек } from './faction-groups.js?v=23.90.5';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -41,6 +42,7 @@ const значимо = (v) => hudFilled(v) && !/^(empty|none|n\/a|-|—|нет)$
 // случай, когда модель в одном сообщении пишет имя кириллицей, в другом —
 // латиницей.
 function ключИмени(name) {
+  if (корейскаяФамилия(name) || /[가-힣]/u.test(name)) return String(name).trim().toLowerCase().replace(/\s+/g, ' ');
   const letters = nameLettersOnly(name);
   if (!letters) return '';
   return namePhoneticLatin(letters) || letters;
@@ -121,8 +123,8 @@ const чистоеИмя = (имя) => имяБезПриставки(текст
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.90.4';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.90.4';
+import { extractHudBlock } from './hud-block.js?v=23.90.5';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.90.5';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.

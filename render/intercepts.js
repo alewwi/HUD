@@ -3,14 +3,15 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.4';
-import { фотоПоИмени } from '../avatars.js?v=23.90.4';
+import { имяДляВкладки } from '../utils.js?v=23.90.5';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.5';
+import { фотоПоИмени } from '../avatars.js?v=23.90.5';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { собратьЛенту, моментПоследнего, тотЖеВПереписке, разобратьСообщение, непрочитанные, полеВремени } from './msg-feed.js?v=23.90.4';
-import { видБлока } from './views.js?v=23.90.4';
-import { видПерехватов, строкаПротокола } from './views-diary.js?v=23.90.4';
+import { собратьЛенту, моментПоследнего, тотЖеВПереписке, разобратьСообщение, непрочитанные, полеВремени } from './msg-feed.js?v=23.90.5';
+import { видБлока } from './views.js?v=23.90.5';
+import { видПерехватов, строкаПротокола } from './views-diary.js?v=23.90.5';
 
 // Кружок отправителя в перехвате: фото (ручное, персона, карточка) фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
@@ -130,7 +131,7 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
   const ключЦели = (i) => sanitizeText((i && i.target) || 'Unknown').trim().toLowerCase();
   const целей = new Map();
   порядок.forEach(i => целей.set(ключЦели(i), (целей.get(ключЦели(i)) || 0) + 1));
-  const первое = (имя) => имяБезПриставки(String(имя || '').trim()).split(/\s+/)[0] || '';
+  const первое = (имя) => имяДляВкладки(имя) || '';
   порядок.forEach((intercept, idx) => {
     // Состав переписки: из поля модели, а если его нет — из самих сообщений.
     const состав = interceptParticipants(intercept);

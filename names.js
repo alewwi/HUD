@@ -10,7 +10,8 @@
 // "Майкл Смит", "Michael Smith" и т.п. Граф сначала собирает все реальные
 // имена, затем пытается сопоставить каждую ссылку с уже существующим узлом,
 // и только после этого создаёт новый узел.
-import { settings } from './settings.js?v=23.90.4';
+import { корейскаяФамилия } from './korean-names.js?v=23.90.5';
+import { settings } from './settings.js?v=23.90.5';
 
 export function normalizeNameText(name) {
   return String(name ?? '')
@@ -170,6 +171,8 @@ function поСпискамАватарок(A, B) {
     const н = имя.toLowerCase(), первое = н.split(' ')[0], зв = namePhoneticLatin(первое);
     return список.some(x => {
       const xп = x.split(' ')[0];
+      const совпали = сравнитьКорейские(н, x);
+      if (совпали !== null) return совпали;
       if (x === н || xп === первое) return true;
       const зx = namePhoneticLatin(xп);
       return зв.length >= 3 && зx.length >= 3 && (сПадежом(зв, зx) || (зв.replace(ГЛАСНЫЕ_В_КОНЦЕ, '') === зx.replace(ГЛАСНЫЕ_В_КОНЦЕ, '') && зв.replace(ГЛАСНЫЕ_В_КОНЦЕ, '').length >= 3 && !несклоняемоеПродлено(зв, зx)));
@@ -310,9 +313,21 @@ export function namesLikelySame(a, b) {
 function безПриставки(имя) {
   const слова = String(имя ?? '').trim().split(/\s+/).filter(Boolean);
   let i = 0;
-  while (i < слова.length - 1 && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
+  while (i < слова.length - 1 && !корейскаяФамилия(слова[i]) && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
   return слова.slice(i).join(' ');
 }
+function сравнитьКорейские(a, b) {
+  if (/^[가-힣\s]+$/u.test(a) && /^[가-힣\s]+$/u.test(b)) return a.replace(/\s/g, '') === b.replace(/\s/g, '');
+  const фа = корейскаяФамилия(a), фб = корейскаяФамилия(b);
+  if (!фа && !фб && !/[가-힣]/u.test(a + b)) return null;
+  // У одиночного «Ян» нет признака порядка фамилия–имя.
+  if ((!фа || !фб) && !/[\s가-힣]/u.test(a + b)) return null;
+  if (a === b) return true;
+  if (!фа || фа !== фб) return false;
+  const личное = s => transliterateCyrillic(s.split(/\s+/).slice(1).join('')).replace(/dzh/g, 'j').replace(/oo/g, 'u').replace(/-/g, '');
+  return личное(a) === личное(b);
+}
+
 function сравнитьИмена(a, b) {
   a = безПриставки(a); b = безПриставки(b);
   const A = normalizeNameText(a), B = normalizeNameText(b);
@@ -324,6 +339,8 @@ function сравнитьИмена(a, b) {
   const сказано = поСпискамАватарок(A, B);
   if (сказано !== null) return сказано;
   if (разныеЛюди(a, b)) return false;
+  const корейское = сравнитьКорейские(A, B);
+  if (корейское !== null) return корейское;
   if (nameVariants(A).has(nameVariants(B).values().next().value)) return true;
 
   const va = nameVariants(A), vb = nameVariants(B);
@@ -453,7 +470,9 @@ export function найтиПоИмени(имя, имена) {
   (имена || []).forEach((другое, i) => {
     const первоеДругого = String(другое || '').trim().split(/\s+/)[0] || '';
     let счёт = 0;
-    for (const ф of формы) {
+    if (корейскаяФамилия(имя) || корейскаяФамилия(другое) || /[가-힣]/u.test(имя + другое)) {
+      счёт = namesLikelySame(имя, другое) ? 3 : 0;
+    } else for (const ф of формы) {
       const первое = ф.split(/\s+/)[0];
       if (звук(первое) && звук(первое) === звук(первоеДругого)) { счёт = 3; break; }
       if (namesLikelySame(ф, другое)) счёт = Math.max(счёт, 2);
@@ -476,7 +495,7 @@ export function алиасыИмени(имя) {
   try { группы = группыАватарок(); } catch (_) { группы = []; }
   const первое = н.split(' ')[0];
   const out = new Set([н]);
-  for (const г of группы) if (г.some(x => x === н || x.split(' ')[0] === первое)) г.forEach(x => out.add(x));
+  for (const г of группы) if (г.some(x => сравнитьКорейские(x, н) ?? (x === н || x.split(' ')[0] === первое))) г.forEach(x => out.add(x));
   return [...out];
 }
 
@@ -488,16 +507,22 @@ export function алиасыИмени(имя) {
 export function гдеУпомянут(текст, имя) {
   const s = String(текст || '');
   if (!s.trim() || !String(имя || '').trim()) return -1;
-  const варианты = алиасыИмени(имя).map(а => а.split(' ')[0]).filter(а => а.length >= 2);
-  for (const м of s.matchAll(/(?<![\p{L}])\p{Lu}[\p{L}'’-]{1,}/gu)) if (варианты.some(а => namesLikelySame(м[0], а))) return м.index;
-  return -1;
+  const алиасы = алиасыИмени(имя);
+  let позиция = -1;
+  const короткие = [];
+  for (const а of алиасы) {
+    if (!корейскаяФамилия(а) && !/[가-힣]/u.test(а)) { короткие.push(а.split(' ')[0]); continue; }
+    if (!а.includes(' ') && корейскаяФамилия(а)) continue;
+    const шаблон = а.replace(/[.*+?^$(){}|[\]\\]/g, '\\$&').replace(/ +/g, '\\s+');
+    const м = new RegExp('(?<![\\p{L}-])' + шаблон + '(?![\\p{L}-])', 'iu').exec(s);
+    if (м && (позиция < 0 || м.index < позиция)) позиция = м.index;
+  }
+  for (const м of s.matchAll(/(?<![\p{L}])\p{Lu}[\p{L}'’-]{1,}/gu)) {
+    if (короткие.some(а => а.length >= 2 && namesLikelySame(м[0], а))) return позиция < 0 ? м.index : Math.min(позиция, м.index);
+  }
+  return позиция;
 }
 
 export function упомянутВТексте(текст, имя) {
-  const s = String(текст || '');
-  if (!s.trim() || !String(имя || '').trim()) return false;
-  const слова = s.match(/(?<![\p{L}])\p{Lu}[\p{L}'’-]{1,}/gu) || [];
-  if (!слова.length) return false;
-  const варианты = алиасыИмени(имя).map(а => а.split(' ')[0]).filter(а => а.length >= 2);
-  return слова.some(w => варианты.some(а => namesLikelySame(w, а)));
+  return гдеУпомянут(текст, имя) >= 0;
 }

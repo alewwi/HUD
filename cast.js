@@ -22,12 +22,13 @@
 //    Не понять — ничего не трогаем. Омегаверс, mpreg, трансгендерность и
 //    интерсекс-тела — исключение: там решает модель.
 
-import { ручнойПол, очиститьКарточку } from './manual-gender.js?v=23.90.4';
-import { settings } from './settings.js?v=23.90.4';
-import { namesLikelySame, normalizeNameText, запомнитьРазныхЛюдей } from './names.js?v=23.90.4';
-import { полПерсонажа, МЕТКА_ПОЛА } from './render/scene-body.js?v=23.90.4';
-import { текущаяГруппа } from './group-cards.js?v=23.90.4';
-import { имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.4';
+import { корейскаяФамилия } from './korean-names.js?v=23.90.5';
+import { ручнойПол, очиститьКарточку } from './manual-gender.js?v=23.90.5';
+import { settings } from './settings.js?v=23.90.5';
+import { namesLikelySame, normalizeNameText, запомнитьРазныхЛюдей } from './names.js?v=23.90.5';
+import { полПерсонажа, МЕТКА_ПОЛА } from './render/scene-body.js?v=23.90.5';
+import { текущаяГруппа } from './group-cards.js?v=23.90.5';
+import { имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.5';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const строка = (v) => {
@@ -269,7 +270,7 @@ export function основныеИмена(ctx = контекст()) {
 }
 const тотЖе = (а, б) => {
   const x = имяБезПриставки(String(а || '')).trim(), y = имяБезПриставки(String(б || '')).trim();
-  return !!x && !!y && (namesLikelySame(x, y) || namesLikelySame(x.split(/\s+/)[0], y.split(/\s+/)[0]));
+  return !!x && !!y && (namesLikelySame(x, y) || (!корейскаяФамилия(x) && !корейскаяФамилия(y) && namesLikelySame(x.split(/\s+/)[0], y.split(/\s+/)[0])));
 };
 /** Основной ли это персонаж (по имени). */
 export function основной(имя, имена = основныеИмена()) {

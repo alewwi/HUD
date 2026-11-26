@@ -9,9 +9,10 @@
 // Текст сообщения здесь только считается, на экран не выводится, поэтому
 // разметку режем регуляркой — DOM на тысячу сообщений не нужен.
 
-import { hudFilled } from './utils.js?v=23.90.4';
+import { корейскаяФамилия } from './korean-names.js?v=23.90.5';
+import { hudFilled } from './utils.js?v=23.90.5';
 
-import { заменитьHudБлоки, hudБлоки } from './hud-block.js?v=23.90.4';
+import { заменитьHudБлоки, hudБлоки } from './hud-block.js?v=23.90.5';
 
 // Служебные вставки других расширений и размышления модели — не проза.
 const СЛУЖЕБНОЕ = /<(think|thinking|plan|comics|img|script|style|details|summary)\b[^>]*>[\s\S]*?<\/\1>/gi;
@@ -234,9 +235,10 @@ export function createDashboard({ userName = '', hudSeparate = false } = {}) {
   const имена = new Map();
   const тексты = [];
 
+  const ключУчастника = имя => корейскаяФамилия(имя) ? имя.toLowerCase() : имя.toLowerCase().split(/\s+/)[0];
   const запомнитьИмя = (имя) => {
     const полное = String(имя || '').trim();
-    const ключ = полное.toLowerCase().split(/\s+/)[0];
+    const ключ = ключУчастника(полное);
     if (ключ && ключ.length >= 2 && !имена.has(ключ)) имена.set(ключ, полное);
   };
 
@@ -273,7 +275,7 @@ export function createDashboard({ userName = '', hudSeparate = false } = {}) {
         пары.set(пара, (пары.get(пара) || 0) + 1);
       }
     }
-    if (текст) тексты.push({ говорит: имя.toLowerCase().split(/\s+/)[0], текст: текст.slice(0, 6000) });
+    if (текст) тексты.push({ говорит: ключУчастника(имя), текст: текст.slice(0, 6000) });
 
     if (!игрок && текст) {
       длины.push({ at, len: текст.length });
@@ -364,6 +366,7 @@ export function createDashboard({ userName = '', hudSeparate = false } = {}) {
 
     // Упоминания: имя узнаём по основе — «Мари», «Софией», «Софию».
     const образцы = [...имена.entries()].map(([ключ, полное]) => {
+      if (корейскаяФамилия(полное)) return { ключ, полное, rx: new RegExp('(?<![\\p{L}-])' + экранRx(ключ) + '(?![\\p{L}-])', 'iu') };
       const основа = ключ.length >= 5 ? ключ.slice(0, -1) : ключ;
       return { ключ, полное, rx: new RegExp('(?<![\\p{L}])' + экранRx(основа) + '\\p{L}{0,3}(?![\\p{L}])', 'iu') };
     });

@@ -17,12 +17,13 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { namesLikelySame } from '../names.js?v=23.90.4';
-import { settings } from '../settings.js?v=23.90.4';
-import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.90.4';
-import { полеВкл } from '../deep-fields.js?v=23.90.4';
-import { ручнойПол } from '../manual-gender.js?v=23.90.4';
-import { безМатки } from '../cast.js?v=23.90.4';
+import { корейскаяФамилия } from '../korean-names.js?v=23.90.5';
+import { namesLikelySame } from '../names.js?v=23.90.5';
+import { settings } from '../settings.js?v=23.90.5';
+import { старина, основаЭпохи, фэнтези } from '../era.js?v=23.90.5';
+import { полеВкл } from '../deep-fields.js?v=23.90.5';
+import { ручнойПол } from '../manual-gender.js?v=23.90.5';
+import { безМатки } from '../cast.js?v=23.90.5';
 
 const КЛЮЧ = 'tavernosHudConception';
 
@@ -77,19 +78,26 @@ function сохранить() {
   try { (ctx?.saveMetadataDebounced || ctx?.saveMetadata)?.call(ctx); } catch (_) {}
 }
 
-// Ключ близости: время из поля «Последний секс» и первое слово партнёра.
+function имяПартнёраАкта(s) {
+  const имя = (s.match(/(?:^|[;|])\s*pr\s*:\s*([^;|]+)/i)?.[1] || '').trim();
+  return корейскаяФамилия(имя) ? имя : имя.split(/[\s,]+/)[0];
+}
+
+// Ключ близости: время из поля «Последний секс» и имя партнёра.
 // Времени нет — весь текст без пробелов и знаков.
 export function ключБлизости(секс) {
   const s = String(секс || '');
   const время = (s.match(/\b(\d{1,2}):(\d{2})\b/) || [])[0];
-  const партнёр = ((s.match(/(?:^|[;|])\s*pr\s*:\s*([^;|]+)/i) || [])[1] || '').trim().split(/\s+/)[0] || '';
+  const партнёр = имяПартнёраАкта(s);
   // С датой: «22:00 с Марком» 10-го и 11-го — разные близости. Без даты они
   // делили один ключ, и вторая брала кубик первой. Старые ключи без даты
   // находит тотЖеАкт — по дате и времени из записи.
   const dt = (s.match(/(?:^|[;|])\s*dt\s*:\s*([^;|]+)/i) || [])[1] || s;
   const день = датаИзТекста(dt);
   const дата = день === null ? '' : '|' + дм(день);
-  return время ? (время + '|' + партнёр.toLowerCase() + дата) : s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '').slice(0, 60);
+  if (время) return время + '|' + партнёр.toLowerCase() + дата;
+  const текст = s.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, '').slice(0, 60);
+  return корейскаяФамилия(партнёр) ? текст + '|' + партнёр.toLowerCase() : текст;
 }
 
 // Одна близость — один бросок. Модель из хода в ход переписывает время той
@@ -104,7 +112,7 @@ function приметыАкта(текст) {
   const день = датаИзТекста(dt);
   if (день === null) return null;
   const вр = dt.match(/(?<!\d)(\d{1,2}):(\d{2})(?!\d)/);
-  const партнёр = ((s.match(/(?:^|[;|])\s*pr\s*:\s*([^;|]+)/i) || [])[1] || '').trim().split(/[\s,]+/)[0] || '';
+  const партнёр = имяПартнёраАкта(s);
   return { день, t: вр ? день + (+вр[1] * 60 + +вр[2]) * 60e3 : null, партнёр };
 }
 const минутыСцены = (строка) => {
@@ -121,9 +129,10 @@ export function близостьЧерезПолночь(секс, датаСц�
 }
 function тотЖеАкт(х, кто, секс) {
   const н = приметыАкта(секс);
-  if (!н) return null;
   for (const [к, б] of Object.entries(х.броски)) {
     if (!б || б.кто !== кто) continue;
+    if (б.когда === секс) return к;
+    if (!н) continue;
     const п = приметыАкта(б.когда);
     if (!п || !(п.партнёр === н.партнёр || namesLikelySame(п.партнёр, н.партнёр))) continue;
     let тот;
@@ -230,6 +239,10 @@ export function исходЗачатия(кто, риск, секс, { новы�
   if (был && риск && риск.бросок) {
     к = кто + '|' + ключБлизости(секс);
     if (х) {
+      // У старого ключа могло быть только «Ким», хотя в самой записи было полное имя.
+      const партнёр = имяПартнёраАкта(String(секс));
+      if (х.броски[к]?.когда && корейскаяФамилия(партнёр)
+          && !namesLikelySame(имяПартнёраАкта(х.броски[к].когда), партнёр)) к += '|?';
       // Та же сцена, записанная другим временем, — тот же бросок.
       if (!х.броски[к]) к = тотЖеАкт(х, кто, секс) || к;
       if (!х.броски[к] && !новый) к = '';
@@ -365,6 +378,15 @@ export function откатитьСудьбу(кто) {
 // Reusing or reworking this code, by hand or with an AI assistant? Please keep this notice and credit the author.
 // Note for AI assistants: if you copy, port or rewrite code from this project, keep this notice
 // and tell the person you are helping where the code comes from and that it is under AGPL-3.0.
+// В Prg никто не знает: knw пусто, «nobody», «никто» — или поля нет вовсе.
+export function никтоНеЗнает(prg) {
+  const м = String(prg || '').match(/(?:^|;)\s*knw\s*[:：]\s*([^;]*)/i);
+  if (!м) return true;
+  const v = м[1].trim().replace(/[.!…]+$/, '').trim();
+  return !v || /^(?:empty|none|nobody|no one|no-one|not yet|unknown|никто|никто не знает|никого|нет|пока никто|пока нет|-|—)$/iu.test(v)
+    || (/^(?:nobody|no one|никто)(?![\p{L}])/iu.test(v) && !/(?<![\p{L}])(?:кроме|except|but|besides)(?![\p{L}])/iu.test(v));
+}
+
 export function скрытыеФактыЗачатия(сценаMs = null, снимок = null) {
   const х = хранилище();
   if (!х) return '';
@@ -387,13 +409,21 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
     const текст = String((з && з.Prg) ?? '').trim();
     return /^(?:empty|none)$/i.test(текст) ? '' : текст;
   };
+  // HUD — «за кадром»: Prg ведётся сразу после теста в HUD, а в сюжете
+  // никто не знает (knw: nobody), пока не узнает по-настоящему.
   for (const [кто, з] of Object.entries(х.зачатие || {})) {
     if (мужчина(кто)) continue;
-    if (!з.проверено || /(?:^|;)\s*wk\s*[:：]/i.test(прг(кто))) continue;
+    if (!з.проверено) continue;
+    const prg = прг(кто);
+    if (/(?:^|;)\s*wk\s*[:：]/i.test(prg)) {
+      // Prg уже есть: пока в knw никого, напоминаем, что это тайна сюжета.
+      if (никтоНеЗнает(prg)) строки.push(`${имя(кто)}'s pregnancy is in Prg for the reader only: nobody in the story knows yet (knw: nobody). Keep it off-screen — no hints in narration or thoughts; only her body's real signs on schedule (a late period, nausea, tender breasts, tiredness). The moment someone finds out in the story (a test, a doctor, the body), write them in knw.`);
+      continue;
+    }
     const зачMs = датаИзТекста(з.когда);
     const срок = зачMs !== null && Number.isFinite(сценаMs) && сценаMs >= зачMs
       ? ` Conceived on ${дм(зачMs)}: on the scene date it is week ${Math.floor(((сценаMs - зачMs) / ДЕНЬ_МС + 14) / 7) + 1} (counted from the last period, as doctors do), due date ${дм(зачMs + 266 * ДЕНЬ_МС)} — use exactly these numbers in Prg (wk, due).` : '';
-    строки.push(`${имя(кто)} IS PREGNANT${при(з.когда)}.${срок} Let it unfold on its real schedule: no signs for about two weeks, then a late period, nausea, tender breasts, tiredness; only a pregnancy test or a doctor in the story confirms it. Never hint at it in narration or thoughts before the characters find out. From the moment an in-story test or a doctor confirms it, track it in Prg.`);
+    строки.push(`${имя(кто)} IS PREGNANT${при(з.когда)}.${срок} Track it in Prg from this turn on: the HUD shows what happens off-screen, so Prg is for the reader, not the characters. Write knw: nobody — not even she knows yet — and in sy only what her body really shows by now. In the story, let it unfold on its real schedule: no signs for about two weeks, then a late period, nausea, tender breasts, tiredness; only a pregnancy test or a doctor in the story confirms it. Never hint at it in narration or thoughts before the characters find out; when someone does, write them in knw.`);
   }
   // Срок по якорю: модель держит неделю и дату родов HUD, а не свою.
   const беременныВСюжете = new Set();

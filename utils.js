@@ -3,8 +3,9 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
-import { МЕТКИ } from './codes.js?v=23.90.4';
-import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.90.4';
+import { корейскаяФамилия } from './korean-names.js?v=23.90.5';
+import { МЕТКИ } from './codes.js?v=23.90.5';
+import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.90.5';
 
 // Замеры по шагам для поиска узких мест: включаются только объектом
 // window.__hudProf = {} в консоли, копят { шаг: [мс, …] }. Без него — прямой вызов.
@@ -73,7 +74,7 @@ const СУЩНОСТИ = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'
 export function имяБезПриставки(имя) {
   const слова = String(имя || '').trim().split(/\s+/).filter(Boolean);
   let i = 0;
-  while (i < слова.length - 1 && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
+  while (i < слова.length - 1 && !корейскаяФамилия(слова[i]) && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
   return слова.slice(i).join(' ');
 }
 // Модель пишет {{char}} — Таверна подставляет имя карточки целиком, с
@@ -89,8 +90,8 @@ export function убратьПриставкуКарточки(html, полно�
 export function имяДляВкладки(имя) {
   const слова = String(имя || '').trim().split(/\s+/).filter(Boolean);
   let i = 0;
-  while (i < слова.length - 1 && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
-  return слова[i] || '';
+  while (i < слова.length - 1 && !корейскаяФамилия(слова[i]) && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
+  return корейскаяФамилия(слова[i]) ? слова.slice(i).join(' ') : слова[i] || '';
 }
 /** Генерация через Таверну, одной подписью для любых её версий. До 1.13
     generateRaw принимал аргументы по местам (prompt, api, instructOverride,
@@ -348,7 +349,7 @@ function инициалы(имя) {
 export function именаГруппы(метка) {
   const части = String(метка || '').split(/\s*(?:,|\s+и\s+|\s+and\s+|\s*&\s*|\s+\+\s+)\s*/i).map(s => s.trim()).filter(Boolean);
   if (части.length < 2) return null;
-  const имя = (s) => s.length <= 40 && /^[\p{Lu}«"']/u.test(s) && s.split(/\s+/).length <= 4;
+  const имя = (s) => s.length <= 40 && /^[\p{Lu}가-힣«"']/u.test(s) && s.split(/\s+/).length <= 4;
   return части.every(имя) ? части : null;
 }
 

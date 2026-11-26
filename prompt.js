@@ -10,27 +10,27 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.90.4';
-import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.90.4';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.90.4';
+import { settings } from './settings.js?v=23.90.5';
+import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.90.5';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.90.5';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.90.4';
-import { промптНаАнглийском } from './prompt-en.js?v=23.90.4';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.90.4';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.90.4';
-import { parseSceneDate } from './history-analyzer.js?v=23.90.4';
-import { возрастТочно } from './render/babies.js?v=23.90.4';
-import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.90.4';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.90.4';
-import { сжатьСхему } from './compact-fields.js?v=23.90.4';
-import { короткийПромпт } from './prompt-short.js?v=23.90.4';
-import { подготовкаИдёт } from './render/holiday-lore.js?v=23.90.4';
-import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.90.4';
-import { промптРанСпутника } from './render/pet-wounds.js?v=23.90.4';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.90.4';
-import { полДляМодели } from './manual-gender.js?v=23.90.4';
-import { правилоСостава } from './cast.js?v=23.90.4';
-import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.90.4';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.90.5';
+import { промптНаАнглийском } from './prompt-en.js?v=23.90.5';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.90.5';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.90.5';
+import { parseSceneDate } from './history-analyzer.js?v=23.90.5';
+import { возрастТочно } from './render/babies.js?v=23.90.5';
+import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.90.5';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.90.5';
+import { сжатьСхему } from './compact-fields.js?v=23.90.5';
+import { короткийПромпт } from './prompt-short.js?v=23.90.5';
+import { подготовкаИдёт } from './render/holiday-lore.js?v=23.90.5';
+import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.90.5';
+import { промптРанСпутника } from './render/pet-wounds.js?v=23.90.5';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.90.5';
+import { полДляМодели } from './manual-gender.js?v=23.90.5';
+import { правилоСостава } from './cast.js?v=23.90.5';
+import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.90.5';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -289,7 +289,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "B": "[body and mind: the STATE this person is in right now, in a phrase or two — tired, tense, tipsy, calm, shaken, drained but alert. A state, not an action: no retelling of what they did or are doing, no place, no objects, no who-did-what to whom. Wrong: 'locked the door and stands before her with a belt'. Right: 'composed, rage on a short leash'. Asleep or unconscious is a state too]",
    "H": "[health: ${болезни ? 'overall physical state in a phrase — pain, stamina, how they hold up; specific illnesses and injuries go to Ill, never its codes here' : 'wounds, pain, illness, stamina'}. 'empty' when all is well.]",${болезни ? `
    "Ill": "[illnesses, injuries, traumas, ONLY if any. One group per condition, separated by |: 'nm: diagnosis or wound; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms now; trt: treatment; zn: body zone of a wound — голова, грудь, спина, левое плечо, правое бедро…${промптРан()}'. Track each until it heals, updating sg, rc and sy with story time; a scratch gone by tomorrow stays in H. The SAME name every turn, ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременностьВПромпт ? `
-   "Prg": "[pregnancy, ONLY of the one who carries the baby and ONLY once one exists in the story, known or not — never invent one. Never on a man: her husband, partner or the father gets no Prg — he is named in fa. 'wk: week, a number; due: due date; fa: father, if known; sy: symptoms, how the body changes; knw: who knows; cnd: how it is going; ${заботаСтарины ? "gnd: baby's sex once the story reveals it (a midwife's guess, signs, or the birth), else omit" : "gnd: baby's sex once an ultrasound shows it (~18-20 wk), else omit"}; bnm: chosen name, if any; ${заботаСтарины ? "vis: next visit of the midwife or physician" : "vis: next doctor's visit or test"}; crv: cravings; brn: ONLY on the birth turn — its date and time; drop Prg from the next turn; lost: ONLY on the turn a pregnancy really ends without a live birth — its date and what happened (miscarriage, abortion, missed miscarriage, stillbirth); then drop Prg from the next turn, no Pp. With twins or triplets, if only some are lost, write «one of the twins» there and keep Prg. A threat, bleeding or surgery with the outcome unknown is not lost: that stays in cnd'. Advances with story time]",` : ''}${послеродовоеВПромпт ? `
+   "Prg": "[pregnancy, ONLY of the one who carries the baby and ONLY once one exists in the story, known or not — never invent one. Never on a man: her husband, partner or the father gets no Prg — he is named in fa. 'wk: week, a number; due: due date; fa: father, if known; sy: symptoms, how the body changes; knw: who in the story knows — nobody until someone finds out in the story, not even she;cnd: how it is going; ${заботаСтарины ? "gnd: baby's sex once the story reveals it (a midwife's guess, signs, or the birth), else omit" : "gnd: baby's sex once an ultrasound shows it (~18-20 wk), else omit"}; bnm: chosen name, if any; ${заботаСтарины ? "vis: next visit of the midwife or physician" : "vis: next doctor's visit or test"}; crv: cravings; brn: ONLY on the birth turn — its date and time; drop Prg from the next turn; lost: ONLY on the turn a pregnancy really ends without a live birth — its date and what happened (miscarriage, abortion, missed miscarriage, stillbirth); then drop Prg from the next turn, no Pp. With twins or triplets, if only some are lost, write «one of the twins» there and keep Prg. A threat, bleeding or surgery with the outcome unknown is not lost: that stays in cnd'. Advances with story time]",` : ''}${послеродовоеВПромпт ? `
    "Pp": "[after childbirth, ONLY for a woman who has given birth in the story — otherwise omit. 'bf: breast, formula or mixed${заботаСтарины ? ' (formula here means a wet nurse or animal milk)' : ''}; lfd: time of the last breastfeed as HH:MM; brs: breasts — fullness, pain, leaking, nipples; sy: how she feels — healing, bleeding, tiredness, mood'. Keep it while she recovers and feeds]",` : ''}${цикл ? `
    "Mns": "[menstrual cycle, ONLY for someone with a uterus — never for a man, whoever he is with. 'cyd: cycle day, a number; cyl: cycle length, days; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period date; pms: PMS window, dates; dly: days late, 0 if none; rsn: reason for a delay — stress, illness, contraception, pregnancy; empty if none'. Moves with story days: the day grows, the phase follows, the period comes on time unless something delays it. From a known pregnancy (Prg) until the period returns after birth — only 'phs: paused', no day count or delay]",` : ''}
    "Ph": "[physiology: bodily sensations right now — hunger, thirst, cold, pain, drowsiness${интим ? ', arousal' : ''}. What the body feels, not what it does. Not the phone]",

@@ -11,12 +11,13 @@
 // флаг window.__tavernOSHudSkipInject: без него перехват запросов в index.js
 // вшил бы в вопрос HUD-инструкцию, и модель ответила бы HUD-блоком.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны, длинаОтветаТаверны } from '../utils.js?v=23.90.4';
-import { settings } from '../settings.js?v=23.90.4';
-import { parseHUDComplex } from '../hud-parser.js?v=23.90.4';
-import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.90.4';
-import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.90.4';
-import { английский, т } from '../i18n.js?v=23.90.4';
+import { имяДляВкладки } from '../utils.js?v=23.90.5';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны, длинаОтветаТаверны } from '../utils.js?v=23.90.5';
+import { settings } from '../settings.js?v=23.90.5';
+import { parseHUDComplex } from '../hud-parser.js?v=23.90.5';
+import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.90.5';
+import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.90.5';
+import { английский, т } from '../i18n.js?v=23.90.5';
 
 const ЖДЁМ_МС = 180000;
 
@@ -158,7 +159,7 @@ export function parseAssistantAnswer(raw) {
 // Имя — без приставки карточки капсом: «THE LANTERNS  Damian» → «Damian», не «THE».
 export function suggestedQuestions(hud) {
   const имена = (hud && Array.isArray(hud.characters) ? hud.characters : [])
-    .map(c => имяБезПриставки(String(c && c['Имя'] || '')).split(/\s+/)[0]).filter(Boolean).slice(0, 2);
+    .map(c => имяДляВкладки(c && c['Имя'])).filter(Boolean).slice(0, 2);
   const out = [];
   if (имена[0]) out.push(`Почему ${имена[0]} так себя ведёт?`, `Что ${имена[0]} скрывает?`);
   if (имена[1]) out.push(`Как ${имена[1]} относится ко мне на самом деле?`);

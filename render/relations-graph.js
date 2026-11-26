@@ -7,13 +7,14 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.90.4';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.4';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame, запомнитьРазныхЛюдей } from '../names.js?v=23.90.4';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.90.4';
-import { settings } from '../settings.js?v=23.90.4';
-import { ответыПроДядей } from './family-asks.js?v=23.90.4';
-import { законностьДляДрева } from './medieval-life.js?v=23.90.4';
+import { корейскаяФамилия } from '../korean-names.js?v=23.90.5';
+import { имяДляВкладки, escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.90.5';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.5';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame, запомнитьРазныхЛюдей } from '../names.js?v=23.90.5';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.90.5';
+import { settings } from '../settings.js?v=23.90.5';
+import { ответыПроДядей } from './family-asks.js?v=23.90.5';
+import { законностьДляДрева } from './medieval-life.js?v=23.90.5';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -89,6 +90,7 @@ export function mergeCharacterRecords(characters) {
 }
 
 function nameIdentityKey(name) {
+  if (корейскаяФамилия(name)) return normalizeNameText(name);
   const s = namePhoneticLatin(name);
   return s || nameLettersOnly(name) || normalizeNameText(name);
 }
@@ -418,7 +420,7 @@ function деревоСИсторией(nodes, edges, дайХоды, hudData = 
 // «Дядя» без родства в HUD: чьи он брат или сестра — или вовсе не родня.
 // Ответ запоминается в чате (render/family-asks.js), как спор о возрасте в «Детской».
 function вопросПроДядю(в) {
-  const имя = (x) => (имяБезПриставки(String(x || '')) || String(x || '')).split(/\s+/)[0];
+  const имя = имяДляВкладки;
   const кто = в.пол === 'ж' ? 'Чья она сестра?' : в.пол === 'м' ? 'Чей он брат?' : 'Чьи это брат или сестра?';
   const кнопка = (родня, текст, подсказка) => `<button type="button" class="${(родня || '-') === (в.совет || '-') ? 'is-tip' : ''}" data-fam-kin="${escapeHtml(родня)}" title="${escapeHtml(подсказка)}">${escapeHtml(текст)}</button>`;
   return `<div class="hud-fam-ask" data-fam-uncle="${escapeHtml(в.дядя)}">`

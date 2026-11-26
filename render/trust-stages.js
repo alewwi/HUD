@@ -24,14 +24,31 @@
 // к кому», потолок и номер хода, с которого он действует. Старые ходы до
 // этого номера рисуются как модель их написала.
 
-import { settings } from '../settings.js?v=23.90.4';
-import { namesLikelySame } from '../names.js?v=23.90.4';
-import { escapeHtml, flattenFieldValue, именаГруппы, getSafeUserName } from '../utils.js?v=23.90.4';
-import { полеВкл } from '../deep-fields.js?v=23.90.4';
-import { английский, тМодели } from '../i18n.js?v=23.90.4';
-import { ико } from './view-icons.js?v=23.90.4';
+import { settings } from '../settings.js?v=23.90.5';
+import { namesLikelySame } from '../names.js?v=23.90.5';
+import { escapeHtml, flattenFieldValue, именаГруппы, getSafeUserName } from '../utils.js?v=23.90.5';
+import { полеВкл } from '../deep-fields.js?v=23.90.5';
+import { английский, тМодели } from '../i18n.js?v=23.90.5';
+import { ико } from './view-icons.js?v=23.90.5';
 
 const КЛЮЧ = 'tavernosHudTrust';
+
+// Порядок только для вывода. Остальные записи сохраняют порядок модели.
+export function поИгрокуВперёд(записи, имяЗаписи, игрок = getSafeUserName()) {
+  if (!игрок || записи.length < 2) return записи;
+  const свои = [], остальные = [];
+  let переставить = false;
+  for (const запись of записи) {
+    const метка = имяЗаписи(запись).replace(/\s*\([^()]*\)\s*$/, '').trim();
+    const свой = (именаГруппы(метка) || [метка]).some(имя =>
+      /^(?:user|\{\{user\}\})$/i.test(имя) || namesLikelySame(имя, игрок));
+    if (свой) {
+      if (остальные.length) переставить = true;
+      свои.push(запись);
+    } else остальные.push(запись);
+  }
+  return переставить ? свои.concat(остальные) : записи;
+}
 
 /** Заводские ступени: с какого числа начинается, имя по-русски и по-английски. */
 export const СТУПЕНИ_ПО_УМОЛЧАНИЮ = [

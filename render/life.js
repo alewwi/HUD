@@ -18,20 +18,21 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.90.4';
-import { спор, спрашивать, основыИгрока, подписьСна } from '../disputes.js?v=23.90.4';
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.90.4';
-import { settings } from '../settings.js?v=23.90.4';
-import { градусы } from '../units.js?v=23.90.4';
-import { разобратьХод } from './carryover.js?v=23.90.4';
-import { моментСцены } from './intimacy.js?v=23.90.4';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.90.4';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.90.4';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.4';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.90.4';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.90.4';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.90.4';
-import { английский } from '../i18n.js?v=23.90.4';
+import { корейскаяФамилия } from '../korean-names.js?v=23.90.5';
+import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.90.5';
+import { спор, спрашивать, основыИгрока, подписьСна } from '../disputes.js?v=23.90.5';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.90.5';
+import { settings } from '../settings.js?v=23.90.5';
+import { градусы } from '../units.js?v=23.90.5';
+import { разобратьХод } from './carryover.js?v=23.90.5';
+import { моментСцены } from './intimacy.js?v=23.90.5';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.90.5';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.90.5';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.5';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.90.5';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.90.5';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.90.5';
+import { английский } from '../i18n.js?v=23.90.5';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -832,7 +833,7 @@ export function журналБыта(chat, конец = chat ? chat.length : 0, 
   for (const [сутки, текст] of сны) {
     const спали = сон.filter(с => с.ночи.some(н => н.сутки === сутки && н.часов > 0));
     const т = норм(текст);
-    const названные = спали.filter(с => { const и = норм(имяКоротко(с.имя)).split(' ')[0]; return и.length >= 3 && т.includes(и.slice(0, Math.max(3, и.length - 1))); });
+    const названные = спали.filter(с => { if (корейскаяФамилия(с.имя)) return упомянутВТексте(текст, с.имя); const и = норм(имяКоротко(с.имя)).split(' ')[0]; return и.length >= 3 && т.includes(и.slice(0, Math.max(3, и.length - 1))); });
     const чьи = названные.length ? названные : спали.length === 1 ? спали : [];
     for (const с of чьи) for (const н of с.ночи) if (н.сутки === сутки) н.сон = текст;
   }

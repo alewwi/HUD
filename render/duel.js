@@ -12,11 +12,12 @@
 //   всплыло       — запись памяти (таймлайн, важное), с которой совпадает
 //                   суть спора: «это про тот вечер 12-го».
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.90.4';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.90.4';
-import { settings } from '../settings.js?v=23.90.4';
-import { getAvatarUrl } from '../avatars.js?v=23.90.4';
-import { ико, медаль } from './view-icons.js?v=23.90.4';
+import { имяДляВкладки } from '../utils.js?v=23.90.5';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.90.5';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.90.5';
+import { settings } from '../settings.js?v=23.90.5';
+import { getAvatarUrl } from '../avatars.js?v=23.90.5';
+import { ико, медаль } from './view-icons.js?v=23.90.5';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const поле = (о, имя) => {
@@ -27,7 +28,7 @@ const поле = (о, имя) => {
 const пусто = (s) => !s || /^(empty|none|нет|—|-)$/i.test(String(s).trim());
 // Приставка карточки («THE LANTERNS Damian Hartley») — и с двумя пробелами,
 // как у Таверны, и с одним, как пишет модель: иначе соперником выходил «THE».
-const имяКоротко = (имя) => имяБезПриставки(String(имя || '').replace(/^.*\s{2,}/, '')).trim().split(/\s+/)[0] || '';
+const имяКоротко = (имя) => имяДляВкладки(String(имя || '').replace(/^.*\s{2,}/, '')) || '';
 const тот = (a, b) => !!(a && b && namesLikelySame(имяКоротко(a), имяКоротко(b)));
 
 // Градус: от тёплого к горячему. Второе — линейный значок из view-icons.js.

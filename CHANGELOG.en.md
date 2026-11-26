@@ -4,6 +4,12 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.90.5 — 2026-11-26
+
+- **Trust toward the player.** The player stays first when opening a card and after approving a trust stage, including when the model groups several people in one entry. Trust changes, reasons and scars also show the player first. Other people keep their order.
+- **Korean names.** The HUD distinguishes people who share a surname or a given name, such as Park Minsu, Park Minsuk and Lee Minsu. For recognized Korean surnames, cards, avatars, phone contacts and encounter records use the full name. Appearance and inventory carry over to the right person on the next turn.
+- **Off-screen pregnancy tracking.** After a positive test in the HUD, the model is prompted to track the pregnancy in `Prg` from that turn. While nobody in the story knows, `knw` is set to `nobody`. Once the field names someone who has found out, the secrecy reminder stops.
+
 ## 23.90.4 — 2026-11-26
 
 - **Scars and trust.** A “More” button appears at the fourth entry in lists of permanent marks, trust scars, trust changes and their reasons. Each list expands independently. On wide screens you can also scroll a collapsed list. The Kintsugi bowl and Patches heart stay visible.

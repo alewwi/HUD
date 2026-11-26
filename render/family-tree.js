@@ -8,9 +8,10 @@
 // Модуль не знает про граф отношений: получает готовые узлы и рёбра и отдаёт
 // SVG. Так нет круговой зависимости с relations-graph.js.
 
-import { escapeHtml, hudHashSeed, commentInitials, имяБезПриставки } from '../utils.js?v=23.90.4';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.4';
-import { найтиПоИмени } from '../names.js?v=23.90.4';
+import { корейскаяФамилия } from '../korean-names.js?v=23.90.5';
+import { escapeHtml, hudHashSeed, commentInitials, имяБезПриставки } from '../utils.js?v=23.90.5';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.5';
+import { найтиПоИмени } from '../names.js?v=23.90.5';
 
 // Кем «кому» приходится тому, у кого записано отношение. Ищем только в
 // первых словах: дальше идёт чувство, где «любит как сына» или «брат по
@@ -155,7 +156,7 @@ const W_БАЗА = 136, H_УЗЛА = 58, ЗАЗОР_СУПРУГОВ = 28, ЗА�
 // Семьи, не связанные между собой, — отдельными ветками. Ряд не шире этого:
 // дерево в одну длинную строку ужималось до нечитаемого.
 const ШИРИНА_РЯДА = 1180, ЗАЗОР_ВЕТОК = 44, ШАПКА_ВЕТКИ = 34;
-const фамилия = (имя) => { const с = имяКарточки(имя).replace(/\s+(?:I{1,3}|IV|VI{0,3}|IX|X|Jr\.?|Sr\.?|младший|старший)$/i, '').trim().split(/\s+/); return с.length > 1 ? с[с.length - 1] : ''; };
+const фамилия = (имя) => { const с = имяКарточки(имя).replace(/\s+(?:I{1,3}|IV|VI{0,3}|IX|X|Jr\.?|Sr\.?|младший|старший)$/i, '').trim().split(/\s+/); return с.length > 1 ? (корейскаяФамилия(с[0]) ? с[0] : с[с.length - 1]) : ''; };
 
 // nodes: [{ id, name, isUser, isPrimary }], edges: [{ from, to, label }].
 // опции.дяди — ответы игрока про «дядю» без родства в HUD: [{ имя, родня }]

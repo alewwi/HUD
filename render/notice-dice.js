@@ -19,12 +19,13 @@
 // Хранилище — метаданные чата (tavernosHudNotice), бросок привязан к ходу
 // (mesid), свайпу и человеку. Бросок из старой сцены тоже идёт в ближайший ответ.
 
-import { settings } from '../settings.js?v=23.90.4';
-import { namesLikelySame } from '../names.js?v=23.90.4';
-import { escapeHtml, flattenFieldValue, getSafeUserName, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.90.4';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.4';
-import { extractHudBlock, естьЗаглушкаHUD } from '../hud-block.js?v=23.90.4';
-import { ико } from './view-icons.js?v=23.90.4';
+import { имяДляВкладки } from '../utils.js?v=23.90.5';
+import { settings } from '../settings.js?v=23.90.5';
+import { namesLikelySame } from '../names.js?v=23.90.5';
+import { escapeHtml, flattenFieldValue, getSafeUserName, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.90.5';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.5';
+import { extractHudBlock, естьЗаглушкаHUD } from '../hud-block.js?v=23.90.5';
+import { ико } from './view-icons.js?v=23.90.5';
 
 const КЛЮЧ = 'tavernosHudNotice';
 export const кубикВкл = () => settings.noticeDice !== false;
@@ -284,7 +285,7 @@ export function блокКубика(данные, значение, имя) {
     const ст = стресс(данные);
     return `<div class="hud-ntc is-idle" ${блок}>${свидетель}<button type="button" class="hud-ntc-roll" data-hud-notice="roll" ${рядом.length && список === '[]' ? 'disabled' : ''} ${атр} data-near="${escapeHtml(список)}" data-mask="${escapeHtml(String(значение ?? ''))}" data-stress="${Number.isFinite(ст) ? ст : ''}" title="Бросить кубик: заметил ли кто-нибудь, что маска соскользнула. Пока не нажмёте — никто ничего не знает">`
       + `${ико('dice')}<span>Заметил ли кто-нибудь?</span></button>`
-      + `<span class="hud-ntc-who" aria-label="Кубик за тех, кто рядом">${рядом.map(р => { const вне = искл.some(и => namesLikelySame(и, р.имя)); return `<button type="button" class="hud-ntc-chip${вне ? ' is-out' : ''}" data-hud-notice="skip" ${атр} data-name="${escapeHtml(р.имя)}" aria-pressed="${вне ? 'false' : 'true'}" title="${вне ? 'Не рядом — кубик за него не бросается. Нажмите, чтобы вернуть' : 'Рядом — кубик бросается и за него. Нажмите, если его здесь нет'}">${лицо(р.имя, namesLikelySame(р.имя, игрок))}<b>${escapeHtml(имяБезПриставки(р.имя).split(/\s+/)[0])}</b></button>`; }).join('')}</span></div>`;
+      + `<span class="hud-ntc-who" aria-label="Кубик за тех, кто рядом">${рядом.map(р => { const вне = искл.some(и => namesLikelySame(и, р.имя)); return `<button type="button" class="hud-ntc-chip${вне ? ' is-out' : ''}" data-hud-notice="skip" ${атр} data-name="${escapeHtml(р.имя)}" aria-pressed="${вне ? 'false' : 'true'}" title="${вне ? 'Не рядом — кубик за него не бросается. Нажмите, чтобы вернуть' : 'Рядом — кубик бросается и за него. Нажмите, если его здесь нет'}">${лицо(р.имя, namesLikelySame(р.имя, игрок))}<b>${escapeHtml(имяДляВкладки(р.имя))}</b></button>`; }).join('')}</span></div>`;
   }
   const строки = б.открыто ? б.набл.map(н => {
     const да = итог(б, н), изменено = да !== н.заметил;
