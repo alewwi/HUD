@@ -4,6 +4,15 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.90.8 — 2026-11-27
+
+- **Names are compared as before again.** In 23.90.5–23.90.7 “Yan” and “Yan Kowalski”, “Kim” and “Kim White”, Kim and Kim Possible, “Anna” and “Anna Lee” counted as different people, and Russian case forms of names such as “Anna Li” were not recognized. A character named just “Yan”, “Kim” or “Min” was not found in the text. Now such a word counts as a surname only when the rest of the name looks Korean or Chinese: “Kim Minsu” and “Min Yoongi” are still Korean names, while “Kim White” and “Yan Kowalski” are not.
+- **Shared surnames and given names.** Park Minsu and Park Minsuk, Zhang Wei and Zhang Ming, Aoi Tanaka and Aoi Yamada stay separate people, and case forms of the same name are recognized. A single word (“Kim”, “Aoi”) picks nobody only when two people in this chat have it in their full names.
+- **Switching chats.** Pairs such as “Yan” and “Yana” and shared surnames from one chat no longer block case forms in another.
+- **Japanese surnames with “ё”.** “Yoshida” written in Cyrillic and other surnames with “ё” and “й” are recognized.
+- **Small chance of conception.** Protected sex on a “safe” day (below 0.5%) is no longer rounded to zero: the dice use a 1% threshold and the card shows “<1%”. Exactly 0% (“conception is impossible”) still never results in pregnancy.
+- **Undoing a sex correction.** If the number of HUD blocks in a message has changed, Undo leaves that message alone and does not put a record into the wrong block.
+
 ## 23.90.7 — 2026-11-26
 
 - **Character and player cards in Yami Kawaii Creamy Light.** Each row takes the height its contents need. Labels stay with their values, and the list scrolls to the last field.

@@ -9,14 +9,14 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.90.7';
-import { settings } from '../settings.js?v=23.90.7';
-import { namesLikelySame } from '../names.js?v=23.90.7';
-import { раскрывашка } from './fold.js?v=23.90.7';
-import { видМираСтарины } from './medieval-views.js?v=23.90.7';
-import { видБлока } from './views.js?v=23.90.7';
-import { подЗамками, замокСтроки, кнопкаЗамка } from './faction-locks.js?v=23.90.7';
-import { безЛюдей } from '../faction-groups.js?v=23.90.7';
+import { escapeHtml } from '../utils.js?v=23.90.8';
+import { settings } from '../settings.js?v=23.90.8';
+import { namesLikelySame } from '../names.js?v=23.90.8';
+import { раскрывашка } from './fold.js?v=23.90.8';
+import { видМираСтарины } from './medieval-views.js?v=23.90.8';
+import { видБлока } from './views.js?v=23.90.8';
+import { подЗамками, замокСтроки, кнопкаЗамка } from './faction-locks.js?v=23.90.8';
+import { безЛюдей } from '../faction-groups.js?v=23.90.8';
 
 /** «Гильдия | Лилиан | 80 | уважают | за что» → { кто, к, число, как, почему }. */
 export function разобратьФракцию(строка) {

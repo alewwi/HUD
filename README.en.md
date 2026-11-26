@@ -659,7 +659,14 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.90.0**:
+The latest version is **23.90.8**:
+
+- Names are compared as before again: “Yan” is “Yan Kowalski”, Russian case forms are recognized; Korean namesakes and Japanese characters with the same given name stay separate people. A small chance of conception is no longer rounded to zero (“<1%”).
+- Korean, Chinese and Japanese names: Park Minsu and Park Minsuk, Zhang Wei and Zhang Ming, Aoi Tanaka and Aoi Yamada get their own cards, trust, avatars and contacts.
+- Off-screen pregnancy: after a positive test in the HUD the model tracks the Pregnancy block at once, while nobody in the story knows until they really find out.
+- Manual sex correction: ✎ in the cycle, pregnancy and postpartum blocks — “Delete” remembers the character as male and removes all three blocks, “Keep” remembers female; undo with ↶.
+- Trust: a red number on the character tab shows how many relationships wait for approval; “Allow” and the lock update the block in place; the player comes first in reasons and scars too.
+- Long scar and trust lists fold from the fourth entry; “protected sex” in how an encounter ended counts toward the chance of conception.
 
 - "👥 Character cards: main characters only" — a card only for the character of the card and those you list; a cycle and a pregnancy only for someone with a uterus: a husband no longer gets his wife's pregnancy, "Yan" and "Yana" no longer merge into one.
 - Factions and reputation are groups only: a university, a workplace, a country, a clan; a character among the factions is removed, "Family (name)" and "Family (another name)" are one row.

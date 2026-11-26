@@ -10,10 +10,10 @@
 // реально добавляются новые сообщения (см. invalidateAvatarCache()).
 // Ручные аватарки читаются прямо из настроек: модуль и так знает про DOM
 // и глобали SillyTavern, ещё одна зависимость ничего не усложняет.
-import { нужноПолноеИмя } from './korean-names.js?v=23.90.7';
-import { settings } from './settings.js?v=23.90.7';
-import { getSafeUserName } from './utils.js?v=23.90.7';
-import { namesLikelySame } from './names.js?v=23.90.7';
+import { нужноПолноеИмя } from './korean-names.js?v=23.90.8';
+import { settings } from './settings.js?v=23.90.8';
+import { getSafeUserName } from './utils.js?v=23.90.8';
+import { namesLikelySame } from './names.js?v=23.90.8';
 
 /**
  * Палитра для плейсхолдеров аватарок: цвет выбирается по хэшу имени.

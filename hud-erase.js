@@ -32,15 +32,15 @@
 // Здесь — логика. Кнопки и окно подтверждения — index.js, разметка кнопки —
 // render/erase-button.js.
 
-import { ручнойПол, записатьПол, очиститьКарточку, очиститьПамять, вернутьПамять } from './manual-gender.js?v=23.90.7';
-import { hudБлоки, заглушкиHUD, развернутьЗаглушки, заглушкаHUD, блокКакБыл } from './hud-block.js?v=23.90.7';
-import { HUDвКодах } from './hud-snapshot.js?v=23.90.7';
-import { namesLikelySame } from './names.js?v=23.90.7';
-import { ячейки, подготовитьВыгруженные, подгрузитьЧат, развернутьHUD, ключБлока } from './offload.js?v=23.90.7';
-import { ключСекрета, правки, снятьПравку } from './snapshot-edits.js?v=23.90.7';
-import { ключСообщения } from './chronicle.js?v=23.90.7';
-import { стеретьВЛетописи, выжимкиЛетописи, пополнитьЛетопись, сохранитьЛетописьСейчас } from './chronicle-store.js?v=23.90.7';
-import { стеретьБеременность, снимокБеременности, вернутьБеременность } from './render/conception.js?v=23.90.7';
+import { ручнойПол, записатьПол, очиститьКарточку, очиститьПамять, вернутьПамять } from './manual-gender.js?v=23.90.8';
+import { hudБлоки, заглушкиHUD, развернутьЗаглушки, заглушкаHUD, блокКакБыл } from './hud-block.js?v=23.90.8';
+import { HUDвКодах } from './hud-snapshot.js?v=23.90.8';
+import { namesLikelySame } from './names.js?v=23.90.8';
+import { ячейки, подготовитьВыгруженные, подгрузитьЧат, развернутьHUD, ключБлока } from './offload.js?v=23.90.8';
+import { ключСекрета, правки, снятьПравку } from './snapshot-edits.js?v=23.90.8';
+import { ключСообщения } from './chronicle.js?v=23.90.8';
+import { стеретьВЛетописи, выжимкиЛетописи, пополнитьЛетопись, сохранитьЛетописьСейчас } from './chronicle-store.js?v=23.90.8';
+import { стеретьБеременность, снимокБеременности, вернутьБеременность } from './render/conception.js?v=23.90.8';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };
@@ -516,6 +516,9 @@ function возвратПола(цель) {
   const части = [], адреса = {}, номера = new Map();
   function записать(m, номер, путь, было, стало) {
     const до = частиДляВозврата(было), после = частиДляВозврата(стало);
+    // Блоков стало больше или меньше — сопоставить по порядку нельзя, и
+    // «Отменить» вернул бы кусок не в тот блок. Такую ячейку не трогаем.
+    if (до.length !== после.length) return;
     адреса[адресЯчейки(m, номер, путь)] = после.map((б, i) => {
       const старый = до[i].full;
       if (старый === б.full) return null;

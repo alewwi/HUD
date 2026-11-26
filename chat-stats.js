@@ -9,10 +9,10 @@
 // Текст сообщения здесь только считается, на экран не выводится, поэтому
 // разметку режем регуляркой — DOM на тысячу сообщений не нужен.
 
-import { нужноПолноеИмя } from './korean-names.js?v=23.90.7';
-import { hudFilled } from './utils.js?v=23.90.7';
+import { нужноПолноеИмя } from './korean-names.js?v=23.90.8';
+import { hudFilled } from './utils.js?v=23.90.8';
 
-import { заменитьHudБлоки, hudБлоки } from './hud-block.js?v=23.90.7';
+import { заменитьHudБлоки, hudБлоки } from './hud-block.js?v=23.90.8';
 
 // Служебные вставки других расширений и размышления модели — не проза.
 const СЛУЖЕБНОЕ = /<(think|thinking|plan|comics|img|script|style|details|summary)\b[^>]*>[\s\S]*?<\/\1>/gi;
