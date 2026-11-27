@@ -10,27 +10,27 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.90.8';
-import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.90.8';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.90.8';
+import { settings } from './settings.js?v=23.90.9';
+import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.90.9';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.90.9';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.90.8';
-import { промптНаАнглийском } from './prompt-en.js?v=23.90.8';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.90.8';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.90.8';
-import { parseSceneDate } from './history-analyzer.js?v=23.90.8';
-import { возрастТочно } from './render/babies.js?v=23.90.8';
-import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.90.8';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.90.8';
-import { сжатьСхему } from './compact-fields.js?v=23.90.8';
-import { короткийПромпт } from './prompt-short.js?v=23.90.8';
-import { подготовкаИдёт } from './render/holiday-lore.js?v=23.90.8';
-import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.90.8';
-import { промптРанСпутника } from './render/pet-wounds.js?v=23.90.8';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.90.8';
-import { полДляМодели } from './manual-gender.js?v=23.90.8';
-import { правилоСостава } from './cast.js?v=23.90.8';
-import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.90.8';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.90.9';
+import { промптНаАнглийском } from './prompt-en.js?v=23.90.9';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.90.9';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.90.9';
+import { parseSceneDate } from './history-analyzer.js?v=23.90.9';
+import { возрастТочно } from './render/babies.js?v=23.90.9';
+import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.90.9';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.90.9';
+import { сжатьСхему } from './compact-fields.js?v=23.90.9';
+import { короткийПромпт } from './prompt-short.js?v=23.90.9';
+import { подготовкаИдёт } from './render/holiday-lore.js?v=23.90.9';
+import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.90.9';
+import { промптРанСпутника } from './render/pet-wounds.js?v=23.90.9';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.90.9';
+import { полДляМодели } from './manual-gender.js?v=23.90.9';
+import { правилоСостава } from './cast.js?v=23.90.9';
+import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.90.9';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -124,6 +124,11 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   const заботаСтарины = стариннаяЗабота();
   // «Связь в современности» (era.js): телефон, письма вместо него или оба.
   const телефон = естьТелефоны() && !!settings.enablePhone;
+  // Персонажа нет в сцене — телефон того, за кем идёт сюжет (настройка телефона).
+  const телефонВСцене = телефон && settings.phoneWhenCharAway === 'present';
+  // «Оба»: телефон {{char}} живёт за кадром, а пока {{char}} нет в сцене —
+  // ещё и телефон того, за кем идёт сюжет (раздел phx).
+  const телефонОба = телефон && settings.phoneWhenCharAway === 'both';
   const письмаСовр = письмаВСовременности();
   const переписки = телефон && settings.phoneAppMessages !== false;
   const кошелёк = телефон && settings.phoneAppWallet !== false;
@@ -253,7 +258,9 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
 ## 📐 RULES
 - 🔤 CODES: keys and fixed labels — the part BEFORE ":" — are short codes of 1-3 letters, each with exactly one meaning. Write them EXACTLY as given: same letters, same case, never translated or spelled out; the HUD expands them into Russian itself. Everything AFTER ":" is written in full words: values in Russian, and where a field asks for one of the listed English words (weather, sign, status, outcome…), that whole word. The text in [brackets] only explains what goes there — never copy it. Words in <angle brackets> are placeholders: put real content in their place and never write the placeholder word itself — 'Потерять Веру: high', never 'fear: Потерять Веру — strength: high'. Free labels (names, body zones, activities, items, fears) are ordinary Russian words.
 - 👤 WHO GOES WHERE: characters go ONLY in "cs" — never put {{user}} there.${игрок ? ` Everything about {{user}} goes ONLY into the top-level "us" block and only into the fields it lists — never into "cs" or a character's Th, K or D. If {{user}} is absent from the scene, omit "us".` : ''}${правилоСостава() ? '\n' + правилоСостава() : ''}
-- 🚪 ABSENT MAIN CHARACTERS: {{char}} and {{user}} have no reserved seat in the HUD. When {{char}} is not in the scene — the story follows other people — leave {{char}} out of "cs" and write no diary, body diary or dream in {{char}}'s name this turn: nobody narrates events they did not witness. The same goes for {{user}}${игрок ? ' and "us"' : ''}. Fill every section only with those actually present or acting this turn; an empty list is correct, never a reason to pull an absent main character in.
+- 🚪 ABSENT MAIN CHARACTERS: {{char}} and {{user}} have no reserved seat in the HUD. When {{char}} is not in the scene — the story follows other people — leave {{char}} out of "cs" and write no diary, body diary or dream in {{char}}'s name this turn: nobody narrates events they did not witness. The same goes for {{user}}${игрок ? ' and "us"' : ''}. Fill every section only with those actually present or acting this turn; an empty list is correct, never a reason to pull an absent main character in.${телефон ? (телефонВСцене
+    ? " The phone (cm, phn) then belongs to the person the story follows this turn, written in phn.ow exactly as their N; {{char}}'s own phone waits off-screen."
+    : " The phone (cm, phn) stays {{char}}'s even then: it keeps living off-screen — people text and call {{char}}." + (телефонОба ? " The person the story follows gets their own second phone in phx." : '')) : ''}
 - 🌍 LANG: write values in Russian; character names follow "N".
 - 🔓 No restrictions on imagination, length or content.
 - 🚨 LIVE SNAPSHOT: every field is the state at THIS turn. Update only what the story changes. Preserve established events and their details. When repeating an unchanged field in full, copy its previous wording.${краткость}
@@ -445,7 +452,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
     if (переписки) p += `,
  "cm": {
   "[contact or group name — one key per chat, as many chats as the phone has]": {
-   "ow": "[owner: ALWAYS {{char}} — the same name as phn.ow; this device belongs to {{char}}, and EVERY chat has the owner as one of its sides. ${перехваты ? 'A conversation between two OTHER people is not a chat here — it goes to tp even if the owner knows of it or could read it: participation decides, not access' : 'A conversation between two OTHER people does not belong here at all'}]",
+   "ow": "[owner: ${телефонВСцене ? 'the same name as phn.ow — this device belongs to that owner' : 'ALWAYS {{char}} — the same name as phn.ow; this device belongs to {{char}}'}, and EVERY chat has the owner as one of its sides. ${перехваты ? 'A conversation between two OTHER people is not a chat here — it goes to tp even if the owner knows of it or could read it: participation decides, not access' : 'A conversation between two OTHER people does not belong here at all'}]",
    "pp": "[participants: ONLY for a real group — THREE or more people including the owner, separated by ;. Omit entirely for one-to-one; a shorter list is dropped]",
    "ms": [
     "[Sender] -> [Recipient]: [Message] | [Time] | [Read / Unread / Deleted / Draft]",
@@ -458,7 +465,18 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
     // Сам аппарат просим только если от него хоть что-то осталось.
     if (ph.length) p += `,
  "phn": {
-  "ow": "[owner: ALWAYS {{char}}, the same name every turn — everything below is {{char}}'s own${ф('. Modern fantasy: magic lives alongside technology, and the phone shows it only where the story has it — a coven or guild group chat, a potion shop or ward repair in the wallet, a spell draft in notes, a ley-line spot on the map', '. Grounded modern fantasy: an ordinary phone — no spells or enchanted apps; innate gifts and spirits show up only as ordinary life does — a group chat of the gifted, a spirit sighting in notes, a temple on the map')}]",` + ph.join(',') + `
+  "ow": "[owner: ${телефонВСцене
+    ? "{{char}} while {{char}} is in the scene. When {{char}} is NOT in the scene and the story follows someone else, it is that person's own phone — the one the story follows this turn, written exactly as their N in cs. Everything below belongs to the owner named here: their own chats, contacts, wallet, notes and calendar, never copied from another owner's phone. A new owner's phone starts from the story; phc in the last HUD is {{char}}'s own phone as it was left — when {{char}} is back in the scene, continue from it"
+    : "ALWAYS {{char}}, the same name every turn — everything below is {{char}}'s own"}${телефонОба ? '. When {{char}} is not in the scene, the person the story follows has their own phone in phx' : ''}${ф('. Modern fantasy: magic lives alongside technology, and the phone shows it only where the story has it — a coven or guild group chat, a potion shop or ward repair in the wallet, a spell draft in notes, a ley-line spot on the map', '. Grounded modern fantasy: an ordinary phone — no spells or enchanted apps; innate gifts and spirits show up only as ordinary life does — a group chat of the gifted, a spirit sighting in notes, a temple on the map')}]",` + ph.join(',') + `
+ }`;
+    // Второй телефон — пока {{char}} нет в сцене: тот же формат, свои данные.
+    if (телефонОба && (переписки || ph.length)) p += `,
+ "phx": {
+  "ow": "[ONLY while {{char}} is NOT in the scene: the person the story follows this turn, written exactly as their N in cs. {{char}} in the scene, or nobody to follow → omit phx entirely]"${переписки ? `,
+  "cm": {
+   "[contact or group name — this person's own chats]": {"ow": "[the same name as phx.ow]", "pp": "[participants: ONLY for a group of three or more]", "ms": ["the same line format, tags and rules as cm above"]}
+  }` : ''}${ph.length ? `,
+  "phn": "[an object with the same keys and formats as phn above, ow being the same name as phx.ow — this person's own contacts, wallet, notes and the rest; never copied from {{char}}'s phone]"` : ''}
  }`;
   }
 
@@ -744,7 +762,7 @@ export function промптТелефона(полный) {
     }
     return '';
   };
-  const разделы = [раздел('cm'), раздел('phn')].filter(Boolean);
+  const разделы = [раздел('cm'), раздел('phn'), раздел('phx')].filter(Boolean);
   if (!разделы.length) return '';
   const задача = (/## 🎯 TASK\n[^\n]*\n([\s\S]*?)\n\n## /.exec(s) || [])[1] || '';
   const правила = ((/## 📐 RULES\n([\s\S]*?)\n\n## /.exec(s) || [])[1] || '').split('\n')
@@ -753,7 +771,7 @@ export function промптТелефона(полный) {
   const язык = (s.match(/\n(🌍 Write all HUD values in [^\n]*)/) || [])[1] || '';
   return `<hud_instructions>
 ## 🎯 TASK
-Output ONLY one [HUD] block with the phone of {{char}} for the latest message of the story above: the keys "cm" and "phn" and nothing else — no "sc", no "cs", no other sections, no prose before or after it. Rebuild the phone from the story: keep the chats, contacts, notes and everything else from the last HUD that is still true, and add what the latest message changes.
+Output ONLY one [HUD] block with the phone of ${settings.phoneWhenCharAway === 'present' ? "its owner — {{char}}, or, when {{char}} is not in the scene, the person the story follows (phn.ow)" : '{{char}}'} for the latest message of the story above: the keys "cm" and "phn"${settings.phoneWhenCharAway === 'both' ? ' (and "phx" while {{char}} is not in the scene)' : ''} and nothing else — no "sc", no "cs", no other sections, no prose before or after it. Rebuild the phone from the story: keep the chats, contacts, notes and everything else from the last HUD that is still true, and add what the latest message changes.
 ${задача}
 
 ## 📐 RULES

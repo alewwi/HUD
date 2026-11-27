@@ -4,6 +4,17 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.90.9 — 2026-11-27
+
+### Added
+- **"📱 Character not in the scene — phone"** (What the HUD shows → 📱 Personal phone). Three options:
+  - **"Still theirs, off-screen"** — as before: the phone stays with the card's character, and people text and call them while they are away. The model is now told this directly.
+  - **"Of whoever the story follows"** — the model writes the person the story follows as the owner, exactly as their card name. The HUD takes that person's location for Weather and Maps and their body for Health from their card. Each owner has their own phone: chats, contacts, wallet, notes and logs build up across turns separately. While the character is away, the model also sees their phone as it was left and continues it when they come back.
+  - **"Both"** — the character's phone lives off-screen, and while they are not in the scene a "📱 Phone · Lena" tab shows the phone of whoever the story follows. While the character is away, the phones take about twice as many tokens.
+
+### Fixed
+- When the model does not name the phone's owner, the phone is no longer labelled with the first person in the scene: the fallback owner is the card's character. The first person in the scene is used only with "Of whoever the story follows" while the character is away.
+
 ## 23.90.8 — 2026-11-27
 
 - **Names are compared as before again.** In 23.90.5–23.90.7 “Yan” and “Yan Kowalski”, “Kim” and “Kim White”, Kim and Kim Possible, “Anna” and “Anna Lee” counted as different people, and Russian case forms of names such as “Anna Li” were not recognized. A character named just “Yan”, “Kim” or “Min” was not found in the text. Now such a word counts as a surname only when the rest of the name looks Korean or Chinese: “Kim Minsu” and “Min Yoongi” are still Korean names, while “Kim White” and “Yan Kowalski” are not.

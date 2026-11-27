@@ -109,6 +109,10 @@ export const defaultSettings = {
 
   showComments: true,
   enablePhone: true,
+  // Чей телефон, когда {{char}} нет в сцене: 'char' — всегда {{char}} (за
+  // кадром), 'present' — того, за кем идёт сюжет; у каждого владельца свой;
+  // 'both' — телефон {{char}} за кадром и второй (phx) того, за кем сюжет.
+  phoneWhenCharAway: 'char',
   enableIntercepts: true,
   enableDiary: true,
   // Сколько за ход (Глубокая настройка → Сколько за ход, deep-fields.js):

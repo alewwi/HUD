@@ -12,9 +12,9 @@
 // значение, сообщение и путь; как найти блок по тексту на экране. Окно —
 // block-edit-ui.js, запись в чат — index.js.
 
-import { КАТАЛОГ } from './deep-fields.js?v=23.90.8';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.90.8';
-import { раныВкл, гуморыВкл } from './render/medieval-life.js?v=23.90.8';
+import { КАТАЛОГ } from './deep-fields.js?v=23.90.9';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.90.9';
+import { раныВкл, гуморыВкл } from './render/medieval-life.js?v=23.90.9';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const ПУСТО = /^(?:|empty|none|null|n\/a|нет|-|—)$/i;
@@ -492,7 +492,7 @@ export function путьПоТексту(hud, корни, текст) {
 /** Разделы HUD по вкладке карточки. */
 export const КОРНИ_ВКЛАДОК = {
   memory: ['me'], world: ['wd', 'ep'], diary: ['dy'], bodydiary: ['bd'], dreams: ['dr'], pets: ['pet'], babies: ['bb'],
-  intercepts: ['tp'], overheard: ['ov'], casket: ['sm', 'lt'], phone: ['phn', 'cm'], life: ['me'], combat: ['cb'],
+  intercepts: ['tp'], overheard: ['ov'], casket: ['sm', 'lt'], phone: ['phn', 'cm', 'phx'], life: ['me'], combat: ['cb'],
 };
 
 /** Соседние блоки для переключателя в окне: поля того же человека, разделы того же раздела. */

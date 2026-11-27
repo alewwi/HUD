@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.90.8**:
+The latest version is **23.90.9**:
 
+- "📱 Character not in the scene — phone": still theirs, off-screen; of whoever the story follows (location, body and chats — separate for each owner); or both — the character's phone plus a second tab with the phone of whoever the story follows.
 - Names are compared as before again: “Yan” is “Yan Kowalski”, Russian case forms are recognized; Korean namesakes and Japanese characters with the same given name stay separate people. A small chance of conception is no longer rounded to zero (“<1%”).
 - Korean, Chinese and Japanese names: Park Minsu and Park Minsuk, Zhang Wei and Zhang Ming, Aoi Tanaka and Aoi Yamada get their own cards, trust, avatars and contacts.
 - Off-screen pregnancy: after a positive test in the HUD the model tracks the Pregnancy block at once, while nobody in the story knows until they really find out.

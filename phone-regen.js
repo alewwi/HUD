@@ -7,10 +7,11 @@
 // место прежних, а всё остальное в блоке остаётся как было, до символа.
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { hudБлоки } from './hud-block.js?v=23.90.8';
+import { hudБлоки } from './hud-block.js?v=23.90.9';
 
 // Код раздела → имена, под которыми модель могла его написать.
-export const РАЗДЕЛЫ_ТЕЛЕФОНА = { cm: ['cm', 'chatsMap', 'chats', 'Переписки'], phn: ['phn', 'phone', 'Телефон'] };
+// phx — второй телефон (настройка «оба»): того, за кем сюжет, пока {{char}} нет.
+export const РАЗДЕЛЫ_ТЕЛЕФОНА = { cm: ['cm', 'chatsMap', 'chats', 'Переписки'], phn: ['phn', 'phone', 'Телефон'], phx: ['phx', 'phone2'] };
 
 const безОграды = (t) => String(t || '').replace(/^\s*`{3,}\s*json\s*/i, '').replace(/^\s*`{3,}\s*/, '').replace(/\s*`{3,}\s*$/, '').trim();
 // Починка блока HUD (hud-parser.js) переводит ключи в развёрнутый вид, а в HUD

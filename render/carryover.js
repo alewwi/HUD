@@ -14,21 +14,21 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.90.8';
-import { проставитьДень } from './msg-feed.js?v=23.90.8';
-import { normalizeJSONData } from '../schema.js?v=23.90.8';
-import { settings } from '../settings.js?v=23.90.8';
-import { статусРужья } from '../codes.js?v=23.90.8';
-import { extractHudBlock } from '../hud-block.js?v=23.90.8';
-import { развернутьHUD } from '../offload.js?v=23.90.8';
-import { namesLikelySame } from '../names.js?v=23.90.8';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.90.8';
-import { readParsed, writeParsed } from '../store.js?v=23.90.8';
-import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.90.8';
-import { ключСлуха } from './rumor-times.js?v=23.90.8';
-import { применитьСтупени, ступениВкл } from './trust-stages.js?v=23.90.8';
-import { getSafeUserName } from '../utils.js?v=23.90.8';
-import { полеВкл } from '../deep-fields.js?v=23.90.8';
+import { parseHUDComplex } from '../hud-parser.js?v=23.90.9';
+import { проставитьДень } from './msg-feed.js?v=23.90.9';
+import { normalizeJSONData } from '../schema.js?v=23.90.9';
+import { settings } from '../settings.js?v=23.90.9';
+import { статусРужья } from '../codes.js?v=23.90.9';
+import { extractHudBlock } from '../hud-block.js?v=23.90.9';
+import { развернутьHUD } from '../offload.js?v=23.90.9';
+import { namesLikelySame } from '../names.js?v=23.90.9';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.90.9';
+import { readParsed, writeParsed } from '../store.js?v=23.90.9';
+import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.90.9';
+import { ключСлуха } from './rumor-times.js?v=23.90.9';
+import { применитьСтупени, ступениВкл } from './trust-stages.js?v=23.90.9';
+import { getSafeUserName } from '../utils.js?v=23.90.9';
+import { полеВкл } from '../deep-fields.js?v=23.90.9';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -518,8 +518,24 @@ function склеитьЗвонки(старое, новое, предел) {
   return out.slice(-предел);
 }
 
-// Один ход поверх накопленного.
-function наложить(накоплено, ход, предел, пределСообщений) {
+// Чей телефон в этом ходе: phone.owner, иначе самый частый owner переписок.
+// '' — телефона в ходе нет или владелец не назван.
+const пустоеИмя = (v) => !v || /^(?:empty|none)$/i.test(String(v).trim());
+export function владелецТелефонаХода(ход) {
+  const явно = ход && ход.phone && ход.phone.owner;
+  if (!пустоеИмя(явно)) return String(явно).trim();
+  const голоса = new Map();
+  for (const ч of Object.values((ход && ход.chatsMap) || {})) {
+    const о = ч && ч.owner;
+    if (!пустоеИмя(о)) голоса.set(String(о).trim(), (голоса.get(String(о).trim()) || 0) + 1);
+  }
+  return [...голоса].sort((а, б) => б[1] - а[1])[0]?.[0] || '';
+}
+
+// Один ход поверх накопленного. безТелефона — телефон этого хода чужой
+// (другой владелец, настройка «того, за кем сюжет»): его переписки,
+// контакты, заметки и журналы в этот телефон не идут.
+function наложить(накоплено, ход, предел, пределСообщений, { безТелефона = false } = {}) {
   const out = накоплено;
   // Сообщения прошлого хода датируются его собственным днём: «08:30» там
   // значило тот день, а «вчера» отсчитывалось от него. Ход не трогаем —
@@ -527,7 +543,7 @@ function наложить(накоплено, ход, предел, предел
   const дата = (ход.scene && (ход.scene['Дата'] || ход.scene.Dt)) || '';
   const сДатой = (msgs) => Array.isArray(msgs) ? msgs.map(m => проставитьДень(m, дата)) : msgs;
   const чаты = {};
-  for (const [имя, чат] of Object.entries(ход.chatsMap || {})) чаты[имя] = { ...чат, messages: сДатой(чат && чат.messages) };
+  if (!безТелефона) for (const [имя, чат] of Object.entries(ход.chatsMap || {})) чаты[имя] = { ...чат, messages: сДатой(чат && чат.messages) };
   const перехваты = (ход.intercepts || []).map(п => ({ ...п, messages: сДатой(п && п.messages) }));
   out.chatsMap = склеитьЧаты(out.chatsMap, чаты, предел, пределСообщений);
   out.intercepts = склеитьПерехваты(out.intercepts, перехваты, предел, пределСообщений);
@@ -538,7 +554,7 @@ function наложить(накоплено, ход, предел, предел
   out.memory.secrets = склеитьОбъекты(out.memory.secrets, пам.secrets, s => s.fact, предел);
   out.memory.guns = склеитьРужья(out.memory.guns, пам.guns, предел);
 
-  const тел = ход.phone || {};
+  const тел = безТелефона ? {} : ход.phone || {};
   out.phone.contacts = склеитьОбъекты(out.phone.contacts, тел.contacts, c => c.name || c['Имя'], предел, ['realName']);
   out.phone.notes = склеитьОбъекты(out.phone.notes, тел.notes, x => x.title || x.text, предел);
   out.phone.gallery = склеитьОбъекты(out.phone.gallery, тел.gallery, x => x.title || x.desc, предел);
@@ -553,7 +569,7 @@ function наложить(накоплено, ход, предел, предел
   // их отдельно. Первое появление главнее: оно знает день точнее.
   out.phone.callLog = склеитьЗвонки(out.phone.callLog, звонкиИзЧатов(чаты), Math.max(предел, 100));
   // Часы: сон, шаги и пульс каждого хода — из них «Здоровье» рисует день и неделю.
-  out.phone.healthLog = склеитьЗдоровье(out.phone.healthLog, записьЗдоровья(ход));
+  if (!безТелефона) out.phone.healthLog = склеитьЗдоровье(out.phone.healthLog, записьЗдоровья(ход));
 
   // Средневековье: письма опознаём по отправителю, адресату и началу текста;
   // свежий ход обновляет статус (было запечатано — стало прочитано).
@@ -606,6 +622,21 @@ export function mergeCarryOver(data, messageElement) {
 
   const начало = Math.max(0, индекс - ходов);
   let былиПрошлые = false;
+  // «Того, за кем сюжет»: у каждого владельца свой телефон. Владелец этого
+  // хода — из него самого, а если телефона в ходе нет — из последнего хода,
+  // где он был: вкладка показывает тот телефон, без чужих переписок.
+  const прошлые = [];
+  for (let i = начало; i < индекс && i < chat.length; i++) прошлые.push([i, разобратьХод(chat[i])]);
+  const своиТелефоны = settings.phoneWhenCharAway === 'present' || settings.phoneWhenCharAway === 'both';
+  let владелецСейчас = своиТелефоны ? владелецТелефонаХода(data) : '';
+  if (своиТелефоны && !владелецСейчас) {
+    for (let j = прошлые.length - 1; j >= 0 && !владелецСейчас; j--) владелецСейчас = прошлые[j][1] ? владелецТелефонаХода(прошлые[j][1]) : '';
+  }
+  const чужойТелефон = (ход) => {
+    if (!владелецСейчас) return false;
+    const в = владелецТелефонаХода(ход);
+    return !!в && !namesLikelySame(в, владелецСейчас);
+  };
   const воспоминания = new Map();
   // Маршрут и истории настроений — за тот же день, что и текущий ход: модель
   // видит в снимке только их хвост (hud-snapshot.js, ХВОСТ_ИСТОРИИ) и пишет
@@ -633,12 +664,14 @@ export function mergeCarryOver(data, messageElement) {
       if (к && !слухиВпервые[к]) слухиВпервые[к] = база;
     }
   };
-  for (let i = начало; i < индекс && i < chat.length; i++) {
-    const прошлый = разобратьХод(chat[i]);
+  for (const [i, прошлый] of прошлые) {
     if (!прошлый) continue;
     былиПрошлые = true;
     отметитьСлухи(прошлый, i);
-    наложить(накоплено, прошлый, предел, пределСообщений);
+    наложить(накоплено, прошлый, предел, пределСообщений, { безТелефона: чужойТелефон(прошлый) });
+    // Телефон нынешнего владельца мог быть в том ходе вторым (phx, «оба»).
+    if (владелецСейчас && прошлый.phone2 && namesLikelySame(владелецТелефонаХода(прошлый.phone2), владелецСейчас) && чужойТелефон(прошлый))
+      наложить(накоплено, { scene: прошлый.scene, chatsMap: прошлый.phone2.chatsMap || {}, phone: прошлый.phone2.phone || {} }, предел, пределСообщений);
     копитьВоспоминания(воспоминания, прошлый);
     копитьДень(прошлый);
   }
@@ -696,8 +729,39 @@ export function mergeCarryOver(data, messageElement) {
       return { ...c, 'Общие воспоминания': свои[1].slice(-ВОСПОМИНАНИЙ).join('; ') };
     });
   }
+  // Второй телефон (phx, настройка «оба») — свой перенос по ходам.
+  if (data.phone2 && typeof data.phone2 === 'object') итог.phone2 = второйТелефонСПрошлым(data, прошлые, предел, пределСообщений, итог.phone);
   // Мир остаётся таким, каким его прислал текущий ход.
   return итог;
+}
+
+// Телефон того, за кем идёт сюжет: копим ходы, где телефон того же владельца
+// был вторым (phx) или основным (настройка «того, за кем сюжет» раньше).
+// Телефон {{char}} сюда не попадает, его переписки — тоже.
+function второйТелефонСПрошлым(data, прошлые, предел, пределСообщений, основной) {
+  const кто = владелецТелефонаХода(data.phone2);
+  const накоплено = {
+    chatsMap: {}, intercepts: [],
+    memory: { timeline: [], important: [], secrets: [], guns: [] },
+    phone: { contacts: [], notes: [], gallery: [], maps: [], calendar: [], search: [], callLog: [], healthLog: [], rumors: [], cityTalk: [] },
+    letters: [], overheard: [],
+    satchel: { notes: [], maps: [], calendar: [], documents: [], keepsakes: [] },
+  };
+  const тот = (тел) => !!тел && !!кто && namesLikelySame(владелецТелефонаХода(тел), кто);
+  for (const [, ход] of прошлые) {
+    if (!ход) continue;
+    const тел = тот(ход.phone2) ? ход.phone2 : тот({ phone: ход.phone, chatsMap: ход.chatsMap }) ? { phone: ход.phone, chatsMap: ход.chatsMap } : null;
+    if (тел) наложить(накоплено, { scene: ход.scene, chatsMap: тел.chatsMap || {}, phone: тел.phone || {} }, предел, пределСообщений);
+  }
+  наложить(накоплено, { scene: data.scene, chatsMap: data.phone2.chatsMap || {}, phone: data.phone2.phone || {} }, предел, пределСообщений);
+  const phone = { ...(data.phone2.phone || {}) };
+  for (const поле of ['contacts', 'notes', 'gallery', 'maps', 'calendar', 'search', 'callLog', 'healthLog']) {
+    if (накоплено.phone[поле].length) phone[поле] = накоплено.phone[поле];
+  }
+  // Слухи и разговоры города — общие для всего мира: как у основного телефона.
+  for (const поле of ['rumors', 'cityTalk']) if (основной && Array.isArray(основной[поле]) && !(Array.isArray(phone[поле]) && phone[поле].length)) phone[поле] = основной[поле];
+  if (основной && основной.__слухиВпервые) Object.defineProperty(phone, '__слухиВпервые', { value: основной.__слухиВпервые, enumerable: false, configurable: true });
+  return { chatsMap: Object.keys(накоплено.chatsMap).length ? накоплено.chatsMap : (data.phone2.chatsMap || {}), phone };
 }
 
 // Столько, сколько просит схема: маршрут до 20 строк, смены настроения до 12.

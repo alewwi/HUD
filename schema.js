@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.90.8';
-import { mapKey } from './utils.js?v=23.90.8';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.90.8';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.8';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.90.8';
+import { settings } from './settings.js?v=23.90.9';
+import { mapKey } from './utils.js?v=23.90.9';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.90.9';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.9';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.90.9';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -489,7 +489,21 @@ export function normalizeJSONData(parsed) {
     for (const [k, v] of Object.entries(b)) { const к = ДЛИННЫЕ[k] || k; if (['st', 'pt', 'in', 'cv', 'ad', 'nv', 'ch'].includes(к)) out[к] = Array.isArray(v) ? cleanArray(v).join(' | ') : toStr(v); }
     return valid(out.st) || valid(out.pt) ? out : null;
   };
+  // Второй телефон (phx, настройка телефона «оба»): телефон того, за кем идёт
+  // сюжет, пока {{char}} нет в сцене. Тот же формат — тот же разбор.
+  const сыройВторой = parsed.phx || parsed.phone2;
+  let phone2 = null;
+  if (сыройВторой && typeof сыройВторой === 'object' && !Array.isArray(сыройВторой)) {
+    const чаты = сыройВторой.cm ?? сыройВторой.chatsMap;
+    const аппарат = сыройВторой.phn ?? сыройВторой.phone;
+    const в = normalizeJSONData({ cm: чаты && typeof чаты === 'object' ? чаты : {}, phn: аппарат && typeof аппарат === 'object' && !Array.isArray(аппарат) ? аппарат : {} });
+    const ow = toStr(сыройВторой.ow ?? сыройВторой.owner);
+    const тел = { ...(в.phone || {}) };
+    if (ow && !toStr(тел.owner)) тел.owner = ow;
+    if (Object.keys(в.chatsMap || {}).length || toStr(тел.owner)) phone2 = { chatsMap: в.chatsMap || {}, phone: тел };
+  }
   return {
+    phone2,
     // Фаза близости приходит кодом (fp, cx…); шкала фаз узнаёт полные слова.
     scene: mapKeys(parsed.scene), characters: chars.map(c => сосвоими(c, mapKeys(c))).map(c => { if (c['Фаза близости']) c['Фаза близости'] = фазаБлизости(c['Фаза близости']); return безМеткиРаны(c); }), user: безМеткиРаны(сосвоими(parsed.user, mapKeys(parsed.user))),
     // Свои статы всей истории (custom-stats.js): корневой "cst".

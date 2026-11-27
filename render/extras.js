@@ -4,14 +4,14 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.90.8';
-import { решениеПоПодписи, подписьСна } from '../disputes.js?v=23.90.8';
-import { settings } from '../settings.js?v=23.90.8';
-import { аватаркаПоИмени } from './views.js?v=23.90.8';
-import { магияВМире } from '../era.js?v=23.90.8';
-import { кодЯзыка } from '../i18n.js?v=23.90.8';
-import { реальныйПортрет } from './pet-real.js?v=23.90.8';
-import { блокРанСпутника, состояниеПоРанам } from './pet-wounds.js?v=23.90.8';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.90.9';
+import { решениеПоПодписи, подписьСна } from '../disputes.js?v=23.90.9';
+import { settings } from '../settings.js?v=23.90.9';
+import { аватаркаПоИмени } from './views.js?v=23.90.9';
+import { магияВМире } from '../era.js?v=23.90.9';
+import { кодЯзыка } from '../i18n.js?v=23.90.9';
+import { реальныйПортрет } from './pet-real.js?v=23.90.9';
+import { блокРанСпутника, состояниеПоРанам } from './pet-wounds.js?v=23.90.9';
 
 // Умения спутника — не больше четырёх: модель копит их ходами, и в карточке
 // выстраивалась стена пилюль. Короткие (до шести слов) — вперёд, в порядке

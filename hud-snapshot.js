@@ -12,25 +12,25 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.90.8';
+import { settings } from './settings.js?v=23.90.9';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { тМодели as т } from './i18n.js?v=23.90.8';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.90.8';
-import { mapKey, имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.8';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.90.8';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.90.8';
-import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.90.8';
-import { упомянутВТексте } from './names.js?v=23.90.8';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.8';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.90.8';
-import { доверияБезПричин } from './turn-notes.js?v=23.90.8';
-import { ступениВСнимке } from './render/trust-stages.js?v=23.90.8';
-import { замкиВСнимке } from './render/faction-locks.js?v=23.90.8';
-import { людиHUD, безЛюдей } from './faction-groups.js?v=23.90.8';
+import { тМодели as т } from './i18n.js?v=23.90.9';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.90.9';
+import { mapKey, имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.9';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.90.9';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.90.9';
+import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.90.9';
+import { упомянутВТексте, namesLikelySame } from './names.js?v=23.90.9';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.9';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.90.9';
+import { доверияБезПричин } from './turn-notes.js?v=23.90.9';
+import { ступениВСнимке } from './render/trust-stages.js?v=23.90.9';
+import { замкиВСнимке } from './render/faction-locks.js?v=23.90.9';
+import { людиHUD, безЛюдей } from './faction-groups.js?v=23.90.9';
 const имяИгрокаСнимка = () => { try { return window.SillyTavern?.getContext?.()?.name1 || ''; } catch (_) { return ''; } };
-import { применитьРучнойПол } from './manual-gender.js?v=23.90.8';
-import { составСнимка } from './cast.js?v=23.90.8';
-import { почиститьСнимок } from './render/medieval-life.js?v=23.90.8';
+import { применитьРучнойПол } from './manual-gender.js?v=23.90.9';
+import { составСнимка } from './cast.js?v=23.90.9';
+import { почиститьСнимок } from './render/medieval-life.js?v=23.90.9';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -126,6 +126,15 @@ export function HUDвКодах(текстБлока, { сПоворотом = f
   if (объект(к.us)) к.us = свернутьПоля(к.us, КОДЫ_ИГРОКА);
   if (объект(к.bb)) к.bb = [к.bb];
   if (Array.isArray(к.bb)) к.bb = к.bb.map(м => (объект(м) ? свернутьПоля(м, КОДЫ_МАЛЫША) : м));
+  // Второй телефон (phx): внутри те же cm и phn — сворачиваем их так же.
+  const второй = к.phx || к.phone2;
+  if (объект(второй)) {
+    delete к.phone2;
+    const чаты = второй.cm ?? второй.chatsMap, аппарат = второй.phn ?? второй.phone;
+    const в = свернутьКоды({ ...(объект(чаты) ? { cm: чаты } : {}), ...(объект(аппарат) ? { phn: аппарат } : {}) });
+    const ow = второй.ow ?? второй.owner;
+    к.phx = { ...(ow ? { ow } : {}), ...(объект(в.cm) ? { cm: в.cm } : {}), ...(объект(в.phn) ? { phn: в.phn } : {}) };
+  }
   return к;
 }
 
@@ -232,6 +241,12 @@ export function собратьСнимок(текстБлока) {
   применитьРучнойПол(к);
   // Глубокая настройка: выключенное модель не видит и в снимке.
   убратьВыключенное(к, выключеноВОтвете(settings));
+  // И внутри второго телефона (phx): там те же cm и phn.
+  if (объект(к.phx)) {
+    const внутри = { ...(объект(к.phx.cm) ? { cm: к.phx.cm } : {}), ...(объект(к.phx.phn) ? { phn: к.phx.phn } : {}) };
+    убратьВыключенное(внутри, выключеноВОтвете(settings));
+    for (const код of ['cm', 'phn']) { if (объект(внутри[код])) к.phx[код] = внутри[код]; else delete к.phx[код]; }
+  }
 
   // Не состояние, а свежий текст хода: запись дневника, дневник тела, сны,
   // гороскоп, «судьба» и комментарии модель каждый ход пишет заново. В снимке
@@ -266,6 +281,13 @@ export function собратьСнимок(текстБлока) {
   // (render/carryover.js). Целиком они стоили около трети снимка памяти и
   // переписывались слово в слово.
   if (объект(к.cm)) for (const ч of Object.values(к.cm)) { if (объект(ч) && Array.isArray(ч.ms)) ч.ms = ч.ms.filter(непусто).slice(-ХВОСТ_ПЕРЕПИСКИ); }
+  // Второй телефон (phx) — только при настройке «оба»; переписки тоже хвостом.
+  if (!settings.enablePhone || settings.phoneWhenCharAway !== 'both') delete к.phx;
+  else if (объект(к.phx)) {
+    if (выкл('phoneAppMessages')) delete к.phx.cm;
+    if (объект(к.phx.cm)) for (const ч of Object.values(к.phx.cm)) { if (объект(ч) && Array.isArray(ч.ms)) ч.ms = ч.ms.filter(непусто).slice(-ХВОСТ_ПЕРЕПИСКИ); }
+    if (объект(к.phx.phn) && выкл('phoneAppHealth')) delete к.phx.phn.hl;
+  }
   if (объект(к.me)) {
     if (объект(к.me.rt)) for (const кто of Object.keys(к.me.rt)) { if (Array.isArray(к.me.rt[кто])) к.me.rt[кто] = к.me.rt[кто].filter(непусто).slice(-ХВОСТ_ИСТОРИИ); }
     if (объект(к.me.md)) for (const кто of Object.values(к.me.md)) { if (объект(кто) && Array.isArray(кто.hs)) кто.hs = кто.hs.filter(непусто).slice(-ХВОСТ_ИСТОРИИ); }
@@ -464,6 +486,56 @@ export function решитьБой(снимок, тексты) {
 }
 
 // Строка снимка для промта: компактный JSON. Без близости — без её полей.
+// «Того, за кем сюжет» (настройка телефона): в последнем HUD телефон другого
+// владельца. Модели нужен и телефон {{char}}, каким он его оставил, — чтобы,
+// когда {{char}} вернётся в сцену, продолжить его, а не переписать в него
+// чужие чаты. Ищем последний HUD чата, где телефон был у {{char}}.
+const пустоеИмя = (v) => !v || /^(?:empty|none)$/i.test(String(v).trim());
+function владелецВСнимке(с) {
+  if (объект(с.phn) && !пустоеИмя(с.phn.ow)) return String(с.phn.ow).trim();
+  for (const ч of Object.values(объект(с.cm) ? с.cm : {})) if (объект(ч) && !пустоеИмя(ч.ow)) return String(ч.ow).trim();
+  return '';
+}
+// Снимок за один ход строится несколько раз (ответ, отдельный запрос HUD,
+// перегенерация), а поиск разбирает до 60 HUD — помним последний итог.
+let кэшТелефонаЧара = { ключ: '', итог: null };
+export function телефонЧараИзИстории(имяЧара, чат = null, глубина = 60) {
+  if (!имяЧара) return null;
+  if (!Array.isArray(чат)) { try { чат = window.SillyTavern?.getContext?.()?.chat; } catch (_) { чат = null; } }
+  if (!Array.isArray(чат)) return null;
+  const последний = чат[чат.length - 1];
+  const ключ = [имяЧара, чат.length, String((последний && последний.mes) || '').length, глубина].join('|');
+  if (кэшТелефонаЧара.ключ === ключ && кэшТелефонаЧара.чат === чат) return кэшТелефонаЧара.итог && JSON.parse(JSON.stringify(кэшТелефонаЧара.итог));
+  const итог = искатьТелефонЧара(имяЧара, чат, глубина);
+  кэшТелефонаЧара = { ключ, чат, итог };
+  return итог && JSON.parse(JSON.stringify(итог));
+}
+function искатьТелефонЧара(имяЧара, чат, глубина) {
+  for (let j = чат.length - 1, n = 0; j >= 0 && n < глубина; j--) {
+    const m = чат[j];
+    if (!m || m.is_user || m.is_system) continue;
+    n++;
+    const блок = extractHudBlock(String(m.mes || ''));
+    if (!блок) continue;
+    let с = null;
+    try { с = собратьСнимок(блок); } catch (_) { с = null; }
+    if (!объект(с) || (!объект(с.phn) && !объект(с.cm))) continue;
+    const ow = владелецВСнимке(с);
+    if (ow && namesLikelySame(ow, имяЧара)) return { ...(объект(с.cm) ? { cm: с.cm } : {}), ...(объект(с.phn) ? { phn: с.phn } : {}) };
+  }
+  return null;
+}
+function добавитьТелефонЧара(копия) {
+  if (!settings.enablePhone || settings.phoneWhenCharAway !== 'present' || объект(копия.phc)) return;
+  if (!объект(копия.phn) && !объект(копия.cm)) return;
+  let чар = '';
+  try { чар = String(window.SillyTavern?.getContext?.()?.name2 || '').trim(); } catch (_) { чар = ''; }
+  const ow = владелецВСнимке(копия);
+  if (!чар || /^\{\{char\}\}$/i.test(чар) || !ow || namesLikelySame(ow, чар)) return;
+  const тел = телефонЧараИзИстории(чар);
+  if (тел) копия.phc = тел;
+}
+
 export function строкаСнимка(снимок, nsfw, сцена = null) {
   if (!объект(снимок)) return '';
   const копия = JSON.parse(JSON.stringify(снимок));
@@ -472,6 +544,7 @@ export function строкаСнимка(снимок, nsfw, сцена = null) 
   // Состав по настройке и пол: цикл и беременность мужчине модель не видит (cast.js).
   применитьРучнойПол(копия);
   try { составСнимка(копия); } catch (_) { /* как было */ }
+  try { добавитьТелефонЧара(копия); } catch (_) { /* без телефона {{char}} */ }
   // Номер и давность у записей памяти (memory-age.js) — после правок игрока:
   // те сверяют записи по тексту, а пометка его меняет.
   if (сцена && typeof сцена.пометить === "function") { try { сцена.пометить(копия); } catch (_) { /* без пометок */ } }
@@ -545,7 +618,7 @@ const НАЗВАНИЯ_ПОЛЕЙ = {
   Dur: 'duration', Prt: 'protection', Org: 'orgasm readiness', Vit: 'vitals', Snd: 'sounds', BM: 'body map', W: 'intimate state',
   Kn: 'kinks', Ft: 'fetishes', NG: 'never', NT: 'turn-offs', ND: 'intimate detail', AC: 'aftercare', UW: 'intimate state',
 };
-const НАЗВАНИЯ_РАЗДЕЛОВ = { us: '{{user}}', cm: 'chats (last messages each; HUD keeps the earlier ones)', phn: 'phone', tp: 'intercepts (last message each)', pet: 'companions', sm: 'casket', lt: 'letters', ov: 'overheard', ep: 'medieval life' };
+const НАЗВАНИЯ_РАЗДЕЛОВ = { us: '{{user}}', cm: 'chats (last messages each; HUD keeps the earlier ones)', phn: 'phone', phx: "second phone — of the person the story follows while {{char}} is away (same format as cm and phn; omit it once {{char}} is back)", phc: "{{char}}'s own phone as it was left (HUD keeps it; continue it when {{char}} is back in the scene, never write phc yourself)", tp: 'intercepts (last message each)', pet: 'companions', sm: 'casket', lt: 'letters', ov: 'overheard', ep: 'medieval life' };
 const ПОЯСНЕНИЯ = { md: 'mood (hs: last lines; HUD keeps the earlier ones)', rt: 'route (last lines; HUD keeps the earlier ones — add new moves after them)', hd: 'does NOT know', knw: 'knows', stt: 'status', lv: 'level', f: 'fact', n: 'name', src: 'source' };
 
 export function легендаСнимка(строка) {
