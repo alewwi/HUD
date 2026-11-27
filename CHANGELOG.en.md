@@ -4,6 +4,27 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.90.10 — 2026-11-27
+
+### Added
+- **✍️ Writing as the player.** The player has no phone of their own: they write in the character's phone, and the screen is the character's, so your bubbles are on the left.
+  - **In the chat with you** (Messages) there is a "Message…" field with your avatar, "+" and send; Enter sends. The chat is recognised even when the character saved you under another name in their contacts, such as your surname.
+  - **The pencil in Messages** opens "Who to write to": the phone's owner (a chat in Messages), or any HUD character or another name (a chat in Intercepts with an input field, "💬 Chat"). Your own chats also show with the Terminal, Transcript and Reels intercept views, as a phone below them.
+  - **"+"**: voice (length from the words), photo, video, a call (the model decides whether they pick up) and a poll in group chats.
+  - **Your own picture**: Photo offers "Description" (a tile, as before) or "My own picture" from your gallery, with an optional "who or what is in the photo" ("this is me"). The picture is compressed and stored in Tavern's files, and the model sees it — most models understand photos and memes. Without a description the model writes a short one itself, and later turns know what is in the shot. If the model or source does not accept images, the reply is based on the description.
+  - **Long press on a bubble**: under the reactions, Reply (a quote above the field), Forward (to any of your chats) and Delete for your own unread message.
+  - **The reply**: your line goes into the latest HUD right away — no new chat message — and the model writes the reply in a separate request after a pause while you are not typing, so two or three messages in a row go as one question. "… is typing" shows above the field, and the reply appears one message at a time. The character may not answer, leave you on read, or call back. No reply within "Wait for a reply" shows "No reply came · Retry".
+  - **Swipes**: the chat stays in the swipe where it was written and goes only into the next model reply, as a "between turns the player was texting" note, also when the HUD comes in a separate request. Regenerating this turn's HUD or phone does not erase it.
+  - **Settings** (What the HUD shows → next to Intercepts): what the model sees when it replies — card, persona, HUD, lorebooks, how many history messages, token limit, pictures and "into the next reply".
+- **Trust: "All the way to …".** When the model wants to raise a relationship by several stages, a button next to Allow opens them all at once.
+
+### Changed
+- **Trust stages.** A "[held: stage]" mark tells the model to keep the number at the top of the open stage; a first meeting exactly at the top of a stage is not yet a request to go higher; a big drop closes the stages above at once, not after a redraw. In the model's snapshot the player is always first in the trust line.
+- **A contact saved by surname or first name** ("Smith" for "Vera Smith") is no longer marked as a fake name; Contacts shows the full name under it.
+
+### Fixed
+- In the phone and intercepts, "User", "{{user}}" and "<user>" from the model become your persona's name — in the chat name, sender, recipient and participants. Before, such messages also sat on the right, like the owner's own.
+
 ## 23.90.9 — 2026-11-27
 
 ### Added

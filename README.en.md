@@ -659,8 +659,11 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.90.9**:
+The latest version is **23.90.10**:
 
+- ✍️ Writing as the player: an input field in the chat with you in the character's phone, a "Who to write to" pencil — to the owner or any character (in Intercepts), "+" with voice, photo, video, call and poll, reply and forward by long press. The model writes the reply in a separate request straight into the latest HUD, one message at a time and while you are not typing; the chat stays in its swipe and goes into the next reply.
+- Your own picture in Photo: the model sees the photo or meme, and without a description writes what is in the shot itself.
+- Trust: "All the way to …" opens several stages at once; a contact saved by surname is not a "fake name"; "User" from the model in the phone becomes your persona's name.
 - "📱 Character not in the scene — phone": still theirs, off-screen; of whoever the story follows (location, body and chats — separate for each owner); or both — the character's phone plus a second tab with the phone of whoever the story follows.
 - Names are compared as before again: “Yan” is “Yan Kowalski”, Russian case forms are recognized; Korean namesakes and Japanese characters with the same given name stay separate people. A small chance of conception is no longer rounded to zero (“<1%”).
 - Korean, Chinese and Japanese names: Park Minsu and Park Minsuk, Zhang Wei and Zhang Ming, Aoi Tanaka and Aoi Yamada get their own cards, trust, avatars and contacts.

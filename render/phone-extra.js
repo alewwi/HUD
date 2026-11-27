@@ -9,19 +9,19 @@
 //   «Карты»   — сохранённые места на нарисованной схеме города.
 // Кроме «Здоровья» всё строится из того, что уже есть в HUD.
 
-import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.90.9';
-import { английский } from '../i18n.js?v=23.90.9';
-import { градусы, ДЛИТ } from '../units.js?v=23.90.9';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.9';
-import { G_ICONS } from './icons.js?v=23.90.9';
-import { parseCall, безШапокСообщения } from './msg-parts.js?v=23.90.9';
-import { контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.90.9';
-import { parseMsgParties } from './phone-common.js?v=23.90.9';
-import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.90.9';
-import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.90.9';
-import { namesLikelySame } from '../names.js?v=23.90.9';
-import { зоныКарты } from './intimacy.js?v=23.90.9';
-import { сводкаБолезней } from './character.js?v=23.90.9';
+import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.90.10';
+import { английский } from '../i18n.js?v=23.90.10';
+import { градусы, ДЛИТ } from '../units.js?v=23.90.10';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.10';
+import { G_ICONS } from './icons.js?v=23.90.10';
+import { parseCall, безШапокСообщения } from './msg-parts.js?v=23.90.10';
+import { контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.90.10';
+import { parseMsgParties } from './phone-common.js?v=23.90.10';
+import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.90.10';
+import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.90.10';
+import { namesLikelySame } from '../names.js?v=23.90.10';
+import { зоныКарты } from './intimacy.js?v=23.90.10';
+import { сводкаБолезней } from './character.js?v=23.90.10';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const пусто = (v) => !текст(v) || /^(empty|none|null|нет|пусто)$/i.test(текст(v));
@@ -189,7 +189,7 @@ export function buildCallsApp(chatsMap, журнал, владелец, сцен
       return `<div class="hud-calls-row is-${з.outcome} dir-${з.dir} kind-${видЗвонка(з)}">
       ${лицо(личность ? личность.сохранён : з.кто, 'hud-calls-ava')}
       <span class="hud-calls-body">
-        <b>${defeatWI(escapeHtml(личность ? личность.сохранён : з.кто))}${з.раз > 1 ? ` <em>(${з.раз})</em>` : ''}</b>${личность ? ложноеИмяHTML(личность) : ''}
+        <b>${defeatWI(escapeHtml(личность ? личность.сохранён : з.кто))}${з.раз > 1 ? ` <em>(${з.раз})</em>` : ''}</b>${личность && личность.ложное ? ложноеИмяHTML(личность) : ''}
         <small><i class="hud-calls-ico">${значок}</i>${escapeHtml(подпись)}</small>
         ${з.заметка ? `<span class="hud-calls-note">${defeatWI(escapeHtml(з.заметка))}</span>` : ''}
       </span>

@@ -7,11 +7,11 @@
 // жил в phone.js, и в перехватах теги оставались сырым текстом посреди
 // сообщения просто потому, что до них не доходили руки.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.90.9';
-import { ДЛИТ } from '../units.js?v=23.90.9';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.9';
-import { G_ICONS } from './icons.js?v=23.90.9';
-import { namesLikelySame } from '../names.js?v=23.90.9';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.90.10';
+import { ДЛИТ } from '../units.js?v=23.90.10';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.10';
+import { G_ICONS } from './icons.js?v=23.90.10';
+import { namesLikelySame } from '../names.js?v=23.90.10';
 
 // Звонок: [CALL: исходящий, принят, 4:12]. Порядок слов внутри не важен —
 // разбираем по смыслу, а не по позиции: модели путают порядок постоянно.
@@ -30,11 +30,25 @@ export function parseCall(text) {
   return { tag: m[0], dir, outcome, dur };
 }
 
+// Настоящая картинка, которую игрок отправил из своей галереи (user-chat-ui.js):
+// файл в user/files, ссылка — в конце описания снимка: «(file: hud-photo-….jpg)».
+// Модели так понятно, и она переносит строку из хода в ход вместе с файлом.
+// Чужие имена (модель придумала свой «file») не считаются: только hud-photo-*.
+const ФАЙЛ_СНИМКА = /\s*\(file:\s*(hud-photo-[A-Za-z0-9_-]+\.(?:jpe?g|png|webp|gif))\s*\)\s*$/i;
+export const путьСнимка = (файл) => '/user/files/' + файл;
+/** Описание снимка → { описание без ссылки, файл или '' }. */
+export function файлСнимка(desc) {
+  const s = String(desc || '');
+  const m = s.match(ФАЙЛ_СНИМКА);
+  return m ? { описание: s.slice(0, m.index).trim(), файл: m[1] } : { описание: s.trim(), файл: '' };
+}
+
 // Фото: [PHOTO: что на снимке] или [ФОТО: ...]. Подпись остаётся подписью.
 function parsePhoto(text) {
   const m = String(text || '').match(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*([^\]]*)\]/i);
   if (!m) return null;
-  return { tag: m[0], desc: (m[1] || '').trim() };
+  const { описание, файл } = файлСнимка(m[1]);
+  return { tag: m[0], desc: описание, file: файл };
 }
 
 // Видео: [VIDEO: что в кадре] или [ВИДЕО: ...]. Длительность необязательна и
@@ -277,11 +291,13 @@ export function buildBubbleInner(rawMessage, { владелец = '' } = {}) {
   const цвет = (seed) => HUD_AVATAR_COLORS[hudHashSeed(seed) % HUD_AVATAR_COLORS.length];
 
   if (photo) {
-    return шапка + `<div class="hud-msg-photo hud-msg-media" role="button" tabindex="0" data-media="photo"
-              data-media-desc="${escapeHtml(photo.desc)}"
-              title="Открыть описание снимка"
+    // Настоящая картинка — поверх плитки; не загрузилась — остаётся плитка.
+    const картинка = photo.file ? `<img class="hud-msg-photo-img" src="${escapeHtml(путьСнимка(photo.file))}" alt="${escapeHtml(photo.desc || 'Фото')}" loading="lazy" decoding="async">` : '';
+    return шапка + `<div class="hud-msg-photo hud-msg-media${photo.file ? ' has-img' : ''}" role="button" tabindex="0" data-media="photo"
+              data-media-desc="${escapeHtml(photo.desc)}"${photo.file ? ` data-media-src="${escapeHtml(путьСнимка(photo.file))}"` : ''}
+              title="${photo.file ? 'Открыть снимок' : 'Открыть описание снимка'}"
               style="--shot: ${цвет(photo.desc || 'photo')}">
-           <span class="hud-msg-photo-frame">${G_ICONS.image}</span>
+           <span class="hud-msg-photo-frame">${G_ICONS.image}</span>${картинка}
            ${photo.desc ? `<span class="hud-msg-photo-cap">${defeatWI(escapeHtml(photo.desc))}</span>` : ''}
          </div>${подпись}`;
   }

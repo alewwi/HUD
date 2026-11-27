@@ -3,15 +3,25 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { имяДляВкладки } from '../utils.js?v=23.90.9';
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.9';
-import { фотоПоИмени } from '../avatars.js?v=23.90.9';
+import { имяДляВкладки } from '../utils.js?v=23.90.10';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.10';
+import { фотоПоИмени } from '../avatars.js?v=23.90.10';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { собратьЛенту, моментПоследнего, тотЖеВПереписке, разобратьСообщение, непрочитанные, полеВремени } from './msg-feed.js?v=23.90.9';
-import { видБлока } from './views.js?v=23.90.9';
-import { видПерехватов, строкаПротокола } from './views-diary.js?v=23.90.9';
+import { собратьЛенту, моментПоследнего, тотЖеВПереписке, разобратьСообщение, непрочитанные, полеВремени } from './msg-feed.js?v=23.90.10';
+import { видБлока } from './views.js?v=23.90.10';
+import { видПерехватов, строкаПротокола } from './views-diary.js?v=23.90.10';
+import { settings } from '../settings.js?v=23.90.10';
+import { getSafeUserName } from '../utils.js?v=23.90.10';
+import { G_ICONS } from './icons.js?v=23.90.10';
+import { перехватИгрока } from '../user-chat.js?v=23.90.10';
+import { строкаВводаИгрока } from './messenger.js?v=23.90.10';
+
+// Переписка игрока с другим человеком (user-chat-ui.js): лежит в перехватах
+// как телефон того, кому игрок пишет, — с полем ввода вместо «только чтение».
+const своя = (i) => settings.userChat !== false && перехватИгрока({ tg: i && i.target, cn: i && i.chatName, pp: i && i.participants, ms: i && i.messages }, getSafeUserName());
+const кнопкаНаписать = () => (settings.userChat !== false ? `<button type="button" class="hud-phone-subtab hud-uc-new-tab" data-uc="new" title="Написать от лица игрока" aria-label="Написать">${G_ICONS.pen}</button>` : '');
 
 // Кружок отправителя в перехвате: фото (ручное, персона, карточка) фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
@@ -117,9 +127,20 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
   // Свой вид (Кастомизация → Вид блоков); «Телефон» — макет ниже. Свежие сверху.
   const вид = видБлока('interceptsView');
   if (вид && вид !== 'classic') {
-    const свой = видПерехватов(interceptsData.slice().sort((a, b) => моментПоследнего(b && b.messages, sceneDate) - моментПоследнего(a && a.messages, sceneDate)).map(перепискаДляВида), вид, uid);
-    if (свой) return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-intercepts-alt">${свой}</div></div>`;
+    // Чужие переписки — в своём виде; переписки игрока — телефоном ниже: в них пишут.
+    const чужие = interceptsData.filter(i => !своя(i));
+    const свои = interceptsData.filter(своя);
+    const свой = чужие.length ? видПерехватов(чужие.slice().sort((a, b) => моментПоследнего(b && b.messages, sceneDate) - моментПоследнего(a && a.messages, sceneDate)).map(перепискаДляВида), вид, uid) : '';
+    if (свой || !чужие.length) {
+      const телефон = свои.length ? `<div class="hud-phone-mockup intercept-mode hud-uc-own">${макетПерехватов(свои, uid, sceneDate)}</div>` : (кнопкаНаписать() ? `<div class="hud-uc-own-empty">${кнопкаНаписать()}</div>` : '');
+      return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">${свой ? `<div class="hud-intercepts-alt">${свой}</div>` : ''}${телефон}</div>`;
+    }
   }
+  return html + макетПерехватов(interceptsData, uid, sceneDate) + `</div></div>`;
+}
+
+// Классический макет: вкладки по перепискам и телефон с лентой.
+function макетПерехватов(interceptsData, uid, sceneDate) {
   let chatTabsHeader = `<div class="hud-phone-subtabs">`;
   let chatBodies = ``;
 
@@ -139,6 +160,7 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
     // Направление сообщений ниже не меняем: target по-прежнему определяет владельца.
     const targetName = sanitizeText(intercept.target || 'Unknown').trim();
     const chatName = имяСобеседника(targetName, sanitizeText(intercept.chatName || 'Chat').trim());
+    const свой = своя(intercept);
 
     // Время — из поля времени, а не первое «чч:мм» в строке: оно бывает и в
     // тексте. Непрочитанное считается так же, как в телефоне (msg-feed.js).
@@ -150,13 +172,13 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
       });
     }
 
-    chatTabsHeader += `<button class="hud-phone-subtab intercept-tab ${idx === 0 ? 'active' : ''}" data-subtarget="subhack-${uid}-${idx}">👁️ ${defeatWI(escapeHtml(целей.get(ключЦели(intercept)) > 1 && chatName && chatName !== 'Chat' ? первое(targetName) + ' ↔ ' + первое(chatName) : имяБезПриставки(targetName)))} ${unreadCount > 0 ? `<span class="hud-unread-badge">${unreadCount}</span>` : ''}</button>`;
+    chatTabsHeader += `<button class="hud-phone-subtab intercept-tab ${idx === 0 ? 'active' : ''}" data-subtarget="subhack-${uid}-${idx}">${свой ? '💬' : '👁️'} ${defeatWI(escapeHtml(свой ? имяБезПриставки(targetName) : целей.get(ключЦели(intercept)) > 1 && chatName && chatName !== 'Chat' ? первое(targetName) + ' ↔ ' + первое(chatName) : имяБезПриставки(targetName)))} ${unreadCount > 0 ? `<span class="hud-unread-badge">${unreadCount}</span>` : ''}</button>`;
 
-    chatBodies += `<div class="hud-phone-subbody ${idx === 0 ? 'active' : ''}" id="subhack-${uid}-${idx}">
-      <div class="hud-phone-statusbar"><span class="hud-phone-time">${escapeHtml(latestTime)}</span><span class="hud-phone-owner-label intercept-status">📡 ПЕРЕХВАТ (${escapeHtml(имяБезПриставки(targetName))})</span><div class="hud-phone-status-icons"><span class="hud-intercept-icon">⚠</span></div></div>
+    chatBodies += `<div class="hud-phone-subbody ${idx === 0 ? 'active' : ''}" id="subhack-${uid}-${idx}"${свой ? ` data-user-chat="1" data-uc-where="tp" data-uc-target="${escapeHtml(targetName)}" data-uc-chat="${escapeHtml(sanitizeText(intercept.chatName || '').trim())}"` : ''}>
+      <div class="hud-phone-statusbar"><span class="hud-phone-time">${escapeHtml(latestTime)}</span><span class="hud-phone-owner-label intercept-status">${свой ? `💬 ПЕРЕПИСКА (${escapeHtml(имяБезПриставки(targetName))})` : `📡 ПЕРЕХВАТ (${escapeHtml(имяБезПриставки(targetName))})`}</span><div class="hud-phone-status-icons"><span class="hud-intercept-icon">⚠</span></div></div>
       <div class="hud-phone-header hud-intercept-header">
         <span class="hud-phone-back hud-intercept-icon">⟨</span>
-        <div class="hud-phone-title-group" ${состав ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(имяБезПриставки(chatName)))} ${состав ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${состав ? `<div class="hud-phone-participants-list">👥 Участники: ${escapeHtml(состав)}</div>` : ''}</div>
+        <div class="hud-phone-title-group" ${состав ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(имяБезПриставки(свой ? targetName : chatName)))} ${состав ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${состав ? `<div class="hud-phone-participants-list">👥 Участники: ${escapeHtml(состав)}</div>` : ''}</div>
         <span class="hud-phone-options hud-intercept-icon">⋮</span>
       </div>
       <div class="hud-phone-chat-area is-intercept">`;
@@ -166,9 +188,10 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
     // копия разбора означала бы, что половина этого в перехватах не работает
     // — так и было до 22.99.92.
     chatBodies += собратьЛенту(intercept.messages, { owner: targetName, сцена: sceneDate, лицо: interceptFace }).html;
+    if (свой) { chatBodies += `</div>${строкаВводаИгрока({ где: 'tp', чат: targetName })}</div>`; return; }
     chatBodies += `</div><div class="hud-phone-input-bar hud-intercept-input"><span class="hud-phone-attach hud-intercept-icon">⚠</span><div class="hud-phone-inputfield placeholder hud-intercept-icon">ДОСТУП ЗАКРЫТ — ТОЛЬКО ЧТЕНИЕ</div></div></div>`;
   });
-  return html + chatTabsHeader + `</div>` + chatBodies + `</div></div>`;
+  return chatTabsHeader + кнопкаНаписать() + `</div>` + chatBodies;
 }
 
 export function hudHasMeaningfulIntercepts(items) {

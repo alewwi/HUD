@@ -12,25 +12,25 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.90.9';
+import { settings } from './settings.js?v=23.90.10';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { тМодели as т } from './i18n.js?v=23.90.9';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.90.9';
-import { mapKey, имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.9';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.90.9';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.90.9';
-import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.90.9';
-import { упомянутВТексте, namesLikelySame } from './names.js?v=23.90.9';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.9';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.90.9';
-import { доверияБезПричин } from './turn-notes.js?v=23.90.9';
-import { ступениВСнимке } from './render/trust-stages.js?v=23.90.9';
-import { замкиВСнимке } from './render/faction-locks.js?v=23.90.9';
-import { людиHUD, безЛюдей } from './faction-groups.js?v=23.90.9';
+import { тМодели as т } from './i18n.js?v=23.90.10';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.90.10';
+import { mapKey, имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.10';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.90.10';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.90.10';
+import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.90.10';
+import { упомянутВТексте, namesLikelySame } from './names.js?v=23.90.10';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.10';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.90.10';
+import { доверияБезПричин } from './turn-notes.js?v=23.90.10';
+import { ступениВСнимке, игрокПервымВСтроке } from './render/trust-stages.js?v=23.90.10';
+import { замкиВСнимке } from './render/faction-locks.js?v=23.90.10';
+import { людиHUD, безЛюдей } from './faction-groups.js?v=23.90.10';
 const имяИгрокаСнимка = () => { try { return window.SillyTavern?.getContext?.()?.name1 || ''; } catch (_) { return ''; } };
-import { применитьРучнойПол } from './manual-gender.js?v=23.90.9';
-import { составСнимка } from './cast.js?v=23.90.9';
-import { почиститьСнимок } from './render/medieval-life.js?v=23.90.9';
+import { применитьРучнойПол } from './manual-gender.js?v=23.90.10';
+import { составСнимка } from './cast.js?v=23.90.10';
+import { почиститьСнимок } from './render/medieval-life.js?v=23.90.10';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -322,6 +322,9 @@ export function собратьСнимок(текстБлока) {
   // Ступени доверия (render/trust-stages.js): потолок открытой ступени и замки игрока.
   if (объект(к.us) && к.us.Tr) к.us.Tr = доверияБезПричин(к.us.Tr);
   ступениВСнимке(к, имяИгрокаСнимка());
+  // Игрок — первым в каждом Tr: модель повторяет порядок снимка, и в новом
+  // ходе строка доверия к игроку не уезжает вниз уже в самом ответе.
+  if (имяИгрокаСнимка()) (Array.isArray(к.cs) ? к.cs : []).forEach(c => { if (объект(c) && c.Tr) c.Tr = игрокПервымВСтроке(c.Tr, имяИгрокаСнимка()); });
   if (выкл('enablePregnancy')) поПерсонажам(['Prg']);
   // Беременность, закрытая потерей: иначе модель перепишет Prg из снимка.
   const сценаМс = датаИзТекста(объект(к.sc) ? к.sc.Dt : '');

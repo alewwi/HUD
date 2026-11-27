@@ -6,14 +6,58 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.90.9';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.9';
-import { G_ICONS } from './icons.js?v=23.90.9';
-import { собратьЛенту, непрочитанные, времяВСписке, разобратьСообщение, исходящееСообщение } from './msg-feed.js?v=23.90.9';
-import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.90.9';
-import { безШапокСообщения, заКадромHTML, начинаетсяСТега } from './msg-parts.js?v=23.90.9';
-import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.90.9';
-import { namesLikelySame } from '../names.js?v=23.90.9';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.90.10';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.10';
+import { G_ICONS } from './icons.js?v=23.90.10';
+import { собратьЛенту, непрочитанные, времяВСписке, разобратьСообщение, исходящееСообщение } from './msg-feed.js?v=23.90.10';
+import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.90.10';
+import { безШапокСообщения, заКадромHTML, начинаетсяСТега, файлСнимка } from './msg-parts.js?v=23.90.10';
+import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.90.10';
+import { namesLikelySame } from '../names.js?v=23.90.10';
+import { settings } from '../settings.js?v=23.90.10';
+import { getSafeUserName, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.10';
+import { фотоПоИмени } from '../avatars.js?v=23.90.10';
+import { чатСИгроком, ключЧерновика, черновикИгрока, этоИгрок, именаИгрока } from '../user-chat.js?v=23.90.10';
+
+/**
+ * Строка ввода чата с игроком (user-chat-ui.js): лицо игрока, «+», поле
+ * «Написать как …» и отправка. Пузыри игрока — слева: экран читает владелец.
+ * Черновик владельца (модель: он недописал игроку) — строкой над полем.
+ */
+export function строкаВводаИгрока({ где, чат, черновикВладельца = '', владелец = '' }) {
+  const игрок = getSafeUserName();
+  const фото = фотоПоИмени(игрок);
+  const лицо = фото ? `<i class="hud-uc-me has-img" style="background-image:url('${фото}')"></i>` : '<i class="hud-uc-me">' + escapeHtml(инициалыИмени(игрок, 1)) + '</i>';
+  const черн = черновикИгрока(ключЧерновика(где, чат));
+  const кто = escapeHtml(имяБезПриставки(игрок));
+  return '<div class="hud-uc-status" hidden></div>'
+    + (черновикВладельца ? '<div class="hud-uc-owner-draft">✎ ' + escapeHtml(имяБезПриставки(владелец)) + ' · не отправлено: «' + defeatWI(escapeHtml(черновикВладельца)) + '»</div>' : '')
+    + '<div class="hud-phone-input-bar is-user-chat' + (черн ? ' has-text' : '') + '" data-uc-bar="1">'
+    + '<span class="hud-phone-attach hud-uc-attach" data-uc="attach" role="button" tabindex="0" aria-label="Вложение" title="Голосовое, фото, видео, звонок">+</span>'
+    // Поле — настоящее с самого начала: первые буквы не теряются, пока грузится user-chat-ui.js.
+    + '<div class="hud-phone-inputfield hud-uc-field' + (черн ? ' has-draft' : '') + '" data-uc="field">' + лицо + '<textarea class="hud-uc-input" rows="1" enterkeyhint="send" aria-label="Написать как ' + кто + '" title="Написать как ' + кто + '" placeholder="Сообщение…">' + escapeHtml(черн) + '</textarea></div>'
+    + '<span class="hud-phone-send hud-uc-send" data-uc="send" role="button" tabindex="0" aria-label="Отправить" title="Отправить">↑</span></div>';
+}
+
+/**
+ * Кнопки под палитрой реакций (events.js, долгое нажатие на пузырь) в чатах
+ * игрока: ответить, переслать, а своё непрочитанное — удалить. '' — не чат игрока.
+ */
+export function кнопкиПузыря(пузырь) {
+  if (settings.userChat === false || !пузырь || !пузырь.closest) return '';
+  if (!пузырь.closest('.hud-phone-subbody[data-user-chat]')) return '';
+  const кто = (пузырь.closest('.hud-msg-content')?.querySelector('.hud-msg-sender')?.textContent || '').trim();
+  let имена = [getSafeUserName()];
+  try { const из = JSON.parse(пузырь.closest('.hud-phone-subbody[data-user-chat]').dataset.ucNames || '[]'); if (Array.isArray(из) && из.length) имена = из; } catch (_) { /* только имя персоны */ }
+  const свой = этоИгрок(кто, имена);
+  // Статус строки, а не значок: открытый чат рисует входящие прочитанными (events.js).
+  const прочитан = /^(?:read|прочитан\S*)$/.test(String(пузырь.dataset.st || ''));
+  return '<div class="hud-uc-actions">'
+    + '<button type="button" data-uc="reply">' + G_ICONS.chat + '<span>Ответить</span></button>'
+    + '<button type="button" data-uc="forward">' + G_ICONS.forward + '<span>Переслать</span></button>'
+    + (свой && !прочитан ? '<button type="button" data-uc="delete">' + G_ICONS.block + '<span>Удалить</span></button>' : '')
+    + '</div>';
+}
 
 export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, контакты = null) {
   обновитьФоныЧатов();
@@ -64,6 +108,11 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
     // сообщений и подставляем того, кто пишет владельцу.
     const counterparts = collectCounterparts(chatObj.messages, activeOwner);
     const isGroupChat = Boolean(chatObj.participants) || counterparts.length > 1;
+    // Чат с игроком: в нём можно писать от его лица (user-chat-ui.js).
+    // Игрок может быть записан в телефоне иначе («Смирнова» — по фамилии): чат его и под этим именем.
+    const именаИгрокаЗдесь = именаИгрока(getSafeUserName(), контакты);
+    const сИгроком = settings.userChat !== false && чатСИгроком(rawChatName, { pp: chatObj.participants, ms: chatObj.messages }, именаИгрокаЗдесь);
+    const телефонЧата = String(uid).startsWith('phone2-') ? 'phx' : 'cm';
     const keyIsOwner = !displayChatName || namesLikelySame(displayChatName, activeOwner);
 
     if (keyIsOwner) {
@@ -105,7 +154,7 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
       if (mm && !начинаетсяСТега(p)) p = mm[3];
       p = безШапокСообщения(p).replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
            .replace(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?\d{0,2}:?\d{0,2}\s*:?\s*([^\]]*)\]/gi, (mm, d) => '🎬 Видео' + (d.trim() ? ': ' + d.trim() : ''))
-           .replace(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*([^\]]*)\]/gi, (mm, d) => '📷 Фото' + (d.trim() ? ': ' + d.trim() : ''))
+           .replace(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*([^\]]*)\]/gi, (mm, d) => { const о = файлСнимка(d).описание; return '📷 Фото' + (о ? ': ' + о : ''); })
            .replace(/\[(?:CALL|ЗВОНОК)\s*:?\s*([^\]]*)\]/gi, (mm, b) => /пропущ|missed/i.test(b) ? '📞 Пропущенный звонок' : '📞 Звонок')
            .replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]|✓+/gi, '').trim();
       // Недописанное своё — «Черновик:», удалённое — «Сообщение удалено»,
@@ -121,7 +170,7 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
     chatList += `<button class="hud-phone-chat-row" data-chat-target="subchat-${uid}-${idx}">
       ${avaFace(displayChatName, 'hud-phone-chat-ava', `linear-gradient(150deg, ${avaColor}, rgba(0,0,0,.55))`, isGroup ? '<i class="hud-phone-chat-group">👥</i>' : '')}
       <span class="hud-phone-chat-meta">
-        <b>${личность ? меткаЛожногоИмени() : ''}${defeatWI(escapeHtml(displayChatName))}</b>
+        <b>${личность && личность.ложное ? меткаЛожногоИмени() : ''}${defeatWI(escapeHtml(displayChatName))}</b>
         <small>${preview ? escapeHtml(preview) : 'Нет сообщений'}</small>
       </span>
       <span class="hud-phone-chat-side">
@@ -135,8 +184,8 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
     const строкаВСети = !isGroupChat && лента.вСети && !лента.блокировка ? `<span class="hud-phone-online">в сети: ${escapeHtml(лента.вСети)}</span>` : '';
     const ключФона = ключФонаЧата(displayChatName);
 
-    chatBodies += `<div class="hud-phone-subbody" id="subchat-${uid}-${idx}" data-chat-key="${escapeHtml(rawChatName)}"${isGroup ? ' data-chat-group="1"' : ''}>
-      <div class="hud-phone-header"><span class="hud-phone-back">⟨</span><div class="hud-phone-title-group" ${chatObj.participants ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(displayChatName))} ${chatObj.participants ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${строкаВСети}${личность ? ложноеИмяHTML(личность) : ''}${chatObj.participants ? `<div class="hud-phone-participants-list">${G_ICONS.people} Участники: ${escapeHtml(chatObj.participants)}</div>` : ''}</div><span class="hud-phone-options" data-chat-bg="${ключФона}" role="button" tabindex="0" aria-label="Фон этого чата" title="Фон этого чата">⋮</span></div>
+    chatBodies += `<div class="hud-phone-subbody" id="subchat-${uid}-${idx}" data-chat-key="${escapeHtml(rawChatName)}"${isGroup ? ' data-chat-group="1"' : ''}${сИгроком ? ` data-user-chat="1" data-uc-names="${escapeHtml(JSON.stringify(именаИгрокаЗдесь))}"` : ''}>
+      <div class="hud-phone-header"><span class="hud-phone-back">⟨</span><div class="hud-phone-title-group" ${chatObj.participants ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(displayChatName))} ${chatObj.participants ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${строкаВСети}${личность && личность.ложное ? ложноеИмяHTML(личность) : ''}${chatObj.participants ? `<div class="hud-phone-participants-list">${G_ICONS.people} Участники: ${escapeHtml(chatObj.participants)}</div>` : ''}</div><span class="hud-phone-options" data-chat-bg="${ключФона}" role="button" tabindex="0" aria-label="Фон этого чата" title="Фон этого чата">⋮</span></div>
       <div class="hud-phone-chat-area${isGroupChat ? ' is-group' : ''}" data-bgk="${ключФона}">`;
 		
     // Сообщения, разделители дней и черновик — общая лента (msg-feed.js):
@@ -144,6 +193,7 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
     const activeDraft = лента.draft;
     chatBodies += лента.html;
     if (лента.блокировка) chatBodies += `</div><div class="hud-phone-input-bar is-blocked">${заКадромHTML(лента.блокировка, лента.блокировка.время)}</div></div>`;
+    else if (сИгроком) chatBodies += `</div>${строкаВводаИгрока({ где: телефонЧата, чат: rawChatName, черновикВладельца: activeDraft, владелец: activeOwner })}</div>`;
     else chatBodies += `</div><div class="hud-phone-input-bar"><span class="hud-phone-attach">+</span><div class="hud-phone-inputfield ${activeDraft ? 'draft-active' : 'placeholder'}">${activeDraft ? escapeHtml(activeDraft) : 'Сообщение...'}</div><span class="hud-phone-send disabled">↑</span></div></div>`;
   });
   return chatList + `</div>` + `<div class="hud-phone-chat-stage">` + chatBodies + `</div>`;

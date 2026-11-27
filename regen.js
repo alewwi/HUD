@@ -5,18 +5,38 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.90.9';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.90.9';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.90.9';
-import { заметкиКубика } from './render/notice-dice.js?v=23.90.9';
-import { заметкиСтупеней } from './render/trust-stages.js?v=23.90.9';
-import { заметкиЗамковФракций, естьЗамкиФракций } from './render/faction-locks.js?v=23.90.9';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.90.9';
-import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.90.9';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.90.9';
-import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.90.9';
-import { пометитьПамятьСнимка } from './memory-age.js?v=23.90.9';
-import { сводкаВыключена } from './summary-fields.js?v=23.90.9';
+import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.90.10';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.90.10';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.90.10';
+import { заметкиКубика } from './render/notice-dice.js?v=23.90.10';
+import { заметкиСтупеней } from './render/trust-stages.js?v=23.90.10';
+import { заметкиЗамковФракций, естьЗамкиФракций } from './render/faction-locks.js?v=23.90.10';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.90.10';
+import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.90.10';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.90.10';
+import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.90.10';
+import { пометитьПамятьСнимка } from './memory-age.js?v=23.90.10';
+import { сводкаВыключена } from './summary-fields.js?v=23.90.10';
+import { перепискаСвайпа, вернутьПереписку } from './user-chat.js?v=23.90.10';
+import { getSafeUserName } from './utils.js?v=23.90.10';
+
+/**
+ * Переписка игрока, написанная в этом свайпе (user-chat.js), — обратно в
+ * перегенерированный блок: модель старого блока этого сообщения не видела.
+ */
+function сПерепискойИгрока(блок, message) {
+  const записи = перепискаСвайпа(message);
+  if (!блок || !записи.length) return блок;
+  try {
+    const hud = HUDвКодах(блок, { сПоворотом: true });
+    if (!hud || !вернутьПереписку(hud, записи, getSafeUserName())) return блок;
+    const новый = блокКакБыл(hud, блок);
+    return HUDвКодах(новый, { сПоворотом: true }) ? новый : блок;
+  } catch (e) {
+    console.warn('[TavernOS HUD] переписка игрока не вернулась в HUD', e);
+    return блок;
+  }
+}
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -316,6 +336,274 @@ export function текстОшибки(err) {
   return причина && !своё.includes(причина) ? `${своё}: ${причина}` : своё;
 }
 
+/**
+ * Запрос к модели мимо пресета Таверны: те же источник, модель, прокси и
+ * профиль подключения, что у перегенерации HUD. Перегенерация, телефон и
+ * ответы в переписке игрока (user-chat-ui.js) ходят одной дорогой.
+ * сообщения — уже готовый промпт; лимит — токены ответа; отмена — AbortController.
+ * повторЕсли(data, извлечь) — ответ оборвался и стоит повторить с вдвое большим лимитом.
+ * → { текст, оборвался, символов }
+ */
+export async function запросКМодели({ stContext, сообщения, лимит, отмена, живой = () => {}, ход = () => {}, повторЕсли = нуженЛимитБольше, профиль = settings.regenProfileId }) {
+  const freshMessages = сообщения;
+  const hudMaxTokens = лимит;
+  const отменено = () => отмена.signal.aborted;
+  // Для старых сообщений в текущей вкладке может не существовать lastTavernRequest.
+  // В таком случае берём живые настройки Chat Completion из ST вместо обращения
+  // к несуществующим переменным currentModel/currentSource/etc.
+  const liveOpenAISettings =
+      (typeof window !== 'undefined' && window.oai_settings && typeof window.oai_settings === 'object')
+          ? window.oai_settings
+          : {};
+  const liveChatCompletionSettings =
+      (stContext && stContext.chatCompletionSettings && typeof stContext.chatCompletionSettings === 'object')
+          ? stContext.chatCompletionSettings
+          : {};
+  const liveExtensionOpenAI =
+      (stContext?.extensionSettings?.openai && typeof stContext.extensionSettings.openai === 'object')
+          ? stContext.extensionSettings.openai
+          : {};
+
+  // HUD regeneration must use the current SillyTavern Chat Completions
+  // backend, not the legacy /api/chat/completions route captured from an
+  // older request. The latter is not the generation endpoint in current ST
+  // and can return 403. The captured request is still useful as a source of
+  // provider/model/token settings, but its URL is deliberately NOT reused.
+  const sourceBody = window.lastTavernRequest?.body;
+  const reqBody = sourceBody && typeof sourceBody === 'object' ? sourceBody : {};
+  const requestUrl = '/api/backends/chat-completions/generate';
+  // Заголовки — из контекста Таверны: в них X-CSRF-Token. На window
+  // getRequestHeaders в ST 1.18 нет — без токена сервер отвечал
+  // 403 «Invalid CSRF token».
+  const requestHeaders =
+      (typeof stContext?.getRequestHeaders === 'function' ? stContext.getRequestHeaders() : null) ||
+      (typeof window.getRequestHeaders === 'function' ? window.getRequestHeaders() : null) ||
+      { 'Content-Type': 'application/json' };
+
+  // SillyTavern stores provider/model selections in source-specific fields.
+  // See the default Chat Completion preset: chat_completion_source plus
+  // openai_model / google_model / vertexai_model / custom_model, etc.
+  // Источник и модель — сначала из текущих настроек Таверны: клон
+  // последнего запроса мог остаться от прошлого источника, а модель
+  // раньше бралась из первого непустого поля любого источника — у Custom
+  // уходила openai_model («gpt-4-turbo»). Таверна выбирает модель по
+  // источнику сама — getChatCompletionModel.
+  const живыеНастройки = Object.keys(liveChatCompletionSettings).length ? liveChatCompletionSettings : liveOpenAISettings;
+  const живойИсточник = String(живыеНастройки.chat_completion_source || '');
+  const живаяМодель = (() => {
+      try { return typeof stContext?.getChatCompletionModel === 'function' && живойИсточник ? String(stContext.getChatCompletionModel(живыеНастройки) || '') : ''; } catch (_) { return ''; }
+  })();
+  const currentSource = String(
+      живойИсточник ||
+      reqBody.chat_completion_source ||
+      liveChatCompletionSettings.chat_completion_source ||
+      liveExtensionOpenAI.chat_completion_source ||
+      liveOpenAISettings.chat_completion_source ||
+      ''
+  );
+  const currentModel = String(
+      reqBody.model ||
+      liveChatCompletionSettings.model ||
+      liveChatCompletionSettings.openai_model ||
+      liveChatCompletionSettings.google_model ||
+      liveChatCompletionSettings.vertexai_model ||
+      liveChatCompletionSettings.openrouter_model ||
+      liveChatCompletionSettings.custom_model ||
+      liveExtensionOpenAI.model ||
+      liveExtensionOpenAI.openai_model ||
+      liveExtensionOpenAI.google_model ||
+      liveExtensionOpenAI.vertexai_model ||
+      liveExtensionOpenAI.openrouter_model ||
+      liveExtensionOpenAI.custom_model ||
+      liveOpenAISettings.model ||
+      liveOpenAISettings.openai_model ||
+      liveOpenAISettings.google_model ||
+      liveOpenAISettings.vertexai_model ||
+      liveOpenAISettings.openrouter_model ||
+      liveOpenAISettings.custom_model ||
+      ''
+  );
+  function getHudConnectionProfile(profileId) {
+      try {
+          const cm = stContext?.extensionSettings?.connectionManager;
+          const profiles = Array.isArray(cm?.profiles) ? cm.profiles : [];
+          return profileId ? (profiles.find(p => String(p.id) === String(profileId)) || null) : null;
+      } catch (_) { return null; }
+  }
+
+  const selectedProfile = getHudConnectionProfile(профиль);
+  const тотЖеИсточник = !reqBody.chat_completion_source || reqBody.chat_completion_source === currentSource;
+  const requestModel = String(selectedProfile?.model || живаяМодель || (тотЖеИсточник ? reqBody?.model : '') || currentModel || '');
+
+  let aiText = '';
+  let оборвался = false;
+  // Тело переиспользуем от последнего рабочего запроса ST: провайдер-специфичные
+  // поля (ключи, прокси, семплеры) нужны, иначе часть бэкендов отвергает запрос.
+  // НО из клона вычищаем всё, что несёт ТЕКСТ промпта: иначе вместе с настройками
+  // соединения уезжает весь пресет SillyTavern, его World Info и карточка,
+  // и наш HUD-контракт с выбранным лорбуком тонет в этом объёме.
+  const HUD_PROMPT_FIELDS = [
+      'prompt', 'prompts', 'prompt_order', 'system_prompt', 'main_prompt',
+      'nsfw_prompt', 'jailbreak_prompt', 'impersonation_prompt', 'new_chat_prompt',
+      'new_group_chat_prompt', 'new_example_chat_prompt', 'continue_nudge_prompt',
+      'group_nudge_prompt', 'negative_prompt', 'assistant_prefill',
+      'assistant_impersonation', 'human_sysprompt_message',
+      'char_name', 'user_name', 'char_description', 'char_personality',
+      'scenario', 'persona_description', 'world_info', 'worldInfoBefore',
+      'worldInfoAfter', 'wi_format', 'scenario_format', 'personality_format',
+      'bias_preset_selected', 'extensions',
+  ];
+  const capturedBody = (window.lastTavernRequest?.body && typeof window.lastTavernRequest.body === 'object')
+      ? window.lastTavernRequest.body : null;
+  const hudRequestBody = capturedBody ? JSON.parse(JSON.stringify(capturedBody)) : {};
+  HUD_PROMPT_FIELDS.forEach(k => { delete hudRequestBody[k]; });
+  // Инструменты, JSON-схема, несколько вариантов, картинки — от обычного
+  // ответа: с ними модель отвечает вызовом функции или картинкой, а не HUD.
+  ['tools', 'tool_choice', 'json_schema', 'n', 'logprobs'].forEach(k => { delete hudRequestBody[k]; });
+  if ('request_images' in hudRequestBody) hudRequestBody.request_images = false;
+  // Штрафы за повторы пресета написаны для прозы. JSON HUD — сплошь
+  // повторы: кавычки, ключи, «[чч:мм] - …». Со штрафом модель обходит их и
+  // ломает разметку или скатывается в словесную кашу.
+  ['frequency_penalty', 'presence_penalty'].forEach(k => { if (k in hudRequestBody) hudRequestBody[k] = 0; });
+  if ('repetition_penalty' in hudRequestBody) hudRequestBody.repetition_penalty = 1;
+  hudRequestBody.messages = freshMessages;
+  hudRequestBody.stream = true;
+  if (requestModel) hudRequestBody.model = requestModel;
+  const hudSource = String(currentSource || reqBody?.chat_completion_source || '');
+  if (hudSource) hudRequestBody.chat_completion_source = hudSource;
+  // Поля подключения — текущего источника из настроек Таверны. Клон от
+  // другого источника своих (чужой custom_url, прокси) не передаёт.
+  if (живойИсточник) {
+      if (!тотЖеИсточник) ПОЛЯ_ПОДКЛЮЧЕНИЯ.forEach(k => { delete hudRequestBody[k]; });
+      Object.assign(hudRequestBody, поляПодключения(живыеНастройки));
+  }
+  // Куда идёт запрос: профиль Connection Manager; Text Completion, Kobold,
+  // NovelAI… — через generateRaw Таверны (свой формат и шаблон instruct);
+  // Chat Completion — прямым запросом с телом выше.
+  const служба = stContext && stContext.ConnectionManagerRequestService;
+  const черезПрофиль = !!(профиль && служба && typeof служба.sendRequest === 'function');
+  const основнойAPI = String((stContext && stContext.mainApi) || 'openai');
+  const черезТаверну = !черезПрофиль && основнойAPI !== 'openai' && typeof stContext?.generateRaw === 'function';
+  // Без адреса Custom-эндпоинта сервер ответил бы невнятным «Invalid URL».
+  if (!черезПрофиль && !черезТаверну && hudSource === 'custom' && !hudRequestBody.custom_url) {
+      throw new Error('в Таверне не задан адрес Custom-эндпоинта; поле Custom Endpoint URL на вкладке API');
+  }
+  if (Object.prototype.hasOwnProperty.call(hudRequestBody, 'max_new_tokens')) hudRequestBody.max_new_tokens = hudMaxTokens;
+  else hudRequestBody.max_tokens = hudMaxTokens;
+  const меньше = settings.hudRegenReasoning === 'low';
+  if (меньше) {
+      const усилие = меньшеРассуждений(hudSource);
+      if (усилие) hudRequestBody.reasoning_effort = усилие; else delete hudRequestBody.reasoning_effort;
+  }
+
+  // Страховка от НЕИЗВЕСТНЫХ текстовых полей. Список HUD_PROMPT_FIELDS
+  // перечисляет то, что мы знаем сегодня; завтра ST или провайдер могут
+  // добавить своё поле с текстом промпта, и оно снова уедет в регенерацию.
+  // Настройки соединения — это имена моделей, URL, числа и флаги; длинных
+  // строк среди них не бывает. Поэтому всё, что длиннее порога и не входит
+  // в белый список, из клона вычищаем.
+  const HUD_ALLOWED_LONG_FIELDS = new Set(['messages', 'reverse_proxy', 'proxy_password', 'custom_url']);
+  const HUD_LONG_FIELD_LIMIT = 400;
+  Object.keys(hudRequestBody).forEach(key => {
+      if (HUD_ALLOWED_LONG_FIELDS.has(key)) return;
+      const value = hudRequestBody[key];
+      if (typeof value === 'string' && value.length > HUD_LONG_FIELD_LIMIT) delete hudRequestBody[key];
+  });
+
+  // Размер запроса — единственный честный ответ на вопрос «а не уехал ли
+  // туда пресет?». Считаем то, что реально уходит на провайдер.
+  const hudPromptChars = freshMessages.reduce(
+      (sum, m) => sum + (typeof m.content === 'string' ? m.content.length : 0), 0);
+  const hudPayloadStats = {
+      сообщений: freshMessages.length,
+      символов: hudPromptChars,
+      'полей в теле': Object.keys(hudRequestBody).join(', '),
+  };
+  console.info('[TavernOS HUD] Регенерация: что уходит на провайдер', hudPayloadStats);
+
+  const извлечь = typeof stContext?.extractMessageFromData === 'function' ? stContext.extractMessageFromData : null;
+  // Профиль и прямой запрос — одной функцией от лимита: её можно повторить.
+  let запросить = null;
+  if (черезПрофиль) {
+      // ConnectionManagerRequestService accepts a ChatMessage[] as its prompt.
+      // Preset off: the profile supplies only the connection details, and our
+      // HUD messages remain the actual prompt. Instruct on: for a Text
+      // Completion profile (a local model) ST formats the messages with the
+      // profile's instruct template; without it they were glued into plain
+      // text with no roles. Chat Completion ignores the flag.
+      const черезСлужбу = (лимит, потоком) => служба.sendRequest(
+          профиль,
+          freshMessages,
+          лимит,
+          { stream: потоком, includePreset: false, includeInstruct: true, extractData: false, signal: отмена.signal },
+          меньше ? { reasoning_effort: меньшеРассуждений(hudSource) ?? 'low' } : {}
+      );
+      запросить = async (лимит) => {
+          try {
+              // Ошибку провайдера в потоке Таверна отдаёт без текста, а кто-то
+              // потоком не умеет вовсе: тогда тот же запрос одним куском.
+              try {
+                  const поток = await черезСлужбу(лимит, true);
+                  const data = typeof поток === 'function' ? await собратьПоток(поток(), { живой, ход }) : поток;
+                  if (!пустойПоток(data)) return data;
+              } catch (e) {
+                  if (отменено() || (e && e.name === 'AbortError')) throw e;
+                  console.warn('[TavernOS HUD] профиль: поток не вышел, без него', e);
+              }
+              живой();
+              return await черезСлужбу(лимит, false);
+          } catch (e) {
+              if (отменено() || (e && e.name === 'AbortError')) throw e;
+              throw new Error('профиль подключения — ' + текстОшибки(e));
+          }
+      };
+  } else if (черезТаверну) {
+      // Сигнал обрывает сам запрос (utils.js, перехват в index.js).
+      const ответ = генерацияТаверны(stContext, { prompt: freshMessages, responseLength: hudMaxTokens, signal: отмена.signal });
+      aiText = текстОтвета(await new Promise((готово, сбой) => {
+          ответ.then(готово, сбой);
+          отмена.signal.addEventListener('abort', () => сбой(new DOMException('Отменено', 'AbortError')), { once: true });
+      }));
+  } else {
+      // Перехват узнаёт этот запрос по <hud_instructions> в теле и
+      // пропускает — глобальный флаг здесь больше не нужен.
+      запросить = async (лимит) => {
+          if (Object.prototype.hasOwnProperty.call(hudRequestBody, 'max_new_tokens')) hudRequestBody.max_new_tokens = лимит;
+          else hudRequestBody.max_tokens = лимит;
+          const отправить = () => fetch(requestUrl, { method: 'POST', headers: requestHeaders, cache: 'no-cache', body: JSON.stringify(hudRequestBody), signal: отмена.signal });
+          for (;;) {
+              const res = await отправить();
+              живой();
+              if (!res.ok) {
+                  const apiError = await основа.readHudApiError(res);
+                  // Модель потоком не отвечает — тем же запросом одним куском.
+                  if (hudRequestBody.stream && ПРО_ПОТОК.test(String(apiError.message || ''))) { hudRequestBody.stream = false; continue; }
+                  throw new Error(`API Error ${apiError.status}: ${пояснитьОшибку(apiError, hudSource)}`);
+              }
+              if (!hudRequestBody.stream) return res.json();
+              const data = await прочитатьПоток(res, { живой, ход });
+              const сказано = data && data.error ? String(data.error.message || data.error) : '';
+              if (пустойПоток(data) || (сказано && ПРО_ПОТОК.test(сказано))) { hudRequestBody.stream = false; живой(); continue; }
+              return data;
+          }
+      };
+  }
+  if (запросить) {
+      let data = await запросить(hudMaxTokens);
+      // Ответ оборвался раньше конца HUD (чаще всего рассуждающая модель —
+      // DeepSeek, GLM — потратила лимит на рассуждения): один повтор с
+      // вдвое большим лимитом.
+      if (повторЕсли(data, извлечь) && hudMaxTokens < HUD_MAX_TOKENS_CAP && !отменено()) {
+          const больше = лимитПовтора(hudMaxTokens);
+          основа.showHudToast('info', 'HUD', 'Ответ оборвался по лимиту токенов — повторяю с удвоенным лимитом.');
+          живой();
+          data = await запросить(больше);
+      }
+      оборвался = обрывПоЛимиту(data);
+      aiText = текстОтвета(data, извлечь);
+  }
+  return { текст: aiText, оборвался, символов: hudPromptChars };
+}
 export async function handleHudRegenButton(regenBtn) {
   if (!regenBtn) return;
   if (regenBtn.classList.contains('hud-spinning')) {
@@ -431,82 +719,6 @@ export async function handleHudRegenButton(regenBtn) {
           const чатВНачале = ключЧата();
           const свайпВНачале = targetMessage.swipe_id;
 
-          // Для старых сообщений в текущей вкладке может не существовать lastTavernRequest.
-          // В таком случае берём живые настройки Chat Completion из ST вместо обращения
-          // к несуществующим переменным currentModel/currentSource/etc.
-          const liveOpenAISettings =
-              (typeof window !== 'undefined' && window.oai_settings && typeof window.oai_settings === 'object')
-                  ? window.oai_settings
-                  : {};
-          const liveChatCompletionSettings =
-              (stContext && stContext.chatCompletionSettings && typeof stContext.chatCompletionSettings === 'object')
-                  ? stContext.chatCompletionSettings
-                  : {};
-          const liveExtensionOpenAI =
-              (stContext?.extensionSettings?.openai && typeof stContext.extensionSettings.openai === 'object')
-                  ? stContext.extensionSettings.openai
-                  : {};
-
-          // HUD regeneration must use the current SillyTavern Chat Completions
-          // backend, not the legacy /api/chat/completions route captured from an
-          // older request. The latter is not the generation endpoint in current ST
-          // and can return 403. The captured request is still useful as a source of
-          // provider/model/token settings, but its URL is deliberately NOT reused.
-          const sourceBody = window.lastTavernRequest?.body;
-          const reqBody = sourceBody && typeof sourceBody === 'object' ? sourceBody : {};
-          const requestUrl = '/api/backends/chat-completions/generate';
-          // Заголовки — из контекста Таверны: в них X-CSRF-Token. На window
-          // getRequestHeaders в ST 1.18 нет — без токена сервер отвечал
-          // 403 «Invalid CSRF token».
-          const requestHeaders =
-              (typeof stContext?.getRequestHeaders === 'function' ? stContext.getRequestHeaders() : null) ||
-              (typeof window.getRequestHeaders === 'function' ? window.getRequestHeaders() : null) ||
-              { 'Content-Type': 'application/json' };
-
-          // SillyTavern stores provider/model selections in source-specific fields.
-          // See the default Chat Completion preset: chat_completion_source plus
-          // openai_model / google_model / vertexai_model / custom_model, etc.
-          // Источник и модель — сначала из текущих настроек Таверны: клон
-          // последнего запроса мог остаться от прошлого источника, а модель
-          // раньше бралась из первого непустого поля любого источника — у Custom
-          // уходила openai_model («gpt-4-turbo»). Таверна выбирает модель по
-          // источнику сама — getChatCompletionModel.
-          const живыеНастройки = Object.keys(liveChatCompletionSettings).length ? liveChatCompletionSettings : liveOpenAISettings;
-          const живойИсточник = String(живыеНастройки.chat_completion_source || '');
-          const живаяМодель = (() => {
-              try { return typeof stContext?.getChatCompletionModel === 'function' && живойИсточник ? String(stContext.getChatCompletionModel(живыеНастройки) || '') : ''; } catch (_) { return ''; }
-          })();
-          const currentSource = String(
-              живойИсточник ||
-              reqBody.chat_completion_source ||
-              liveChatCompletionSettings.chat_completion_source ||
-              liveExtensionOpenAI.chat_completion_source ||
-              liveOpenAISettings.chat_completion_source ||
-              ''
-          );
-          const currentModel = String(
-              reqBody.model ||
-              liveChatCompletionSettings.model ||
-              liveChatCompletionSettings.openai_model ||
-              liveChatCompletionSettings.google_model ||
-              liveChatCompletionSettings.vertexai_model ||
-              liveChatCompletionSettings.openrouter_model ||
-              liveChatCompletionSettings.custom_model ||
-              liveExtensionOpenAI.model ||
-              liveExtensionOpenAI.openai_model ||
-              liveExtensionOpenAI.google_model ||
-              liveExtensionOpenAI.vertexai_model ||
-              liveExtensionOpenAI.openrouter_model ||
-              liveExtensionOpenAI.custom_model ||
-              liveOpenAISettings.model ||
-              liveOpenAISettings.openai_model ||
-              liveOpenAISettings.google_model ||
-              liveOpenAISettings.vertexai_model ||
-              liveOpenAISettings.openrouter_model ||
-              liveOpenAISettings.custom_model ||
-              ''
-          );
-
           let freshMessages = [];
           // Only real chat-history messages are eligible for HUD summarization.
           // Injected HUD instructions contain a literal [HUD] schema example, which
@@ -521,17 +733,6 @@ export async function handleHudRegenButton(regenBtn) {
               : (defaultSettings.regenContextMessages || 6);
           const startIndex = Math.max(0, mesIdNum - keepN + 1);
 
-          function getHudConnectionProfile(profileId) {
-              try {
-                  const cm = stContext?.extensionSettings?.connectionManager;
-                  const profiles = Array.isArray(cm?.profiles) ? cm.profiles : [];
-                  return profileId ? (profiles.find(p => String(p.id) === String(profileId)) || null) : null;
-              } catch (_) { return null; }
-          }
-
-          const selectedProfile = getHudConnectionProfile(settings.regenProfileId);
-          const тотЖеИсточник = !reqBody.chat_completion_source || reqBody.chat_completion_source === currentSource;
-          const requestModel = String(selectedProfile?.model || живаяМодель || (тотЖеИсточник ? reqBody?.model : '') || currentModel || '');
           // Роли — как у самой Таверны: user / assistant. Для Gemini и Claude
           // сервер ST переводит их сам (src/prompt-converters.js), и только для
           // своих источников. Раньше HUD ставил «model» по имени модели — и
@@ -677,171 +878,9 @@ export async function handleHudRegenButton(regenBtn) {
       const лимитКакВТаверне = !(лимитЧисло > 0) && лимитЗадан !== undefined && лимитЗадан !== null && лимитЗадан !== '';
       const hudMaxTokens = Math.max(256, Math.min(HUD_MAX_TOKENS_CAP, (лимитЧисло > 0 ? лимитЧисло : лимитКакВТаверне ? длинаОтветаТаверны(stContext) : 0) || 8192));
 
-      // Тело переиспользуем от последнего рабочего запроса ST: провайдер-специфичные
-      // поля (ключи, прокси, семплеры) нужны, иначе часть бэкендов отвергает запрос.
-      // НО из клона вычищаем всё, что несёт ТЕКСТ промпта: иначе вместе с настройками
-      // соединения уезжает весь пресет SillyTavern, его World Info и карточка,
-      // и наш HUD-контракт с выбранным лорбуком тонет в этом объёме.
-      const HUD_PROMPT_FIELDS = [
-          'prompt', 'prompts', 'prompt_order', 'system_prompt', 'main_prompt',
-          'nsfw_prompt', 'jailbreak_prompt', 'impersonation_prompt', 'new_chat_prompt',
-          'new_group_chat_prompt', 'new_example_chat_prompt', 'continue_nudge_prompt',
-          'group_nudge_prompt', 'negative_prompt', 'assistant_prefill',
-          'assistant_impersonation', 'human_sysprompt_message',
-          'char_name', 'user_name', 'char_description', 'char_personality',
-          'scenario', 'persona_description', 'world_info', 'worldInfoBefore',
-          'worldInfoAfter', 'wi_format', 'scenario_format', 'personality_format',
-          'bias_preset_selected', 'extensions',
-      ];
-      const capturedBody = (window.lastTavernRequest?.body && typeof window.lastTavernRequest.body === 'object')
-          ? window.lastTavernRequest.body : null;
-      const hudRequestBody = capturedBody ? JSON.parse(JSON.stringify(capturedBody)) : {};
-      HUD_PROMPT_FIELDS.forEach(k => { delete hudRequestBody[k]; });
-      // Инструменты, JSON-схема, несколько вариантов, картинки — от обычного
-      // ответа: с ними модель отвечает вызовом функции или картинкой, а не HUD.
-      ['tools', 'tool_choice', 'json_schema', 'n', 'logprobs'].forEach(k => { delete hudRequestBody[k]; });
-      if ('request_images' in hudRequestBody) hudRequestBody.request_images = false;
-      // Штрафы за повторы пресета написаны для прозы. JSON HUD — сплошь
-      // повторы: кавычки, ключи, «[чч:мм] - …». Со штрафом модель обходит их и
-      // ломает разметку или скатывается в словесную кашу.
-      ['frequency_penalty', 'presence_penalty'].forEach(k => { if (k in hudRequestBody) hudRequestBody[k] = 0; });
-      if ('repetition_penalty' in hudRequestBody) hudRequestBody.repetition_penalty = 1;
-      hudRequestBody.messages = freshMessages;
-      hudRequestBody.stream = true;
-      if (requestModel) hudRequestBody.model = requestModel;
-      const hudSource = String(currentSource || reqBody?.chat_completion_source || '');
-      if (hudSource) hudRequestBody.chat_completion_source = hudSource;
-      // Поля подключения — текущего источника из настроек Таверны. Клон от
-      // другого источника своих (чужой custom_url, прокси) не передаёт.
-      if (живойИсточник) {
-          if (!тотЖеИсточник) ПОЛЯ_ПОДКЛЮЧЕНИЯ.forEach(k => { delete hudRequestBody[k]; });
-          Object.assign(hudRequestBody, поляПодключения(живыеНастройки));
-      }
-      // Куда идёт запрос: профиль Connection Manager; Text Completion, Kobold,
-      // NovelAI… — через generateRaw Таверны (свой формат и шаблон instruct);
-      // Chat Completion — прямым запросом с телом выше.
-      const служба = stContext && stContext.ConnectionManagerRequestService;
-      const черезПрофиль = !!(settings.regenProfileId && служба && typeof служба.sendRequest === 'function');
-      const основнойAPI = String((stContext && stContext.mainApi) || 'openai');
-      const черезТаверну = !черезПрофиль && основнойAPI !== 'openai' && typeof stContext?.generateRaw === 'function';
-      // Без адреса Custom-эндпоинта сервер ответил бы невнятным «Invalid URL».
-      if (!черезПрофиль && !черезТаверну && hudSource === 'custom' && !hudRequestBody.custom_url) {
-          throw new Error('в Таверне не задан адрес Custom-эндпоинта; поле Custom Endpoint URL на вкладке API');
-      }
-      if (Object.prototype.hasOwnProperty.call(hudRequestBody, 'max_new_tokens')) hudRequestBody.max_new_tokens = hudMaxTokens;
-      else hudRequestBody.max_tokens = hudMaxTokens;
-      const меньше = settings.hudRegenReasoning === 'low';
-      if (меньше) {
-          const усилие = меньшеРассуждений(hudSource);
-          if (усилие) hudRequestBody.reasoning_effort = усилие; else delete hudRequestBody.reasoning_effort;
-      }
-
-      // Страховка от НЕИЗВЕСТНЫХ текстовых полей. Список HUD_PROMPT_FIELDS
-      // перечисляет то, что мы знаем сегодня; завтра ST или провайдер могут
-      // добавить своё поле с текстом промпта, и оно снова уедет в регенерацию.
-      // Настройки соединения — это имена моделей, URL, числа и флаги; длинных
-      // строк среди них не бывает. Поэтому всё, что длиннее порога и не входит
-      // в белый список, из клона вычищаем.
-      const HUD_ALLOWED_LONG_FIELDS = new Set(['messages', 'reverse_proxy', 'proxy_password', 'custom_url']);
-      const HUD_LONG_FIELD_LIMIT = 400;
-      Object.keys(hudRequestBody).forEach(key => {
-          if (HUD_ALLOWED_LONG_FIELDS.has(key)) return;
-          const value = hudRequestBody[key];
-          if (typeof value === 'string' && value.length > HUD_LONG_FIELD_LIMIT) delete hudRequestBody[key];
-      });
-
-      // Размер запроса — единственный честный ответ на вопрос «а не уехал ли
-      // туда пресет?». Считаем то, что реально уходит на провайдер.
-      const hudPromptChars = freshMessages.reduce(
-          (sum, m) => sum + (typeof m.content === 'string' ? m.content.length : 0), 0);
-      const hudPayloadStats = {
-          сообщений: freshMessages.length,
-          символов: hudPromptChars,
-          'полей в теле': Object.keys(hudRequestBody).join(', '),
-      };
-      console.info('[TavernOS HUD] Регенерация: что уходит на провайдер', hudPayloadStats);
-
-      const извлечь = typeof stContext?.extractMessageFromData === 'function' ? stContext.extractMessageFromData : null;
-      // Профиль и прямой запрос — одной функцией от лимита: её можно повторить.
-      let запросить = null;
-      if (черезПрофиль) {
-          // ConnectionManagerRequestService accepts a ChatMessage[] as its prompt.
-          // Preset off: the profile supplies only the connection details, and our
-          // HUD messages remain the actual prompt. Instruct on: for a Text
-          // Completion profile (a local model) ST formats the messages with the
-          // profile's instruct template; without it they were glued into plain
-          // text with no roles. Chat Completion ignores the flag.
-          const черезСлужбу = (лимит, потоком) => служба.sendRequest(
-              settings.regenProfileId,
-              freshMessages,
-              лимит,
-              { stream: потоком, includePreset: false, includeInstruct: true, extractData: false, signal: отмена.signal },
-              меньше ? { reasoning_effort: меньшеРассуждений(hudSource) ?? 'low' } : {}
-          );
-          запросить = async (лимит) => {
-              try {
-                  // Ошибку провайдера в потоке Таверна отдаёт без текста, а кто-то
-                  // потоком не умеет вовсе: тогда тот же запрос одним куском.
-                  try {
-                      const поток = await черезСлужбу(лимит, true);
-                      const data = typeof поток === 'function' ? await собратьПоток(поток(), { живой, ход }) : поток;
-                      if (!пустойПоток(data)) return data;
-                  } catch (e) {
-                      if (отменено() || (e && e.name === 'AbortError')) throw e;
-                      console.warn('[TavernOS HUD] профиль: поток не вышел, без него', e);
-                  }
-                  живой();
-                  return await черезСлужбу(лимит, false);
-              } catch (e) {
-                  if (отменено() || (e && e.name === 'AbortError')) throw e;
-                  throw new Error('профиль подключения — ' + текстОшибки(e));
-              }
-          };
-      } else if (черезТаверну) {
-          // Сигнал обрывает сам запрос (utils.js, перехват в index.js).
-          const ответ = генерацияТаверны(stContext, { prompt: freshMessages, responseLength: hudMaxTokens, signal: отмена.signal });
-          aiText = текстОтвета(await new Promise((готово, сбой) => {
-              ответ.then(готово, сбой);
-              отмена.signal.addEventListener('abort', () => сбой(new DOMException('Отменено', 'AbortError')), { once: true });
-          }));
-      } else {
-          // Перехват узнаёт этот запрос по <hud_instructions> в теле и
-          // пропускает — глобальный флаг здесь больше не нужен.
-          запросить = async (лимит) => {
-              if (Object.prototype.hasOwnProperty.call(hudRequestBody, 'max_new_tokens')) hudRequestBody.max_new_tokens = лимит;
-              else hudRequestBody.max_tokens = лимит;
-              const отправить = () => fetch(requestUrl, { method: 'POST', headers: requestHeaders, cache: 'no-cache', body: JSON.stringify(hudRequestBody), signal: отмена.signal });
-              for (;;) {
-                  const res = await отправить();
-                  живой();
-                  if (!res.ok) {
-                      const apiError = await основа.readHudApiError(res);
-                      // Модель потоком не отвечает — тем же запросом одним куском.
-                      if (hudRequestBody.stream && ПРО_ПОТОК.test(String(apiError.message || ''))) { hudRequestBody.stream = false; continue; }
-                      throw new Error(`API Error ${apiError.status}: ${пояснитьОшибку(apiError, hudSource)}`);
-                  }
-                  if (!hudRequestBody.stream) return res.json();
-                  const data = await прочитатьПоток(res, { живой, ход });
-                  const сказано = data && data.error ? String(data.error.message || data.error) : '';
-                  if (пустойПоток(data) || (сказано && ПРО_ПОТОК.test(сказано))) { hudRequestBody.stream = false; живой(); continue; }
-                  return data;
-              }
-          };
-      }
-      if (запросить) {
-          let data = await запросить(hudMaxTokens);
-          // Ответ оборвался раньше конца HUD (чаще всего рассуждающая модель —
-          // DeepSeek, GLM — потратила лимит на рассуждения): один повтор с
-          // вдвое большим лимитом.
-          if (нуженЛимитБольше(data, извлечь) && hudMaxTokens < HUD_MAX_TOKENS_CAP && !отменено()) {
-              const больше = лимитПовтора(hudMaxTokens);
-              основа.showHudToast('info', 'HUD', 'Ответ оборвался по лимиту токенов — повторяю с удвоенным лимитом.');
-              живой();
-              data = await запросить(больше);
-          }
-          оборвался = обрывПоЛимиту(data);
-          aiText = текстОтвета(data, извлечь);
-      }
+      const { текст: присланоМоделью, оборвался: обрывОтвета, символов: hudPromptChars } = await запросКМодели({ stContext, сообщения: freshMessages, лимит: hudMaxTokens, отмена, живой, ход });
+      aiText = присланоМоделью;
+      оборвался = обрывОтвета;
 
           if (отменено()) throw new DOMException('Отменено', 'AbortError');
           if (телефон) {
@@ -854,7 +893,7 @@ export async function handleHudRegenButton(regenBtn) {
             if (!присланное) throw new Error(оборвался ? ОБРЫВ_ДО_HUD : 'в ответе нет телефона — HUD не изменён');
             const текст = основа.текстСообщенияЧата(targetMessage);
             const прежний = extractHudBlock(текст);
-            const новый = прежний && вставитьТелефон(прежний, присланное);
+            const новый = прежний && сПерепискойИгрока(вставитьТелефон(прежний, присланное), targetMessage);
             if (!новый) throw new Error('HUD сообщения не разобрался — телефон не вставлен');
             основа.запомнитьВерсиюHUD(targetMessage, прежний, 'до перегенерации телефона');
             основа.updateMessageDataForCurrentSwipe(targetMessage, основа.replaceHudBlockInText(текст, новый));
@@ -887,6 +926,7 @@ export async function handleHudRegenButton(regenBtn) {
           if (chatData[mesIdNum] !== targetMessage || targetMessage.swipe_id !== свайпВНачале || ключЧата() !== чатВНачале) {
               throw new Error('пока HUD генерировался, сообщение сменилось: другой свайп, другой чат или его удалили — HUD не вставлен');
           }
+          newHudText = сПерепискойИгрока(newHudText, targetMessage);
           // Текст — нынешний: правка сообщения за время ожидания не теряется.
           const текущийТекст = основа.текстСообщенияЧата(targetMessage);
           // «nc», мир раз в день, память обновлениями — в полный HUD (hud-expand.js).

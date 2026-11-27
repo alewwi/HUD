@@ -16,30 +16,31 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.90.9';
-import { уверены } from './confirm-erase.js?v=23.90.9';
-import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.90.9';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.90.9';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.90.9';
-import { прикрытьСырой } from './raw-guard.js?v=23.90.9';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.90.9';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.90.9';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.90.9';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.90.9';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.90.9';
-import { полныйПорядок } from './tabs-order.js?v=23.90.9';
-import { getWorldVotes } from './render/world.js?v=23.90.9';
-import { действиеМира } from './render/world-views.js?v=23.90.9';
-import { действиеМузыки } from './render/music.js?v=23.90.9';
-import { раскрытьПорцию } from './render/long-list.js?v=23.90.9';
-import { прогретьИсторию } from './render/carryover.js?v=23.90.9';
-import { подключитьПалитру } from './color-picker.js?v=23.90.9';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.90.9';
-import { замер } from './utils.js?v=23.90.9';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.90.9';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.90.9';
-import { пометитьЭффекты } from './render/fx.js?v=23.90.9';
-import { ID_ТАВЕРНЫ, кнопкаТаверныHTML, сброситьСлежку } from './tavern-theme.js?v=23.90.9';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.90.10';
+import { уверены } from './confirm-erase.js?v=23.90.10';
+import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.90.10';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.90.10';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.90.10';
+import { прикрытьСырой } from './raw-guard.js?v=23.90.10';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.90.10';
+import { кнопкиПузыря } from './render/messenger.js?v=23.90.10';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.90.10';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.90.10';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.90.10';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.90.10';
+import { полныйПорядок } from './tabs-order.js?v=23.90.10';
+import { getWorldVotes } from './render/world.js?v=23.90.10';
+import { действиеМира } from './render/world-views.js?v=23.90.10';
+import { действиеМузыки } from './render/music.js?v=23.90.10';
+import { раскрытьПорцию } from './render/long-list.js?v=23.90.10';
+import { прогретьИсторию } from './render/carryover.js?v=23.90.10';
+import { подключитьПалитру } from './color-picker.js?v=23.90.10';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.90.10';
+import { замер } from './utils.js?v=23.90.10';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.90.10';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.90.10';
+import { пометитьЭффекты } from './render/fx.js?v=23.90.10';
+import { ID_ТАВЕРНЫ, кнопкаТаверныHTML, сброситьСлежку } from './tavern-theme.js?v=23.90.10';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -1528,16 +1529,23 @@ export function refreshReactions(корень) {
 
 function открытьПалитру(пузырь) {
   document.querySelectorAll('.hud-reaction-palette').forEach(п => п.remove());
+  // Сообщение с открытой палитрой — над соседями: палитра раскрывается и вниз (чат игрока).
+  document.querySelectorAll('.hud-msg-wrapper.has-palette').forEach(в => в.classList.remove('has-palette'));
   const палитра = document.createElement('div');
   палитра.className = 'hud-reaction-palette';
   палитра.innerHTML = НАБОР_РЕАКЦИЙ.map(з =>
     `<button type="button" class="hud-reaction-pick" data-pick="${з}">${з}</button>`
   ).join('');
+  // Чат игрока: под реакциями — ответить, переслать, удалить (user-chat-ui.js).
+  const действия = кнопкиПузыря(пузырь);
+  if (действия) { палитра.classList.add('has-uc'); палитра.insertAdjacentHTML('beforeend', действия); }
   пузырь.appendChild(палитра);
+  пузырь.closest('.hud-msg-wrapper')?.classList.add('has-palette');
   // Закрываем по первому же нажатию мимо палитры.
   const закрыть = (e) => {
     if (палитра.contains(e.target)) return;
     палитра.remove();
+    пузырь.closest('.hud-msg-wrapper')?.classList.remove('has-palette');
     document.removeEventListener('pointerdown', закрыть, true);
   };
   setTimeout(() => document.addEventListener('pointerdown', закрыть, true), 0);
@@ -1614,6 +1622,15 @@ document.addEventListener('click', (e) => {
       показатьРеакции(пузырь);
     }
   }
+}, true);
+
+// Настоящий снимок не загрузился (файл удалён, модель придумала имя) —
+// вместо пустой рамки возвращаем плитку с описанием.
+document.addEventListener('error', (e) => {
+  const к = e.target;
+  if (!к || к.tagName !== 'IMG') return;
+  if (к.classList.contains('hud-msg-photo-img')) { к.closest('.hud-msg-photo')?.classList.remove('has-img'); к.remove(); }
+  else if (к.classList.contains('hud-media-img')) { const art = к.closest('.hud-media-art'); art?.nextElementSibling?.removeAttribute('hidden'); art?.remove(); }
 }, true);
 
 // Реакции живут отдельно от чата, и забыть их нужно уметь отдельно.

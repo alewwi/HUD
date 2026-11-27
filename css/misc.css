@@ -66,6 +66,12 @@
 .hud-msg-media:focus-visible { outline: 2px solid var(--hud-accent, #8c5ad2); outline-offset: 2px; border-radius: 10px; }
 @media (hover: hover) and (pointer: fine) { .hud-msg-media:hover .hud-msg-photo-frame { filter: brightness(1.12); } }
 .hud-msg-photo-frame { position: relative; transition: filter .15s ease; }
+/* Настоящий снимок (отправлен из галереи игрока, user-chat-ui.js): картинка
+   вместо плитки. Не загрузилась — events.js убирает её, и плитка возвращается. */
+.hud-msg-photo.has-img .hud-msg-photo-frame { display: none; }
+.hud-msg-photo-img { display: block; width: 100%; max-height: 240px; object-fit: cover; border-radius: 10px; background: rgba(0,0,0,.25); box-shadow: 0 0 0 1px rgba(255,255,255,.08); }
+.hud-media-art.has-img { min-height: 0; padding: 0; background: rgba(0,0,0,.85); }
+.hud-media-img { display: block; max-width: 100%; max-height: 70vh; margin: 0 auto; object-fit: contain; }
 .hud-msg-photo-cap {
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }

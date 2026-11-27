@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.90.9';
-import { mapKey } from './utils.js?v=23.90.9';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.90.9';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.9';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.90.9';
+import { settings } from './settings.js?v=23.90.10';
+import { mapKey } from './utils.js?v=23.90.10';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.90.10';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.10';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.90.10';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -204,6 +204,22 @@ export function normalizeJSONData(parsed) {
     return names.length >= 3 ? names.join('; ') : '';
   };
 
+  // Модель вместо имени игрока пишет «User», «{{user}}» или «<user>» — в
+  // телефоне и перехватах показываем настоящее имя персоны Таверны: и в
+  // названии чата, и в отправителе, и в получателе. Иначе «User» ещё и
+  // считался владельцем телефона (msg-feed.js), и пузырь вставал не туда.
+  const игрокСейчас = (() => { try { const ctx = typeof SillyTavern !== 'undefined' && SillyTavern.getContext ? SillyTavern.getContext() : null; return String((ctx && ctx.name1) || '').trim(); } catch (_) { return ''; } })();
+  const ЗАГЛУШКА_ИГРОКА = /^(?:user|\{\{\s*user\s*\}\}|<\s*user\s*>)$/i;
+  const имяЗаглушки = (v) => { const t = toStr(v).trim(); return игрокСейчас && !ЗАГЛУШКА_ИГРОКА.test(игрокСейчас) && ЗАГЛУШКА_ИГРОКА.test(t) ? игрокСейчас : toStr(v); };
+  const составЗаглушки = (v) => (typeof v === 'string' ? v.split(/([;,])/).map(ч => (/^[;,]$/.test(ч) ? ч : ч.replace(/^(\s*)(.*?)(\s*)$/, (всё, а, имя, б) => а + имяЗаглушки(имя) + б))).join('') : v);
+  const строкаЗаглушки = (стр) => {
+    const t = toStr(стр);
+    if (!игрокСейчас || ЗАГЛУШКА_ИГРОКА.test(игрокСейчас)) return t;
+    const м = t.match(/^(\s*)([^:[\]|]+?)(\s*:)/);
+    if (!м) return t;
+    const голова = м[2].split(/(\s*(?:->|→)\s*)/).map(ч => (/^\s*(?:->|→)\s*$/.test(ч) ? ч : имяЗаглушки(ч))).join('');
+    return голова === м[2] ? t : м[1] + голова + м[3] + t.slice(м[0].length);
+  };
   let chatsMap = {};
   if (typeof parsed.chatsMap === 'object' && parsed.chatsMap !== null) {
     for (const k of Object.keys(parsed.chatsMap)) {
@@ -211,13 +227,13 @@ export function normalizeJSONData(parsed) {
       if (!c || typeof c !== 'object') continue;
       // Статус (ur, dl…) и исход звонка приходят кодами — разворачиваем в слова,
       // которые ищут переписка и уведомления.
-      chatsMap[toStr(k)] = { owner: toStr(c.owner), participants: groupParticipants(c.participants), messages: cleanArray(c.messages).map(строкаСообщения) };
+      chatsMap[имяЗаглушки(k)] = { owner: имяЗаглушки(c.owner), participants: groupParticipants(составЗаглушки(c.participants)), messages: cleanArray(c.messages).map(строкаСообщения).map(строкаЗаглушки) };
     }
   }
   let interceptsParsed = [];
   if (Array.isArray(parsed.intercepts)) {
     interceptsParsed = parsed.intercepts.map(i => {
-      if (typeof i === 'object' && i !== null) return { target: toStr(i.target), chatName: toStr(i.chatName), participants: groupParticipants(i.participants), messages: cleanArray(i.messages).map(строкаСообщения) }; return null;
+      if (typeof i === 'object' && i !== null) return { target: имяЗаглушки(i.target), chatName: имяЗаглушки(i.chatName), participants: groupParticipants(составЗаглушки(i.participants)), messages: cleanArray(i.messages).map(строкаСообщения).map(строкаЗаглушки) }; return null;
     }).filter(i => i && (i.messages.length || valid(i.target) || valid(i.chatName)));
   }
   let diaryParsed = [];

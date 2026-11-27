@@ -1,0 +1,256 @@
+/* TavernOS HUD — переписка от лица игрока (user-chat-ui.js).
+   Поле «Написать как …», «+» с вложениями, карандаш «Новое сообщение»,
+   строка «печатает…», цитата ответа, листы выбора и кнопки под палитрой
+   реакций. Материалы — как у телефона: тёмное стекло, белые доли, акцент HUD. */
+
+/* --- Строка ввода ---------------------------------------------------------- */
+.hud-phone-input-bar.is-user-chat { gap: 8px; padding: 7px 10px; align-items: flex-end; }
+.hud-uc-attach, .hud-uc-send {
+  flex: 0 0 auto; width: 28px; height: 28px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent;
+  transition: background-color .15s ease, color .15s ease, transform .12s ease;
+}
+.hud-uc-attach { font-size: 1.35em; line-height: 1; color: rgba(226,232,240,.75); background: rgba(255,255,255,.06); }
+.hud-uc-send { color: rgba(255,255,255,.55); background: rgba(255,255,255,.1); font-weight: 700; }
+.hud-phone-input-bar.is-user-chat.has-text .hud-uc-send {
+  background: var(--hud-accent, #8c5ad2); color: #fff;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent);
+}
+.hud-uc-attach:active, .hud-uc-send:active { transform: scale(.9); }
+@media (hover: hover) and (pointer: fine) {
+  .hud-uc-attach:hover { background: rgba(255,255,255,.12); color: #fff; }
+  .hud-uc-send:hover { background: rgba(255,255,255,.18); color: #fff; }
+}
+
+.hud-uc-field {
+  display: flex; align-items: flex-end; gap: 7px; min-width: 0;
+  padding: 5px 10px 5px 5px; cursor: text; color: #f1f5f9; border: 1px solid rgba(255,255,255,.06);
+  transition: border-color .15s ease, background-color .15s ease;
+}
+.hud-uc-field:focus-within { border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 50%, transparent); background: rgba(255,255,255,.12); }
+.hud-uc-me {
+  flex: 0 0 auto; width: 20px; height: 20px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 10px; font-style: normal; font-weight: 700; color: #fff;
+  background: linear-gradient(150deg, color-mix(in srgb, var(--hud-accent, #8c5ad2) 80%, #fff 0%), rgba(0,0,0,.55));
+  background-size: cover; background-position: center;
+  box-shadow: 0 0 0 1px rgba(255,255,255,.18);
+}
+.hud-uc-me.has-img { color: transparent; }
+.hud-uc-input {
+  flex: 1 1 auto; min-width: 0; width: 100%; max-height: 120px;
+  margin: 0; padding: 1px 0; border: 0; outline: none; resize: none; overflow-y: hidden; scrollbar-width: thin;
+  background: transparent; color: inherit; font: inherit; font-size: 1em; line-height: 1.35;
+  box-shadow: none;
+}
+.hud-uc-field .hud-uc-input:focus, .hud-uc-field .hud-uc-input:focus-visible { outline: none !important; box-shadow: none !important; }
+.hud-uc-input::placeholder { color: rgba(226,232,240,.45); }
+
+/* --- «печатает…», черновик владельца, цитата --------------------------------- */
+.hud-uc-status {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 7px;
+  padding: 4px 14px 2px; font-size: .74em; color: rgba(226,232,240,.7);
+}
+.hud-uc-status[hidden] { display: none; }
+.hud-uc-status .hud-ask-typing i { width: 5px; height: 5px; }
+.hud-uc-retry {
+  margin-left: auto; padding: 2px 10px; border-radius: 10px; cursor: pointer;
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 60%, transparent);
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent); color: #fff; font-size: 1em;
+}
+.hud-uc-owner-draft {
+  flex: 0 0 auto; padding: 3px 14px; font-size: .72em; font-style: italic;
+  color: rgba(226,232,240,.5); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hud-uc-quote {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 8px; margin: 4px 10px 0;
+  padding: 5px 8px; border-radius: 8px; border-left: 2px solid var(--hud-accent, #8c5ad2);
+  background: rgba(255,255,255,.06); font-size: .76em; min-width: 0;
+}
+.hud-uc-quote-ico { flex: 0 0 auto; display: inline-flex; color: var(--hud-accent, #8c5ad2); }
+.hud-uc-quote-ico svg { width: 14px; height: 14px; }
+.hud-uc-quote-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+.hud-uc-quote-body b { color: var(--hud-accent, #8c5ad2); font-weight: 600; }
+.hud-uc-quote-body small { color: rgba(226,232,240,.7); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 1em; }
+.hud-uc-quote-x { flex: 0 0 auto; cursor: pointer; padding: 2px 4px; color: rgba(226,232,240,.6); }
+
+/* --- Карандаш: новое сообщение -------------------------------------------- */
+.hud-uc-new {
+  flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; margin-left: 6px;
+  display: inline-flex; align-items: center; justify-content: center; cursor: pointer;
+  color: var(--hud-accent, #8c5ad2); background: rgba(255,255,255,.07);
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 35%, transparent);
+}
+.hud-uc-new svg, .hud-uc-new-tab svg, .hud-uc-start svg { width: 14px; height: 14px; }
+.hud-uc-new:active { transform: scale(.9); }
+.hud-phone-subtab.hud-uc-new-tab { flex: 0 0 auto; color: var(--hud-accent, #8c5ad2); padding: 4px 8px; }
+.hud-uc-start, .hud-uc-own-empty .hud-uc-new-tab {
+  display: flex; align-items: center; justify-content: center; gap: 7px; margin: 12px auto 0;
+  padding: 7px 14px; border-radius: 16px; cursor: pointer; font: inherit; font-size: .85em;
+  color: #fff; border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent);
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 22%, rgba(10,10,15,.6));
+}
+.hud-uc-own-empty { display: flex; justify-content: center; padding: 6px 0 2px; }
+.hud-intercepts-alt + .hud-uc-own, .hud-intercepts-alt + .hud-uc-own-empty { margin-top: 10px; }
+
+/* --- Листы: вложения, кому написать, переслать ------------------------------- */
+.hud-uc-host { position: relative; }
+.hud-uc-sheet {
+  position: absolute; inset: 0; z-index: 70; display: flex; align-items: flex-end;
+  background: rgba(3,5,10,.55); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  animation: hud-uc-fade .15s ease both;
+}
+.hud-uc-sheet-box {
+  width: 100%; max-height: 88%; overflow-y: auto; box-sizing: border-box;
+  padding: 12px 12px 14px; border-radius: 16px 16px 0 0;
+  background: linear-gradient(180deg, rgba(28,24,40,.97), rgba(14,12,22,.98));
+  border-top: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 40%, transparent);
+  box-shadow: 0 -8px 24px rgba(0,0,0,.45); color: #e2e8f0; font-size: 13px;
+  display: flex; flex-direction: column; gap: 9px;
+  animation: hud-uc-up .18s ease both;
+}
+/* Лист поверх всего приложения: снизу полоска «домой» телефона — кнопки над ней. */
+.hud-phone-app-view > .hud-uc-sheet .hud-uc-sheet-box { padding-bottom: 54px; }
+@keyframes hud-uc-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hud-uc-up { from { transform: translateY(14px); opacity: .6; } to { transform: none; opacity: 1; } }
+.hud-uc-sheet-title { display: flex; align-items: center; gap: 7px; font-weight: 700; font-size: 1em; color: #f8fafc; }
+.hud-uc-sheet-title svg { width: 15px; height: 15px; color: var(--hud-accent, #8c5ad2); }
+.hud-uc-sheet-note { margin: 0; font-size: .92em; color: rgba(226,232,240,.75); line-height: 1.4; }
+.hud-uc-sheet label { display: flex; flex-direction: column; gap: 4px; font-size: .85em; color: rgba(226,232,240,.7); }
+.hud-uc-sheet .hud-uc-f {
+  width: 100%; box-sizing: border-box; padding: 6px 9px; border-radius: 9px; resize: vertical;
+  border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.07);
+  color: #f1f5f9; font: inherit; font-size: 1.05em; outline: none;
+}
+.hud-uc-sheet .hud-uc-f:focus { border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 70%, transparent); }
+.hud-uc-sheet-btns { display: flex; justify-content: flex-end; gap: 8px; }
+.hud-uc-sheet-btns button {
+  padding: 6px 14px; border-radius: 14px; cursor: pointer; font: inherit; font-size: .92em;
+  border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.07); color: #e2e8f0;
+}
+.hud-uc-sheet-btns .hud-uc-go { background: var(--hud-accent, #8c5ad2); border-color: transparent; color: #fff; }
+
+.hud-uc-kinds { display: grid; grid-template-columns: repeat(auto-fill, minmax(54px, 1fr)); gap: 8px; }
+.hud-uc-kind {
+  display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0;
+  padding: 6px 2px; border: 0; background: transparent; cursor: pointer; color: #e2e8f0; font: inherit;
+}
+.hud-uc-kind > span {
+  width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  color: #fff; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--hud-accent, #8c5ad2) 85%, #fff 10%), color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, #000 45%));
+  box-shadow: 0 3px 10px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.hud-uc-kind > span svg { width: 18px; height: 18px; }
+.hud-uc-kind small { font-size: .78em; color: rgba(226,232,240,.8); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.hud-uc-kind:active > span { transform: scale(.92); }
+
+.hud-uc-who-list { display: flex; flex-direction: column; gap: 4px; }
+.hud-uc-who {
+  display: flex; align-items: center; gap: 9px; width: 100%; min-width: 0; text-align: left;
+  padding: 6px 8px; border-radius: 10px; cursor: pointer; font: inherit; color: #e2e8f0;
+  border: 1px solid rgba(255,255,255,.06); background: rgba(255,255,255,.04);
+}
+.hud-uc-who:active { background: rgba(255,255,255,.1); }
+@media (hover: hover) and (pointer: fine) { .hud-uc-who:hover { background: rgba(255,255,255,.09); } }
+.hud-uc-who-ava {
+  flex: 0 0 auto; width: 30px; height: 30px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center; font-weight: 700; color: #fff;
+  background: linear-gradient(150deg, color-mix(in srgb, var(--hud-accent, #8c5ad2) 70%, #334155), rgba(0,0,0,.6));
+  background-size: cover; background-position: center;
+}
+.hud-uc-who-ava.has-img { color: transparent; }
+.hud-uc-who-meta { display: flex; flex-direction: column; min-width: 0; }
+.hud-uc-who-meta b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-uc-who-meta small { font-size: .8em; color: rgba(226,232,240,.55); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* --- Под палитрой реакций: ответить, переслать, удалить -------------------------- */
+.hud-reaction-palette.has-uc { flex-wrap: wrap; justify-content: center; width: max-content; max-width: 196px; border-radius: 14px; }
+/* Палитра с кнопками шире пузыря: прижата к его стороне, а не по центру — иначе уходит за край ленты. */
+.hud-msg-wrapper.incoming .hud-reaction-palette.has-uc { left: 0; right: auto; transform: none; animation-name: hud-uc-fade; }
+.hud-msg-wrapper.outgoing .hud-reaction-palette.has-uc { left: auto; right: 0; transform: none; animation-name: hud-uc-fade; }
+.hud-uc-actions { flex: 1 0 100%; display: flex; justify-content: center; gap: 2px; margin-top: 3px; padding-top: 4px; border-top: 1px solid rgba(255,255,255,.08); }
+.hud-uc-actions button {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0;
+  padding: 3px 6px; border: 0; border-radius: 8px; background: transparent; cursor: pointer;
+  color: rgba(226,232,240,.85); font: inherit; font-size: 10px;
+}
+.hud-uc-actions button svg { width: 15px; height: 15px; color: var(--hud-accent, #8c5ad2); }
+.hud-uc-actions button[data-uc="delete"] svg { color: #f87171; }
+.hud-uc-actions button:active { background: rgba(255,255,255,.1); }
+@media (hover: hover) and (pointer: fine) { .hud-uc-actions button:hover { background: rgba(255,255,255,.09); } }
+
+/* Анимации HUD стоят на паузе до наведения (views.css) — листы и палитра играют сразу. */
+.hud-uc-sheet, .hud-uc-sheet-box { animation-play-state: running !important; }
+
+/* --- Телефон: карточка ~215px — поле не должно сжиматься в щель ----------------- */
+@media (max-width: 600px) {
+  .hud-phone-input-bar.is-user-chat { gap: 4px; padding: 5px 4px; }
+  .hud-phone-input-bar.is-user-chat .hud-uc-attach, .hud-phone-input-bar.is-user-chat .hud-uc-send { width: 22px; height: 22px; font-size: 1em; }
+  .hud-phone-input-bar.is-user-chat .hud-uc-attach { font-size: 1.2em; }
+  .hud-phone-input-bar.is-user-chat .hud-uc-field { padding: 4px 6px; }
+  .hud-phone-input-bar.is-user-chat .hud-uc-input { font-size: .92em; }
+  .hud-uc-field .hud-uc-me { display: none; }
+  /* Шапке «Сообщений» с карандашом не хватает места: без значка приложения и
+     владельца (он виден в других приложениях). Значок карандаша — внутри кнопки. */
+  .hud-phone-app-view[data-phone-view="messages"] .hud-phone-app-title > .hud-g-ico { display: none; }
+  .hud-phone-app-view[data-phone-view="messages"] .hud-phone-app-owner { display: none; }
+  .hud-uc-new { width: 22px; height: 22px; margin-left: auto; }
+  .hud-uc-new svg { width: 12px; height: 12px; }
+  .hud-reaction-palette.has-uc { max-width: 150px; }
+  .hud-uc-actions { gap: 0; }
+  .hud-uc-actions button { flex: 1 1 0; padding: 3px 2px; font-size: 9.5px; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-phone-input-bar.is-user-chat { gap: 4px; padding: 5px 4px; }
+  .hud-phone-input-bar.is-user-chat .hud-uc-attach, .hud-phone-input-bar.is-user-chat .hud-uc-send { width: 22px; height: 22px; font-size: 1em; }
+  .hud-phone-input-bar.is-user-chat .hud-uc-attach { font-size: 1.2em; }
+  .hud-phone-input-bar.is-user-chat .hud-uc-field { padding: 4px 6px; }
+  .hud-phone-input-bar.is-user-chat .hud-uc-input { font-size: .92em; }
+  .hud-uc-field .hud-uc-me { display: none; }
+  /* Шапке «Сообщений» с карандашом не хватает места: без значка приложения и
+     владельца (он виден в других приложениях). Значок карандаша — внутри кнопки. */
+  .hud-phone-app-view[data-phone-view="messages"] .hud-phone-app-title > .hud-g-ico { display: none; }
+  .hud-phone-app-view[data-phone-view="messages"] .hud-phone-app-owner { display: none; }
+  .hud-uc-new { width: 22px; height: 22px; margin-left: auto; }
+  .hud-uc-new svg { width: 12px; height: 12px; }
+  .hud-reaction-palette.has-uc { max-width: 150px; }
+  .hud-uc-actions { gap: 0; }
+  .hud-uc-actions button { flex: 1 1 0; padding: 3px 2px; font-size: 9.5px; }
+} }
+/* cq ↑ */
+/* Палитра с кнопками высокая: в чате игрока раскрывается вниз — над первым
+   пузырём сверху ей места нет (там шапка чата), а вниз лента прокручивается. */
+.hud-phone-subbody[data-user-chat] .hud-reaction-palette.has-uc { top: calc(100% + 6px); bottom: auto; }
+/* Ширина палитры — не шире ленты за вычетом аватарки: лента — контейнер. */
+.hud-phone-subbody[data-user-chat] .hud-phone-chat-area { container-type: inline-size; }
+.hud-phone-subbody[data-user-chat] .hud-msg-wrapper.incoming .hud-reaction-palette.has-uc { max-width: min(196px, calc(100cqw - 30px)); }
+.hud-phone-subbody[data-user-chat] .hud-msg-wrapper.outgoing .hud-reaction-palette.has-uc { max-width: min(196px, calc(100cqw - 20px)); }
+/* Сообщение с открытой палитрой реакций — над соседними (events.js, has-palette). */
+.hud-msg-wrapper.has-palette { position: relative; z-index: 45; }
+/* Ответ модели по одному (user-chat-ui.js): следующий пузырь ждёт своей очереди. */
+.hud-phone-chat-area > .hud-uc-hold { display: none !important; }
+
+/* --- Фото: описание или своя картинка ------------------------------------------- */
+.hud-uc-seg { display: flex; padding: 3px; gap: 3px; border-radius: 11px; background: rgba(255,255,255,.06); }
+.hud-uc-seg button {
+  flex: 1 1 0; min-width: 0; padding: 5px 6px; border: 0; border-radius: 8px; cursor: pointer;
+  background: transparent; color: rgba(226,232,240,.7); font: inherit; font-size: .88em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hud-uc-seg button.is-on { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, rgba(20,16,30,.9)); color: #fff; }
+.hud-uc-mode[hidden] { display: none; }
+.hud-uc-mode { display: flex; flex-direction: column; gap: 8px; }
+.hud-uc-sheet label.hud-uc-pick { display: block; position: relative; }
+.hud-uc-pick input[type="file"] { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.hud-uc-pick-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px;
+  border-radius: 10px; border: 1px dashed color-mix(in srgb, var(--hud-accent, #8c5ad2) 60%, transparent);
+  background: rgba(255,255,255,.05); color: #f1f5f9; font-size: 1.05em;
+}
+.hud-uc-pick-btn svg { width: 16px; height: 16px; color: var(--hud-accent, #8c5ad2); }
+.hud-uc-preview { border-radius: 10px; overflow: hidden; background: rgba(0,0,0,.35); }
+.hud-uc-preview[hidden] { display: none; }
+.hud-uc-preview img { display: block; width: 100%; max-height: 170px; object-fit: contain; }
+.hud-uc-go:disabled { opacity: .6; cursor: progress; }

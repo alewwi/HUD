@@ -12,10 +12,10 @@
 // оказываются рядом вчерашнее «22:30» и сегодняшнее «08:30», и без подписи
 // «Вчера» это читается как один разговор подряд.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.90.9';
-import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.90.9';
-import { avaFace } from './phone-common.js?v=23.90.9';
-import { namesLikelySame } from '../names.js?v=23.90.9';
+import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName } from '../utils.js?v=23.90.10';
+import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.90.10';
+import { avaFace } from './phone-common.js?v=23.90.10';
+import { namesLikelySame, тотЖеСтрого } from '../names.js?v=23.90.10';
 
 // Один человек в переписке под разными подписями: «Грей» и «Профессор Грей»,
 // «Butler» и «Private Butler», «Damian» и «THE LANTERNS Damian Hartley».
@@ -222,7 +222,11 @@ export function разобратьСообщение(raw) {
 }
 
 // Своё ли сообщение: отправитель — владелец телефона или «я/вы/user».
+// Настоящее имя игрока — не владелец, даже если персону зовут «User» (имя
+// по умолчанию в Таверне): его сообщения на чужом телефоне — входящие.
 export function исходящееСообщение(кто, owner) {
+  const игрок = getSafeUserName();
+  if (игрок && тотЖеСтрого(кто, игрок) && !(owner && тотЖеСтрого(owner, игрок))) return false;
   if (/^(?:user|you|вы|я|player)$/i.test(String(кто || '').trim())) return true;
   return Boolean(owner && тотЖеВПереписке(кто, owner));
 }
@@ -379,7 +383,7 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
       ${!исходящее ? кружок(подпись) : ''}
       <div class="hud-msg-content" style="max-width: 100%;">
         <span class="hud-msg-sender"${стильИмени}>${escapeHtml(подпись)}</span>
-        <div class="hud-msg-bubble" data-msg-key="${msgKey(текст)}">
+        <div class="hud-msg-bubble" data-msg-key="${msgKey(текст)}"${статус ? ` data-st="${escapeHtml(String(статус).trim().toLowerCase())}"` : ''}>
           ${черновик ? '<div class="hud-msg-draft-mark">✎ черновик, не отправлено</div>' : ''}
           ${внутри}
           ${мета}

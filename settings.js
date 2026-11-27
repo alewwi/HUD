@@ -628,6 +628,19 @@ export const defaultSettings = {
   hudMaxTokens: 8192,
   // Лимит ответа на перегенерацию одного телефона (📱 ↻); 0 — длина ответа из Таверны.
   phoneMaxTokens: 8192,
+  // Переписка от лица игрока (user-chat-ui.js): писать в чатах с {{user}} в
+  // телефоне персонажа и в своих перехватах. Ответ — отдельным запросом; что
+  // в него идёт — ниже. userChatNote — сказать следующему ответу, что игрок писал.
+  userChat: true,
+  userChatNote: true,
+  userChatHistory: 6,
+  userChatCard: true,
+  userChatPersona: true,
+  userChatHud: true,
+  userChatLore: false,
+  // Настоящие снимки игрока — картинками модели (если источник умеет), иначе по описанию.
+  userChatImages: true,
+  userChatMaxTokens: 2048,
   // Сколько минут модель может молчать при создании/перегенерации HUD; 0 — без предела.
   hudRegenTimeout: 6,
   // Рассуждения модели в этих запросах: 'same' — как в Таверне, 'low' — поменьше.

@@ -18,9 +18,9 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings, defaultSettings } from './settings.js?v=23.90.9';
-import { последнийСтильHUD } from './css-loader.js?v=23.90.9';
-import { темаТаверны, ID_ТАВЕРНЫ } from './tavern-theme.js?v=23.90.9';
+import { settings, defaultSettings } from './settings.js?v=23.90.10';
+import { последнийСтильHUD } from './css-loader.js?v=23.90.10';
+import { темаТаверны, ID_ТАВЕРНЫ } from './tavern-theme.js?v=23.90.10';
 
 const HUD_THEMES = [
   {

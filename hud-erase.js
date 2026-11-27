@@ -32,15 +32,15 @@
 // Здесь — логика. Кнопки и окно подтверждения — index.js, разметка кнопки —
 // render/erase-button.js.
 
-import { ручнойПол, записатьПол, очиститьКарточку, очиститьПамять, вернутьПамять } from './manual-gender.js?v=23.90.9';
-import { hudБлоки, заглушкиHUD, развернутьЗаглушки, заглушкаHUD, блокКакБыл } from './hud-block.js?v=23.90.9';
-import { HUDвКодах } from './hud-snapshot.js?v=23.90.9';
-import { namesLikelySame } from './names.js?v=23.90.9';
-import { ячейки, подготовитьВыгруженные, подгрузитьЧат, развернутьHUD, ключБлока } from './offload.js?v=23.90.9';
-import { ключСекрета, правки, снятьПравку } from './snapshot-edits.js?v=23.90.9';
-import { ключСообщения } from './chronicle.js?v=23.90.9';
-import { стеретьВЛетописи, выжимкиЛетописи, пополнитьЛетопись, сохранитьЛетописьСейчас } from './chronicle-store.js?v=23.90.9';
-import { стеретьБеременность, снимокБеременности, вернутьБеременность } from './render/conception.js?v=23.90.9';
+import { ручнойПол, записатьПол, очиститьКарточку, очиститьПамять, вернутьПамять } from './manual-gender.js?v=23.90.10';
+import { hudБлоки, заглушкиHUD, развернутьЗаглушки, заглушкаHUD, блокКакБыл } from './hud-block.js?v=23.90.10';
+import { HUDвКодах } from './hud-snapshot.js?v=23.90.10';
+import { namesLikelySame } from './names.js?v=23.90.10';
+import { ячейки, подготовитьВыгруженные, подгрузитьЧат, развернутьHUD, ключБлока } from './offload.js?v=23.90.10';
+import { ключСекрета, правки, снятьПравку } from './snapshot-edits.js?v=23.90.10';
+import { ключСообщения } from './chronicle.js?v=23.90.10';
+import { стеретьВЛетописи, выжимкиЛетописи, пополнитьЛетопись, сохранитьЛетописьСейчас } from './chronicle-store.js?v=23.90.10';
+import { стеретьБеременность, снимокБеременности, вернутьБеременность } from './render/conception.js?v=23.90.10';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };

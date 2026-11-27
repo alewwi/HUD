@@ -45,6 +45,8 @@
   box-shadow: 0 0 10px -2px color-mix(in srgb, var(--tst-acc) 60%, transparent);
 }
 .hud-tst-up span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* «Сразу до …»: тише основной кнопки — сплошная тонкая рамка, без свечения. */
+.hud-tst-all { padding: 2px 8px; border-style: solid; box-shadow: none; font-weight: 600; opacity: .85; }
 @media (hover: hover) and (pointer: fine) {
   .hud-tst-lock:hover { opacity: 1; background: color-mix(in srgb, var(--tst-acc) 20%, transparent); }
   .hud-tst-lock.is-on:hover { background: radial-gradient(circle at 35% 30%, #fff6d8, #ebbf5e 55%, #b07c22); }

@@ -10,27 +10,27 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.90.9';
-import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.90.9';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.90.9';
+import { settings } from './settings.js?v=23.90.10';
+import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.90.10';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.90.10';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.90.9';
-import { промптНаАнглийском } from './prompt-en.js?v=23.90.9';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.90.9';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.90.9';
-import { parseSceneDate } from './history-analyzer.js?v=23.90.9';
-import { возрастТочно } from './render/babies.js?v=23.90.9';
-import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.90.9';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.90.9';
-import { сжатьСхему } from './compact-fields.js?v=23.90.9';
-import { короткийПромпт } from './prompt-short.js?v=23.90.9';
-import { подготовкаИдёт } from './render/holiday-lore.js?v=23.90.9';
-import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.90.9';
-import { промптРанСпутника } from './render/pet-wounds.js?v=23.90.9';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.90.9';
-import { полДляМодели } from './manual-gender.js?v=23.90.9';
-import { правилоСостава } from './cast.js?v=23.90.9';
-import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.90.9';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.90.10';
+import { промптНаАнглийском } from './prompt-en.js?v=23.90.10';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.90.10';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.90.10';
+import { parseSceneDate } from './history-analyzer.js?v=23.90.10';
+import { возрастТочно } from './render/babies.js?v=23.90.10';
+import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.90.10';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.90.10';
+import { сжатьСхему } from './compact-fields.js?v=23.90.10';
+import { короткийПромпт } from './prompt-short.js?v=23.90.10';
+import { подготовкаИдёт } from './render/holiday-lore.js?v=23.90.10';
+import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.90.10';
+import { промптРанСпутника } from './render/pet-wounds.js?v=23.90.10';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.90.10';
+import { полДляМодели } from './manual-gender.js?v=23.90.10';
+import { правилоСостава } from './cast.js?v=23.90.10';
+import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.90.10';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -344,7 +344,7 @@ ${бельё ? `   "Un": "[OPTIONAL, only when it matters in the scene — under
    "AC": "[aftercare (phase 3 only): what this character needs now it's over — touch, water, silence, words, or nothing. 2-3 sentences: what exactly, from whom, why it matters now, what would hurt instead, e.g. 'Молча обнять и не говорить ни слова — любые слова разрушат ощущение сейчас']",
    "SxV": "[sex review (phase 3 only), once it has ended: 4-6 sentences in this character's own voice — what worked, what didn't, the best and most awkward moment, how body and heart felt, what to repeat or never again — ending with a rating like ★★★★☆]",` : ''}${следы ? `
    "Mrk": "[visible body marks and physical aftermath — ${интим ? 'hickeys, bites, scratches, bruises, redness, soreness, heaviness' : 'bruises, scratches, grazes, redness, soreness'} — every turn from appearance until they fade in story time${интим ? ', whatever the intimacy phase' : ''}. Each '<what>: <where> — <how it looks/feels now> | <fade time from appearance: 12h, 3d>':${интим ? `'Засос: шея слева — наливается фиолетовым, ноет | 5d; Следы ногтей: спина — красные полосы | 2d'` : `'Синяк: левое предплечье — желтеет по краям, ноет при нажатии | 5d; Ссадины: костяшки правой руки — подсохли корочкой | 2d'`}. The fade time is set once and counted from sc.Dt and sc.T — keep both accurate; the look changes as it heals. Marks that never fade — scars, tattoos, piercings, birthmarks — have no fade time: write when they were obtained instead, '| получен: <date, age or event>' ('Шрам: левая бровь — тонкая белая полоса | получен: в 14 лет, драка'). Body only, no feelings. 'empty' when none; separate by ;]",` : ''}
-   "Tr": "[trust: how much this character trusts each other named character, ${settings.trustLocks === false ? "0-100, '<name>: <0-100>'" : "-100 to 100 — below 0 is hostility, -100 a sworn enemy, 0 a wary stranger, 100 trust with one's life; '<name>: <number>'"}: 'Вера: 82; Павел: 9'. One entry per person they know. Not the same as Rl — one can love and not trust.${settings.trustLocks === false ? '' : ` Stages, each from its number up: ${ступениДляПромпта()}. Trust crosses a stage line upward only on a turn with a key event (real help with nothing to gain, danger faced together, a secret shared, support in a weak moment, a sacrifice); talk alone stops just below it. Falling needs no event.${разрешениеНужно() ? ' The player opens each higher stage: until then the HUD holds the number at the top of the open one.' : ''} An entry marked [locked: <stage>] in the last HUD is fixed by the player: write it exactly as it is.`}${settings.enableScars === false ? '' : " Only when a value moves by 5 or more THIS turn, add why in a few words in brackets: 'Вера: 82 (выручила, когда никто не пришёл)'; a deep wound starts with !: 'Вера: 40 (!накричала при всех)'."} Separate by ;]",
+   "Tr": "[trust: how much this character trusts each other named character, ${settings.trustLocks === false ? "0-100, '<name>: <0-100>'" : "-100 to 100 — below 0 is hostility, -100 a sworn enemy, 0 a wary stranger, 100 trust with one's life; '<name>: <number>'"}: 'Вера: 82; Павел: 9'. One entry per person they know. Not the same as Rl — one can love and not trust.${settings.trustLocks === false ? '' : ` Stages, each from its number up: ${ступениДляПромпта()}. Trust crosses a stage line upward only on a turn with a key event (real help with nothing to gain, danger faced together, a secret shared, support in a weak moment, a sacrifice); talk alone stops just below it. Falling needs no event.${разрешениеНужно() ? ' The player opens each higher stage. An entry marked [held: <stage>] in the last HUD sits at the top of the stage the player has opened: keep that number and play the relation at that stage. Only on a turn whose key event earns the next stage, write one point above it — that asks the player, and the HUD holds the number until they agree.' : ''} An entry marked [locked: <stage>] in the last HUD is fixed by the player: write it exactly as it is.`}${settings.enableScars === false ? '' : " Only when a value moves by 5 or more THIS turn, add why in a few words in brackets: 'Вера: 82 (выручила, когда никто не пришёл)'; a deep wound starts with !: 'Вера: 40 (!накричала при всех)'."} Separate by ;]",
    "Fr": "[fears: what this character is afraid of RIGHT NOW, each '<what they fear>: <low | moderate | high | panic>': 'Потерять Веру: high; Отец узнает: moderate'. Live fears in this scene, not lifelong phobias unless surfaced. Never the level alone: no live fear — write empty. Separate by ;]"${своиЧьи.has('chars') ? полеСвоих('chars') : ''}
   }
  ]`;

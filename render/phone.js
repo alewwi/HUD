@@ -6,24 +6,24 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.90.9';
-import { форматВремени } from '../units.js?v=23.90.9';
-import { английский } from '../i18n.js?v=23.90.9';
-import { settings } from '../settings.js?v=23.90.9';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.90.9';
-import { G_ICONS } from './icons.js?v=23.90.9';
-import { значокПриложения, естьНабор } from './phone-icons.js?v=23.90.9';
-import { buildMessengerHTML } from './messenger.js?v=23.90.9';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.90.9';
-import { безШапокСообщения } from './msg-parts.js?v=23.90.9';
-import { сортироватьЧаты, непрочитанные, времяВСписке, моментПоследнего } from './msg-feed.js?v=23.90.9';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.90.9';
-import { buildCalendarApp } from './calendar.js?v=23.90.9';
-import { приложениеМузыки } from './music.js?v=23.90.9';
-import { временаСлухов, ключСлуха } from './rumor-times.js?v=23.90.9';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.90.10';
+import { форматВремени } from '../units.js?v=23.90.10';
+import { английский } from '../i18n.js?v=23.90.10';
+import { settings } from '../settings.js?v=23.90.10';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.90.10';
+import { G_ICONS } from './icons.js?v=23.90.10';
+import { значокПриложения, естьНабор } from './phone-icons.js?v=23.90.10';
+import { buildMessengerHTML } from './messenger.js?v=23.90.10';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.90.10';
+import { безШапокСообщения } from './msg-parts.js?v=23.90.10';
+import { сортироватьЧаты, непрочитанные, времяВСписке, моментПоследнего } from './msg-feed.js?v=23.90.10';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.90.10';
+import { buildCalendarApp } from './calendar.js?v=23.90.10';
+import { приложениеМузыки } from './music.js?v=23.90.10';
+import { временаСлухов, ключСлуха } from './rumor-times.js?v=23.90.10';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.90.9';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.90.10';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -152,8 +152,8 @@ function buildWalletApp(wallet, owner) {
 // --- Календарь ---------------------------------------------------------------
 // Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
 // (render/medieval.js).
-export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.90.9';
-import { ближайшиеДела } from './calendar.js?v=23.90.9';
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.90.10';
+import { ближайшиеДела } from './calendar.js?v=23.90.10';
 
 // Слухи города: то, что модель и так пишет в мир, — последние десять, свежие
 // сверху. Два раздела вкладками (радиокнопками, без скриптов): «Говорят» —
@@ -240,7 +240,7 @@ function buildContactsApp(contacts) {
     const личность = контактСНастоящимИменем(contacts, c.name);
     return `<div class="hud-phone-contact">
       ${avaFace(name, 'hud-phone-contact-avatar', `linear-gradient(150deg, ${HUD_AVATAR_COLORS[hudHashSeed(name) % HUD_AVATAR_COLORS.length]}, rgba(0,0,0,.5))`)}
-      <div><b>${defeatWI(escapeHtml(name))}</b>${личность ? ложноеИмяHTML(личность) : ''}${c.note ? `<small>${escapeHtml(c.note)}</small>` : ''}</div>
+      <div><b>${defeatWI(escapeHtml(name))}</b>${личность && личность.ложное ? ложноеИмяHTML(личность) : личность ? `<small class="hud-contact-full">${defeatWI(escapeHtml(личность.настоящее))}</small>` : ''}${c.note ? `<small>${escapeHtml(c.note)}</small>` : ''}</div>
     </div>`;
   }).join('') + `</div>`;
 }
@@ -334,6 +334,8 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   // от обратного (!== false), чтобы старые сохранённые настройки, где этих
   // ключей ещё нет, вели себя как «всё включено».
   const on = (key) => settings[key] !== false;
+  // Переписка от лица игрока (user-chat-ui.js): карандаш «Новое сообщение».
+  const пишет = settings.userChat !== false;
   // Где сейчас владелец: для «Погоды» и отметки «Вы здесь» на карте.
   const владелецКарточка = (Array.isArray(characters) ? characters : []).find(c => c && c['Имя'] && namesLikelySame(c['Имя'], phoneOwner));
   const местоВладельца = владелецКарточка ? String(владелецКарточка['Место'] || '').trim() : '';
@@ -346,7 +348,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     on('phoneAppWeather') && { id: 'weather', icon: G_ICONS.weather, label: 'Погода', body: buildWeatherApp(доп.scene, доп.world, местоВладельца) },
     on('phoneAppHealth') && { id: 'health', icon: G_ICONS.health, label: 'Здоровье', body: buildHealthApp(phone, доп.scene, characters, phoneOwner, доп.user) },
     on('phoneAppMessages') && { id: 'messages', icon: G_ICONS.chat, label: 'Сообщения', badge: unread,
-      body: messenger || emptyApp(G_ICONS.chat, 'В текущем повествовании нет переписок') },
+      body: messenger || (emptyApp(G_ICONS.chat, 'В текущем повествовании нет переписок') + (пишет ? `<button type="button" class="hud-uc-start" data-uc="new">${G_ICONS.pen}<span>Написать · ${escapeHtml(имяБезПриставки(phoneOwner))}</span></button>` : '')) },
     on('phoneAppContacts') && { id: 'contacts', icon: G_ICONS.person, label: 'Контакты',  body: buildContactsApp(phone.contacts) },
     on('phoneAppWallet') && { id: 'wallet',   icon: G_ICONS.card, label: 'Кошелёк',   body: buildWalletApp(phone.wallet, phoneOwner) },
     on('phoneAppCalendar') && { id: 'calendar', icon: G_ICONS.cal, label: 'Календарь', body: buildCalendarApp(phone.calendar, characters, sceneDate, phoneOwner) },
@@ -370,7 +372,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   </button>`; }).join('');
 
   const views = apps.map(a => `<div class="hud-phone-app-view" data-phone-view="${a.id}" data-phone-uid="${uid}">
-    <div class="hud-phone-app-title"><span class="hud-phone-back" role="button" tabindex="0" aria-label="Назад" title="Назад">⟨</span>${a.icon} ${escapeHtml(a.label)}<span class="hud-phone-app-owner">${escapeHtml(имяБезПриставки(phoneOwner))}</span></div>
+    <div class="hud-phone-app-title"><span class="hud-phone-back" role="button" tabindex="0" aria-label="Назад" title="Назад">⟨</span>${a.icon} ${escapeHtml(a.label)}<span class="hud-phone-app-owner">${escapeHtml(имяБезПриставки(phoneOwner))}</span>${a.id === 'messages' && пишет ? `<span class="hud-uc-new" data-uc="new" role="button" tabindex="0" aria-label="Новое сообщение" title="Новое сообщение">${G_ICONS.pen}</span>` : ''}</div>
     ${a.body}
   </div>`).join('');
 
@@ -535,6 +537,8 @@ export function openPhoneMediaViewer(tile) {
   if (!tile || document.querySelector('.hud-media-overlay')) return;
   const вид = tile.dataset.media === 'video' ? 'video' : 'photo';
   const описание = tile.dataset.mediaDesc || '';
+  // Настоящий снимок (отправлен из галереи игрока) — показываем его.
+  const картинка = вид === 'photo' && /^\/user\/files\/hud-photo-[\w-]+\.(?:jpe?g|png|webp|gif)$/i.test(tile.dataset.mediaSrc || '') ? tile.dataset.mediaSrc : '';
   const длительность = tile.dataset.mediaDur || '';
 
   // Отправителя и время берём из пузыря рядом: в описании их нет, а понять,
@@ -547,7 +551,7 @@ export function openPhoneMediaViewer(tile) {
   overlay.className = 'hud-modal-overlay hud-media-overlay';
   overlay.innerHTML = `
     <div class="hud-media-view" role="dialog" aria-modal="true" aria-label="${вид === 'video' ? 'Описание ролика' : 'Описание снимка'}">
-      <div class="hud-media-art${вид === 'video' ? ' is-video' : ''}" style="--shot: ${tile.style.getPropertyValue('--shot') || '#4a5570'}">
+      ${картинка ? `<div class="hud-media-art has-img"><img class="hud-media-img" src="${escapeHtml(картинка)}" alt="${escapeHtml(описание || 'Фото')}"></div>` : ''}<div class="hud-media-art${вид === 'video' ? ' is-video' : ''}"${картинка ? ' hidden' : ''} style="--shot: ${tile.style.getPropertyValue('--shot') || '#4a5570'}">
         ${вид === 'video'
           ? '<span class="hud-msg-video-play" aria-hidden="true"></span>'
           : G_ICONS.image}
@@ -555,7 +559,7 @@ export function openPhoneMediaViewer(tile) {
       </div>
       <div class="hud-media-body">
         <div class="hud-media-kind">${вид === 'video' ? '🎬 Видео' : '📷 Снимок'}${отправитель ? ' · ' + escapeHtml(отправитель.trim()) : ''}${время ? ' · ' + escapeHtml(время.trim()) : ''}</div>
-        <div class="hud-media-desc">${описание ? defeatWI(escapeHtml(описание)) : 'Описание не приложено.'}</div>
+        ${описание || !картинка ? `<div class="hud-media-desc">${описание ? defeatWI(escapeHtml(описание)) : 'Описание не приложено.'}</div>` : ''}
       </div>
       <div class="hud-modal-foot"><button type="button" class="hud-modal-btn cancel">Закрыть</button></div>
     </div>`;

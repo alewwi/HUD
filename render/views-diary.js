@@ -17,11 +17,11 @@
 // Конечный вид рисуется сразу, без анимации появления: HUD держит анимации
 // на паузе, пока на вид не навели мышь или не нажали (css/views.css).
 
-import { имяДляВкладки } from '../utils.js?v=23.90.9';
-import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.90.9';
-import { лицоЧеловека as лицо } from './views.js?v=23.90.9';
-import { ико } from './view-icons.js?v=23.90.9';
-import { градусы } from '../units.js?v=23.90.9';
+import { имяДляВкладки } from '../utils.js?v=23.90.10';
+import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.90.10';
+import { лицоЧеловека as лицо } from './views.js?v=23.90.10';
+import { ико } from './view-icons.js?v=23.90.10';
+import { градусы } from '../units.js?v=23.90.10';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -262,7 +262,7 @@ export function строкаПротокола(текст) {
     const т = ТЕГИ.find(([re]) => re.test(тег));
     if (!т) return всё;
     if (!вложение && !/^(?:в ответ|писал\(а\))$/.test(т[1])) вложение = т[1];
-    const тело = String(суть || '').split('::').map(x => x.trim()).filter(Boolean);
+    const тело = String(т[1] === 'снимок' ? String(суть || '').replace(/\s*\(file:\s*hud-photo-[^)]*\)\s*$/i, '') : суть || '').split('::').map(x => x.trim()).filter(Boolean);
     // Опрос: «вопрос ;; вариант = кто» — только вопрос.
     const кратко = т[1] === 'опрос' ? (тело[0] || '').split(';;')[0].trim() : т[1] === 'в ответ' ? (тело[1] || тело[0] || '') : тело.join(' — ');
     return `⟨${т[1]}${длина ? ' ' + длина : ''}${кратко ? ': ' + кратко : ''}⟩`;

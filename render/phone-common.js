@@ -4,11 +4,11 @@
 // сообщения и сбор собеседников по строкам переписки. Лежит отдельно,
 // чтобы ни один из двух модулей не пришлось объявлять главным.
 
-import { нужноПолноеИмя } from '../korean-names.js?v=23.90.9';
-import { escapeHtml, defeatWI, инициалыИмени } from '../utils.js?v=23.90.9';
-import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.90.9';
-import { namesLikelySame } from '../names.js?v=23.90.9';
-import { G_ICONS } from './icons.js?v=23.90.9';
+import { нужноПолноеИмя } from '../korean-names.js?v=23.90.10';
+import { escapeHtml, defeatWI, инициалыИмени } from '../utils.js?v=23.90.10';
+import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.90.10';
+import { namesLikelySame } from '../names.js?v=23.90.10';
+import { G_ICONS } from './icons.js?v=23.90.10';
 
 // Обращения без адресата: такие имена в собеседники не годятся.
 const GENERIC_PARTY = /^(все|всем|all|everyone|группа|group|чат|chat|вы|you|user|я|me)$/i;
@@ -66,7 +66,13 @@ export function контактСНастоящимИменем(контакты,
   const точно = список.find(c => String(c.name).trim().toLowerCase() === ищем);
   const запись = точно || список.find(c => этоОнПоИмени(настоящееИмяЗаписи(c), имя));
   const настоящее = настоящееИмяЗаписи(запись);
-  return настоящее && !namesLikelySame(настоящее, запись.name) ? { сохранён: String(запись.name).trim(), настоящее } : null;
+  if (!настоящее || namesLikelySame(настоящее, запись.name)) return null;
+  // Записан по фамилии или по имени («Смирнова» у «Веры Смирновой») — это не
+  // ложное имя: тот же человек, просто так он сохранён. Маску «ложное имя»
+  // рисуем, только когда записанного нет в настоящем имени.
+  const сохр = словаИмени(запись.name), наст = словаИмени(настоящее);
+  const ложное = !(сохр.length && сохр.every(w => наст.includes(w)));
+  return { сохранён: String(запись.name).trim(), настоящее, ложное };
 }
 
 // Отметка рядом с именем там, где нажатие занято (строка чата открывает чат).
