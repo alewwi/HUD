@@ -16,12 +16,12 @@
 // Схема города выводится из названий мест: одно и то же место всегда на
 // одной и той же точке. Это набросок, а не навигатор.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.90.12';
-import { английский } from '../i18n.js?v=23.90.12';
-import { namesLikelySame } from '../names.js?v=23.90.12';
-import { G_ICONS } from './icons.js?v=23.90.12';
-import { контактСНастоящимИменем, ложноеИмяHTML, меткаЛожногоИмени } from './phone-common.js?v=23.90.12';
-import { лицо } from './phone-extra.js?v=23.90.12';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.90.13';
+import { английский } from '../i18n.js?v=23.90.13';
+import { namesLikelySame } from '../names.js?v=23.90.13';
+import { G_ICONS } from './icons.js?v=23.90.13';
+import { контактСНастоящимИменем, ложноеИмяHTML, меткаЛожногоИмени } from './phone-common.js?v=23.90.13';
+import { лицо } from './phone-extra.js?v=23.90.13';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const пусто = (v) => !текст(v) || /^(empty|none|null|нет|пусто)$/i.test(текст(v));

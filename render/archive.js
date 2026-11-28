@@ -6,19 +6,19 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.90.12';
-import { английский } from '../i18n.js?v=23.90.12';
-import { settings } from '../settings.js?v=23.90.12';
-import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.90.12';
-import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.90.12';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.90.12';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.90.12';
-import { ссылкиТрека } from './music.js?v=23.90.12';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.90.12';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.90.12';
-import { ико } from './view-icons.js?v=23.90.12';
-import { namesLikelySame } from '../names.js?v=23.90.12';
-import { старина, стариннаяЗабота } from '../era.js?v=23.90.12';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.90.13';
+import { английский } from '../i18n.js?v=23.90.13';
+import { settings } from '../settings.js?v=23.90.13';
+import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.90.13';
+import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.90.13';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.90.13';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.90.13';
+import { ссылкиТрека } from './music.js?v=23.90.13';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.90.13';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.90.13';
+import { ико } from './view-icons.js?v=23.90.13';
+import { namesLikelySame } from '../names.js?v=23.90.13';
+import { старина, стариннаяЗабота } from '../era.js?v=23.90.13';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).

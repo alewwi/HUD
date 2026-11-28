@@ -22,13 +22,13 @@
 //    Не понять — ничего не трогаем. Омегаверс, mpreg, трансгендерность и
 //    интерсекс-тела — исключение: там решает модель.
 
-import { нужноПолноеИмя } from './korean-names.js?v=23.90.12';
-import { ручнойПол, очиститьКарточку } from './manual-gender.js?v=23.90.12';
-import { settings } from './settings.js?v=23.90.12';
-import { namesLikelySame, normalizeNameText, запомнитьРазныхЛюдей } from './names.js?v=23.90.12';
-import { полПерсонажа, МЕТКА_ПОЛА } from './render/scene-body.js?v=23.90.12';
-import { текущаяГруппа } from './group-cards.js?v=23.90.12';
-import { имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.12';
+import { нужноПолноеИмя } from './korean-names.js?v=23.90.13';
+import { ручнойПол, очиститьКарточку } from './manual-gender.js?v=23.90.13';
+import { settings } from './settings.js?v=23.90.13';
+import { namesLikelySame, normalizeNameText, запомнитьРазныхЛюдей } from './names.js?v=23.90.13';
+import { полПерсонажа, МЕТКА_ПОЛА } from './render/scene-body.js?v=23.90.13';
+import { текущаяГруппа } from './group-cards.js?v=23.90.13';
+import { имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.13';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const строка = (v) => {

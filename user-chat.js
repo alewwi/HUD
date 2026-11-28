@@ -14,8 +14,8 @@
 // Дальше она идёт только в следующий ответ — в снимке прошлого HUD и
 // заметкой «между ходами игрок писал…» (заметкаДляОтвета).
 
-import { собратьСообщение, разобратьСообщениеПравки } from './block-edit.js?v=23.90.12';
-import { тотЖеСтрого, namesLikelySame } from './names.js?v=23.90.12';
+import { собратьСообщение, разобратьСообщениеПравки } from './block-edit.js?v=23.90.13';
+import { тотЖеСтрого, namesLikelySame } from './names.js?v=23.90.13';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
