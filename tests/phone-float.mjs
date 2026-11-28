@@ -55,7 +55,7 @@ settings.phoneFloatPos = null;
 const н = await м('render/phone-settings.js');
 const снимок = 'data:image/webp;base64,UklGRhoAAABXRUJQVlA4';
 проверить('вариант обоев блокировки', н.правилоОбоев('abc1', { lock: { p: 'aurora' } }).includes('.hud-phone-lockscreen'));
-проверить('обои главного экрана — под всем разблокированным экраном', /\.hud-phone-unlocked\.hud-phone-unlocked\{background:/.test(н.правилоОбоев('abc1', { home: { p: 'dusk' } })));
+проверить('обои главного экрана — под всем разблокированным экраном', /\.hud-phone-unlocked\.hud-phone-unlocked:not\(:has\(\.hud-phone-app-view\.active\)\)\{background:/.test(н.правилоОбоев('abc1', { home: { p: 'dusk' } })));
 проверить('своё фото в обоях', н.правилоОбоев('abc1', { home: { img: снимок } }).includes(снимок));
 проверить('внешний адрес в обоях не проходит', н.правилоОбоев('abc1', { home: { img: 'https://evil.example/t.png' } }) === '');
 проверить('кавычки и CSS в снимке не проходят', н.правилоОбоев('abc1', { lock: { img: 'data:image/png;base64,AA") } * {display:none} x{a:url("' } }) === '');

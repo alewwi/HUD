@@ -7,7 +7,7 @@
 // место прежних, а всё остальное в блоке остаётся как было, до символа.
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { hudБлоки } from './hud-block.js?v=23.90.14';
+import { hudБлоки } from './hud-block.js?v=23.90.15';
 
 // Код раздела → имена, под которыми модель могла его написать.
 // phx — второй телефон (настройка «оба»): того, за кем сюжет, пока {{char}} нет.

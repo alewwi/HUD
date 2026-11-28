@@ -3,20 +3,20 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { имяДляВкладки } from '../utils.js?v=23.90.14';
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.14';
-import { фотоПоИмени } from '../avatars.js?v=23.90.14';
+import { имяДляВкладки } from '../utils.js?v=23.90.15';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.15';
+import { фотоПоИмени } from '../avatars.js?v=23.90.15';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { собратьЛенту, моментПоследнего, тотЖеВПереписке, разобратьСообщение, непрочитанные, полеВремени } from './msg-feed.js?v=23.90.14';
-import { видБлока } from './views.js?v=23.90.14';
-import { видПерехватов, строкаПротокола } from './views-diary.js?v=23.90.14';
-import { settings } from '../settings.js?v=23.90.14';
-import { getSafeUserName } from '../utils.js?v=23.90.14';
-import { G_ICONS } from './icons.js?v=23.90.14';
-import { перехватИгрока } from '../user-chat.js?v=23.90.14';
-import { строкаВводаИгрока } from './messenger.js?v=23.90.14';
+import { собратьЛенту, моментПоследнего, тотЖеВПереписке, разобратьСообщение, непрочитанные, полеВремени } from './msg-feed.js?v=23.90.15';
+import { видБлока } from './views.js?v=23.90.15';
+import { видПерехватов, строкаПротокола } from './views-diary.js?v=23.90.15';
+import { settings } from '../settings.js?v=23.90.15';
+import { getSafeUserName } from '../utils.js?v=23.90.15';
+import { G_ICONS } from './icons.js?v=23.90.15';
+import { перехватИгрока } from '../user-chat.js?v=23.90.15';
+import { строкаВводаИгрока } from './messenger.js?v=23.90.15';
 
 // Переписка игрока с другим человеком (user-chat-ui.js): лежит в перехватах
 // как телефон того, кому игрок пишет, — с полем ввода вместо «только чтение».

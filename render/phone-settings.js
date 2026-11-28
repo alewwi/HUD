@@ -11,9 +11,9 @@
 // Разметку «Настроек» собираем при открытии приложения: так значения всегда
 // свежие, а каждая карточка с телефоном не тащит сотню полей.
 
-import { settings, унаследованноеТелефоном } from '../settings.js?v=23.90.14';
-import { escapeHtml, hudHashSeed } from '../utils.js?v=23.90.14';
-import { ВИДЫ_БЛОКОВ } from './views.js?v=23.90.14';
+import { settings, унаследованноеТелефоном } from '../settings.js?v=23.90.15';
+import { escapeHtml, hudHashSeed } from '../utils.js?v=23.90.15';
+import { ВИДЫ_БЛОКОВ } from './views.js?v=23.90.15';
 
 let сохранить = () => {}, применить = () => {}, перерисовать = () => {};
 export function подключитьТелефонные(связь) {
@@ -106,7 +106,7 @@ export function наполнитьНастройки(вид) {
     if (аппарат) аппарат.insertAdjacentHTML('afterend', разделОбоев(ключ, владелец.trim()));
   }
   // Список шрифтов живёт в Кастомизации, а её модуль грузится по требованию.
-  import('../customize.js?v=23.90.14').then(м => {
+  import('../customize.js?v=23.90.15').then(м => {
     const поле = место.querySelector('[data-pset-fonts]');
     if (поле) { const с = значения(); поле.innerHTML = м.makeFontOptions(с.phoneFont); }
   }).catch(() => {});
@@ -235,7 +235,7 @@ export const правилоОбоев = (ключ, обои) => {
   // телефона: и под строкой состояния, и под полосой «домой»; сам домашний
   // экран прозрачный. Приложения непрозрачны и закрывают их как прежде.
   return (блок ? `${корпус} .hud-phone-lockscreen.hud-phone-lockscreen{background:${блок} !important;}` : '')
-    + (дом ? `${корпус} .hud-phone-unlocked.hud-phone-unlocked{background:${дом} !important;}${корпус} .hud-phone-home-screen.hud-phone-home-screen{background:transparent !important;}` : '');
+    + (дом ? `${корпус} .hud-phone-unlocked.hud-phone-unlocked:not(:has(.hud-phone-app-view.active)){background:${дом} !important;}${корпус} .hud-phone-home-screen.hud-phone-home-screen{background:transparent !important;}` : '');
 };
 
 let прошлыеФоны = null, прошлыеОбои = null, прошлаяВерсия = -1, версияФонов = 0;

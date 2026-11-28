@@ -19,13 +19,13 @@
 // Хранилище — метаданные чата (tavernosHudNotice), бросок привязан к ходу
 // (mesid), свайпу и человеку. Бросок из старой сцены тоже идёт в ближайший ответ.
 
-import { имяДляВкладки } from '../utils.js?v=23.90.14';
-import { settings } from '../settings.js?v=23.90.14';
-import { namesLikelySame } from '../names.js?v=23.90.14';
-import { escapeHtml, flattenFieldValue, getSafeUserName, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.90.14';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.14';
-import { extractHudBlock, естьЗаглушкаHUD } from '../hud-block.js?v=23.90.14';
-import { ико } from './view-icons.js?v=23.90.14';
+import { имяДляВкладки } from '../utils.js?v=23.90.15';
+import { settings } from '../settings.js?v=23.90.15';
+import { namesLikelySame } from '../names.js?v=23.90.15';
+import { escapeHtml, flattenFieldValue, getSafeUserName, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.90.15';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.15';
+import { extractHudBlock, естьЗаглушкаHUD } from '../hud-block.js?v=23.90.15';
+import { ико } from './view-icons.js?v=23.90.15';
 
 const КЛЮЧ = 'tavernosHudNotice';
 export const кубикВкл = () => settings.noticeDice !== false;

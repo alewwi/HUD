@@ -5,20 +5,20 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.90.14';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.90.14';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.90.14';
-import { заметкиКубика } from './render/notice-dice.js?v=23.90.14';
-import { заметкиСтупеней } from './render/trust-stages.js?v=23.90.14';
-import { заметкиЗамковФракций, естьЗамкиФракций } from './render/faction-locks.js?v=23.90.14';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.90.14';
-import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.90.14';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.90.14';
-import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.90.14';
-import { пометитьПамятьСнимка } from './memory-age.js?v=23.90.14';
-import { сводкаВыключена } from './summary-fields.js?v=23.90.14';
-import { перепискаСвайпа, вернутьПереписку } from './user-chat.js?v=23.90.14';
-import { getSafeUserName } from './utils.js?v=23.90.14';
+import { настройка, settings, defaultSettings, HUD_MAX_TOKENS_CAP } from './settings.js?v=23.90.15';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD, блокКакБыл } from './hud-block.js?v=23.90.15';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.90.15';
+import { заметкиКубика } from './render/notice-dice.js?v=23.90.15';
+import { заметкиСтупеней } from './render/trust-stages.js?v=23.90.15';
+import { заметкиЗамковФракций, естьЗамкиФракций } from './render/faction-locks.js?v=23.90.15';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.90.15';
+import { генерацияТаверны, длинаОтветаТаверны } from './utils.js?v=23.90.15';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.90.15';
+import { ГЕНЕРАЦИЙ_HUD_НА_СВАЙП } from './chat-stats.js?v=23.90.15';
+import { пометитьПамятьСнимка } from './memory-age.js?v=23.90.15';
+import { сводкаВыключена } from './summary-fields.js?v=23.90.15';
+import { перепискаСвайпа, вернутьПереписку } from './user-chat.js?v=23.90.15';
+import { getSafeUserName } from './utils.js?v=23.90.15';
 
 /**
  * Переписка игрока, написанная в этом свайпе (user-chat.js), — обратно в
