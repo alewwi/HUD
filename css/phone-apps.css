@@ -247,7 +247,7 @@
   box-shadow: 0 4px 14px rgba(0,0,0,.28), inset 0 0 0 1px color-mix(in srgb, currentColor 10%, transparent);
 }
 .hud-pm-find > .hud-pa-ico:last-child { color: var(--hud-phone-accent); opacity: 1; }
-.hud-pm-ctl { position: absolute; z-index: 2; right: 14px; left: auto; top: auto; bottom: 34px; width: auto; height: auto; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.hud-pm-ctl { position: absolute; z-index: 2; right: 10px; left: auto; top: auto; bottom: 28px; width: auto; height: auto; margin: 0; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; }
 .hud-pm-ctl > label {
   position: relative; box-sizing: border-box; flex: none; margin: 0; padding: 0; min-width: 0; max-width: none; line-height: 0; cursor: pointer;
   width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
@@ -560,6 +560,9 @@ b.hud-rumor-author { font-weight: 700; }
 /* Скрытые radio/checkbox внутри <label>: фильтр мест и пробки на карте,
    сортировка, репост в ленте слухов. */
 .hud-pa-in { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+/* Чекбоксы Таверны (input[type=checkbox]) сильнее одного класса: без этого
+   галочка встаёт в кнопку рядом со значком и выталкивает его. */
+input.hud-pa-in[type] { position: absolute !important; inset: 0 auto auto 0; display: block !important; width: 1px !important; height: 1px !important; min-width: 0 !important; min-height: 0 !important; margin: 0 !important; padding: 0 !important; border: 0 !important; opacity: 0 !important; pointer-events: none; -webkit-appearance: none; appearance: none; }
 :is(.hud-pm-chip, .hud-pm-ctl > label, .hud-rf-sort label, .hud-rf-rp) { cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; }
 .hud-pm-go { appearance: none; margin: 0; border: 0; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
 .hud-pm-chips { position: absolute; top: 44px; left: 8px; right: 42px; display: flex; flex-wrap: wrap; gap: 5px; max-height: 24px; overflow: hidden; }

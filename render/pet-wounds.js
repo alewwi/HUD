@@ -12,9 +12,9 @@
 // тамагочи и прежний список, — вид ей задаёт CSS (css/extras.css, .hud-petw).
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, перевестиМетку } from '../utils.js?v=23.90.13';
-import { стадияБолезни } from '../codes.js?v=23.90.13';
-import { раныВкл, тонРаны } from './medieval-life.js?v=23.90.13';
+import { escapeHtml, перевестиМетку } from '../utils.js?v=23.90.14';
+import { стадияБолезни } from '../codes.js?v=23.90.14';
+import { раныВкл, тонРаны } from './medieval-life.js?v=23.90.14';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const пусто = (s) => { const т = String(s ?? '').trim(); return !т || /^(empty|none|null|нет|пусто|-|—)$/i.test(т); };

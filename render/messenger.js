@@ -6,18 +6,18 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.90.13';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.13';
-import { G_ICONS } from './icons.js?v=23.90.13';
-import { собратьЛенту, непрочитанные, времяВСписке, разобратьСообщение, исходящееСообщение } from './msg-feed.js?v=23.90.13';
-import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.90.13';
-import { безШапокСообщения, заКадромHTML, файлСнимка } from './msg-parts.js?v=23.90.13';
-import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.90.13';
-import { namesLikelySame } from '../names.js?v=23.90.13';
-import { settings } from '../settings.js?v=23.90.13';
-import { getSafeUserName, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.13';
-import { фотоПоИмени } from '../avatars.js?v=23.90.13';
-import { чатСИгроком, ключЧерновика, черновикИгрока, этоИгрок, именаИгрока } from '../user-chat.js?v=23.90.13';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.90.14';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.14';
+import { G_ICONS } from './icons.js?v=23.90.14';
+import { собратьЛенту, непрочитанные, времяВСписке, разобратьСообщение, исходящееСообщение } from './msg-feed.js?v=23.90.14';
+import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.90.14';
+import { безШапокСообщения, заКадромHTML, файлСнимка } from './msg-parts.js?v=23.90.14';
+import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.90.14';
+import { namesLikelySame } from '../names.js?v=23.90.14';
+import { settings } from '../settings.js?v=23.90.14';
+import { getSafeUserName, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.14';
+import { фотоПоИмени } from '../avatars.js?v=23.90.14';
+import { чатСИгроком, ключЧерновика, черновикИгрока, этоИгрок, именаИгрока } from '../user-chat.js?v=23.90.14';
 
 /**
  * Строка ввода чата с игроком (user-chat-ui.js): лицо игрока, «+», поле

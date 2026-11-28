@@ -7,13 +7,13 @@
 // сколько нужно в сутки, наполненность груди по времени с кормления.
 // Оформление — css/family.css.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок } from '../utils.js?v=23.90.13';
-import { parseSceneDate } from '../history-analyzer.js?v=23.90.13';
-import { родыЧьи, словоПолов, деньРодов, дм } from './conception.js?v=23.90.13';
-import { подождатьДо, ДНЕЙ_ПОСЛЕ_РОДОВ } from './rest-hint.js?v=23.90.13';
-import { послеродовое, видКормления, часовМежду } from './fertility.js?v=23.90.13';
-import { видСемьи, видПослеродового } from './family-views.js?v=23.90.13';
-import { стариннаяЗабота } from '../era.js?v=23.90.13';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок } from '../utils.js?v=23.90.14';
+import { parseSceneDate } from '../history-analyzer.js?v=23.90.14';
+import { родыЧьи, словоПолов, деньРодов, дм } from './conception.js?v=23.90.14';
+import { подождатьДо, ДНЕЙ_ПОСЛЕ_РОДОВ } from './rest-hint.js?v=23.90.14';
+import { послеродовое, видКормления, часовМежду } from './fertility.js?v=23.90.14';
+import { видСемьи, видПослеродового } from './family-views.js?v=23.90.14';
+import { стариннаяЗабота } from '../era.js?v=23.90.14';
 
 function метки(value) {
   const о = {};
