@@ -11,22 +11,22 @@
 //
 // Грузится при первом касании поля или кнопки (index.js, загрузитьПереписку).
 
-import { settings } from './settings.js?v=23.90.11';
-import { escapeHtml, getSafeUserName, имяБезПриставки } from './utils.js?v=23.90.11';
-import { G_ICONS } from './render/icons.js?v=23.90.11';
-import { msgKey, путьСнимка } from './render/msg-parts.js?v=23.90.11';
-import { разобратьСообщение } from './render/msg-feed.js?v=23.90.11';
-import { extractHudBlock, заменитьHudБлоки } from './hud-block.js?v=23.90.11';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата } from './hud-snapshot.js?v=23.90.11';
-import { английский, языкЗначенийМодели } from './i18n.js?v=23.90.11';
-import { фотоПоИмени } from './avatars.js?v=23.90.11';
+import { settings } from './settings.js?v=23.90.12';
+import { escapeHtml, getSafeUserName, имяБезПриставки } from './utils.js?v=23.90.12';
+import { G_ICONS } from './render/icons.js?v=23.90.12';
+import { msgKey, путьСнимка } from './render/msg-parts.js?v=23.90.12';
+import { разобратьСообщение } from './render/msg-feed.js?v=23.90.12';
+import { extractHudBlock, заменитьHudБлоки } from './hud-block.js?v=23.90.12';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата } from './hud-snapshot.js?v=23.90.12';
+import { английский, языкЗначенийМодели } from './i18n.js?v=23.90.12';
+import { фотоПоИмени } from './avatars.js?v=23.90.12';
 import {
   этоИгрок, чатСИгроком, перехватИгрока, времяОтправки, строкаИгрока, найтиПереписку, дописатьВПереписку,
   удалитьСтрокуИгрока, промптОтвета, разобратьОтвет, применитьЗвонок, запомнитьПереписку,
   ключЧерновика, черновикИгрока, запомнитьЧерновик, сторонаСтроки,
   имяФайлаСнимка, новыеСнимки, вписатьОписанияСнимков, именаИгрока,
   номерЗвонка, длительностьЗвонка, строкаЗвонка, промптЗвонка, разобратьЗвонок, разобратьЗвонокСТемой, запомнитьЗвонок, найтиЗвонок,
-} from './user-chat.js?v=23.90.11';
+} from './user-chat.js?v=23.90.12';
 
 // Всё нужное из index.js (геттеры — значения живые): showHudToast,
 // последнийHUD, hudНомера, разборНомера, записатьПереписку, идётОтвет,

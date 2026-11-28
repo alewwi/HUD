@@ -15,9 +15,9 @@
 // Собирается только открытое окно; закрытое держит одну кнопку и значок
 // непрочитанных.
 
-import { settings } from './settings.js?v=23.90.11';
-import { непрочитанные } from './render/msg-feed.js?v=23.90.11';
-import { namesLikelySame } from './names.js?v=23.90.11';
+import { settings } from './settings.js?v=23.90.12';
+import { непрочитанные } from './render/msg-feed.js?v=23.90.12';
+import { namesLikelySame } from './names.js?v=23.90.12';
 
 // Из index.js (геттеры — значения живые): getStContextSafe, saveSettings,
 // readCardUiState, applyCardUiState, собратьКарточкуПанели,

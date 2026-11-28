@@ -11,11 +11,11 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { нужноПолноеИмя } from './korean-names.js?v=23.90.11';
-import { getSafeUserName, имяБезПриставки } from './utils.js?v=23.90.11';
-import { применитьСтупени, ступениВкл } from './render/trust-stages.js?v=23.90.11';
-import { namesLikelySame, упомянутВТексте } from './names.js?v=23.90.11';
-import { parseSceneDate } from './history-analyzer.js?v=23.90.11';
+import { нужноПолноеИмя } from './korean-names.js?v=23.90.12';
+import { getSafeUserName, имяБезПриставки } from './utils.js?v=23.90.12';
+import { применитьСтупени, ступениВкл } from './render/trust-stages.js?v=23.90.12';
+import { namesLikelySame, упомянутВТексте } from './names.js?v=23.90.12';
+import { parseSceneDate } from './history-analyzer.js?v=23.90.12';
 
 const текст = (v) => (v === null || v === undefined ? '' : typeof v === 'string' ? v : Array.isArray(v) ? v.map(текст).join('; ') : typeof v === 'object' ? Object.values(v).map(текст).join('; ') : String(v)).trim();
 const значимо = (s) => !!s && !/^(?:empty|none|null|—|-|n\/a|nc)$/i.test(String(s).trim());

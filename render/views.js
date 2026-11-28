@@ -7,17 +7,17 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { имяДляВкладки } from '../utils.js?v=23.90.11';
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.90.11';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.90.11';
-import { namesLikelySame } from '../names.js?v=23.90.11';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.90.11';
-import { settings } from '../settings.js?v=23.90.11';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.90.11';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.90.11';
-import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.90.11';
-import { поИгрокуВперёд, плашкаСтупени, сведенияДля, ступениВкл, словоСтупени } from './trust-stages.js?v=23.90.11';
-import { разобратьМаску } from './notice-dice.js?v=23.90.11';
+import { имяДляВкладки } from '../utils.js?v=23.90.12';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.90.12';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.90.12';
+import { namesLikelySame } from '../names.js?v=23.90.12';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.90.12';
+import { settings } from '../settings.js?v=23.90.12';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.90.12';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.90.12';
+import { ЭПОХА_ВИДА, условиеЭпохи } from './medieval-views.js?v=23.90.12';
+import { поИгрокуВперёд, плашкаСтупени, сведенияДля, ступениВкл, словоСтупени } from './trust-stages.js?v=23.90.12';
+import { разобратьМаску } from './notice-dice.js?v=23.90.12';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.

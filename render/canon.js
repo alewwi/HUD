@@ -19,10 +19,10 @@
 // картинок (names.js: алиасыИмени). Чего нет ни в карточке, ни в лорбуках —
 // берётся из истории чата.
 
-import { нужноПолноеИмя } from '../korean-names.js?v=23.90.11';
-import { settings } from '../settings.js?v=23.90.11';
-import { namesLikelySame, алиасыИмени } from '../names.js?v=23.90.11';
-import { имяБезПриставки } from '../utils.js?v=23.90.11';
+import { нужноПолноеИмя } from '../korean-names.js?v=23.90.12';
+import { settings } from '../settings.js?v=23.90.12';
+import { namesLikelySame, алиасыИмени } from '../names.js?v=23.90.12';
+import { имяБезПриставки } from '../utils.js?v=23.90.12';
 
 const контекст = () => { try { return window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext(); } catch (_) { return null; } };
 const чистоеИмя = (н) => имяБезПриставки(String(н || '')).trim();

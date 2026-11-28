@@ -7,10 +7,10 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.90.11';
-import { т } from '../i18n.js?v=23.90.11';
-import { связьПраздников } from './holiday-lore.js?v=23.90.11';
-import { сословие, гербРода, поправитьГерб, svgГерба, svgРемесла, svgМетки, выборРода, сохранитьВыборРода, ФИНИФТИ, МЕТАЛЛЫ, ДЕЛЕНИЯ, ФИГУРЫ } from './heraldry.js?v=23.90.11';
+import { escapeHtml } from '../utils.js?v=23.90.12';
+import { т } from '../i18n.js?v=23.90.12';
+import { связьПраздников } from './holiday-lore.js?v=23.90.12';
+import { сословие, гербРода, поправитьГерб, svgГерба, svgРемесла, svgМетки, выборРода, сохранитьВыборРода, ФИНИФТИ, МЕТАЛЛЫ, ДЕЛЕНИЯ, ФИГУРЫ } from './heraldry.js?v=23.90.12';
 
 const РЕМЁСЛА = { hammer: 'кузнец', shears: 'портной, ткач', pretzel: 'пекарь', wheel: 'мельник', axe: 'плотник', fish: 'рыбак', mug: 'трактир', cup: 'лекарь', scales: 'купец', jug: 'гончар' };
 let открыто = false;

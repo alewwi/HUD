@@ -659,8 +659,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.90.11**:
+The latest version is **23.90.12**:
 
+- Maps: the Traffic and Where am I buttons no longer drift past the map edge.
 - 📲 Phone on a button: a floating button raises the phone over the chat, as if the character held it up in front of them; "Open the phone" — in the tab, by a button and in the tab, or by a button only. Your own lock screen and home screen wallpapers for each owner.
 - 📞 Player calls: "Call" — the model writes a short conversation at once, "Live call" — line by line; a tap on the call row opens the transcript.
 - Contacts, Search, Maps and Rumors look like real apps: an alphabet and Favorites, a drawn city with pins and a route, a rumor feed with "Believe it", likes and reposts.

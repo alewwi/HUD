@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.90.12 — 2026-11-28
+
+### Fixed
+- Maps: the Traffic and Where am I buttons no longer drift past the map edge or stretch, in the floating phone too.
+
 ## 23.90.11 — 2026-11-28
 
 ### Added
