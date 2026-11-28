@@ -8,10 +8,10 @@
 // Модуль не знает про граф отношений: получает готовые узлы и рёбра и отдаёт
 // SVG. Так нет круговой зависимости с relations-graph.js.
 
-import { нужноПолноеИмя } from '../korean-names.js?v=23.90.10';
-import { escapeHtml, hudHashSeed, commentInitials, имяБезПриставки } from '../utils.js?v=23.90.10';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.10';
-import { найтиПоИмени } from '../names.js?v=23.90.10';
+import { нужноПолноеИмя } from '../korean-names.js?v=23.90.11';
+import { escapeHtml, hudHashSeed, commentInitials, имяБезПриставки } from '../utils.js?v=23.90.11';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.11';
+import { найтиПоИмени } from '../names.js?v=23.90.11';
 
 // Кем «кому» приходится тому, у кого записано отношение. Ищем только в
 // первых словах: дальше идёт чувство, где «любит как сына» или «брат по

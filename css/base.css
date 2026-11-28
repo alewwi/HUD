@@ -6206,6 +6206,9 @@ body.no-blur .hud-scene-time-group, body.no-blur .hud-weather-item, body.no-blur
 /* Экран приложения «Сообщения» — два состояния: список и открытая переписка. */
 .hud-phone-app-view[data-phone-view="messages"] .hud-phone-chat-stage { display: none; }
 .hud-phone-app-view[data-phone-view="messages"].is-chat-open .hud-phone-chat-list { display: none; }
+/* В открытой переписке шапка приложения («⟨ Сообщения ✎») лишняя: своя шапка
+   «⟨ Имя ⋮» у чата есть, её стрелка возвращает к списку. На списке — остаётся. */
+.hud-phone-app-view[data-phone-view="messages"].is-chat-open > .hud-phone-app-title { display: none; }
 .hud-phone-app-view[data-phone-view="messages"].is-chat-open .hud-phone-chat-stage {
   display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0;
 }

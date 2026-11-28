@@ -1,0 +1,187 @@
+/* hud-manager/css/phone-float.css
+   Плавающий телефон (phone-float.js): кнопка у края окна и окно, в котором
+   телефон поднимается поверх чата, будто его держат перед лицом.
+   Слои — ниже окон HUD (.hud-modal-overlay 100000, правка 31000, Кастомизация
+   10050, версии 10040): снимок, подтверждение и версии, открытые из телефона,
+   встают поверх него. Размер окна — от экрана, а не inset: 0: у html Таверны
+   на телефоне бывает transform, и fixed-слой иначе сжимается до его высоты. */
+
+/* --- Кнопка ----------------------------------------------------------------- */
+.hud-pf-btn {
+  position: fixed; z-index: 10020; left: auto; top: auto;
+  width: 50px; height: 50px; padding: 0; margin: 0; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; border: 1px solid rgba(255, 255, 255, .16);
+  background:
+    radial-gradient(120% 120% at 30% 20%, color-mix(in srgb, var(--hud-accent, #de859f) 32%, transparent), transparent 62%),
+    linear-gradient(160deg, rgba(30, 32, 44, .94), rgba(10, 11, 17, .96));
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, .5), 0 0 0 2px color-mix(in srgb, var(--hud-accent, #de859f) 38%, transparent), inset 0 1px 0 rgba(255, 255, 255, .14);
+  cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; -webkit-tap-highlight-color: transparent;
+  transition: transform .18s ease, opacity .2s ease, box-shadow .2s ease;
+}
+.hud-pf-btn[hidden] { display: none !important; }
+.hud-pf-btn > svg { width: 25px; height: 25px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.hud-pf-btn > svg circle { fill: currentColor; stroke: none; }
+.hud-pf-btn:focus-visible { outline: 2px solid var(--hud-accent, #de859f); outline-offset: 3px; }
+.hud-pf-btn.is-dragging { cursor: grabbing; transform: scale(1.08); transition: none; box-shadow: 0 14px 30px rgba(0, 0, 0, .55), 0 0 0 2px color-mix(in srgb, var(--hud-accent, #de859f) 60%, transparent); }
+.hud-pf-btn.is-on { opacity: 0; pointer-events: none; transform: scale(.85); }
+.hud-pf-btn.has-unread { box-shadow: 0 8px 22px rgba(0, 0, 0, .5), 0 0 0 2px color-mix(in srgb, var(--hud-accent, #de859f) 70%, transparent), 0 0 16px color-mix(in srgb, var(--hud-accent, #de859f) 45%, transparent), inset 0 1px 0 rgba(255, 255, 255, .14); }
+@media (hover: hover) and (pointer: fine) {
+  .hud-pf-btn:not(.is-dragging):hover { transform: scale(1.06); }
+}
+.hud-pf-badge {
+  position: absolute; top: -4px; right: -4px; min-width: 19px; height: 19px; padding: 0 5px; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 999px; border: 2px solid #111218; background: #e5484d; color: #fff;
+  font: 700 10px/1 system-ui, -apple-system, 'Segoe UI', sans-serif; font-variant-numeric: tabular-nums;
+}
+.hud-pf-badge[hidden] { display: none; }
+
+/* --- Окно -------------------------------------------------------------------- */
+.hud-pf {
+  position: fixed; z-index: 10030; left: 0; top: var(--hud-pf-top, 0px);
+  width: 100vw; height: 100vh; height: var(--hud-pf-h, 100dvh);
+  box-sizing: border-box; display: flex;
+  overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; -webkit-overflow-scrolling: touch;
+  /* Чат за телефоном гаснет к краям: взгляд — на экран в руке. */
+  background: radial-gradient(ellipse 75% 65% at 50% 52%, rgba(6, 7, 12, .42), rgba(3, 4, 8, .84));
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity .28s ease;
+  font-family: var(--mainFontFamily, inherit);
+}
+.hud-pf[hidden] { display: none !important; }
+.hud-pf.is-open { opacity: 1; }
+.hud-pf-stage {
+  margin: auto; box-sizing: border-box; width: min(476px, 100%);
+  padding: 14px 14px 22px;
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  perspective: 1400px;
+}
+
+/* Полоса над аппаратом: чей телефон и крестик. */
+.hud-pf-bar {
+  width: 100%; max-width: 448px; min-width: 0;
+  display: flex; align-items: center; justify-content: flex-end; gap: 8px;
+  opacity: 0; transform: translateY(-6px); transition: opacity .3s ease .08s, transform .3s ease .08s;
+}
+.hud-pf.is-open .hud-pf-bar { opacity: 1; transform: none; }
+.hud-pf-owners {
+  margin-right: auto; min-width: 0; max-width: calc(100% - 48px);
+  display: flex; gap: 3px; padding: 3px; box-sizing: border-box;
+  border-radius: 999px; border: 1px solid rgba(255, 255, 255, .12);
+  background: rgba(14, 15, 23, .82); box-shadow: 0 6px 18px rgba(0, 0, 0, .4);
+}
+.hud-pf-owners[hidden] { display: none; }
+.hud-pf-owner {
+  min-width: 0; flex: 0 1 auto; margin: 0; border: 0; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 6px; padding: 7px 12px;
+  background: transparent; color: rgba(255, 255, 255, .7);
+  font: 600 12.5px/1.1 system-ui, -apple-system, 'Segoe UI', sans-serif; cursor: pointer;
+  transition: background .18s ease, color .18s ease;
+}
+.hud-pf-owner > svg { flex: none; width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; }
+.hud-pf-owner > svg circle { fill: currentColor; stroke: none; }
+.hud-pf-owner > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-pf-owner.is-on { color: #fff; background: color-mix(in srgb, var(--hud-accent, #de859f) 34%, rgba(255, 255, 255, .06)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hud-accent, #de859f) 55%, transparent); }
+.hud-pf-owner:focus-visible, .hud-pf-close:focus-visible { outline: 2px solid var(--hud-accent, #de859f); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-pf-owner:not(.is-on):hover { color: #fff; background: rgba(255, 255, 255, .08); }
+  .hud-pf-close:hover { background: rgba(40, 42, 56, .95); }
+}
+.hud-pf-close {
+  flex: none; width: 38px; height: 38px; padding: 0; margin: 0; box-sizing: border-box;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; border: 1px solid rgba(255, 255, 255, .14);
+  background: rgba(14, 15, 23, .82); color: #fff; cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .4);
+}
+.hud-pf-close > svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+
+/* Аппарат поднимают снизу и наклоняют к себе, у глаз он выпрямляется.
+   Переход, а не анимация: HUD ставит анимации на паузу, и замершая на первом
+   кадре анимация оставила бы телефон внизу и прозрачным. */
+.hud-pf-hold {
+  position: relative; width: 100%; max-width: 448px;
+  transform-origin: 50% 120%;
+  transform: translateY(80px) rotateX(18deg) scale(.9);
+  opacity: 0;
+  transition: transform .46s cubic-bezier(.18, .9, .24, 1.04), opacity .3s ease;
+}
+.hud-pf.is-open .hud-pf-hold { transform: none; opacity: 1; }
+/* Тень руки под аппаратом. */
+.hud-pf-hold::after {
+  content: ''; position: absolute; z-index: -1; left: 12%; right: 12%; bottom: -18px; height: 40px;
+  /* Градиентом, не filter: размытие соседа карточки уже стирало её в Chrome. */
+  background: radial-gradient(closest-side, rgba(0, 0, 0, .6), transparent); pointer-events: none;
+}
+
+/* Карточка хода в окне — только телефон: шапка, сцена, вкладки и рамка
+   карточки спрятаны, аппарат стоит сам по себе. */
+.hud-pf-mes > .mes_text { padding: 0; margin: 0; width: 100%; max-width: none; }
+.hud-pf .hud-pf-mes .hud-os-card {
+  width: 100% !important; max-width: none !important; margin: 0 !important; padding: 0 !important;
+  background: none !important; border: 0 !important; box-shadow: none !important; outline: 0 !important;
+  -webkit-backdrop-filter: none !important; backdrop-filter: none !important;
+  overflow: visible !important; content-visibility: visible !important; contain: none !important;
+}
+.hud-pf .hud-pf-mes .hud-os-card::before, .hud-pf .hud-pf-mes .hud-os-card::after { display: none !important; }
+.hud-pf .hud-pf-mes .hud-os-topbar { display: none !important; }
+.hud-pf .hud-pf-mes .hud-os-wrapper {
+  display: block !important; max-height: none !important; overflow: visible !important; opacity: 1 !important; visibility: visible !important;
+  margin: 0 !important; padding: 0 !important; background: none !important; border: 0 !important; box-shadow: none !important;
+}
+.hud-pf .hud-pf-mes .hud-os-wrapper::before, .hud-pf .hud-pf-mes .hud-os-wrapper::after { display: none !important; }
+.hud-pf .hud-pf-mes .hud-os-wrapper > :not(.hud-tabs-body) { display: none !important; }
+.hud-pf .hud-pf-mes .hud-tabs-body {
+  margin: 0 !important; padding: 0 !important; background: none !important; border: 0 !important;
+  max-height: none !important; overflow: visible !important; box-shadow: none !important;
+}
+.hud-pf .hud-pf-mes .hud-tab-content {
+  max-height: none !important; overflow: visible !important; margin: 0 !important; padding: 0 !important;
+  background: none !important; border: 0 !important; box-shadow: none !important;
+}
+.hud-pf .hud-pf-mes .hud-tab-content::before, .hud-pf .hud-pf-mes .hud-tab-content::after { display: none !important; }
+
+/* В руке аппарат вытянутый, как настоящий: уже, чем во вкладке карточки, и
+   высотой почти в окно (за вычетом полосы и полей). */
+.hud-pf { --hud-pf-ph: max(540px, min(800px, calc(var(--hud-pf-h, 100dvh) - 92px))); }
+.hud-pf .hud-pf-mes .hud-phone-shell { width: min(400px, 100%); }
+.hud-pf .hud-pf-mes .hud-phone-emulator,
+.hud-pf .hud-pf-mes .hud-phone-lockscreen,
+.hud-pf .hud-pf-mes .hud-phone-unlocked { min-height: var(--hud-pf-ph) !important; }
+.hud-pf .hud-pf-mes .hud-phone-home-screen { min-height: calc(var(--hud-pf-ph) - 70px) !important; }
+.hud-pf-hold, .hud-pf-bar { max-width: 400px; }
+
+/* Телефона в ходе нет. */
+.hud-pf-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+  margin: 0 auto; max-width: 320px; padding: 30px 24px; box-sizing: border-box;
+  border-radius: 26px; border: 1px solid rgba(255, 255, 255, .12);
+  background: linear-gradient(160deg, rgba(24, 26, 36, .95), rgba(9, 10, 15, .97)); color: rgba(255, 255, 255, .9);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, .55);
+}
+.hud-pf-empty[hidden] { display: none; }
+.hud-pf-empty > svg { width: 42px; height: 42px; fill: none; stroke: color-mix(in srgb, var(--hud-accent, #de859f) 80%, #fff); stroke-width: 1.4; stroke-linecap: round; }
+.hud-pf-empty > svg circle { fill: currentColor; stroke: none; }
+.hud-pf-empty b { font-size: 14px; }
+.hud-pf-empty small { font-size: 12px; opacity: .7; line-height: 1.4; }
+
+/* Телефон: аппарат во всю ширину, поля тоньше. */
+@media (max-width: 600px) {
+  .hud-pf-stage { padding: 8px 6px 14px; gap: 8px; }
+  .hud-pf-btn { width: 46px; height: 46px; }
+  .hud-pf-btn > svg { width: 23px; height: 23px; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-pf-stage { padding: 8px 6px 14px; gap: 8px; }
+  .hud-pf-btn { width: 46px; height: 46px; }
+  .hud-pf-btn > svg { width: 23px; height: 23px; }
+} }
+/* cq ↑ */
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-pf, .hud-pf-bar, .hud-pf-hold, .hud-pf-btn { transition: opacity .15s ease !important; }
+  .hud-pf-hold, .hud-pf-bar { transform: none !important; }
+}

@@ -208,6 +208,24 @@ ctx.chat[0].mes = ctx.chat[0].swipes[1];
 await E.вернутьУдаление(E.журналУдалений().at(-1).id);
 проверить('откат после переключения свайпа возвращает выбранный вариант', ctx.chat[0].mes === b && ctx.chat[0].swipes[0] === a);
 const UI = await м('render/character.js');
+{
+  const Д = await м('render/diary.js');
+  const записи = [{ author: 'Автор', text: 'Заметка', aboutUser: 'Слова автора' }];
+  const вид = settings.diaryView, полДо = G.ручнойПол('user');
+  try {
+    for (const [пол, подпись] of [['m', 'О нём'], ['f', 'О ней']]) {
+      G.записатьПол('user', пол, ctx.chatMetadata);
+      for (const стиль of ['classic', 'book', 'blog', 'type']) {
+        settings.diaryView = стиль;
+        const лист = Д.buildDiaryHTML(записи, 'diary', true, К.полЧеловека({}, { игрок: true }));
+        // «О нём:» в тетради, «о нём» на полях видов, «P.S. о нём:» у машинки.
+        проверить('дневник ' + стиль + ' · ' + подпись, new RegExp('>(?:P\\.S\\. )?' + подпись + ':?<', 'i').test(лист) && !(пол === 'm' && /о ней/i.test(лист)));
+      }
+      const карточка = UI.buildUserHTML({ 'NSFW (Юзер)': 'ch: breast-test; lb: moisture-test; ar: arousal-test' }, 'u', true, []);
+      проверить('NSFW игрока ' + пол, карточка.includes('data-kto="user"') && карточка.includes('moisture-test') && карточка.includes('breast-test') === (пол === 'f'));
+    }
+  } finally { settings.diaryView = вид; G.записатьПол('user', полДо, ctx.chatMetadata); }
+}
 const html = UI.buildCharacterHTML({ Имя: 'Кай & Ли', Цикл: 'cyd: 5; cyl: 28', Беременность: 'wk: 9', Послеродовое: 'bf: mixed' }, 'test', true, false);
 проверить('все три блока имеют отдельную кнопку и точного владельца', ['Менструальный цикл', 'Беременность', 'После родов'].every(блок =>
   html.includes('data-hud-gender="' + блок + '" data-kto="char:Кай &amp; Ли"')));

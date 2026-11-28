@@ -18,8 +18,8 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.90.10';
-import { естьПодМагию } from './era.js?v=23.90.10';
+import { settings } from './settings.js?v=23.90.11';
+import { естьПодМагию } from './era.js?v=23.90.11';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';
@@ -27,7 +27,7 @@ const МЕТКА = 'data-hud-css';
 // [файл, когда нужен]. Без условия — нужен всегда.
 export const ЧАСТИ = [
   // Токены — первыми: только объявления переменных, остальные части их читают.
-  ['tokens'], ['base'], ['themes'], ['misc'], ['phone-skins'], ['user-chat', (s) => s.userChat !== false && (s.enablePhone !== false || s.enableIntercepts !== false)], ['views'], ['views-fields'], ['views-trio'], ['views-plus'], ['trust-stages'], ['notice-dice', (s) => s.noticeDice !== false], ['family'], ['family-views'],
+  ['tokens'], ['base'], ['themes'], ['misc'], ['phone-skins'], ['phone-apps'], ['user-chat', (s) => s.userChat !== false && (s.enablePhone !== false || s.enableIntercepts !== false)], ['views'], ['views-fields'], ['views-trio'], ['views-plus'], ['trust-stages'], ['notice-dice', (s) => s.noticeDice !== false], ['family'], ['family-views'],
   ['world-views', (s) => s.enableWorld !== false],
   ['dream-views', (s) => s.enableDreams !== false],
   ['diary-moods', (s) => s.enableDiary !== false],
@@ -73,6 +73,8 @@ export const ЧАСТИ = [
   ['lang-en', (s) => s.language === 'en'],
   // Панель HUD сбоку (sidebar.js) — только когда она включена.
   ['sidebar', (s) => !!s.hudSidebar && s.hudSidebar !== 'off'],
+  // Плавающий телефон (phone-float.js) — только когда кнопка включена.
+  ['phone-float', (s) => s.phoneFloat === 'both' || s.phoneFloat === 'only'],
   // Платформа: color-scheme, accent-color, вырез экрана, движение в ::before/::after.
   ['platform'],
 ];

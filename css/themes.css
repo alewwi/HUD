@@ -1002,6 +1002,15 @@
 /* Текст внутри строки — обычного цвета: цветом отмечаем только сам факт. */
 .hud-call-body b, .hud-call-body small, .hud-call-time { color: var(--hud-text, inherit); }
 .hud-call-row.is-missed .hud-call-body b { color: #ef8a7a; }
+/* Звонок игрока с расшифровкой: полоса открывает её (user-chat-ui.js). */
+.hud-call-row.has-transcript { cursor: pointer; }
+.hud-call-tr { display: inline-flex; flex: 0 0 auto; opacity: .6; color: var(--hud-text, inherit); }
+.hud-call-tr .hud-g-ico { width: 14px; height: 14px; }
+.hud-call-row.has-transcript:focus-visible { outline: 2px solid var(--hud-accent, #8c5ad2); outline-offset: 1px; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-call-row.has-transcript:hover { background: rgba(255, 255, 255, .09); }
+  .hud-call-row.has-transcript:hover .hud-call-tr { opacity: .9; }
+}
 
 /* =========================================================================
    «ЗАПОМНИТЬ»: КНОПКА У ЗАПИСИ И ОКНО ВЫБОРА КНИГИ

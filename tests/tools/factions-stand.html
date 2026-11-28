@@ -1,0 +1,39 @@
+<!doctype html><html class="hud-glass-frosted hud-cq"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Фракции — стенд</title>
+<style>
+body { margin: 0; padding: 12px; background: #1d1a22; color: #ddd; font: 13px system-ui, sans-serif; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--w, 430px)), var(--w, 430px))); gap: 16px; align-items: start; }
+.mes_text .hud-os-card { width: 100%; } h2 { margin: 0 0 6px; font-size: 13px; color: #c9b8e0; }
+.hud-tab-content { display: block !important; opacity: 1 !important; animation: none !important; } .hud-body { max-height: none !important; }
+</style></head><body><div class="grid" id="grid">загрузка…</div>
+<script type="module">
+// Стенд «Фракции и репутация»: все пять видов и замок (render/faction-locks.js).
+// Открывать: node tests/tools/serve.mjs factions-stand.html. ?w=255px — ширина, ?t=kawaii — светлая тема.
+if (location.protocol === 'file:') throw new Error('Откройте через tests/tools/serve.mjs');
+const V = '?v=' + (await (await fetch('../../manifest.json', { cache: 'no-store' })).json()).version;
+const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '../../css/all.css' + V; document.head.append(css);
+const P = new URLSearchParams(location.search);
+document.documentElement.style.setProperty('--w', P.get('w') || '430px');
+if (P.get('t')) document.documentElement.classList.add('hud-theme-' + P.get('t'), 'hud-scheme-light', 'hud-kinds-light');
+const мета = {};
+const чат = Array.from({ length: 6 }, (_, i) => ({ is_user: i % 2 === 0, mes: '' }));
+window.SillyTavern = { getContext: () => ({ chat: чат, chatMetadata: мета, name1: 'Саша', name2: 'Лилиан Грей', saveMetadataDebounced() {} }) };
+const { settings } = await import('../../settings.js' + V);
+const { блокФракций } = await import('../../render/factions.js' + V);
+const З = await import('../../render/faction-locks.js' + V);
+await import('../../render/world-life-views.js' + V);
+Object.assign(settings, { enableWorld: true, factions: 'user' });
+const строки = ['Книжный клуб при библиотеке | Саша | 60 | свои | ведёт обсуждения по четвергам, приносит печенье', 'Кофейня «Переплёт» | Саша | 20 | знакомое лицо | заходит по пятницам на джаз', 'Музыканты джаз-вечеров | Саша | 5 | присматриваются |', 'Заказчики мастерской | Саша | -25 | недовольны | реставрация сорвала срок на неделю', 'Управляющая компания на Лесной | Саша | -60 | на заметке | жалобы на горячую воду дошли до директора'];
+const прошлое = [{ дата: '14.10', строки: ['Книжный клуб при библиотеке | Саша | 45 | знают | приходит', 'Заказчики мастерской | Саша | 10 | довольны | успевает'] }];
+З.переключитьЗамокФракции(строки[1], 5); З.переключитьЗамокФракции(строки[3], 5);
+function рисовать() {
+  let out = '';
+  for (const [вид, эра, имя] of [['classic', 'modern', 'Щиты'], ['council', 'modern', 'Зал совета'], ['garden', 'modern', 'Оранжерея'], ['medieval', 'medieval', 'Гербовник'], ['enchanted', 'fantasy-medieval', 'Круг созвездий']]) {
+    Object.assign(settings, { factionsView: вид, era: эра });
+    out += `<div class="mes_text"><h2>${имя}</h2><div class="hud-os-card"><input type="checkbox" class="hud-toggle-input" checked hidden><div class="hud-os-wrapper"><div class="hud-tab-content active"><div class="hud-body">${блокФракций(строки, { игрок: 'Саша', персонаж: 'Лилиан Грей', uid: 'f' + вид, индекс: 5, история: [...прошлое, { дата: '17.10', строки }] })}</div></div></div></div></div>`;
+  }
+  document.getElementById('grid').innerHTML = out;
+}
+рисовать();
+document.addEventListener('click', (e) => { const к = e.target.closest('[data-hud-rep]'); if (!к) return; e.preventDefault(); e.stopPropagation(); З.переключитьЗамокФракции(к.dataset.row, 5); рисовать(); });
+window.__ready = true; window.__мета = мета;
+</script></body></html>

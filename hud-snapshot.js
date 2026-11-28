@@ -12,31 +12,31 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.90.10';
+import { settings } from './settings.js?v=23.90.11';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { тМодели as т } from './i18n.js?v=23.90.10';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.90.10';
-import { mapKey, имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.10';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.90.10';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.90.10';
-import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.90.10';
-import { упомянутВТексте, namesLikelySame } from './names.js?v=23.90.10';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.10';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.90.10';
-import { доверияБезПричин } from './turn-notes.js?v=23.90.10';
-import { ступениВСнимке, игрокПервымВСтроке } from './render/trust-stages.js?v=23.90.10';
-import { замкиВСнимке } from './render/faction-locks.js?v=23.90.10';
-import { людиHUD, безЛюдей } from './faction-groups.js?v=23.90.10';
+import { тМодели as т } from './i18n.js?v=23.90.11';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.90.11';
+import { mapKey, имяБезПриставки, getSafeUserName } from './utils.js?v=23.90.11';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.90.11';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.90.11';
+import { заменитьHudБлоки, extractHudBlock } from './hud-block.js?v=23.90.11';
+import { упомянутВТексте, namesLikelySame } from './names.js?v=23.90.11';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.11';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.90.11';
+import { доверияБезПричин } from './turn-notes.js?v=23.90.11';
+import { ступениВСнимке, игрокПервымВСтроке } from './render/trust-stages.js?v=23.90.11';
+import { замкиВСнимке } from './render/faction-locks.js?v=23.90.11';
+import { людиHUD, безЛюдей } from './faction-groups.js?v=23.90.11';
 const имяИгрокаСнимка = () => { try { return window.SillyTavern?.getContext?.()?.name1 || ''; } catch (_) { return ''; } };
-import { применитьРучнойПол } from './manual-gender.js?v=23.90.10';
-import { составСнимка } from './cast.js?v=23.90.10';
-import { почиститьСнимок } from './render/medieval-life.js?v=23.90.10';
+import { применитьРучнойПол } from './manual-gender.js?v=23.90.11';
+import { составСнимка } from './cast.js?v=23.90.11';
+import { почиститьСнимок } from './render/medieval-life.js?v=23.90.11';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 // Коды полей в том виде, в каком их просит промт.
 const ПОЛЯ_СЦЕНЫ = ['T', 'Wt', 'Dt', 'At', 'Md', 'Tw'];
-const ПОЛЯ_ПЕРСОНАЖА = ['N', 'A', 'C', 'Ap', 'R', 'Mrg', 'Lgt', 'B', 'H', 'Ill', 'Prg', 'Pp', 'Mns', 'Ph', 'Bs', 'L', 'Th', 'K', 'Ex', 'D', 'I', 'G', 'S', 'Rl', 'Mm', 'Fl',
+const ПОЛЯ_ПЕРСОНАЖА = ['N', 'sx', 'A', 'C', 'Ap', 'R', 'Mrg', 'Lgt', 'B', 'H', 'Ill', 'Prg', 'Pp', 'Mns', 'Ph', 'Bs', 'L', 'Th', 'K', 'Ex', 'D', 'I', 'G', 'S', 'Rl', 'Mm', 'Fl',
   'Jl', 'Bt', 'St', 'Eo', 'X', 'SxL', 'SxC', 'SxR', 'Ln', 'Tr', 'Fr', 'SS', 'Pos', 'Rnd', 'Dur', 'Prt', 'Org', 'Vit', 'Snd', 'BM', 'W', 'Kn', 'Ft',
   'NG', 'NT', 'ND', 'Mrk', 'AC', 'SxV', 'Ab', 'Ef'];
 // Игрок ведёт те же поля, что и персонажи; вместо W — своя близость UW.
@@ -336,6 +336,16 @@ export function собратьСнимок(текстБлока) {
   (Array.isArray(к.cs) ? к.cs : []).forEach(c => безПотерянной(c, 'char:' + String((c && c.N) || '').trim()));
   безПотерянной(к.us, 'user');
   if (выкл('enableMenstruation')) поПерсонажам(['Mns']);
+  // «👬 Мужские пары»: у игрока в снимке нет женской анатомии — цикла,
+  // беременности, послеродового, груди и влаги в UW, иначе модель перепишет
+  // их из старого хода. Без настройки нет ануса (as:) — ни у кого.
+  const безМеток = (v, коды) => typeof v === 'string' ? v.split(';').filter(ч => !new RegExp(`^\\s*(?:${коды})\\s*:`, 'i').test(ч)).join(';').trim() : v;
+  if (settings.malePairs === true) {
+    if (объект(к.us)) { убрать(к.us, ['Mns', 'Prg', 'Pp']); if ('UW' in к.us) к.us.UW = безМеток(к.us.UW, 'lb|ch'); if ('sx' in к.us) к.us.sx = 'м'; }
+  } else {
+    (Array.isArray(к.cs) ? к.cs : []).forEach(c => { if (объект(c) && 'W' in c) c.W = безМеток(c.W, 'as'); });
+    if (объект(к.us) && 'UW' in к.us) к.us.UW = безМеток(к.us.UW, 'as');
+  }
   if (выкл('enableIntimacyExtras')) поПерсонажам(['Pos', 'Rnd', 'Dur', 'Prt', 'Org', 'Vit', 'Snd', 'Mrk']);
 
   // Метки на месте вырезанного — ровно там, где схема это поле просит.

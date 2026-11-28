@@ -6,18 +6,18 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.90.10';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.10';
-import { G_ICONS } from './icons.js?v=23.90.10';
-import { собратьЛенту, непрочитанные, времяВСписке, разобратьСообщение, исходящееСообщение } from './msg-feed.js?v=23.90.10';
-import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.90.10';
-import { безШапокСообщения, заКадромHTML, начинаетсяСТега, файлСнимка } from './msg-parts.js?v=23.90.10';
-import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.90.10';
-import { namesLikelySame } from '../names.js?v=23.90.10';
-import { settings } from '../settings.js?v=23.90.10';
-import { getSafeUserName, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.10';
-import { фотоПоИмени } from '../avatars.js?v=23.90.10';
-import { чатСИгроком, ключЧерновика, черновикИгрока, этоИгрок, именаИгрока } from '../user-chat.js?v=23.90.10';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.90.11';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.11';
+import { G_ICONS } from './icons.js?v=23.90.11';
+import { собратьЛенту, непрочитанные, времяВСписке, разобратьСообщение, исходящееСообщение } from './msg-feed.js?v=23.90.11';
+import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.90.11';
+import { безШапокСообщения, заКадромHTML, файлСнимка } from './msg-parts.js?v=23.90.11';
+import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.90.11';
+import { namesLikelySame } from '../names.js?v=23.90.11';
+import { settings } from '../settings.js?v=23.90.11';
+import { getSafeUserName, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.11';
+import { фотоПоИмени } from '../avatars.js?v=23.90.11';
+import { чатСИгроком, ключЧерновика, черновикИгрока, этоИгрок, именаИгрока } from '../user-chat.js?v=23.90.11';
 
 /**
  * Строка ввода чата с игроком (user-chat-ui.js): лицо игрока, «+», поле
@@ -106,12 +106,22 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
     // Модель часто называет чат именем владельца телефона («Дамиан»), хотя
     // в шапке должен стоять собеседник. Разбираем участников из самих
     // сообщений и подставляем того, кто пишет владельцу.
-    const counterparts = collectCounterparts(chatObj.messages, activeOwner);
-    const isGroupChat = Boolean(chatObj.participants) || counterparts.length > 1;
     // Чат с игроком: в нём можно писать от его лица (user-chat-ui.js).
     // Игрок может быть записан в телефоне иначе («Смирнова» — по фамилии): чат его и под этим именем.
     const именаИгрокаЗдесь = именаИгрока(getSafeUserName(), контакты);
     const сИгроком = settings.userChat !== false && чатСИгроком(rawChatName, { pp: chatObj.participants, ms: chatObj.messages }, именаИгрокаЗдесь);
+    // Игрок, записанный по фамилии («Грей»), подписывает свои строки именем
+    // («Вера»): это один собеседник, а не группа. Иначе после первой же его
+    // строки чат считался групповым и в «+» пропадал «Звонок». Остаётся то
+    // имя, под которым он сохранён в телефоне.
+    const counterparts = (() => {
+      const все = collectCounterparts(chatObj.messages, activeOwner);
+      const игрок = все.filter(c => этоИгрок(c, именаИгрокаЗдесь));
+      if (игрок.length < 2) return все;
+      const сохранён = игрок.find(c => именаИгрокаЗдесь.slice(1).some(з => этоИгрок(c, з))) || игрок[0];
+      return все.filter(c => !игрок.includes(c) || c === сохранён);
+    })();
+    const isGroupChat = Boolean(chatObj.participants) || counterparts.length > 1;
     const телефонЧата = String(uid).startsWith('phone2-') ? 'phx' : 'cm';
     const keyIsOwner = !displayChatName || namesLikelySame(displayChatName, activeOwner);
 
@@ -147,11 +157,8 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
     let preview = '';
     if (Array.isArray(chatObj.messages) && chatObj.messages.length) {
       const lastRaw = String(chatObj.messages[chatObj.messages.length - 1] || '');
-      let p = lastRaw.split('|')[0].replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim();
-      // Имя отправителя может быть с дефисом («Холлоуэй-Олбрайт»): [^:-] на нём
-      // обрывалось, и превью оставалось сырым «Имя -> Кому: [CALL: …]».
-      const mm = p.match(/^(.+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*(.*)$/);
-      if (mm && !начинаетсяСТега(p)) p = mm[3];
+      const послед = разобратьСообщение(lastRaw);
+      let p = послед.текст;
       p = безШапокСообщения(p).replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
            .replace(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?\d{0,2}:?\d{0,2}\s*:?\s*([^\]]*)\]/gi, (mm, d) => '🎬 Видео' + (d.trim() ? ': ' + d.trim() : ''))
            .replace(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*([^\]]*)\]/gi, (mm, d) => { const о = файлСнимка(d).описание; return '📷 Фото' + (о ? ': ' + о : ''); })
@@ -159,7 +166,6 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
            .replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]|✓+/gi, '').trim();
       // Недописанное своё — «Черновик:», удалённое — «Сообщение удалено»,
       // как в мессенджере, а не текстом, будто его отправили.
-      const послед = разобратьСообщение(lastRaw);
       if (послед.удалено) p = '🚫 Сообщение удалено';
       else if (послед.черновик && исходящееСообщение(послед.кто, activeOwner) && p) p = 'Черновик: ' + p;
       preview = p.length > 46 ? p.slice(0, 45) + '…' : p;

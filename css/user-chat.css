@@ -124,7 +124,7 @@
   color: #f1f5f9; font: inherit; font-size: 1.05em; outline: none;
 }
 .hud-uc-sheet .hud-uc-f:focus { border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 70%, transparent); }
-.hud-uc-sheet-btns { display: flex; justify-content: flex-end; gap: 8px; }
+.hud-uc-sheet-btns { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
 .hud-uc-sheet-btns button {
   padding: 6px 14px; border-radius: 14px; cursor: pointer; font: inherit; font-size: .92em;
   border: 1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.07); color: #e2e8f0;
@@ -254,3 +254,213 @@
 .hud-uc-preview[hidden] { display: none; }
 .hud-uc-preview img { display: block; width: 100%; max-height: 170px; object-fit: contain; }
 .hud-uc-go:disabled { opacity: .6; cursor: progress; }
+
+/* --- Звонок: экран на всё приложение «Сообщения» ------------------------------
+   Собирается один раз (user-chat-ui.js, собратьЭкранЗвонка) и дальше только
+   меняет состояние: data-state = вызов | разговор | конец, has-lines — уже
+   есть реплики (аватар уезжает наверх), is-speaking — персонаж говорит
+   (волна), is-waiting — ждём ответа, is-held — итог с расшифровкой до «Закрыть». */
+.hud-uc-call {
+  --uc-acc: var(--hud-accent, #8c5ad2);
+  --uc-ease: cubic-bezier(.22, .8, .24, 1);
+  --uc-ava: none;
+  position: absolute; inset: 0; z-index: 75; box-sizing: border-box; overflow: hidden; isolation: isolate;
+  container-type: inline-size;
+  display: flex; flex-direction: column; align-items: stretch; gap: 8px;
+  padding: 18px 10px 12px; color: #e8edf5; font-size: 13px; background: rgb(11, 10, 17);
+}
+/* Снизу у телефона полоса «домой» (.hud-phone-bottom-bar, ~47px, поверх приложения) — кнопки над ней. */
+.hud-phone-app-view > .hud-uc-call { padding-bottom: calc(var(--uc-bottom, 47px) + 10px); }
+/* Пустое место над аватаром: пока реплик нет, аватар стоит в верхней трети,
+   потом место плавно уходит ленте (flex-grow анимируется). */
+.hud-uc-call::before { content: ''; flex: .55 1 0; min-height: 0; transition: flex-grow .55s var(--uc-ease); }
+.hud-uc-call.has-lines::before { flex-grow: 0; }
+
+/* Фон: свечение в цвет темы, фото собеседника сквозь дымку, медленные пятна света. */
+.hud-uc-call-bg { position: absolute; inset: 0; z-index: -1; pointer-events: none; overflow: hidden;
+  background:
+    radial-gradient(120% 60% at 50% 0%, color-mix(in srgb, var(--uc-acc) 34%, transparent), transparent 70%),
+    linear-gradient(180deg, rgb(20, 17, 30), rgb(9, 8, 14) 75%);
+}
+.hud-uc-call-bg.has-img::before { content: ''; position: absolute; inset: -6%; background: var(--uc-ava) center 30% / cover no-repeat; opacity: .2;
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 70%); mask-image: linear-gradient(180deg, #000 0%, transparent 70%); }
+.hud-uc-call-bg i { position: absolute; width: 70cqw; aspect-ratio: 1; border-radius: 50%; opacity: .5;
+  background: radial-gradient(circle, color-mix(in srgb, var(--uc-acc) 38%, transparent), transparent 65%);
+  animation: hud-uc-drift 16s ease-in-out infinite alternate; }
+.hud-uc-call-bg i:nth-child(1) { left: -25cqw; top: 8%; }
+.hud-uc-call-bg i:nth-child(2) { right: -30cqw; top: 42%; animation-duration: 21s; animation-delay: -6s; opacity: .35; }
+.hud-uc-call-bg i:nth-child(3) { left: 10cqw; bottom: -30cqw; animation-duration: 25s; animation-delay: -11s; opacity: .28; }
+@keyframes hud-uc-drift { from { transform: translate(0, 0) scale(1); } to { transform: translate(12cqw, -8cqw) scale(1.18); } }
+.hud-uc-call[data-state="конец"] .hud-uc-call-bg i { opacity: .12; transition: opacity .6s; }
+
+/* Верх: аватар, имя, состояние, волна голоса. */
+.hud-uc-call-top { display: flex; flex-direction: column; align-items: center; gap: 3px; flex: 0 0 auto; text-align: center; min-width: 0; }
+.hud-uc-call-halo {
+  --ava: clamp(58px, 34cqw, 84px);
+  position: relative; width: var(--ava); height: var(--ava); margin-bottom: 6px; flex: 0 0 auto;
+  transition: width .55s var(--uc-ease), height .55s var(--uc-ease), margin .55s var(--uc-ease);
+}
+.hud-uc-call.has-lines .hud-uc-call-halo { --ava: clamp(38px, 19cqw, 48px); margin-bottom: 2px; }
+.hud-uc-call-ava {
+  position: absolute; inset: 0; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: calc(var(--ava) * .42); font-weight: 700; color: #fff; line-height: 1;
+  background: linear-gradient(145deg, color-mix(in srgb, var(--uc-acc) 75%, #fff 10%), color-mix(in srgb, var(--uc-acc) 55%, #000 35%));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--uc-acc) 30%, transparent), 0 8px 22px rgba(0, 0, 0, .45);
+  transition: font-size .55s var(--uc-ease), filter .5s, opacity .5s;
+}
+.hud-uc-call-ava.has-img { background: var(--uc-ava) center / cover no-repeat, rgb(40, 34, 56); }
+/* Пока звонит — круги расходятся от аватара. */
+.hud-uc-call-ripple { position: absolute; inset: 0; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--uc-acc) 70%, #fff 10%); opacity: 0; pointer-events: none; }
+.hud-uc-call[data-state="вызов"] .hud-uc-call-ripple { animation: hud-uc-ripple 2.4s cubic-bezier(.2, .6, .3, 1) infinite; }
+.hud-uc-call[data-state="вызов"] .hud-uc-call-ripple:nth-child(2) { animation-delay: .8s; }
+.hud-uc-call[data-state="вызов"] .hud-uc-call-ripple:nth-child(3) { animation-delay: 1.6s; }
+@keyframes hud-uc-ripple { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.9); opacity: 0; } }
+/* Говорит — мягкое кольцо дышит вокруг аватара. */
+.hud-uc-call-halo::after { content: ''; position: absolute; inset: -5px; border-radius: 50%; pointer-events: none; opacity: 0;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--uc-acc) 75%, #fff 15%), 0 0 18px color-mix(in srgb, var(--uc-acc) 55%, transparent); }
+.hud-uc-call.is-speaking .hud-uc-call-halo::after { animation: hud-uc-breath 1.1s ease-in-out infinite alternate; }
+@keyframes hud-uc-breath { from { opacity: .35; transform: scale(.97); } to { opacity: 1; transform: scale(1.06); } }
+/* Трубку взяли — короткая вспышка. */
+.hud-uc-call.is-connected .hud-uc-call-ava { animation: hud-uc-pop .7s var(--uc-ease); }
+@keyframes hud-uc-pop { 0% { transform: scale(1); } 35% { transform: scale(1.12); box-shadow: 0 0 0 6px color-mix(in srgb, #4ade80 45%, transparent), 0 8px 22px rgba(0, 0, 0, .45); } 100% { transform: scale(1); } }
+.hud-uc-call[data-state="конец"] .hud-uc-call-ava { filter: grayscale(.75); opacity: .8; }
+
+.hud-uc-call-name { font-size: 1.15em; font-weight: 700; color: #f8fafc; max-width: 100%; overflow-wrap: anywhere; line-height: 1.2; }
+.hud-uc-call-state { display: inline-flex; align-items: center; gap: 5px; min-height: 16px; font-size: .85em; color: rgba(226, 232, 240, .72); font-variant-numeric: tabular-nums; white-space: nowrap; transition: color .4s; }
+.hud-uc-call[data-state="разговор"] .hud-uc-call-state::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #4ade80; box-shadow: 0 0 6px #4ade80; animation: hud-uc-live 1.6s ease-in-out infinite; }
+@keyframes hud-uc-live { 50% { opacity: .35; } }
+.hud-uc-call[data-state="конец"] .hud-uc-call-state { color: #f1f5f9; }
+.hud-uc-call[data-state="конец"]:is([data-outcome="declined"], [data-outcome="missed"]) .hud-uc-call-state { color: #f6a39a; }
+
+/* Волна голоса: место под неё есть всегда — ничего не прыгает. */
+.hud-uc-call-wave { display: inline-flex; align-items: center; justify-content: center; gap: 3px; height: 14px; margin-top: 2px; opacity: 0; transition: opacity .4s; }
+.hud-uc-call-wave i { width: 3px; height: 100%; border-radius: 2px; background: color-mix(in srgb, var(--uc-acc) 65%, #fff 30%); transform: scaleY(.2); transition: transform .35s var(--uc-ease); }
+.hud-uc-call[data-state="разговор"] .hud-uc-call-wave { opacity: .9; }
+.hud-uc-call.is-speaking .hud-uc-call-wave i { animation: hud-uc-wave .8s ease-in-out infinite alternate; }
+.hud-uc-call.is-speaking .hud-uc-call-wave i:nth-child(2n) { animation-duration: .62s; }
+.hud-uc-call.is-speaking .hud-uc-call-wave i:nth-child(3n) { animation-duration: .95s; animation-delay: -.3s; }
+.hud-uc-call.is-speaking .hud-uc-call-wave i:nth-child(4) { animation-duration: .7s; animation-delay: -.15s; }
+@keyframes hud-uc-wave { from { transform: scaleY(.25); } to { transform: scaleY(1); } }
+.hud-uc-call.is-waiting:not(.is-speaking) .hud-uc-call-wave i { animation: hud-uc-think 1.4s ease-in-out infinite; }
+.hud-uc-call.is-waiting:not(.is-speaking) .hud-uc-call-wave i:nth-child(n) { animation-delay: calc(var(--d, 0) * 1s); }
+.hud-uc-call-wave i:nth-child(1) { --d: 0; } .hud-uc-call-wave i:nth-child(2) { --d: .1; } .hud-uc-call-wave i:nth-child(3) { --d: .2; }
+.hud-uc-call-wave i:nth-child(4) { --d: .3; } .hud-uc-call-wave i:nth-child(5) { --d: .4; } .hud-uc-call-wave i:nth-child(6) { --d: .5; } .hud-uc-call-wave i:nth-child(7) { --d: .6; }
+@keyframes hud-uc-think { 0%, 100% { transform: scaleY(.2); } 50% { transform: scaleY(.5); } }
+
+/* Лента реплик: забирает всё место под верхом. */
+.hud-uc-call-lines {
+  flex: 1 1 0; min-height: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  display: flex; flex-direction: column; gap: 6px; padding: 2px 2px 4px;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 10px); mask-image: linear-gradient(180deg, transparent 0, #000 10px);
+}
+.hud-uc-call-line { display: flex; flex-direction: column; gap: 1px; max-width: 86%; line-height: 1.38; overflow-wrap: anywhere; }
+.hud-uc-call-line > b { font-size: .76em; font-weight: 700; opacity: .62; padding: 0 4px; }
+.hud-uc-call-line > span { padding: 5px 10px; border-radius: 14px; background: rgba(255, 255, 255, .08); }
+/* Как и в переписке: экран — персонажа, его реплики справа, игрока слева. */
+.hud-uc-call-line.is-them { align-self: flex-end; align-items: flex-end; }
+.hud-uc-call-line.is-them > span { border-bottom-right-radius: 5px; background: linear-gradient(160deg, color-mix(in srgb, var(--hud-accent, #8c5ad2) 42%, rgba(255, 255, 255, .06)), color-mix(in srgb, var(--hud-accent, #8c5ad2) 26%, rgba(255, 255, 255, .04))); }
+.hud-uc-call-line.is-me { align-self: flex-start; }
+.hud-uc-call-line.is-me > span { border-bottom-left-radius: 5px; }
+.hud-uc-call-line.is-wait > span { display: inline-flex; align-items: center; min-height: 18px; background: rgba(255, 255, 255, .06); padding: 5px 12px; }
+.hud-uc-call .hud-uc-call-line:not(.is-old) { animation: hud-uc-line-in .38s var(--uc-ease) both; }
+.hud-uc-call .hud-uc-call-line.is-me:not(.is-old) { animation-name: hud-uc-line-in-me; }
+@keyframes hud-uc-line-in { from { opacity: 0; transform: translate(8px, 8px) scale(.97); } }
+@keyframes hud-uc-line-in-me { from { opacity: 0; transform: translate(-8px, 8px) scale(.97); } }
+
+/* Поле «Сказать…»: только в разговоре; появляется и уходит плавно. */
+.hud-uc-call-bar { display: flex; align-items: flex-end; gap: 6px; flex: 0 0 auto; max-height: 140px;
+  transition: opacity .35s var(--uc-ease), transform .35s var(--uc-ease), max-height .35s var(--uc-ease), visibility 0s; }
+.hud-uc-call:not([data-state="разговор"]) .hud-uc-call-bar { opacity: 0; transform: translateY(10px); max-height: 0; visibility: hidden; pointer-events: none;
+  transition: opacity .3s, transform .3s, max-height .3s, visibility 0s .3s; }
+.hud-uc-call-bar .hud-uc-call-input {
+  flex: 1 1 auto; min-width: 0; box-sizing: border-box; resize: none; overflow-y: hidden; margin: 0;
+  min-height: 34px; padding: 7px 12px; border-radius: 17px; font: inherit; font-size: 1em; line-height: 1.35; max-height: 120px;
+  border: 1px solid rgba(255, 255, 255, .14); background: rgba(255, 255, 255, .08); color: #f1f5f9; outline: none;
+  transition: border-color .2s, background .2s;
+}
+.hud-uc-call-bar .hud-uc-call-input:focus { border-color: color-mix(in srgb, var(--uc-acc) 75%, transparent); background: rgba(255, 255, 255, .1); }
+.hud-uc-call-say {
+  flex: 0 0 auto; width: 34px; height: 34px; padding: 0; margin: 0; border-radius: 50%; border: 0; cursor: pointer;
+  display: grid; place-items: center; color: #fff; background: var(--uc-acc);
+  box-shadow: 0 4px 12px color-mix(in srgb, var(--uc-acc) 40%, transparent); transition: transform .15s, opacity .2s, filter .2s;
+}
+.hud-uc-call-say svg { width: 17px; height: 17px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; display: block; }
+.hud-uc-call-say:active:not(:disabled) { transform: scale(.92); }
+.hud-uc-call-say:disabled { opacity: .4; cursor: default; box-shadow: none; }
+
+/* Кнопки внизу: «сбросить» и «Закрыть» в одной клетке — смена без прыжка. */
+.hud-uc-call-ctl { display: grid; place-items: center; flex: 0 0 auto; min-height: 50px; }
+.hud-uc-call-ctl > button { grid-area: 1 / 1; font: inherit; cursor: pointer; margin: 0;
+  transition: opacity .3s var(--uc-ease), transform .3s var(--uc-ease), visibility 0s; }
+.hud-uc-call-end {
+  width: 50px; height: 50px; padding: 0; border-radius: 50%; border: 0; color: #fff;
+  display: grid; place-items: center; background: linear-gradient(160deg, #f0625f, #d93a3f);
+  box-shadow: 0 6px 18px rgba(229, 72, 77, .45), inset 0 1px 0 rgba(255, 255, 255, .25);
+}
+.hud-uc-call-end svg { width: 23px; height: 23px; display: block; transform: rotate(135deg); }
+.hud-uc-call-end:active:not(:disabled) { transform: scale(.92); }
+.hud-uc-call-close {
+  padding: 8px 22px; border-radius: 18px; color: #f1f5f9; font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, .18); background: rgba(255, 255, 255, .1);
+}
+.hud-uc-call-end:disabled, .hud-uc-call-close:disabled { opacity: 0; transform: scale(.7); visibility: hidden; pointer-events: none;
+  transition: opacity .3s, transform .3s, visibility 0s .3s; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-uc-call-end:hover:not(:disabled) { filter: brightness(1.08); }
+  .hud-uc-call-say:hover:not(:disabled) { filter: brightness(1.1); }
+  .hud-uc-call-close:hover:not(:disabled) { background: rgba(255, 255, 255, .16); }
+}
+
+/* Вход: экран раскрывается кругом снизу, верх въезжает следом. */
+.hud-uc-call:not(.is-restored) { animation: hud-uc-call-in .5s var(--uc-ease) both; }
+.hud-uc-call:not(.is-restored) .hud-uc-call-top { animation: hud-uc-top-in .55s .1s var(--uc-ease) both; }
+@keyframes hud-uc-call-in { from { clip-path: circle(0% at 50% 100%); } to { clip-path: circle(150% at 50% 100%); } }
+@keyframes hud-uc-top-in { from { opacity: 0; transform: translateY(14px) scale(.96); } }
+/* Уход: тает и чуть уменьшается. */
+.hud-uc-call.is-leaving { opacity: 0; transform: scale(.97); pointer-events: none; transition: opacity .32s ease, transform .32s ease; }
+
+/* Лист закрывается плавно (под раскрывающимся экраном звонка — тоже). */
+.hud-uc-sheet.is-closing { animation: hud-uc-fade-out .22s ease forwards; pointer-events: none; }
+.hud-uc-sheet.is-closing .hud-uc-sheet-box { animation: hud-uc-down .22s ease forwards; }
+@keyframes hud-uc-fade-out { to { opacity: 0; } }
+@keyframes hud-uc-down { to { transform: translateY(16px); opacity: .4; } }
+
+/* Анимации HUD местами стоят на паузе до наведения — у звонка играют всегда. */
+.hud-uc-call, .hud-uc-call::before, .hud-uc-call *, .hud-uc-call *::before, .hud-uc-call *::after { animation-play-state: running !important; }
+@media (prefers-reduced-motion: reduce) {
+  .hud-uc-call, .hud-uc-call::before, .hud-uc-call *, .hud-uc-call *::before, .hud-uc-call *::after, .hud-uc-sheet.is-closing, .hud-uc-sheet.is-closing * { animation: none !important; transition: none !important; }
+}
+
+/* Расшифровка звонка — окно поверх Таверны. */
+.hud-uc-tr-box {
+  width: min(420px, 100%); color: #e2e8f0;
+  background: linear-gradient(180deg, rgb(30,26,42), rgb(15,13,23));
+  border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 40%, rgba(255,255,255,.12));
+}
+.hud-uc-tr-head { display: flex; align-items: center; gap: 8px; padding: 12px 16px 6px; }
+.hud-uc-tr-head svg { width: 16px; height: 16px; color: var(--hud-accent, #8c5ad2); flex: 0 0 auto; }
+.hud-uc-tr-head b { font-size: 14px; overflow-wrap: anywhere; }
+.hud-uc-tr-head small { margin-left: auto; opacity: .6; font-size: 11px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.hud-uc-tr-sum { margin: 0 16px 6px; padding-left: 8px; border-left: 2px solid var(--hud-accent, #8c5ad2); font-size: 12px; opacity: .8; line-height: 1.4; }
+.hud-uc-tr-lines { display: flex; flex-direction: column; gap: 6px; padding: 6px 16px 4px; overflow-y: auto; min-height: 0; font-size: 13px; }
+/* Звонок: «Позвонить» и «Живой звонок» поровну, «Отмена» под ними. */
+.hud-uc-sheet-btns.is-call { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); }
+.hud-uc-sheet-btns.is-call .hud-uc-cancel { order: 3; grid-column: 1 / -1; justify-self: center; background: transparent; border-color: transparent; }
+.hud-uc-sheet-btns.is-call .hud-uc-go { padding-inline: 6px; white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.hud-uc-sheet-btns .hud-uc-go.is-live { background: transparent; border-color: var(--hud-accent, #8c5ad2); color: #f1f5f9; }
+
+/* Звонок идёт, а «Сообщения» закрыты: пилюля сверху телефона ведёт обратно. */
+.hud-uc-call-pill {
+  position: absolute; top: 30px; left: 50%; z-index: 90; transform: translateX(-50%);
+  display: inline-flex; align-items: center; gap: 5px; max-width: calc(100% - 24px); box-sizing: border-box;
+  padding: 4px 11px 4px 8px; border-radius: 999px; border: 0; cursor: pointer; margin: 0;
+  font: inherit; font-size: 11px; font-weight: 600; color: #fff; font-variant-numeric: tabular-nums;
+  background: linear-gradient(160deg, #34c26a, #1f9d52); box-shadow: 0 4px 14px rgba(31, 157, 82, .45);
+  animation: hud-uc-pill-in .35s cubic-bezier(.22, .8, .24, 1) both, hud-uc-pill-glow 2s ease-in-out .35s infinite;
+}
+.hud-uc-call-pill svg { width: 12px; height: 12px; flex: 0 0 auto; }
+.hud-uc-call-pill span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+@keyframes hud-uc-pill-in { from { opacity: 0; transform: translate(-50%, -8px); } }
+@keyframes hud-uc-pill-glow { 50% { box-shadow: 0 4px 20px rgba(52, 194, 106, .7); } }
+.hud-uc-call-pill { animation-play-state: running !important; }
+@media (prefers-reduced-motion: reduce) { .hud-uc-call-pill { animation: none !important; } }

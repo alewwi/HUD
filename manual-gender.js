@@ -21,7 +21,9 @@ export function записатьПол(кто, пол, м) {
 }
 export function полДляМодели() {
   return Object.entries(metadata()?.tavernosHudGender || {}).map(([кто, пол]) =>
-    (кто === 'user' ? '{{user}} (us)' : JSON.stringify(кто.slice(5))) + (пол === 'm' ? ' is male. Omit Mns, Prg and Pp for him.' : ' is female.')).join('\n');
+    (кто === 'user' ? '{{user}} (us)' : JSON.stringify(кто.slice(5))) + (пол === 'm'
+      ? ' is male. Omit Mns, Prg and Pp for him. ' + (кто === 'user' ? 'In UW, use his own anatomy and omit ch.' : 'In W, omit ch and vaginal lb.')
+      : ' is female.')).join('\n');
 }
 
 // Only edit the selected owner's record. Unrelated clauses in health fields survive.

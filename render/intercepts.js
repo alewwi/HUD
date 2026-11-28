@@ -3,20 +3,20 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { имяДляВкладки } from '../utils.js?v=23.90.10';
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.10';
-import { фотоПоИмени } from '../avatars.js?v=23.90.10';
+import { имяДляВкладки } from '../utils.js?v=23.90.11';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.90.11';
+import { фотоПоИмени } from '../avatars.js?v=23.90.11';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { собратьЛенту, моментПоследнего, тотЖеВПереписке, разобратьСообщение, непрочитанные, полеВремени } from './msg-feed.js?v=23.90.10';
-import { видБлока } from './views.js?v=23.90.10';
-import { видПерехватов, строкаПротокола } from './views-diary.js?v=23.90.10';
-import { settings } from '../settings.js?v=23.90.10';
-import { getSafeUserName } from '../utils.js?v=23.90.10';
-import { G_ICONS } from './icons.js?v=23.90.10';
-import { перехватИгрока } from '../user-chat.js?v=23.90.10';
-import { строкаВводаИгрока } from './messenger.js?v=23.90.10';
+import { собратьЛенту, моментПоследнего, тотЖеВПереписке, разобратьСообщение, непрочитанные, полеВремени } from './msg-feed.js?v=23.90.11';
+import { видБлока } from './views.js?v=23.90.11';
+import { видПерехватов, строкаПротокола } from './views-diary.js?v=23.90.11';
+import { settings } from '../settings.js?v=23.90.11';
+import { getSafeUserName } from '../utils.js?v=23.90.11';
+import { G_ICONS } from './icons.js?v=23.90.11';
+import { перехватИгрока } from '../user-chat.js?v=23.90.11';
+import { строкаВводаИгрока } from './messenger.js?v=23.90.11';
 
 // Переписка игрока с другим человеком (user-chat-ui.js): лежит в перехватах
 // как телефон того, кому игрок пишет, — с полем ввода вместо «только чтение».
@@ -174,7 +174,7 @@ function макетПерехватов(interceptsData, uid, sceneDate) {
 
     chatTabsHeader += `<button class="hud-phone-subtab intercept-tab ${idx === 0 ? 'active' : ''}" data-subtarget="subhack-${uid}-${idx}">${свой ? '💬' : '👁️'} ${defeatWI(escapeHtml(свой ? имяБезПриставки(targetName) : целей.get(ключЦели(intercept)) > 1 && chatName && chatName !== 'Chat' ? первое(targetName) + ' ↔ ' + первое(chatName) : имяБезПриставки(targetName)))} ${unreadCount > 0 ? `<span class="hud-unread-badge">${unreadCount}</span>` : ''}</button>`;
 
-    chatBodies += `<div class="hud-phone-subbody ${idx === 0 ? 'active' : ''}" id="subhack-${uid}-${idx}"${свой ? ` data-user-chat="1" data-uc-where="tp" data-uc-target="${escapeHtml(targetName)}" data-uc-chat="${escapeHtml(sanitizeText(intercept.chatName || '').trim())}"` : ''}>
+    chatBodies += `<div class="hud-phone-subbody ${idx === 0 ? 'active' : ''}" id="subhack-${uid}-${idx}" data-edit-target="${escapeHtml(String(intercept.target || '').trim())}" data-edit-chat="${escapeHtml(String(intercept.chatName || '').trim())}"${свой ? ` data-user-chat="1" data-uc-where="tp" data-uc-target="${escapeHtml(targetName)}" data-uc-chat="${escapeHtml(sanitizeText(intercept.chatName || '').trim())}"` : ''}>
       <div class="hud-phone-statusbar"><span class="hud-phone-time">${escapeHtml(latestTime)}</span><span class="hud-phone-owner-label intercept-status">${свой ? `💬 ПЕРЕПИСКА (${escapeHtml(имяБезПриставки(targetName))})` : `📡 ПЕРЕХВАТ (${escapeHtml(имяБезПриставки(targetName))})`}</span><div class="hud-phone-status-icons"><span class="hud-intercept-icon">⚠</span></div></div>
       <div class="hud-phone-header hud-intercept-header">
         <span class="hud-phone-back hud-intercept-icon">⟨</span>

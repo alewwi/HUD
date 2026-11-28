@@ -12,10 +12,10 @@
 // оказываются рядом вчерашнее «22:30» и сегодняшнее «08:30», и без подписи
 // «Вчера» это читается как один разговор подряд.
 
-import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName } from '../utils.js?v=23.90.10';
-import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.90.10';
-import { avaFace } from './phone-common.js?v=23.90.10';
-import { namesLikelySame, тотЖеСтрого } from '../names.js?v=23.90.10';
+import { разобратьАдресСообщения, escapeHtml, defeatWI, hudHashSeed, getSafeUserName } from '../utils.js?v=23.90.11';
+import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения } from './msg-parts.js?v=23.90.11';
+import { avaFace } from './phone-common.js?v=23.90.11';
+import { namesLikelySame, тотЖеСтрого } from '../names.js?v=23.90.11';
 
 // Один человек в переписке под разными подписями: «Грей» и «Профессор Грей»,
 // «Butler» и «Private Butler», «Damian» и «THE LANTERNS Damian Hartley».
@@ -212,10 +212,8 @@ export function разобратьСообщение(raw) {
   const удалено = /delete|удален/.test(низ) || /\[\s*(?:удалено|deleted?)\s*\]/i.test(тело);
   const черновик = /draft|черновик/.test(низ) || /\[\s*(?:черновик|draft)\s*\]/i.test(тело);
   тело = тело.replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]\s*|✓+/gi, '').trim();
-  let кто = 'Unknown', текст = тело;
-  // Дефис — часть фамилии («Холлоуэй-Олбрайт»), из имени его не исключаем.
-  const m = начинаетсяСТега(тело) ? null : тело.match(/^([^:]+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*([\s\S]*)$/);
-  if (m) { кто = m[1].trim(); текст = m[3].trim(); }
+  const { sender, body: текст } = разобратьАдресСообщения(тело);
+  const кто = sender || 'Unknown';
   // Время в поле дня: «Вчера, 14:30» → на пузыре только часы.
   const часы = (String(время).match(/\d{1,2}:\d{2}/) || [''])[0] || (/\d/.test(время) ? '' : время);
   return { кто, текст, время: часы, статус, удалено, черновик };
@@ -331,6 +329,7 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
     const { текст, время, статус, удалено, черновик } = разобрано;
     // Тег без отправителя: писали с телефона владельца.
     const кто = разобрано.кто === 'Unknown' && owner && /^\[BY\s*:/i.test(текст) ? owner : разобрано.кто;
+    const адресПравки = `data-msg-key="${msgKey(текст)}" data-msg-time="${escapeHtml(время)}" data-msg-sender="${msgKey(разобрано.кто)}"`;
     const подпись = имяНаЭкране ? имяНаЭкране(кто) : кто;
     const исходящее = исходящееСообщение(кто, owner);
 
@@ -352,7 +351,7 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
     }
 
     if (удалено) {
-      html += `<div class="hud-msg-wrapper ${исходящее ? 'outgoing' : 'incoming'}" data-msg-key="${msgKey(текст)}">
+      html += `<div class="hud-msg-wrapper ${исходящее ? 'outgoing' : 'incoming'}" ${адресПравки}>
         ${!исходящее ? кружок(подпись) : ''}
         <div class="hud-msg-content" style="max-width: 100%;">
           <span class="hud-msg-sender">${escapeHtml(подпись)}</span>
@@ -373,7 +372,7 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
 
     // Звонок — событие во всю ширину, а не реплика.
     const звонок = buildCallRow(текст, { sender: подпись, time: время, outgoing: исходящее });
-    if (звонок) { html += звонок.replace(/^(\s*<\w+)/,`$1 data-msg-key="${msgKey(текст)}"`); return; }
+    if (звонок) { html += звонок.replace(/^(\s*<\w+)/, начало => `${начало} ${адресПравки}`); return; }
 
     const внутри = buildBubbleInner(текст, { владелец: owner });
     const мета = (время || отметка(статус, исходящее, непроч.has(i)))
@@ -383,7 +382,7 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
       ${!исходящее ? кружок(подпись) : ''}
       <div class="hud-msg-content" style="max-width: 100%;">
         <span class="hud-msg-sender"${стильИмени}>${escapeHtml(подпись)}</span>
-        <div class="hud-msg-bubble" data-msg-key="${msgKey(текст)}"${статус ? ` data-st="${escapeHtml(String(статус).trim().toLowerCase())}"` : ''}>
+        <div class="hud-msg-bubble" ${адресПравки}${статус ? ` data-st="${escapeHtml(String(статус).trim().toLowerCase())}"` : ''}>
           ${черновик ? '<div class="hud-msg-draft-mark">✎ черновик, не отправлено</div>' : ''}
           ${внутри}
           ${мета}

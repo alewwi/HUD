@@ -9,50 +9,51 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { нужноПолноеИмя } from '../korean-names.js?v=23.90.10';
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.90.10';
-import { иконка } from './hud-icons.js?v=23.90.10';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.90.10';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.10';
-import { разобратьСилуСтраха, страхиБезГолойСилы, стадияБолезни } from '../codes.js?v=23.90.10';
+import { нужноПолноеИмя } from '../korean-names.js?v=23.90.11';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.90.11';
+import { иконка } from './hud-icons.js?v=23.90.11';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.90.11';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.11';
+import { разобратьСилуСтраха, страхиБезГолойСилы, стадияБолезни } from '../codes.js?v=23.90.11';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  блокТемпаСцены, активныеСледы, карточкаСледа, группаНавсегда, разобратьСледы, видСледа, тотЖеВред, повязкаНаРане, тоЖеМесто, видПодШрамом, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия, почемуРиск } from './intimacy.js?v=23.90.10';
-import { часыСцены } from './scene-clock.js?v=23.90.10';
-import { полПерсонажа } from './scene-body.js?v=23.90.10';
-import { buildUnderwear } from './underwear.js?v=23.90.10';
-import { buildDuel } from './duel.js?v=23.90.10';
-import { ЗНАЧОК_КОРЗИНЫ, кнопкаПодсказки } from './erase-button.js?v=23.90.10';
-import { ручнойПол } from '../manual-gender.js?v=23.90.10';
-import { buildPregnancy } from './pregnancy.js?v=23.90.10';
-import { мешаетБлизости, больноПриБлизости } from './rest-hint.js?v=23.90.10';
-import { buildPostpartum } from './postpartum.js?v=23.90.10';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, попыткиЗачатия, зарегистрироватьРоды, зарегистрироватьПотерю, закрывшаяПотеря, послеПотери, видПотери, словаПотери, частьПотери, датаИзТекста, дм as деньМесяц, датаЗачатия, чертыРодителей } from './conception.js?v=23.90.10';
-import { блокПотери, кнопкаПотери } from './pregnancy-loss.js?v=23.90.10';
-import { доверияБезПричин, чистаяПричина, шрамыЧеловека, запущенноеУ, весЧеловека, сдвигВеса, срокСдвигаВеса, историяВеса } from '../turn-notes.js?v=23.90.10';
-import { видШрамов, видНеЗнает, видВеса } from './views-plus.js?v=23.90.10';
-import { видОтношений } from './views-story.js?v=23.90.10';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.90.10';
-import { parseSceneDate } from '../history-analyzer.js?v=23.90.10';
-import { settings, настройка } from '../settings.js?v=23.90.10';
-import { старина, стариннаяЗабота } from '../era.js?v=23.90.10';
-import { знакРода } from './heraldry.js?v=23.90.10';
-import { бракВкл, раныВкл, тонРаны, каплаГумора } from './medieval-life.js?v=23.90.10';
-import { полеВкл } from '../deep-fields.js?v=23.90.10';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.90.10';
-import { видСостоянияТела } from './extras.js?v=23.90.10';
-import { видСпособностей, видЧар, ступеньОтдачи, лесенкаОтдачи, СТУПЕНИ_ОТДАЧИ, силыНаЭкране, имяЧар } from './powers.js?v=23.90.10';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом, знакПоДатеРождения } from './views-fields.js?v=23.90.10';
-import { parseRelationList } from './relations-graph.js?v=23.90.10';
-import { раскладкаСтатов, пометитьСтроку } from '../custom-stats.js?v=23.90.10';
-import { плашкаПоследствий } from './consequences.js?v=23.90.10';
-import { карточкиПари } from './bets.js?v=23.90.10';
-import { отложитьРисунок } from './lazy-svg.js?v=23.90.10';
-import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.90.10';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.90.10';
-import { поИгрокуВперёд, плашкаСтупени, сведенияДля, ступениВкл, словоСтупени } from './trust-stages.js?v=23.90.10';
-import { блокКубика } from './notice-dice.js?v=23.90.10';
-import { девственность, несовершеннолетний, описаниеПерсоны } from '../body-cues.js?v=23.90.10';
-import { девственностьВЗаметках } from '../turn-notes.js?v=23.90.10';
+  блокТемпаСцены, активныеСледы, карточкаСледа, группаНавсегда, разобратьСледы, видСледа, тотЖеВред, повязкаНаРане, тоЖеМесто, видПодШрамом, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия, почемуРиск } from './intimacy.js?v=23.90.11';
+import { часыСцены } from './scene-clock.js?v=23.90.11';
+import { полПерсонажа, проникновенияИзТекста } from './scene-body.js?v=23.90.11';
+import { buildUnderwear } from './underwear.js?v=23.90.11';
+import { buildDuel } from './duel.js?v=23.90.11';
+import { ЗНАЧОК_КОРЗИНЫ, кнопкаПодсказки } from './erase-button.js?v=23.90.11';
+import { полЧеловека } from '../cast.js?v=23.90.11';
+import { ручнойПол } from '../manual-gender.js?v=23.90.11';
+import { buildPregnancy } from './pregnancy.js?v=23.90.11';
+import { мешаетБлизости, больноПриБлизости } from './rest-hint.js?v=23.90.11';
+import { buildPostpartum } from './postpartum.js?v=23.90.11';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, попыткиЗачатия, зарегистрироватьРоды, зарегистрироватьПотерю, закрывшаяПотеря, послеПотери, видПотери, словаПотери, частьПотери, датаИзТекста, дм as деньМесяц, датаЗачатия, чертыРодителей } from './conception.js?v=23.90.11';
+import { блокПотери, кнопкаПотери } from './pregnancy-loss.js?v=23.90.11';
+import { доверияБезПричин, чистаяПричина, шрамыЧеловека, запущенноеУ, весЧеловека, сдвигВеса, срокСдвигаВеса, историяВеса } from '../turn-notes.js?v=23.90.11';
+import { видШрамов, видНеЗнает, видВеса } from './views-plus.js?v=23.90.11';
+import { видОтношений } from './views-story.js?v=23.90.11';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.90.11';
+import { parseSceneDate } from '../history-analyzer.js?v=23.90.11';
+import { settings, настройка } from '../settings.js?v=23.90.11';
+import { старина, стариннаяЗабота } from '../era.js?v=23.90.11';
+import { знакРода } from './heraldry.js?v=23.90.11';
+import { бракВкл, раныВкл, тонРаны, каплаГумора } from './medieval-life.js?v=23.90.11';
+import { полеВкл } from '../deep-fields.js?v=23.90.11';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.90.11';
+import { видСостоянияТела } from './extras.js?v=23.90.11';
+import { видСпособностей, видЧар, ступеньОтдачи, лесенкаОтдачи, СТУПЕНИ_ОТДАЧИ, силыНаЭкране, имяЧар } from './powers.js?v=23.90.11';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом, знакПоДатеРождения } from './views-fields.js?v=23.90.11';
+import { parseRelationList } from './relations-graph.js?v=23.90.11';
+import { раскладкаСтатов, пометитьСтроку } from '../custom-stats.js?v=23.90.11';
+import { плашкаПоследствий } from './consequences.js?v=23.90.11';
+import { карточкиПари } from './bets.js?v=23.90.11';
+import { отложитьРисунок } from './lazy-svg.js?v=23.90.11';
+import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.90.11';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.90.11';
+import { поИгрокуВперёд, плашкаСтупени, сведенияДля, ступениВкл, словоСтупени } from './trust-stages.js?v=23.90.11';
+import { блокКубика } from './notice-dice.js?v=23.90.11';
+import { девственность, несовершеннолетний, описаниеПерсоны } from '../body-cues.js?v=23.90.11';
+import { девственностьВЗаметках } from '../turn-notes.js?v=23.90.11';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела', 'способности', 'чары'];
@@ -227,7 +228,7 @@ function buildBodyMap(value) {
 const ЗНАЧКИ_ПОЛЕЙ = {
   'возраст': '⏳', 'одежда': '👕', 'бельё': '🩲', 'роль': '🎭', 'место': '📍', 'брак': '💍', 'законность': '📜',
   'цели': '🎯', 'инвентарь': '🎒', 'статус': '📌', 'тело': '🧍',
-  'внешность': '🪞', 'здоровье': '🩺', 'болезни и травмы': '🩹', 'беременность': '🤰',
+  'внешность': '🪞', 'пол': '👤', 'здоровье': '🩺', 'болезни и травмы': '🩹', 'беременность': '🤰',
   'способности': '✨', 'чары': '🌀', 'эффекты': '🌀',
   'мысли': '💭', 'ожидание vs реальность': '🔮',
   'общие воспоминания': '🎞️', 'флаг-монитор': '🚩', 'пари': '🎲',
@@ -314,7 +315,7 @@ const DRAMA_KEYS = ['ревность', 'конфликт', 'глубина ко
    о чём строка, можно было только прочитав её. NSFW-строки сюда не входят:
    у них своё оформление. */
 const ВИД_СТРОКИ = {
-  'возраст': 'look', 'одежда': 'look', 'бельё': 'look', 'внешность': 'look', 'тело': 'look',
+  'возраст': 'look', 'одежда': 'look', 'бельё': 'look', 'внешность': 'look', 'пол': 'look', 'тело': 'look',
   'физиология': 'vitals', 'состояние тела': 'vitals', 'здоровье': 'vitals', 'болезни и травмы': 'vitals', 'следы на теле': 'vitals', 'беременность': 'vitals', 'цикл': 'vitals',
   'место': 'place',
   'роль': 'standing', 'статус': 'standing',
@@ -1115,19 +1116,45 @@ function частиПоМеткам(текст) {
     return { часть, метка: m ? перевестиМетку(m[1].trim()).trim().toLowerCase() : '', текст: m ? m[2].trim() : String(часть) };
   });
 }
+// Поле «Пол» (sx) словом: модель пишет «м», «ж», «м (мужчина)», «female».
+// Пол, решённый для всей карточки (ручной, «👬 Мужские пары»), главнее.
+function словоПола(значение, решено = '') {
+  const s = String(значение || '').trim();
+  const п = решено || (/^\s*(?:м|m|муж\p{L}*|male|man)(?![\p{L}])/iu.test(s) ? 'm' : /^\s*(?:ж|f|жен\p{L}*|female|woman)(?![\p{L}])/iu.test(s) ? 'f' : '');
+  return п === 'm' ? 'мужчина' : п === 'f' ? 'женщина' : s;
+}
 function мужскоеТело(о, части, этоИгрок) {
+  const пол = полЧеловека(о, { игрок: этоИгрок });
+  if (пол) return пол === 'm';
   const есть = (метка) => части.some(ч => ч.метка === метка && !пустоеПоле(ч.текст));
   const анатомия = части.filter(ч => ч.метка === 'анатомия').map(ч => ч.текст).join(' ');
   const женское = ['Цикл', 'Mns', 'Беременность', 'Prg'].some(к => !пустоеПоле(снятьЗаглушки(flattenFieldValue(полеОбъекта(о, к)))))
     || ЖЕНСКОЕ.test(анатомия) || (!этоИгрок && есть('смазка'));
   return !женское && (есть('состояние члена') || МУЖСКОЕ.test(анатомия));
 }
-function безГрудиУМужчин(значение, о, этоИгрок = false) {
+// «Анус» (as:) — только с настройкой «👬 Мужские пары»: у игрока всегда, у
+// персонажа — когда сзади что-то происходит (анал, пальцы, язык, игрушка)
+// или поза сзади. Модель по ошибке пишет его и в обычной сцене — тогда строки
+// нет. Без настройки блок близости как раньше: строки «Анус» нет никогда.
+const ПОЗА_СЗАДИ = /(?<![\p{L}])(?:сзади|раком|на четверень\p{L}*|коленно-локт\p{L}*|догги\p{L}*|по-собачьи|doggy|from behind|on all fours)(?![\p{L}])/iu;
+const ДЕЛО_У_АНУСА = /пальц|палец|язык|член|ствол|головк|игрушк|пробк|плаг|страпон|дилдо|проник|внутр|вош[её]л|входит|вход[ау]?(?![\p{L}])|растяг|лиж|лизн|целу|finger|tongue|cock|shaft|toy|plug|strap|dildo|inside|enter|stretch|lick|rimm/iu;
+function анусУместен(о, части, этоИгрок) {
+  if (settings.malePairs !== true) return false;
+  if (этоИгрок && полЧеловека(о, { игрок: true }) === 'm') return true;
+  if (ПОЗА_СЗАДИ.test(String(полеОбъекта(о, 'Поза', 'Pos') || ''))) return true;
+  if (части.some(ч => ч.метка === 'анус' && ДЕЛО_У_АНУСА.test(ч.текст))) return true;
+  const прочее = части.filter(ч => ч.метка !== 'анус').map(ч => ч.часть).join('; ');
+  return проникновенияИзТекста(прочее, полеОбъекта(о, 'Поза', 'Pos'), полеОбъекта(о, 'Готовность к оргазму', 'Org')).some(п => п.куда === 'anal');
+}
+function поляБлизостиДляТела(значение, о, этоИгрок = false) {
   const текст = String(значение || '');
-  const части = частиПоМеткам(текст);
-  const грудь = (ч) => /^грудь(?:\/соски)?$/.test(ч.метка);
-  if (!части.some(грудь) || !мужскоеТело(о, части, этоИгрок)) return текст;
-  return части.filter(ч => !грудь(ч)).map(ч => ч.часть).join('; ');
+  let части = частиПоМеткам(текст);
+  const анусЛишний = части.some(ч => ч.метка === 'анус') && !анусУместен(о, части, этоИгрок);
+  if (анусЛишний) части = части.filter(ч => ч.метка !== 'анус');
+  // У игрока «смазка» — влага вообще; при «👬 Мужских парах» её у него нет, как и в промте.
+  const лишнее = ч => /^грудь(?:\/соски)?$/.test(ч.метка) || (ч.метка === 'смазка' && (!этоИгрок || settings.malePairs === true));
+  if (!части.some(лишнее) || !мужскоеТело(о, части, этоИгрок)) return анусЛишний ? части.map(ч => ч.часть).join('; ') : текст;
+  return части.filter(ч => !лишнее(ч)).map(ч => ч.часть).join('; ');
 }
 
 // Строка «Здоровье»: одна фраза — как раньше, с карточками — во всю ширину.
@@ -1230,7 +1257,8 @@ export function безСознания(о) {
   const текст = ПОЛЯ_СОСТОЯНИЯ.map(([к, код]) => полеОбъекта(о, к, код)).filter(Boolean).join(' ; ').replace(/[⠀   ]/g, ' ');
   if (!текст || ОЧНУЛСЯ.test(текст)) return '';
   const имя = полеОбъекта(о, 'Имя', 'N');
-  const пол = полПерсонажа(полеОбъекта(о, 'NSFW', 'SxV'), полеОбъекта(о, 'Внешность', 'Ap'), полеОбъекта(о, 'Тело', 'B'));
+  // Пол — тот же, что у всей карточки: ручной, метка, родство, имя (cast.js).
+  const пол = полЧеловека(о) || полПерсонажа(полеОбъекта(о, 'NSFW', 'SxV'), полеОбъекта(о, 'Внешность', 'Ap'), полеОбъекта(о, 'Тело', 'B'));
   for (const m of текст.matchAll(ПРОВАЛ)) {
     if (НЕ_ПЕРЕД.test(текст.slice(Math.max(0, m.index - 30), m.index))) continue;
     if (чужойОбморок(текст, m, имя, пол)) continue;
@@ -1446,7 +1474,7 @@ export function buildUserHTML(userData, uid, isChecked, characters, свои = [
   const avaTag = ` data-ava-name="${escapeHtml(personaName)}" data-ava-role="user"`;
   const avatarHtml = avatarUrl ? `<img src="${avatarUrl}" class="hud-avatar hud-avatar-user" alt="avatar"${avaTag} onerror="this.outerHTML='<div class=&quot;hud-avatar-placeholder hud-avatar-user&quot;></div>'">` : `<div class="hud-avatar-placeholder hud-avatar-user"${avaTag}></div>`;
 
-  const order = ['A', 'C', 'Ap', 'H', 'Ill', 'Mrk', 'Prg', 'Pp', 'Mns', 'Ab', 'Ef', 'Rel', 'L', 'UW'];
+  const order = ['sx', 'A', 'C', 'Ap', 'H', 'Ill', 'Mrk', 'Prg', 'Pp', 'Mns', 'Ab', 'Ef', 'Rel', 'L', 'UW'];
   let rows = '';
   // Близость идёт, если у игрока заполнена своя NSFW-строка или у кого-то в
   // сцене есть фаза. Тогда следы — своей строкой, иначе — внутри «Здоровья».
@@ -1511,6 +1539,7 @@ export function buildUserHTML(userData, uid, isChecked, characters, свои = [
     // Значок берём из той же таблицы, что и карточка персонажа: поля
     // здесь те же самые, и разнобой бросался бы в глаза при переключении.
     const значок = значокПоля(label.toLowerCase());
+    if (shortKey === 'sx') { rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <span class="hud-value">${escapeHtml(словоПола(value, полЧеловека(userData, { игрок: true, люди: characters || [] })))}</span></div>`; return; }
     if (shortKey === 'H' || shortKey === 'Ill' || shortKey === 'Mrk') {
       if (!здоровье) здоровье = собратьЗдоровье(userData, вБлизости);
       if (!здоровьеПоказано) { здоровьеПоказано = true; rows += строкаЗдоровья(здоровье, rowClass, значокПоля('здоровье')); }
@@ -1520,7 +1549,7 @@ export function buildUserHTML(userData, uid, isChecked, characters, свои = [
     } else if (label.toLowerCase() === 'отношения') {
       rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', false, 'отношения', лицоСобеседника)}</div></div>`;
     } else if (label.toLowerCase().includes('nsfw')) {
-      rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>🔞</span></i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container hud-nsfw-list is-act">${buildPillList(безГрудиУМужчин(value, userData, true), 'hud-nsfw-pill')}</div></div>`;
+      rows += `<div class="${rowClass}"><span class="hud-key">${правкаПола('user', надписьПоля(label), '<i class="hud-key-ico" aria-hidden="true"><span>🔞</span></i> ')}:</span> <div class="hud-vertical-container hud-nsfw-list is-act">${buildPillList(поляБлизостиДляТела(value, userData, true), 'hud-nsfw-pill')}</div></div>`;
     } else if ((shortKey === 'Ab' || shortKey === 'Ef') && силыНаЭкране()) {
       const вид = shortKey === 'Ab' ? видСпособностей(value, userData) : видЧар(value, userData);
       if (вид) rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(shortKey === 'Ef' ? имяЧар() : label)}:</span> ${вид}</div>`;
@@ -1560,7 +1589,7 @@ export function buildUserHTML(userData, uid, isChecked, characters, свои = [
     const облик = сУчётомРучного(обликИзТекстов(тексты, { зона: зонаПоСлову, канон: персона ? [персона] : [] }), settings.userLook || {});
     if (естьОблик(облик)) {
       const владелец = { 'Имя': personaName, 'Внешность': внешность, 'Одежда': поИгроку('C'), 'Следы на теле': поИгроку('Mrk') };
-      const рисунок = отложитьРисунок(uid + '-look', () => buildHeatMap('', владелец, 'both', { облик, безЗон: true }), 300);
+      const рисунок = отложитьРисунок(uid + '-look', () => buildHeatMap('', владелец, 'both', { облик, безЗон: true, пол: полЧеловека(userData, { игрок: true, люди: characters || [] }) }), 300);
       if (рисунок) rows += `<div class="hud-row hud-user-row full-width nsfw hud-user-look"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>${иконка('🧍')}</span></i> Силуэт:</span> ${рисунок}</div>`;
     }
   }
@@ -1699,6 +1728,7 @@ export function строкиКарточки(charData, charName, uid, свои =
 
     // Тело и состояние тела — одна строка: ощущения сверху, силы под ними.
     if (lowerKey === 'состояние тела' && телоПоказано) continue;
+    if (lowerKey === 'пол') { html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <span class="${valueClass}">${escapeHtml(словоПола(value, полЧеловека(charData, { игрок })))}</span></div>`; continue; }
     const особый = ВИД_ПОЛЯ[lowerKey] && !['возраст', 'одежда', 'внешность', 'роль', 'физиология', 'место', 'статус'].includes(lowerKey)
       ? видПоля(lowerKey, value, видБлока(ВИД_ПОЛЯ[lowerKey]), { имя: charName }) : '';
     const состояние = lowerKey === 'состояние тела' ? видСостоянияТела(value, видБлока('bodyStateView')) : '';
@@ -1720,7 +1750,7 @@ export function строкиКарточки(charData, charName, uid, свои =
     } else if (lowerKey === 'способности' || lowerKey === 'чары') {
       // Вне фэнтези силы не показываем: запись осталась от другой эпохи.
     } else if (lowerKey === 'бельё') {
-      if (settings.enableUnderwear === true) { const б = buildUnderwear(value, { пол: полПерсонажа(charData['NSFW'], charData['Внешность'], charData['Тело']) }); if (б) html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}Бельё:</span> ${б}</div>`; }
+      if (settings.enableUnderwear === true) { const б = buildUnderwear(value, { пол: полЧеловека(charData, { игрок }) }); if (б) html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}Бельё:</span> ${б}</div>`; }
     } else if (lowerKey === 'скрытый подтекст' && settings.subtextVeil !== false) {
       // Подтекст спрятан под «водой»: открывается нажатием (events.js, .hud-veil).
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-deep is-closed" role="button" tabindex="0" aria-expanded="false"><i class="hud-deep-caust"></i><i class="hud-deep-b" style="left:10%;top:70%;width:10px;height:10px"></i><i class="hud-deep-b" style="left:84%;top:30%;width:8px;height:8px"></i><i class="hud-deep-b" style="left:60%;top:82%;width:6px;height:6px"></i><p>${applyTooltips(value)}</p><span class="hud-veil"><svg viewBox="0 0 34 34" aria-hidden="true"><circle class="r" cx="17" cy="17" r="5"/><circle class="r" cx="17" cy="17" r="10" opacity=".6"/><circle class="r" cx="17" cy="17" r="15" opacity=".3"/></svg><span>Нажми, чтобы заглянуть глубже</span></span></div></div>`;
@@ -1738,7 +1768,7 @@ export function строкиКарточки(charData, charName, uid, свои =
         сценаПоказана = true;
         const фаза = снятьЗаглушки(flattenFieldValue(charData['Фаза близости']));
         const шаги = фаза && !/^(empty|none)$/i.test(фаза.trim()) ? `${плашкаСцены(сцена)}<div>${buildScenePhase(фаза)}</div>` : '';
-        html += `<div class="${rowClass} full-width"><span class="hud-key">${значокПоля('фаза близости')}Фаза близости:</span> <div class="hud-scene-strip-wrap">${шаги}${buildSceneStrip(charData)}${часыСцены(charData, состояниеСцены)}${блокТемпаСцены(charData)}</div></div>`;
+        html += `<div class="${rowClass} full-width"><span class="hud-key">${значокПоля('фаза близости')}Фаза близости:</span> <div class="hud-scene-strip-wrap">${шаги}${buildSceneStrip(charData)}${часыСцены(charData, состояниеСцены)}${блокТемпаСцены(charData, игрок)}</div></div>`;
       }
     } else if (lowerKey === 'защита') {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildProtection(value)}</div>`;
@@ -1770,7 +1800,7 @@ export function строкиКарточки(charData, charName, uid, свои =
       // Вид — Кастомизация → Вид блоков (render/views.js).
       const видКарты = видБлока('bodyMapView');
       const карта = видКарты === 'both' || видКарты === 'front'
-        ? отложитьРисунок(uid + '-heat', () => buildHeatMap(value, charData, видКарты === 'front' ? 'f' : 'both') || `<div class="hud-bodymap">${buildBodyMap(value)}</div>`, 300)
+        ? отложитьРисунок(uid + '-heat', () => buildHeatMap(value, charData, видКарты === 'front' ? 'f' : 'both', { пол: полЧеловека(charData, { игрок }) }) || `<div class="hud-bodymap">${buildBodyMap(value)}</div>`, 300)
         : видКарты === 'list' ? '' : видКартыТела(value, видКарты);
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${карта || `<div class="hud-bodymap">${buildBodyMap(value)}</div>`}</div>`;
     } else if (lowerKey === 'послеродовое') {
@@ -1783,7 +1813,7 @@ export function строкиКарточки(charData, charName, uid, свои =
     } else if (lowerKey === 'инвентарь') {
       html += `<div class="${rowClass}${видБлока('inventoryView') !== 'list' ? ' full-width' : ''}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видИнвентаря(value, видБлока('inventoryView')) || `<div class="hud-inventory-grid">${buildPillList(value, 'hud-inventory-pill')}</div>`}</div>`;
     } else if (lowerKey === 'nsfw' || lowerKey === 'детализация nsfw' || lowerKey === 'последний секс') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(надписьПоля(key))}:</span> <div class="hud-vertical-container hud-nsfw-list is-${lowerKey === 'nsfw' ? 'act' : lowerKey === 'детализация nsfw' ? 'after' : 'last'}">${buildPillList(lowerKey === 'последний секс' ? value : безГрудиУМужчин(value, charData), 'hud-nsfw-pill', true)}</div></div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${правкаПола(владелец, надписьПоля(key), icon)}:</span> <div class="hud-vertical-container hud-nsfw-list is-${lowerKey === 'nsfw' ? 'act' : lowerKey === 'детализация nsfw' ? 'after' : 'last'}">${buildPillList(lowerKey === 'последний секс' ? value : поляБлизостиДляТела(value, charData, игрок), 'hud-nsfw-pill', true)}</div></div>`;
     } else if (lowerKey === 'кинк' || lowerKey === 'фетиш' || lowerKey === 'никогда не сделает' || lowerKey === 'не возбуждает') {
       // Каждый пункт — своя пилюля даже без явного разделителя: это списки,
       // а не связный текст, склеивать их обратно нельзя.

@@ -14,8 +14,8 @@
 // Дальше она идёт только в следующий ответ — в снимке прошлого HUD и
 // заметкой «между ходами игрок писал…» (заметкаДляОтвета).
 
-import { собратьСообщение, разобратьСообщениеПравки } from './block-edit.js?v=23.90.10';
-import { тотЖеСтрого, namesLikelySame } from './names.js?v=23.90.10';
+import { собратьСообщение, разобратьСообщениеПравки } from './block-edit.js?v=23.90.11';
+import { тотЖеСтрого, namesLikelySame } from './names.js?v=23.90.11';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
@@ -275,6 +275,17 @@ export function удалитьСтрокуИгрока(ms, индекс, игр�
  * группы, кроме игрока), чат (название), ms (вся переписка), новых (сколько строк
  * в конце — свежие от игрока), время, дата, язык, карточка, персона, лор, снимок, история }.
  */
+/** Что модель знает о сюжете: карточка, персона, лорбуки, HUD, последние сообщения. */
+function разделыКонтекста(к, кто, роль) {
+  const разделы = [];
+  if (текст(к.карточка)) разделы.push(`## ${кто}\n${текст(к.карточка)}`);
+  if (текст(к.персона)) разделы.push(`## ${текст(к.игрок)} (${роль})\n${текст(к.персона)}`);
+  if (текст(к.лор)) разделы.push(текст(к.лор));
+  if (текст(к.снимок)) разделы.push(`## Current state of the story (HUD)\n${текст(к.снимок)}`);
+  if (текст(к.история)) разделы.push(`## Latest story messages\n${текст(к.история)}`);
+  return разделы;
+}
+
 export function промптОтвета(к) {
   const кто = текст(к.кто) || '{{char}}';
   const группа = Array.isArray(к.состав) && к.состав.length > 1;
@@ -286,12 +297,7 @@ export function промптОтвета(к) {
   // Настоящие снимки: приложены картинками (видно) или модель их не видит.
   const снимков = Math.max(0, Number(к.снимков) || 0);
   const видноСнимки = снимков > 0 && к.видноСнимки !== false;
-  const разделы = [];
-  if (текст(к.карточка)) разделы.push(`## ${кто}\n${текст(к.карточка)}`);
-  if (текст(к.персона)) разделы.push(`## ${текст(к.игрок)} (the one texting)\n${текст(к.персона)}`);
-  if (текст(к.лор)) разделы.push(текст(к.лор));
-  if (текст(к.снимок)) разделы.push(`## Current state of the story (HUD)\n${текст(к.снимок)}`);
-  if (текст(к.история)) разделы.push(`## Latest story messages\n${текст(к.история)}`);
+  const разделы = разделыКонтекста(к, кто, 'the one texting');
   const пример = `${группа ? (к.состав[0] || кто) : кто} -> ${текст(к.игрок)}: [message] | ${текст(к.время) || 'HH:MM'} | Unread`;
   // Как игрок записан в этом телефоне («Смирнова»): строки под этим именем — тоже его.
   const записан = (Array.isArray(к.имена) ? к.имена : []).map(текст).filter(n => n && n.toLowerCase() !== текст(к.игрок).toLowerCase());
@@ -393,10 +399,173 @@ export function применитьЗвонок(ms, игрок, звонок) {
 
 /* --- Заметка для следующего ответа ----------------------------------------------- */
 
+/* --- Живой звонок -------------------------------------------------------------- */
+//
+// Игрок звонит владельцу телефона (или тому, с кем переписывается в
+// перехватах). Сначала модель решает, возьмут ли трубку; дальше игрок
+// говорит репликами, персонаж отвечает голосом. В HUD — одна строка звонка:
+// исход, длительность, итог одной фразой и ссылка «(call: hud-call-…)» на
+// расшифровку; сама расшифровка — в message.extra того свайпа (свёрнута).
+
+/** Номер звонка: только латиница, цифры и «-». */
+export function номерЗвонка(сейчас = Date.now()) {
+  return `hud-call-${сейчас.toString(36)}-${Math.random().toString(36).slice(2, 7)}`;
+}
+const ССЫЛКА_ЗВОНКА = /\s*\(call:\s*(hud-call-[A-Za-z0-9-]+)\)\s*$/i;
+/** Заметка звонка → { итог без ссылки, номер или '' }. */
+export function ссылкаЗвонка(заметка) {
+  const s = String(заметка || '');
+  const м = s.match(ССЫЛКА_ЗВОНКА);
+  return м ? { итог: s.slice(0, м.index).trim(), номер: м[1] } : { итог: s.trim(), номер: '' };
+}
+/** Длительность из секунд: «3:07», «1:02:30». */
+export function длительностьЗвонка(секунд) {
+  const с = Math.max(0, Math.round(Number(секунд) || 0));
+  const ч = Math.floor(с / 3600), м = Math.floor((с % 3600) / 60), сек = с % 60;
+  return ч ? `${ч}:${String(м).padStart(2, '0')}:${String(сек).padStart(2, '0')}` : `${м}:${String(сек).padStart(2, '0')}`;
+}
+/**
+ * Строка звонка игрока в формате модели. исход: answered | declined | missed.
+ * Звонок игрока владельцу телефона на этом телефоне — входящий.
+ */
+export function строкаЗвонка({ игрок, кому, время = '', исход = 'missed', длит = '', итог = '', номер = '' }) {
+  const заметка = [текст(итог), номер ? `(call: ${номер})` : ''].filter(Boolean).join(' ');
+  return собратьСообщение({
+    от: игрок, кому: кому || '', текст: заметка, время, статус: '', статусКак: '', вид: 'call',
+    голос: { длит: '' }, фото: { что: '' }, видео: { длит: '', что: '' },
+    звонок: { куда: 'in', исход: ['answered', 'declined', 'missed'].includes(исход) ? исход : 'missed', длит: исход === 'answered' ? длит : '' },
+    опрос: { вопрос: '', варианты: [] }, ответ: null, переслано: null, кем: null, прочее: [],
+  });
+}
+
+/**
+ * Промпт звонка. к.этап: 'pickup' — звонок только идёт, решить, возьмут ли;
+ * 'talk' — разговор идёт, ответить на реплику игрока. к.реплики — расшифровка
+ * [{ кто: 'me' | 'them', текст }]. Остальное — как у промптОтвета.
+ */
+export function промптЗвонка(к) {
+  const кто = текст(к.кто) || '{{char}}';
+  const игрок = текст(к.игрок);
+  const язык = текст(к.язык) || 'the language of the chat';
+  const ms = Array.isArray(к.ms) ? к.ms.slice(-12) : [];
+  // Долгий звонок: модели — последние 40 реплик, иначе запрос растёт с каждой фразой.
+  const всеРеплики = Array.isArray(к.реплики) ? к.реплики : [];
+  const разговор = всеРеплики.slice(-40).map(р => `${р.кто === 'me' ? игрок : кто}: ${текст(р.текст)}`);
+  if (всеРеплики.length > 40) разговор.unshift('(the start of the call is left out)');
+  const разделы = разделыКонтекста(к, кто, 'the one calling');
+  const тема = текст(к.тема);
+  const сообщенияВместо = `"ms": ["only when declined or missed: text messages ${кто} sends instead, '${кто} -> ${игрок}: [text] | HH:MM | Unread' — or []"]`;
+  const задача = к.этап === 'pickup'
+    ? `${игрок} is CALLING ${кто} on the phone right now (${текст(к.время) || 'now'}). Decide what ${кто} does — answer, decline or let it ring out — from who they are, their mood, where they are and what they are doing. If they answer, write what ${кто} says first on picking up.`
+    : к.этап === 'quick'
+      ? `${игрок} is CALLING ${кто} on the phone right now (${текст(к.время) || 'now'}). Decide what ${кто} does — answer, decline or let it ring out — from who they are, their mood, where they are and what they are doing. If they answer, write the whole short call as a transcript.${тема ? `\nWhat ${игрок} wants to say on this call (their intent — put it into their own spoken words, add nothing else they did not mean): ${тема}` : `\n${игрок} did not say what the call is about: keep their lines short and plain (greeting, why they called in a few words, goodbye) — no decisions or confessions for them.`}`
+      : `${игрок} and ${кто} are on a phone CALL. ${игрок} just said the last line. Write what ${кто} says back — spoken words, as they really talk on the phone.`;
+  const вывод = к.этап === 'pickup'
+    ? `{"call": "answered" | "declined" | "missed", "say": ["what ${кто} says on picking up — only when answered"], "sum": "one short line: what the call is about so far", ${сообщенияВместо}}`
+    : к.этап === 'quick'
+      ? `{"call": "answered" | "declined" | "missed", "dur": "M:SS — only when answered", "lines": ["${кто}: …", "${игрок}: …", "… 4 to 8 spoken lines in order, each starting with who speaks — only when answered"], "sum": "one short line: what the call was about — only when answered", ${сообщенияВместо}}`
+      : `{"say": ["one to three short spoken lines from ${кто}"], "end": false, "sum": "one short line: what the whole call is about so far"}`;
+  const заИгрока = к.этап === 'quick'
+    ? `- ${игрок} says only what their intent above covers, in their own voice; ${кто}'s lines are yours. ${кто} speaks first on picking up.`
+    : `- NEVER speak for ${игрок}: their words are theirs alone.`;
+  return `<hud_instructions>
+## 🎯 TASK
+${задача}
+
+## 📐 RULES
+- Stay in character: how ${кто} really speaks — tone, pauses, interruptions, slang, emotion in the voice. Spoken words only: no actions, no narration, no quotes around lines. Short phone lines, not speeches.
+${заИгрока}${к.этап === 'talk' ? `
+- ${кто} may end the call (hang up, say goodbye, get interrupted): then "end": true.` : ''}
+- "sum" is stored in the phone as the call's one-line summary — neutral, in ${язык}.
+- 🌍 Write in ${язык}.
+
+## 🧾 OUTPUT
+Only this JSON, no prose, no code fence:
+${вывод}
+</hud_instructions>
+
+${разделы.join('\n\n')}
+
+## Recent texts between them${ms.length ? '\n' + ms.join('\n') : '\n(none)'}${разговор.length ? `
+
+## The call so far
+${разговор.join('\n')}` : ''}`;
+}
+
+/** Ответ модели на звонок → { исход, реплики, итог, конец, сообщения }. Строки за игрока выбрасываются. */
+export function разобратьЗвонок(ответ, { игрок, кто = '' }) {
+  const s = безОграды(ответ);
+  const о = первыйОбъект(s) || {};
+  const словоИсхода = текст(о.call || о.outcome).toLowerCase();
+  const исход = /declin|reject|отклон|сброс/.test(словоИсхода) ? 'declined' : /miss|пропущ|no answer/.test(словоИсхода) ? 'missed' : /answer|принят|взял/.test(словоИсхода) ? 'answered' : '';
+  const сырые = о.say ?? о.lines ?? о.reply;
+  const реплики = (Array.isArray(сырые) ? сырые : typeof сырые === 'string' ? [сырые] : (!первыйОбъект(s) && s ? [s] : []))
+    .map(x => текст(typeof x === 'string' ? x : (x && (x.text || x.line)) || ''))
+    // Модель подписала реплику: «Олег: …» — подпись снимаем; за игрока — выбрасываем.
+    .map(x => { const м = x.match(/^([^:]{1,40}):\s*([\s\S]+)$/); if (!м) return x; if (этоИгрок(м[1], игрок)) return ''; return кто && (этоИгрок(м[1], кто) || namesLikelySame(м[1], кто)) ? м[2].trim() : x; })
+    .map(x => x.replace(/^["«“]|["»”]$/g, '').trim())
+    .filter(Boolean).slice(0, 6);
+  const сообщения = разобратьОтвет(JSON.stringify({ read: true, ms: Array.isArray(о.ms) ? о.ms : [] }), { игрок, отвечают: кто ? [кто] : [] }).строки;
+  return { исход, реплики, итог: текст(о.sum || о.summary).replace(/[[\]|]/g, ' ').replace(/\s+/g, ' ').slice(0, 200), конец: о.end === true, сообщения };
+}
+
+/**
+ * Звонок с темой: модель пишет весь короткий разговор сразу →
+ * { исход, длит, расшифровка: [{ кто: 'me' | 'them', текст }], итог, сообщения }.
+ * Реплики без подписи и с чужой подписью отбрасываются — непонятно, чьи они.
+ */
+export function разобратьЗвонокСТемой(ответ, { игрок, кто = '' }) {
+  const s = безОграды(ответ);
+  const о = первыйОбъект(s) || {};
+  const основа = разобратьЗвонок(JSON.stringify({ call: о.call || о.outcome || '', sum: о.sum || о.summary || '', ms: о.ms || [] }), { игрок, кто });
+  const сырые = Array.isArray(о.lines) ? о.lines : Array.isArray(о.say) ? о.say : Array.isArray(о.transcript) ? о.transcript : [];
+  const расшифровка = [];
+  for (const x of сырые) {
+    let имя = '', слова = '';
+    if (x && typeof x === 'object') { имя = текст(x.who || x.speaker || x.name); слова = текст(x.text || x.line || x.say); }
+    else { const м = текст(x).match(/^([^:]{1,40}):\s*([\s\S]+)$/); if (м) { имя = м[1].trim(); слова = м[2].trim(); } }
+    слова = слова.replace(/^["«“]|["»”]$/g, '').trim();
+    if (!имя || !слова) continue;
+    const чей = этоИгрок(имя, игрок) ? 'me' : кто && (этоИгрок(имя, кто) || namesLikelySame(имя, кто)) ? 'them' : '';
+    if (чей) расшифровка.push({ кто: чей, текст: слова });
+  }
+  const м = текст(о.dur || о.duration).match(/(?:(\d+):)?(\d{1,2}):(\d{2})/);
+  let длит = м ? (м[1] ? `${+м[1]}:${м[2].padStart(2, '0')}:${м[3]}` : `${+м[2]}:${м[3]}`) : '';
+  // Взяли трубку, но длительности нет — прикинем по словам (~2.5 слова в секунду, не меньше 0:20).
+  if (!длит && расшифровка.length) длит = длительностьЗвонка(Math.max(20, расшифровка.reduce((n, р) => n + р.текст.split(/\s+/).length, 0) / 2.5 + расшифровка.length * 2));
+  const исход = основа.исход || (расшифровка.length ? 'answered' : '');
+  return { исход, длит: исход === 'answered' ? длит : '', расшифровка: исход === 'answered' ? расшифровка.slice(0, 16) : [], итог: исход === 'answered' ? основа.итог : '', сообщения: исход === 'answered' ? [] : основа.сообщения };
+}
+
+/** Расшифровку звонка — в extra этого свайпа (как переписку). */
+export function запомнитьЗвонок(message, номер, данные) {
+  if (!message || !номер || !объект(данные)) return;
+  if (!объект(message.extra)) message.extra = {};
+  const все = объект(message.extra.hud_calls) ? message.extra.hud_calls : {};
+  все[номер] = { ...данные, реплики: (данные.реплики || []).slice(-200) };
+  message.extra.hud_calls = все;
+  const свайп = Array.isArray(message.swipe_info) && Number.isInteger(message.swipe_id) ? message.swipe_info[message.swipe_id] : null;
+  if (объект(свайп)) {
+    if (!объект(свайп.extra)) свайп.extra = {};
+    свайп.extra.hud_calls = все;
+  }
+}
+/** Найти расшифровку по номеру во всём чате (строка звонка могла переехать в следующие ходы). */
+export function найтиЗвонок(чат, номер) {
+  if (!Array.isArray(чат) || !номер) return null;
+  for (let i = чат.length - 1; i >= 0; i--) {
+    const м = чат[i];
+    if (!м) continue;
+    const из = [м.extra, ...(Array.isArray(м.swipe_info) ? м.swipe_info.map(x => x && x.extra) : [])];
+    for (const e of из) if (объект(e) && объект(e.hud_calls) && e.hud_calls[номер]) return e.hud_calls[номер];
+  }
+  return null;
+}
+
 const ЗАПИСЕЙ_ПЕРЕПИСКИ = 80;
 
 /** Записать, что в этом свайпе игрок переписывался (message.extra своё у свайпа). */
-export function запомнитьПереписку(message, { чат, где, строки, прочитано = false, игрок = '', звонок = '', описанияСнимков = [] }) {
+export function запомнитьПереписку(message, { чат, где, строки, прочитано = false, игрок = '', звонок = '', описанияСнимков = [], разговор = null }) {
   if (!message || !Array.isArray(строки) || (!строки.length && !прочитано && !звонок)) return;
   if (!объект(message.extra)) message.extra = {};
   const было = Array.isArray(message.extra.hud_user_chat) ? message.extra.hud_user_chat : [];
@@ -408,6 +577,11 @@ export function запомнитьПереписку(message, { чат, где, 
   if (!строки.length && !запись) return;
   if (запись) запись.строки = [...(запись.строки || []), ...строки].slice(-ЗАПИСЕЙ_ПЕРЕПИСКИ);
   else было.push({ чат, где, строки: строки.slice(-ЗАПИСЕЙ_ПЕРЕПИСКИ) });
+  // Живой звонок: расшифровка коротко — следующему ответу (в HUD её нет).
+  if (разговор && Array.isArray(разговор.реплики) && разговор.реплики.length) {
+    const з = было.find(x => x && x.чат === чат && x.где === где);
+    if (з) з.разговоры = [...(з.разговоры || []), { итог: текст(разговор.итог), реплики: разговор.реплики.slice(-16).map(р => `${р.кто === 'me' ? игрок : текст(разговор.с) || '?'}: ${текст(р.текст)}`) }].slice(-4);
+  }
   message.extra.hud_user_chat = было.slice(-12);
   const свайп = Array.isArray(message.swipe_info) && Number.isInteger(message.swipe_id) ? message.swipe_info[message.swipe_id] : null;
   if (объект(свайп)) {
@@ -451,8 +625,10 @@ export function вернутьПереписку(hud, записи, игрок) 
 /** Строка для промпта следующего ответа: игрок писал между ходами. '' — не писал. */
 export function заметкаДляОтвета(записи, { игрок = '{{user}}', персонаж = '{{char}}' } = {}) {
   if (!Array.isArray(записи) || !записи.length) return '';
-  const куски = записи.map(з => `«${текст(з.чат)}»:\n${з.строки.slice(-24).join('\n')}`);
-  return `📱 BETWEEN TURNS ${игрок} TEXTED by phone — this already happened, the people in these chats have read what is marked Read, and it is already in the phone in the last HUD:\n${куски.join('\n\n')}\nLet it shape this reply where it matters (what ${персонаж} and the others know, feel or do next); never retell the texts and never repeat them as new messages.`;
+  const куски = записи.map(з => `«${текст(з.чат)}»:\n${з.строки.slice(-24).join('\n')}`
+    + (Array.isArray(з.разговоры) ? з.разговоры.map(р => `\nPhone call${р.итог ? ' — ' + р.итог : ''} (spoken, shortened):\n${р.реплики.join('\n')}`).join('') : ''));
+  const звонили = записи.some(з => Array.isArray(з.разговоры) && з.разговоры.length || з.строки.some(x => /\[CALL:/i.test(x)));
+  return `📱 BETWEEN TURNS ${игрок} TEXTED${звонили ? ' and CALLED' : ''} by phone — this already happened, the people in these chats have read what is marked Read, and it is already in the phone in the last HUD:\n${куски.join('\n\n')}\nLet it shape this reply where it matters (what ${персонаж} and the others know, feel or do next); never retell the texts${звонили ? ' or the calls' : ''} and never repeat them as new messages.`;
 }
 
 /* --- Черновики ----------------------------------------------------------------- */

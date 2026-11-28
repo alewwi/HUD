@@ -10,27 +10,27 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.90.10';
-import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.90.10';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.90.10';
+import { settings } from './settings.js?v=23.90.11';
+import { старина, стариннаяЗабота, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.90.11';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.90.11';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.90.10';
-import { промптНаАнглийском } from './prompt-en.js?v=23.90.10';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.90.10';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.90.10';
-import { parseSceneDate } from './history-analyzer.js?v=23.90.10';
-import { возрастТочно } from './render/babies.js?v=23.90.10';
-import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.90.10';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.90.10';
-import { сжатьСхему } from './compact-fields.js?v=23.90.10';
-import { короткийПромпт } from './prompt-short.js?v=23.90.10';
-import { подготовкаИдёт } from './render/holiday-lore.js?v=23.90.10';
-import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.90.10';
-import { промптРанСпутника } from './render/pet-wounds.js?v=23.90.10';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.90.10';
-import { полДляМодели } from './manual-gender.js?v=23.90.10';
-import { правилоСостава } from './cast.js?v=23.90.10';
-import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.90.10';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.90.11';
+import { промптНаАнглийском } from './prompt-en.js?v=23.90.11';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.90.11';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.90.11';
+import { parseSceneDate } from './history-analyzer.js?v=23.90.11';
+import { возрастТочно } from './render/babies.js?v=23.90.11';
+import { детиСнимка, ребёнокВТексте } from './kids-watch.js?v=23.90.11';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного, авторовДневника, сколькоЗаХод } from './deep-fields.js?v=23.90.11';
+import { сжатьСхему } from './compact-fields.js?v=23.90.11';
+import { короткийПромпт } from './prompt-short.js?v=23.90.11';
+import { подготовкаИдёт } from './render/holiday-lore.js?v=23.90.11';
+import { промптЭпохи, промптГрамот, промптПисьмаВПути, промптВьючных, промптБрака, бракВкл, промптВестей, промптРан, кодыРан } from './render/medieval-life.js?v=23.90.11';
+import { промптРанСпутника } from './render/pet-wounds.js?v=23.90.11';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.90.11';
+import { полДляМодели } from './manual-gender.js?v=23.90.11';
+import { правилоСостава } from './cast.js?v=23.90.11';
+import { ступениДляПромпта, разрешениеНужно } from './render/trust-stages.js?v=23.90.11';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -154,6 +154,9 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   const эффекты = магияЕсть && частьСил('effects');
   const отдача = дары && частьСил('backlash');
   const игрок = !!settings.enableUserBlock;
+  // Мужские пары (settings.malePairs): игрок — мужчина, у него нет женской
+  // анатомии; анус — у игрока и у того, кого берут сзади. Без настройки ануса нет.
+  const мужскиеПары = settings.malePairs === true;
   // Свои статы — полем "Cst" прямо в шаблоне: правило «в us только перечисленные
   // поля» иначе отсекало статы игрока, и модель их не писала.
   // Имена статов — прямо в шаблоне: с общим «[custom stat name]» модель,
@@ -289,6 +292,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
  "cs": [
   {
    "N": "[name: the character's original name, copied EXACTLY as on their card — same script, same spelling, never translated. The avatar is matched by this string; a mismatch loses the picture]",
+   "sx": "[gender — a basic field like clothing: ALWAYS, every turn, never skipped: 'м' (мужчина) or 'ж' (женщина). It decides who can have a cycle or a pregnancy]",
    "A": "[age: years and date of birth as DD.MM.YYYY, e.g. '24, 03.11.2000']",
    "C": "[clothing: what they are wearing right now, head to toe, including its state — wet, torn, half-unbuttoned]",
    "Ap": "[appearance, the LASTING look in the same words every turn: 'М' or 'Ж' and a comma — always, never skipped: it decides who can have a cycle or a pregnancy — then height in cm; build (shoulders, waist, hips, chest, muscle); hair (colour, length, how worn); eyes; skin tone; permanent marks and where — tattoos, scars, piercings, freckles, glasses. NOT mood, expression, gaze, pose or what they hold (that is B). Change only when the look changes: haircut, new scar, weight]",
@@ -334,7 +338,7 @@ ${дуэль ? `   "Vd": "[OPTIONAL — only while an argument is going on this 
    "Vit": "[vitals (phase 2, and while calming down in phase 3). 'hr: pulse, bpm; br: breaths per minute, then how the breathing sounds; tmp: body temperature in °C']",
    "Snd": "[soundscape (phase 2): every sound of the act this character makes or hears, each '<sound>: <loudness 0-10> — <what it sounds like, when it comes>': 'Стоны: 8 — низкие, срываются на всхлип при толчке; Скрип кровати: 5 — ритмичный'; separate by ;]",` : ''}${интим ? `
    "BM": "[body map (phase 2; in phase 3 only zones still sensitive): sensitivity of each zone of THIS character's body, '<zone>: <0-10>${близость ? ' <trend>' : ''} — <what is happening to it, how it feels>'${близость ? `. Trend: rising, peak, fading, lingering (+hours, e.g. 'lingering 3h'). 'Шея: 9 peak — губы и зубы, кожа горит; Бёдра: 6 rising — дрожат под его ладонью'` : `: 'Шея: 9 — горит от его губ; Бёдра: 7 — дрожат под ладонью'`}. Zones are ordinary Russian body-part words; as many as the story touched or named. Separate by ;]",
-   "W": "[intimacy (phase 2 ONLY) — 'empty' before it starts and once over. Each 'code: value', every value a full vivid description: 'ar: arousal and how it shows; tch: where/how touch happens now — hands, mouth, pressure, rhythm; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips — expression, gaze, what they bite or whisper; pn: penis — erection, size, shape, colour, sensitivity, what's being done to it; lb: vagina — wetness, swelling, openness, what it feels inside; ch: breasts and nipples, women only — never for a man — shape, hardness, how they react; flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds of the act are and what they are — moans, whimpers, skin slapping, bed creaking, never music or ambient noise; sm: smells in the air and on skin; ${близость ? '' : 'mk: marks on skin and sheets; '}pr: partner and what they are to each other now${близость ? '' : '; pt: protection used or not'}'. Skip a code only when it does not apply to this body. Separate by ;]",
+   "W": "[intimacy (phase 2 ONLY) — 'empty' before it starts and once over. Each 'code: value', every value a full vivid description: 'ar: arousal and how it shows; tch: where/how touch happens now — hands, mouth, pressure, rhythm; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips — expression, gaze, what they bite or whisper; pn: penis — erection, size, shape, colour, sensitivity, what's being done to it; lb: vagina — wetness, swelling, openness, what it feels inside; ch: breasts and nipples, women only — never for a man — shape, hardness, how they react; ${мужскиеПары ? 'as: anus — whenever this person is taken from behind (anal sex, fingers, tongue, a toy), otherwise skip it — how tight or relaxed, stretched, wet, what it feels; ' : ''}flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds of the act are and what they are — moans, whimpers, skin slapping, bed creaking, never music or ambient noise; sm: smells in the air and on skin; ${близость ? '' : 'mk: marks on skin and sheets; '}pr: partner and what they are to each other now${близость ? '' : '; pt: protection used or not'}'. Skip a code only when it does not apply to this body. Separate by ;]",
 ${бельё ? `   "Un": "[OPTIONAL, only when it matters in the scene — underwear: 'set: the set and its colour; for: who it was chosen for, or не думая; st: на месте | сдвинуто | снято | потеряно']",
 ` : ''}   "Kn": "[kinks, STABLE TRAIT — once known, keep filled every turn. ACTIVITIES: practice, scenario, dynamic (roleplay, BDSM, bondage, toys, power exchange); a thing needed for arousal goes to Ft. Each '<activity>: <how willingly>, <how far>' — the whole thing stays one item: 'Ролевые игры: охотно, сценарий врач-пациент; Связывание: только сама сверху'. 2+ when known; separate by ;]",
    "Ft": "[fetishes, STABLE TRAIT: THINGS — objects, materials, body parts or settings needed for arousal (stockings, latex, feet, hair, medical settings), each '<thing>: <its role>': 'Чулки: обязательное условие; Шея: сильный триггер'. 2+ when known; separate by ;]",
@@ -353,26 +357,27 @@ ${бельё ? `   "Un": "[OPTIONAL, only when it matters in the scene — under
     // Остальные поля персонажей — и игроку: берём их прямо из готового шаблона
     // "cs", так условия (дуэль, близость, состояние тела…) совпадают сами.
     // Свои у игрока: возраст…отношения выше, близость — UW вместо W.
-    const УЖЕ_У_ИГРОКА = new Set(['N', 'A', 'C', 'Ap', 'H', 'Ill', 'Prg', 'Pp', 'Mns', 'Ab', 'Ef', 'Rl', 'L', 'Mrk', 'W', 'Cst', 'Mrg', 'Lgt']);
+    const УЖЕ_У_ИГРОКА = new Set(['N', 'sx', 'A', 'C', 'Ap', 'H', 'Ill', 'Prg', 'Pp', 'Mns', 'Ab', 'Ef', 'Rl', 'L', 'Mrk', 'W', 'Cst', 'Mrg', 'Lgt']);
     const шаблонПерсонажа = p.slice(p.lastIndexOf('"cs": ['));
     const прочиеИгрока = settings.userAllFields !== true ? '' : [...new Set([...шаблонПерсонажа.matchAll(/^   "([A-Za-z]+)": /gm)].map(м => м[1]))].filter(к => !УЖЕ_У_ИГРОКА.has(к))
       .map(к => `  "${к}": "[same field as for characters — same format and rules, about {{user}}]",
 `).join('');
     p += `,
  "us": {
+  "sx": "[gender of {{user}} — same as for characters, ALWAYS: ${мужскиеПары ? "'м' — {{user}} is a man" : "'м' (мужчина) or 'ж' (женщина)"}]",
   "A": "[age: years and date of birth as DD.MM.YYYY]",
   "C": "[clothing: what {{user}} is wearing right now and its state]",
   "Ap": "[appearance of {{user}} — same rules and order as for characters: 'М' or 'Ж', height, build, hair, eyes, skin, permanent marks; no mood, expression, pose or what they hold]",${промптБрака('user')}
   "H": "[health: ${болезни ? 'overall physical state in a phrase; illnesses and injuries go to Ill, never repeated here' : 'physical state only — wounds, pain, illness, stamina'}]",${болезни ? `
-  "Ill": "[illnesses and injuries of {{user}}, ONLY if any — same format and rules as for characters: groups by |, 'nm; sg; rc; sy; trt; zn${кодыРан()}'; the SAME name every turn, ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременностьВПромпт ? `
-  "Prg": "[pregnancy of {{user}}, ONLY if pregnant — same format and rules as for characters: 'wk; due; fa; sy; knw; cnd; gnd; bnm; vis; crv; brn; lost']",` : ''}${послеродовоеВПромпт ? `
-  "Pp": "[after childbirth of {{user}}, ONLY if she has given birth — otherwise omit. Same format as for characters: 'bf: breast, formula or mixed${заботаСтарины ? ' (formula here means a wet nurse or animal milk)' : ''}; lfd: last breastfeed HH:MM; brs: breasts; sy: how she feels']",` : ''}${цикл ? `
+  "Ill": "[illnesses and injuries of {{user}}, ONLY if any — same format and rules as for characters: groups by |, 'nm; sg; rc; sy; trt; zn${кодыРан()}'; the SAME name every turn, ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременностьВПромпт && !мужскиеПары ? `
+  "Prg": "[pregnancy of {{user}}, ONLY if pregnant — same format and rules as for characters: 'wk; due; fa; sy; knw; cnd; gnd; bnm; vis; crv; brn; lost']",` : ''}${послеродовоеВПромпт && !мужскиеПары ? `
+  "Pp": "[after childbirth of {{user}}, ONLY if she has given birth — otherwise omit. Same format as for characters: 'bf: breast, formula or mixed${заботаСтарины ? ' (formula here means a wet nurse or animal milk)' : ''}; lfd: last breastfeed HH:MM; brs: breasts; sy: how she feels']",` : ''}${цикл && !мужскиеПары ? `
   "Mns": "[menstrual cycle of {{user}}, ONLY with a uterus — same format and rules as for characters: 'cyd; cyl; phs; nxt; pms; dly; rsn'; while pregnant and until the period returns — only 'phs: paused']",` : ''}
 ${дары ? `  "Ab": "[${ф('magic of {{user}}, ONLY if {{user}} wields it', 'abilities of {{user}}, ONLY with an innate gift')} — same format and rules as for characters: groups by |, 'nm; mst; cn; lim; cst']",
 ` : ''}${эффекты ? `  "Ef": "[${ф('spells and enchantments on {{user}} right now', 'lasting effects on {{user}} right now')}, ONLY if any — same format as for characters: groups by |, 'nm; src; til; sy']",
 ` : ''}  "Rl": "[relationships: how {{user}} feels about EVERY other named person who matters now — same format and rules as for characters; bidirectional with their Rl; separate by ;]",
 ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and rules as for characters: '<what>: <where> — <how it looks and feels now> | <fade time: 12h, 3d>', and for scars, tattoos, piercings, birthmarks '| получен: <when>' instead of a fade time; the same mark keeps the same name every turn and is never also in Ill; 'empty' when there are none]",
-` : ''}${интим ? `  "UW": "[user intimacy (phase 2 ONLY) — same phases and the same full, vivid descriptions as for characters. Each 'code: value': 'ar: arousal and how it shows; ds: strength of desire and for what; rdy: how ready the body is, what's still missing; tch: where/how {{user}} touches and is touched now; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips; pb: pubic hair — grooming, shape, feel; an: anatomy — shape, size, colour, how it changes with arousal; lb: wetness — where, how much, sound and feel; ch: breasts and nipples, only if {{user}} is a woman — shape, size, hardness, sensitivity; flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds of the act are and what they are${близость ? '' : '; mk: marks on skin; r2: readiness for the next round'}'. Skip a code only when it does not apply to this body. 'empty' when the scene ends; separate by ;]",
+` : ''}${интим ? `  "UW": "[user intimacy (phase 2 ONLY) — same phases and the same full, vivid descriptions as for characters. Each 'code: value': 'ar: arousal and how it shows; ds: strength of desire and for what; rdy: how ready the body is, what's still missing; tch: where/how {{user}} touches and is touched now; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips; pb: pubic hair — grooming, shape, feel; ${мужскиеПары ? "an: his anatomy — penis and balls: shape, size, colour, how they change with arousal; as: his anus — how tight or relaxed, stretched, wet, what it feels; " : "an: anatomy — shape, size, colour, how it changes with arousal; lb: wetness — where, how much, sound and feel; ch: breasts and nipples, only if {{user}} is a woman — shape, size, hardness, sensitivity; "}flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds of the act are and what they are${близость ? '' : '; mk: marks on skin; r2: readiness for the next round'}'. Skip a code only when it does not apply to this body. 'empty' when the scene ends; separate by ;]",
 ` : ''}  "L": "[location: the exact place {{user}} is right now]"${своиЧьи.has('user') ? полеСвоих('user') : ''}
  }`;
   }

@@ -5866,6 +5866,10 @@ html.hud-custom-open body { overflow: hidden; }
 .hud-be-add, .hud-be-del, .hud-be-pickbtn { all: unset; cursor: pointer; box-sizing: border-box; font-size: 12.5px; border-radius: 8px; }
 .hud-be-add { align-self: flex-start; padding: 5px 12px; border: 1px dashed var(--SmartThemeBorderColor, rgba(255, 255, 255, .25)); }
 .hud-be-del { width: 30px; height: 30px; text-align: center; line-height: 30px; font-size: 16px; background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 8%, transparent); }
+.hud-be-foot > .hud-be-del { margin-inline-end: auto; }
+.hud-be-sub:has(> .hud-be-del), .hud-be-field:has(> .hud-be-del) { position: relative; }
+.hud-be-sub:has(> .hud-be-del) > .hud-be-label, .hud-be-field:has(> .hud-be-del) > .hud-be-label { min-height: 30px; padding-inline-end: 36px; display: flex; align-items: center; }
+.hud-be-sub > .hud-be-del, .hud-be-field > .hud-be-del { position: absolute; inset-inline-end: 0; top: 0; }
 .hud-be-del.is-wide { width: auto; height: auto; line-height: 1.3; padding: 5px 10px; font-size: 12px; align-self: flex-start; opacity: .8; }
 .hud-be-pick { display: flex; flex-wrap: wrap; gap: 8px; }
 .hud-be-pickbtn { padding: 8px 12px; border: 1px solid var(--SmartThemeBorderColor, rgba(255, 255, 255, .18)); background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 6%, transparent); }

@@ -95,6 +95,18 @@
 .xr-shaft-shade { fill: #8c4a3a; opacity: .18; filter: blur(1.6px); }
 .xr-glans { fill: #e48d9a; stroke: #b9606f; stroke-opacity: .5; stroke-width: .7; }
 .xr-glans-hi { fill: #fff; opacity: .28; filter: blur(1.6px); }
+@keyframes xr-reservoir-fill {
+  from { opacity: .14; transform: scale(.35, .5); }
+  to { opacity: .84; transform: scale(1); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .is-climax .is-finish .xr-reservoir {
+    transform-box: fill-box; transform-origin: right center;
+    animation: xr-reservoir-fill 2.6s ease-out both paused;
+  }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-on, .fx-tap) .xr-reservoir { animation-play-state: running; }
+  @media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-reservoir { animation-play-state: running; } }
+}
 .xr-corona { fill: none; stroke: #8c3e4a; stroke-opacity: .4; stroke-width: 1.8; filter: blur(.6px); }
 .xr-frenulum, .xr-fold { fill: none; stroke: #a85a52; stroke-opacity: .5; stroke-width: .8; stroke-linecap: round; }
 .xr-meatus { fill: none; stroke: #8c3a46; stroke-width: .8; stroke-linecap: round; }
@@ -202,6 +214,19 @@
 .xr-gleam { fill: none; stroke: #fff; stroke-opacity: .16; stroke-width: 1.2; stroke-linecap: round; filter: blur(.6px); }
 .xr-shut { fill: none; stroke: #6a1a2e; stroke-width: 1.5; stroke-opacity: .75; stroke-linecap: round; filter: blur(.4px); }
 .xr-wall.is-soft { fill: #b65f75; stroke: none; filter: blur(1.6px); }
+
+/* --- Узко и туго (тугостьИзТекста, render/xray.js → обхват) ---------------
+   Узко — бугры стенки глубже (рисунок). Туго — кольцо у входа: валики
+   пережимают ствол, под ними мягкая тень сдавливания; край входа сильнее
+   тянется за стволом на выходе, кольцо сжимается в такт. */
+.xr-pinch { fill: #5a2230; opacity: .42; filter: blur(1.6px); }
+.xr-ring-hi { fill: #f4b0c1; opacity: .2; filter: blur(1.1px); }
+.xr-film.is-narrow .xr-contact { stroke-opacity: .58; }
+.xr-film.is-tight .xr-sphincter { opacity: .85; }
+.hud-xray-cap small.is-tight { background: rgba(236,110,146,.18); color: #ffe2ea; }
+.hud-xray-row.is-tight { --tight: .55; }
+.hud-xray-row.is-tight.t2 { --tight: 1; }
+.hud-xray-row.is-tight .xr-pull.is-minor { transform: scaleX(calc(1 + (1 - var(--k, 1)) * .18 * (1 + var(--tight)) + clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * .32 * (1 + var(--tight) * 1.2) - clamp(0, var(--v, 0), 1) * .07 * (1 + var(--tight)))); }
 
 /* --- Голова и лицо — тёмные силуэты: важен только контур ----------------- */
 .xr-film.is-dark .xr-body { fill: #2a1d23; }
@@ -433,6 +458,14 @@
   /* Общее для лона и ануса: стенки присасываются на отходе, кожа вспыхивает на ударе. */
   :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-bumps, :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-squeeze { transform: scaleY(calc(1 - (1 - var(--k, 1)) * (.025 + clamp(0, -1 * var(--v, 0), 1) * .06))); }
 @media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-bumps, :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-squeeze { transform: scaleY(calc(1 - (1 - var(--k, 1)) * (.025 + clamp(0, -1 * var(--v, 0), 1) * .06))); } }
+/* Тугое кольцо сжимается на отходе: валик растёт к оси от внешнего края
+   (стенки при этом не сжимаются сильнее обычного — иначе между ними и стволом
+   открывалась щель). */
+.xr-clench { transform-box: fill-box; }
+.xr-clench.is-top { transform-origin: 50% 0; }
+.xr-clench.is-bottom { transform-origin: 50% 100%; }
+:is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row.is-tight .xr-clench { transform: scaleY(calc(1 + (1 - var(--k, 1)) * .14 * var(--tight))); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row.is-tight .xr-clench { transform: scaleY(calc(1 + (1 - var(--k, 1)) * .14 * var(--tight))); } }
   :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-skin-hi { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .3); }
 @media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-skin-hi { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .3); } }
   /* Член: головка наливается, живот дающего напрягается. */
@@ -775,3 +808,39 @@
 .hud-xray-row.has-beat.l0 { animation: none; }
 /* Подпись своего темпа у строки: «медленно · кругами». */
 .hud-xray-own { font-style: normal; font-size: .78em; margin-left: 6px; padding: 0 6px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 22%, transparent); color: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 45%, var(--ink-hi, #fff)); white-space: nowrap; }
+
+/* --- Кровь (render/xray.js: подтёкКрови, разрывУВхода, следСухогоТрения,
+   мойСледНаЧлене) — мягкие формы, размытие, без штрихов. -------------------- */
+.xr-bl-run { filter: blur(.35px); }
+.xr-bl-halo { fill: #b0303f; opacity: .38; filter: blur(1.3px); }
+.xr-bl-gloss { fill: #fff; opacity: .3; filter: blur(.5px); }
+.xr-bl-drop { filter: blur(.2px); }
+/* Стенки: краснота и отёк (первый раз — у входа, сухое трение — по всему ходу), надрывы. */
+.xr-bl-raw { fill: #c0304a; opacity: .42; filter: blur(1.4px); }
+.xr-bl-raw.is-rub { fill: #cc3b55; }
+.xr-bl-tear { fill: #8a1a2f; opacity: .5; filter: blur(.5px); }
+/* Плёнка крови на стволе: ровная, без краёв; неровность — расплывшимися пятнами.
+   На презервативе кровь не впитывается, лежит на гладкой оболочке — чуть ярче. */
+.xr-bl-film { filter: blur(.8px); }
+.xr-bl-wash { fill: #8e1f33; filter: blur(2.2px); }
+.xr-bl-shaft.is-latex { filter: saturate(1.15) brightness(1.05); }
+/* Влажно — кровь разбавлена смазкой: светлее и прозрачнее. */
+.xr-film.is-wet .xr-bl-shaft { filter: saturate(.85) brightness(1.12); }
+.xr-film.is-wet .xr-bl-run { opacity: .88; }
+/* Капля на конце подтёка: в покое висит (видна и без анимации), в такт
+   набухает и срывается. */
+.xr-bl-bead { transform-box: fill-box; transform-origin: 50% 0; }
+@keyframes xr-bl-fall { 0%, 45% { transform: none; opacity: 1; } 70% { transform: translateY(1.5px) scale(1, 1.25); opacity: 1; } 100% { transform: translateY(10px) scale(.8, 1.1); opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-on, .fx-tap) .xr-bl-bead { animation: xr-bl-fall calc(var(--beat1, 1s) * 3) ease-in infinite; }
+  @media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-bl-bead { animation: xr-bl-fall calc(var(--beat1, 1s) * 3) ease-in infinite; } }
+}
+/* Семя с кровью (кончил внутрь без презерватива, а крови в сцене было): в
+   канале и снаружи — чуть розоватое, с мягкими красными прожилками; в шейке
+   и матке — обычное. */
+.xr-cum.has-blood .xr-cum-pool, .xr-cum.has-blood .xr-cum-belt { fill: #f7e6e1; }
+.xr-cum.has-blood .xr-cum-drop:nth-child(3n) { fill: #f1cbc6; }
+.xr-cum-blood { fill: #b4334a; filter: blur(1px); }
+.xr-leak.has-blood .xr-cum-streak:not(.xr-leak-blood) { stroke: #f2d2cd; }
+.xr-leak.has-blood .xr-cum-drip { fill: #efc6c0; }
+.xr-leak-blood { fill: none; stroke: #b4334a; stroke-opacity: .45; stroke-width: 1.4; stroke-linecap: round; filter: blur(.7px); }

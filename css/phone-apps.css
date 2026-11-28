@@ -1,0 +1,638 @@
+/* TavernOS HUD — «Контакты», «Поиск», «Карты» в облике настоящих приложений
+   (render/phone-apps.js). Поверхности смешиваются из currentColor: на тёмном
+   экране они светлее фона, на светлом — темнее, без отдельных правил. Карта —
+   своя палитра, светлая только под :root.hud-scheme-light. Наведение — только
+   мышью; на телефоне всё работает касанием (:focus у мест на карте).
+   Классы: .hud-pa-* общие, .hud-pc-* контакты, .hud-ps-* поиск, .hud-pm-* карты. */
+
+/* Непрозрачная поверхность экрана — под листом карты и обводками значков.
+   --hud-phone-solid задаёт тёмную подложку экрана; на светлой схеме — светлая. */
+.hud-phone-emulator { --pa-surf: color-mix(in srgb, currentColor 4%, var(--hud-phone-solid, #0b0c12)); }
+:root.hud-scheme-light .hud-phone-emulator { --pa-surf: color-mix(in srgb, var(--hud-phone-accent, #de859f) 5%, #fff); }
+
+.hud-pa-ico {
+  width: 16px; height: 16px; flex: none; display: block;
+  fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* Строка поиска внутри приложения (контакты, карты) — рисунок, не поле. */
+.hud-pa-find {
+  display: flex; align-items: center; gap: 7px; height: 30px; padding: 0 10px;
+  border-radius: 10px; font-size: 12px; line-height: 1;
+  background: color-mix(in srgb, currentColor 9%, transparent);
+}
+.hud-pa-find > span { flex: 1; min-width: 0; opacity: .55; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-pa-find .hud-pa-ico { width: 15px; height: 15px; opacity: .6; }
+
+/* Аватарки: фото или буква на градиенте (render/phone-extra.js, лицо()). */
+:is(.hud-pc-ava, .hud-pc-me-ava, .hud-pc-fav-ava) {
+  flex: none; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; color: #fff; font-weight: 700; line-height: 1;
+  background-size: cover; background-position: center;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.14), 0 2px 6px rgba(0,0,0,.22);
+  text-shadow: 0 1px 2px rgba(0,0,0,.3);
+}
+:is(.hud-pc-ava, .hud-pc-me-ava, .hud-pc-fav-ava).has-img { color: transparent; text-shadow: none; }
+
+/* ============================== Контакты ============================== */
+.hud-pc { container: hud-pc / inline-size; display: flex; flex-direction: column; gap: 10px; padding-top: 2px; }
+
+.hud-pc-me {
+  display: flex; align-items: center; gap: 11px; padding: 10px 12px; border-radius: 16px;
+  background:
+    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--hud-phone-accent) 30%, transparent), transparent 60%),
+    color-mix(in srgb, currentColor 6%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--hud-phone-accent) 28%, transparent);
+}
+.hud-pc-me-ava { width: 44px; height: 44px; font-size: 18px; box-shadow: 0 0 0 2px color-mix(in srgb, var(--hud-phone-accent) 70%, transparent), 0 4px 12px rgba(0,0,0,.3); }
+.hud-pc-me-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.hud-pc-me-txt > b { font-size: 13.5px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-pc-me-txt > span { font-size: 11px; opacity: .6; }
+
+.hud-pc-h { font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; opacity: .5; margin: 2px 4px -4px; }
+.hud-pc-favs { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 2px; }
+.hud-pc-fav {
+  appearance: none; background: none; border: 0; margin: 0; padding: 4px 0 2px; color: inherit; font: inherit;
+  position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0;
+  border-radius: 12px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: background .2s ease, transform .2s ease;
+}
+.hud-pc-fav:active { transform: scale(.94); }
+.hud-pc-fav:focus-visible { outline: 2px solid color-mix(in srgb, var(--hud-phone-accent) 70%, transparent); outline-offset: -2px; }
+@media (hover: hover) and (pointer: fine) { .hud-pc-fav:hover { background: color-mix(in srgb, currentColor 7%, transparent); } }
+.hud-pc-fav-ava { width: 42px; height: 42px; font-size: 16px; }
+.hud-pc-fav-dot {
+  position: absolute; top: 31px; left: calc(50% + 10px);
+  width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--hud-phone-accent) 85%, #000); color: #fff;
+  box-shadow: 0 0 0 2px var(--pa-surf, #0b0c12);
+}
+.hud-pc-fav-dot .hud-pa-ico { width: 10px; height: 10px; stroke-width: 2.4; }
+.hud-pc-fav-name { font-size: 10.5px; line-height: 1.2; max-width: 100%; padding: 0 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .85; }
+
+/* Один список, как в Android: буква раздела — в столбике слева у первого
+   контакта на неё; разделитель между буквами виден чуть ярче. Список без
+   overflow: всплывшая строка не должна обрезаться. */
+.hud-pc-list { display: flex; flex-direction: column; border-radius: 16px; background: color-mix(in srgb, currentColor 6%, transparent); }
+.hud-pc-row + .hud-pc-row::before {
+  content: ''; position: absolute; z-index: 1; top: 0; left: 66px; right: 0; height: 1px;
+  background: color-mix(in srgb, currentColor 9%, transparent); transition: opacity .3s ease;
+}
+.hud-pc-row + .hud-pc-row.is-first::before { left: 0; background: color-mix(in srgb, currentColor 13%, transparent); }
+.hud-pc-l { flex: none; width: 14px; margin-right: -2px; text-align: center; font-size: 12px; font-weight: 800; line-height: 1; color: var(--hud-phone-accent); }
+.hud-pc-ava { width: 32px; height: 32px; font-size: 13px; transition: box-shadow .4s ease; }
+.hud-pc-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.hud-pc-txt > b { display: block; font-size: 12.5px; font-weight: 600; line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-pc-txt > b .hud-fake-mark { margin-right: 3px; }
+.hud-pc-txt > .hud-fake-name { margin: 2px 0 0; font-size: 10.5px; }
+.hud-pc-sub { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; font-size: 10.5px; line-height: 1.3; opacity: .6; overflow-wrap: anywhere; }
+.hud-pc-go {
+  appearance: none; margin: 0; border: 0; flex: none; width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font: inherit;
+  color: var(--hud-phone-accent); background: color-mix(in srgb, var(--hud-phone-accent) 14%, transparent);
+  -webkit-tap-highlight-color: transparent; transition: transform .15s ease, background .2s ease, color .2s ease;
+}
+.hud-pc-go .hud-pa-ico { width: 15px; height: 15px; }
+.hud-pc-go:active { transform: scale(.86); }
+.hud-pc-go:focus-visible { outline: 2px solid var(--hud-phone-accent); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .hud-pc-go:hover { color: #fff; background: var(--hud-phone-accent); } }
+
+/* Всплывающие строки: контакт и запрос поиска. Касание переключает fx-tap
+   (events.js, как у пилюль в карточке): строка поднимается, получает свою
+   подложку и тень, заметка видна целиком. Второе касание — обратно. */
+:is(.hud-pc-row, .hud-ps-row) {
+  position: relative; margin: 0; border-radius: 14px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: transform .45s cubic-bezier(.22,.8,.26,1), background-color .3s ease, box-shadow .45s cubic-bezier(.22,.8,.26,1);
+}
+.hud-pc-row { display: flex; align-items: center; gap: 10px; padding: 7px 10px 7px 8px; min-height: 46px; }
+:is(.hud-pc-row, .hud-ps-row).fx-tap {
+  z-index: 2; transform: translateY(-3px) scale(1.03);
+  background-color: color-mix(in srgb, var(--hud-phone-accent) 16%, var(--pa-surf, #0b0c12));
+  box-shadow: 0 12px 22px -10px rgba(0,0,0,.6), 0 0 0 1px color-mix(in srgb, var(--hud-phone-accent) 45%, transparent);
+}
+:root.hud-scheme-light :is(.hud-pc-row, .hud-ps-row).fx-tap { box-shadow: 0 10px 20px -10px rgba(0,0,0,.3), 0 0 0 1px color-mix(in srgb, var(--hud-phone-accent) 45%, transparent); }
+:is(.hud-pc-row, .hud-ps-row).fx-tap::before, :is(.hud-pc-row, .hud-ps-row).fx-tap + :is(.hud-pc-row, .hud-ps-row)::before { opacity: 0; }
+.hud-pc-row.fx-tap .hud-pc-sub { -webkit-line-clamp: unset; opacity: .8; }
+.hud-pc-row.fx-tap .hud-pc-ava { box-shadow: 0 0 0 2px var(--hud-phone-accent), 0 4px 10px rgba(0,0,0,.3); }
+.hud-ps-row.fx-tap .hud-ps-clock { color: var(--hud-phone-accent); background: color-mix(in srgb, var(--hud-phone-accent) 24%, transparent); }
+.hud-ps-row.fx-tap .hud-ps-fill { opacity: .9; color: var(--hud-phone-accent); }
+@media (hover: hover) and (pointer: fine) {
+  :is(.hud-pc-row, .hud-ps-row):hover:not(.fx-tap) { transform: translateY(-2px); background-color: color-mix(in srgb, currentColor 6%, var(--pa-surf, #0b0c12)); box-shadow: 0 8px 16px -10px rgba(0,0,0,.5); z-index: 1; }
+}
+
+.hud-pc-total { text-align: center; font-size: 11px; opacity: .42; padding: 2px 0; }
+
+@container hud-pc (max-width: 190px) {
+  .hud-pc-favs { grid-template-columns: repeat(min(var(--n, 4), 3), minmax(0, 1fr)); }
+  .hud-pc-fav:nth-child(n + 4) { display: none; }
+  .hud-pc-row + .hud-pc-row:not(.is-first)::before { left: 32px; }
+  .hud-pc-l { width: 10px; }
+  .hud-pc-ava { width: 28px; height: 28px; font-size: 12px; }
+}
+
+/* =============================== Поиск =============================== */
+.hud-ps { container: hud-ps / inline-size; display: flex; flex-direction: column; gap: 14px; padding-top: 6px; }
+.hud-ps-bar {
+  display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 13px; border-radius: 999px;
+  position: relative; background: color-mix(in srgb, currentColor 8%, transparent);
+  box-shadow: 0 8px 22px -12px color-mix(in srgb, var(--hud-phone-accent) 80%, transparent);
+}
+/* Цветная рамка — маской по краю: фон строки остаётся полупрозрачным на любой теме. */
+.hud-ps-bar::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 1.5px; pointer-events: none;
+  background: linear-gradient(115deg, var(--hud-phone-accent), #5b9cf5 45%, #4fc28a 75%, #f0a03c);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+}
+.hud-ps-bar > .hud-pa-ico { width: 16px; height: 16px; opacity: .7; }
+.hud-ps-hint { flex: 1; min-width: 0; font-size: 12px; opacity: .55; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-ps-tools { display: flex; align-items: center; gap: 9px; flex: none; }
+.hud-ps-tools .hud-pa-ico { width: 16px; height: 16px; }
+
+.hud-ps-tiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; }
+.hud-ps-tile { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 0; }
+.hud-ps-tile-i {
+  width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: var(--t);
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--t) 34%, transparent), color-mix(in srgb, var(--t) 14%, transparent) 70%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--t) 34%, transparent);
+}
+.hud-ps-tile-i .hud-pa-ico { width: 18px; height: 18px; }
+.hud-ps-tile-l { font-size: 10px; line-height: 1.15; opacity: .75; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.hud-ps-head { display: flex; align-items: center; justify-content: space-between; padding: 0 4px; margin-bottom: -6px; }
+.hud-ps-head > span:first-child { font-size: 13px; font-weight: 700; }
+.hud-ps-head > span:last-child, .hud-pm-head > span:last-child {
+  min-width: 20px; padding: 2px 7px; border-radius: 999px; text-align: center;
+  font-size: 10px; font-weight: 700; line-height: 1.3; font-variant-numeric: tabular-nums;
+  background: color-mix(in srgb, currentColor 10%, transparent);
+}
+.hud-ps-list { border-radius: 16px; background: color-mix(in srgb, currentColor 6%, transparent); }
+.hud-ps-row { position: relative; display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; }
+.hud-ps-row + .hud-ps-row::before { content: ''; position: absolute; top: 0; left: 46px; right: 0; height: 1px; background: color-mix(in srgb, currentColor 10%, transparent); }
+.hud-ps-clock {
+  flex: none; width: 24px; height: 24px; margin-top: -3px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, currentColor 9%, transparent);
+}
+.hud-ps-clock .hud-pa-ico { width: 14px; height: 14px; opacity: .7; }
+.hud-ps-row.is-last .hud-ps-clock { background: color-mix(in srgb, var(--hud-phone-accent) 24%, transparent); color: var(--hud-phone-accent); }
+.hud-ps-row.is-last .hud-ps-clock .hud-pa-ico { opacity: 1; }
+.hud-ps-q { flex: 1; min-width: 0; font-size: 12px; line-height: 1.4; overflow-wrap: anywhere; }
+.hud-ps-row.is-last .hud-ps-q { font-weight: 600; }
+.hud-ps-fill { flex: none; margin-top: 1px; opacity: .38; }
+.hud-ps-fill .hud-pa-ico { width: 14px; height: 14px; }
+.hud-ps + .hud-phone-empty-app { margin-top: 12px; }
+
+@container hud-ps (max-width: 190px) {
+  .hud-ps-tile-i { width: 34px; height: 34px; }
+  .hud-ps-tile-i .hud-pa-ico { width: 16px; height: 16px; }
+  .hud-ps-tile-l { font-size: 9px; }
+  .hud-ps-lens { display: none; }
+}
+
+/* =============================== Карты =============================== */
+.hud-pm {
+  container: hud-pm / inline-size; display: flex; flex-direction: column;
+  --mp-road: #353a46; --mp-block: #23262e; --mp-park: #21382b; --mp-tree: #2c4d39;
+  --mp-water: #1a3550; --mp-bank: #23415f; --mp-ave: #6a5a3c; --mp-ave-case: #2a2620;
+  --mp-me: #4d94ff; --mp-route: #4d94ff; --mp-sheet: var(--pa-surf, #0b0c12);
+}
+:root.hud-scheme-light .hud-pm {
+  --mp-road: #ffffff; --mp-block: #e6e8ec; --mp-park: #cde9cf; --mp-tree: #b4dcb8;
+  --mp-water: #a9d3f5; --mp-bank: #c4e1f8; --mp-ave: #fbd98e; --mp-ave-case: #e5c06a;
+  --mp-me: #2f7cf6; --mp-route: #2f7cf6;
+}
+/* Карта всегда на экране, прокручивается только лист со списком — как в
+   настоящих картах: касание места в списке видно на карте сразу. */
+.hud-phone-app-view[data-phone-view="maps"].active:has(> .hud-pm) { display: flex; flex-direction: column; }
+.hud-phone-app-view > .hud-pm { flex: 1 1 auto; min-height: 0; }
+.hud-phone-app-view:has(> .hud-pm) > :not(.hud-pm) { flex: none; }
+.hud-pm-canvas {
+  position: relative; flex: 1 1 auto; min-height: 190px; border-radius: 18px 18px 0 0; overflow: hidden;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 10%, transparent);
+}
+.hud-pm-svg { display: block; width: 100%; height: 100%; }
+.hud-pm-road { fill: var(--mp-road); }
+.hud-pm-blocks .b { fill: var(--mp-block); }
+.hud-pm-blocks .p { fill: var(--mp-park); }
+.hud-pm-blocks .t { fill: var(--mp-tree); }
+.hud-pm-river-bank { fill: none; stroke: var(--mp-bank); stroke-width: 19; stroke-linecap: round; }
+.hud-pm-river { fill: none; stroke: var(--mp-water); stroke-width: 14; stroke-linecap: round; }
+.hud-pm-ave-case { fill: none; stroke: var(--mp-ave-case); stroke-width: 9; }
+.hud-pm-ave { fill: none; stroke: var(--mp-ave); stroke-width: 6.5; }
+
+/* Путь до места: скрыт, касание строки списка прорисовывает его по улицам. */
+.hud-pm-route {
+  fill: none; stroke: var(--mp-route); stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round;
+  stroke-dasharray: 1 1; stroke-dashoffset: 1; opacity: 0;
+  transition: stroke-dashoffset .6s cubic-bezier(.4,0,.2,1), opacity .2s ease;
+}
+
+.hud-pm-shadow { fill: rgba(0,0,0,.35); }
+.hud-pm-drop { --pc0: var(--pc, var(--hud-phone-accent)); transform-box: fill-box; transform-origin: 50% 100%; transition: transform .3s cubic-bezier(.3,1.6,.5,1); }
+.hud-pm-drop path { fill: var(--pc0); stroke: #fff; stroke-width: 1.6; }
+.hud-pm-drop text { fill: #fff; font: 700 9px/1 system-ui, sans-serif; text-anchor: middle; dominant-baseline: central; }
+.hud-pm-pin.is-here .hud-pm-drop path { stroke: var(--mp-me); stroke-width: 2.2; }
+.hud-pm-beam { fill: color-mix(in srgb, var(--mp-me) 22%, transparent); }
+.hud-pm-pulse { fill: color-mix(in srgb, var(--mp-me) 30%, transparent); transform-box: fill-box; transform-origin: center; animation: hud-pm-pulse 2.4s ease-out infinite; animation-play-state: running !important; }
+.hud-pm-dot { fill: var(--mp-me); stroke: #fff; stroke-width: 2.4; }
+@keyframes hud-pm-pulse { from { transform: scale(.5); opacity: .95; } to { transform: scale(1.7); opacity: 0; } }
+
+/* Плавающие над картой строка поиска и кнопки — как в приложении. */
+.hud-pm-find {
+  position: absolute; top: 8px; left: 8px; right: 8px; height: 30px; border-radius: 999px;
+  background: color-mix(in srgb, var(--mp-sheet) 86%, transparent);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  box-shadow: 0 4px 14px rgba(0,0,0,.28), inset 0 0 0 1px color-mix(in srgb, currentColor 10%, transparent);
+}
+.hud-pm-find > .hud-pa-ico:last-child { color: var(--hud-phone-accent); opacity: 1; }
+.hud-pm-ctl { position: absolute; right: 8px; bottom: 20px; display: flex; flex-direction: column; gap: 6px; }
+.hud-pm-ctl > label {
+  width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--mp-sheet) 88%, transparent);
+  box-shadow: 0 3px 10px rgba(0,0,0,.3), inset 0 0 0 1px color-mix(in srgb, currentColor 10%, transparent);
+}
+.hud-pm-ctl .hud-pa-ico { width: 14px; height: 14px; }
+
+/* Лист снизу: наезжает на карту, ручка сверху. */
+.hud-pm-sheet {
+  position: relative; z-index: 1; flex: 0 1 auto; max-height: 58%; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin;
+  margin-top: -14px; padding: 8px 8px 6px; border-radius: 18px;
+  background: var(--mp-sheet);
+  box-shadow: 0 -6px 18px rgba(0,0,0,.25), inset 0 0 0 1px color-mix(in srgb, currentColor 8%, transparent);
+  display: flex; flex-direction: column; gap: 8px;
+}
+:root.hud-scheme-light .hud-pm-sheet { box-shadow: 0 -6px 16px rgba(0,0,0,.08), inset 0 0 0 1px color-mix(in srgb, currentColor 8%, transparent); }
+.hud-pm-grip { align-self: center; width: 34px; height: 4px; border-radius: 99px; background: color-mix(in srgb, currentColor 25%, transparent); margin-bottom: 2px; }
+.hud-pm-here {
+  display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 13px;
+  background: color-mix(in srgb, var(--mp-me) 13%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--mp-me) 26%, transparent);
+}
+.hud-pm-here-ico { flex: none; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff; background: var(--mp-me); box-shadow: 0 0 0 3px color-mix(in srgb, var(--mp-me) 25%, transparent); }
+.hud-pm-here-ico .hud-pa-ico { width: 14px; height: 14px; fill: currentColor; }
+.hud-pm-here .hud-pm-txt > span { font-size: 9.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--mp-me); }
+.hud-pm-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.hud-pm-txt > b { font-size: 12px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
+.hud-pm-txt > span { font-size: 10.5px; line-height: 1.3; opacity: .6; overflow-wrap: anywhere; }
+.hud-pm-txt > .hud-pm-tag { opacity: 1; font-weight: 700; color: var(--mp-me); }
+.hud-pm-head { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 0; }
+.hud-pm-head > span:first-child { font-size: 12.5px; font-weight: 700; }
+.hud-pm-list { display: flex; flex-direction: column; }
+.hud-pm-row {
+  position: relative; display: flex; align-items: center; gap: 10px; padding: 7px 8px; border-radius: 12px;
+  cursor: pointer; outline: none; -webkit-tap-highlight-color: transparent; transition: background .2s ease;
+}
+.hud-pm-row + .hud-pm-row::before { content: ''; position: absolute; top: 0; left: 50px; right: 8px; height: 1px; background: color-mix(in srgb, currentColor 9%, transparent); }
+.hud-pm-row:focus::before, .hud-pm-row:focus + .hud-pm-row::before { opacity: 0; }
+.hud-pm-row:focus-within { background: color-mix(in srgb, var(--hud-phone-accent) 13%, transparent); }
+@media (hover: hover) and (pointer: fine) { .hud-pm-row:hover { background: color-mix(in srgb, currentColor 6%, transparent); } }
+.hud-pm-badge {
+  --pc0: var(--pc, var(--hud-phone-accent));
+  position: relative; flex: none; width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; color: #fff;
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--pc0) 75%, #fff), var(--pc0) 65%);
+  box-shadow: 0 3px 8px -2px color-mix(in srgb, var(--pc0) 60%, transparent);
+}
+.hud-pm-badge .hud-pa-ico { width: 16px; height: 16px; stroke-width: 1.9; }
+.hud-pm-badge > span {
+  position: absolute; right: -3px; bottom: -3px; min-width: 15px; height: 15px; padding: 0 3px; border-radius: 99px;
+  display: flex; align-items: center; justify-content: center;
+  font: 700 8.5px/1 system-ui, sans-serif; color: currentColor;
+  background: var(--mp-sheet); box-shadow: inset 0 0 0 1.5px var(--pc0);
+}
+:root:not(.hud-scheme-light) .hud-pm-badge > span { color: #fff; }
+:root.hud-scheme-light .hud-pm-badge > span { color: #222; }
+
+/* Выбранное место: булавка подпрыгивает, путь прорисовывается. Касание даёт
+   фокус строке, мышь — наведение; правила на двенадцать мест (больше
+   phone-apps.js не рисует). */
+.hud-pm:has(.hud-pm-row[data-pin="1"]:focus-within) :is(.hud-pm-pin, .hud-pm-route)[data-pin="1"],
+.hud-pm:has(.hud-pm-row[data-pin="2"]:focus-within) :is(.hud-pm-pin, .hud-pm-route)[data-pin="2"],
+.hud-pm:has(.hud-pm-row[data-pin="3"]:focus-within) :is(.hud-pm-pin, .hud-pm-route)[data-pin="3"],
+.hud-pm:has(.hud-pm-row[data-pin="4"]:focus-within) :is(.hud-pm-pin, .hud-pm-route)[data-pin="4"],
+.hud-pm:has(.hud-pm-row[data-pin="5"]:focus-within) :is(.hud-pm-pin, .hud-pm-route)[data-pin="5"],
+.hud-pm:has(.hud-pm-row[data-pin="6"]:focus-within) :is(.hud-pm-pin, .hud-pm-route)[data-pin="6"],
+.hud-pm:has(.hud-pm-row[data-pin="7"]:focus-within) :is(.hud-pm-pin, .hud-pm-route)[data-pin="7"],
+.hud-pm:has(.hud-pm-row[data-pin="8"]:focus-within) :is(.hud-pm-pin, .hud-pm-route)[data-pin="8"],
+.hud-pm:has(.hud-pm-row[data-pin="9"]:focus-within) :is(.hud-pm-pin, .hud-pm-route)[data-pin="9"],
+.hud-pm:has(.hud-pm-row[data-pin="10"]:focus-within) :is(.hud-pm-pin, .hud-pm-route)[data-pin="10"],
+.hud-pm:has(.hud-pm-row[data-pin="11"]:focus-within) :is(.hud-pm-pin, .hud-pm-route)[data-pin="11"],
+.hud-pm:has(.hud-pm-row[data-pin="12"]:focus-within) :is(.hud-pm-pin, .hud-pm-route)[data-pin="12"] { --sel: 1; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-pm:has(.hud-pm-row[data-pin="1"]:hover) :is(.hud-pm-pin, .hud-pm-route)[data-pin="1"],
+  .hud-pm:has(.hud-pm-row[data-pin="2"]:hover) :is(.hud-pm-pin, .hud-pm-route)[data-pin="2"],
+  .hud-pm:has(.hud-pm-row[data-pin="3"]:hover) :is(.hud-pm-pin, .hud-pm-route)[data-pin="3"],
+  .hud-pm:has(.hud-pm-row[data-pin="4"]:hover) :is(.hud-pm-pin, .hud-pm-route)[data-pin="4"],
+  .hud-pm:has(.hud-pm-row[data-pin="5"]:hover) :is(.hud-pm-pin, .hud-pm-route)[data-pin="5"],
+  .hud-pm:has(.hud-pm-row[data-pin="6"]:hover) :is(.hud-pm-pin, .hud-pm-route)[data-pin="6"],
+  .hud-pm:has(.hud-pm-row[data-pin="7"]:hover) :is(.hud-pm-pin, .hud-pm-route)[data-pin="7"],
+  .hud-pm:has(.hud-pm-row[data-pin="8"]:hover) :is(.hud-pm-pin, .hud-pm-route)[data-pin="8"],
+  .hud-pm:has(.hud-pm-row[data-pin="9"]:hover) :is(.hud-pm-pin, .hud-pm-route)[data-pin="9"],
+  .hud-pm:has(.hud-pm-row[data-pin="10"]:hover) :is(.hud-pm-pin, .hud-pm-route)[data-pin="10"],
+  .hud-pm:has(.hud-pm-row[data-pin="11"]:hover) :is(.hud-pm-pin, .hud-pm-route)[data-pin="11"],
+  .hud-pm:has(.hud-pm-row[data-pin="12"]:hover) :is(.hud-pm-pin, .hud-pm-route)[data-pin="12"] { --sel: 1; }
+}
+.hud-pm-pin { --sel: 0; }
+.hud-pm-pin .hud-pm-drop { transform: scale(calc(1 + var(--sel) * .35)); }
+.hud-pm-route { --sel: 0; }
+.hud-pm-route { stroke-dashoffset: calc(1 - var(--sel)); opacity: var(--sel); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-pm-pulse { animation: none; opacity: .4; }
+  .hud-pm-route, .hud-pm-drop, .hud-pc-row, .hud-ps-row { transition: none; }
+}
+
+/* Свечение телефона (настройка): мягкий ореол у карты. */
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-pm-canvas {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, currentColor 10%, transparent), 0 0 0 1px var(--hud-glow-soft, transparent), 0 0 calc(8px * var(--hud-glow-r, 1) * var(--hud-glow-wide, 1)) var(--hud-glow-soft, transparent);
+}
+
+/* Кнопочный аппарат: всё прямоугольное и моноширинное (phone-skins.css) —
+   убираем то, что без скруглений выглядит лишним. */
+[data-hud-phone="keypad"] :is(.hud-pa-find, .hud-ps-tiles, .hud-pm-ctl, .hud-pm-grip, .hud-pc-fav-dot) { display: none; }
+[data-hud-phone="keypad"] .hud-ps-bar { height: 30px; background: none; border: 1px solid currentColor; box-shadow: none; }
+[data-hud-phone="keypad"] .hud-pm-sheet { margin-top: 0; box-shadow: none; }
+
+/* ======================= Слухи: анонимная лента ======================= */
+/* render/phone.js, buildRumorsApp. Вкладки — радиокнопки .hud-rumors-in;
+   голоса ▲▼ и сердце — radio/checkbox .hud-rf-in: отмеченная показывает
+   число на единицу больше (меньше). Без скриптов. */
+.hud-rf { --rm-acc: var(--hud-phone-accent, #de859f); --rf-live: #3ccf7a; container: hud-rf / inline-size; display: flex; flex-direction: column; gap: 10px; padding: 2px 0 6px; }
+:root.hud-scheme-light .hud-rf { --rf-live: #1f9d55; }
+.hud-rf .hud-g-ico { width: 15px; height: 15px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.hud-rf-ico { width: 15px; height: 15px; flex: none; display: block; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.hud-rf-in, .hud-rumors-in { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; margin: 0; }
+
+/* Шапка ленты: значок, «рядом», «онлайн». */
+.hud-rf-top { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.hud-rf-logo {
+  flex: none; width: 30px; height: 30px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #fff;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--rm-acc) 90%, #fff), color-mix(in srgb, var(--rm-acc) 55%, #5b3fc4));
+  box-shadow: 0 5px 14px -6px color-mix(in srgb, var(--rm-acc) 80%, transparent), inset 0 1px 0 rgba(255,255,255,.25);
+}
+.hud-rf-logo .hud-g-ico { width: 17px; height: 17px; stroke-width: 2; }
+.hud-rf-place { flex: 1; min-width: 0; display: flex; align-items: center; gap: 4px; font-size: 11px; line-height: 1.2; }
+.hud-rf-place > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; opacity: .8; }
+.hud-rf-place .hud-rf-ico { width: 13px; height: 13px; color: var(--rm-acc); }
+.hud-rf-live {
+  flex: none; display: flex; align-items: center; gap: 5px; padding: 3px 8px; border-radius: 99px;
+  font-size: 10px; font-weight: 700; line-height: 1.2; color: var(--rf-live); background: color-mix(in srgb, var(--rf-live) 15%, transparent);
+}
+.hud-rf-live > span { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 2px color-mix(in srgb, currentColor 30%, transparent); animation: hud-rf-blink 2.2s ease-in-out infinite; animation-play-state: running !important; }
+@keyframes hud-rf-blink { 50% { opacity: .35; } }
+
+/* Вкладки — как в соцсети: подпись и полоска снизу. */
+.hud-rumors-tabs { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid color-mix(in srgb, currentColor 12%, transparent); }
+.hud-rumors-tabs label {
+  position: relative; display: flex; align-items: center; justify-content: center; gap: 5px; min-width: 0; padding: 6px 4px 9px;
+  font-size: 12px; line-height: 1.15; cursor: pointer; opacity: .58; transition: opacity .2s ease;
+}
+.hud-rumors-tabs label::after {
+  content: ''; position: absolute; left: 18%; right: 18%; bottom: -1px; height: 3px; border-radius: 3px 3px 0 0;
+  background: var(--rm-acc); transform: scaleX(0); transition: transform .28s cubic-bezier(.22,.8,.3,1);
+}
+.hud-rumors-tabs :is(.hud-rumors-l, .hud-rumors-s) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-rumors-tabs .hud-rumors-s { display: none; }
+.hud-rumors-tabs .hud-rumors-n { flex: none; min-width: 17px; padding: 1px 5px; border-radius: 9px; text-align: center; font-size: 10px; font-weight: 700; background: color-mix(in srgb, currentColor 13%, transparent); }
+.hud-rumors-in.is-say:checked ~ .hud-rumors-tabs .t-say,
+.hud-rumors-in.is-net:checked ~ .hud-rumors-tabs .t-net { opacity: 1; font-weight: 700; }
+.hud-rumors-in.is-say:checked ~ .hud-rumors-tabs .t-say::after,
+.hud-rumors-in.is-net:checked ~ .hud-rumors-tabs .t-net::after { transform: scaleX(1); }
+.hud-rumors-in.is-say:checked ~ .hud-rumors-tabs .t-say .hud-g-ico,
+.hud-rumors-in.is-net:checked ~ .hud-rumors-tabs .t-net .hud-g-ico { color: var(--rm-acc); }
+.hud-rumors-in.is-say:checked ~ .hud-rumors-tabs .t-say .hud-rumors-n,
+.hud-rumors-in.is-net:checked ~ .hud-rumors-tabs .t-net .hud-rumors-n { color: #fff; background: color-mix(in srgb, var(--rm-acc) 85%, #000); }
+.hud-rumors-in:focus-visible ~ .hud-rumors-tabs { outline: 1px solid var(--rm-acc); outline-offset: 1px; }
+.hud-rumors-in.is-say:checked ~ .hud-rumors-net, .hud-rumors-in.is-net:checked ~ .hud-rumors-say { display: none; }
+.hud-rumors-title { display: flex; align-items: center; gap: 6px; margin: 0 2px; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; }
+.hud-rumors-title > span { opacity: .7; }
+.hud-rumors-title .hud-g-ico { color: var(--rm-acc); }
+.hud-rf :is(.hud-rumors-say, .hud-rumors-net) { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+
+/* «Говорят»: цветные карточки с голосом справа. */
+.hud-rf .hud-rumors-say { gap: 9px; }
+.hud-rf-card {
+  position: relative; overflow: hidden; display: grid; grid-template-columns: minmax(0, 1fr) 30px; gap: 4px;
+  margin: 0; padding: 11px 5px 9px 13px; border-radius: 18px; color: #fff;
+  background: radial-gradient(120% 90% at 100% 0%, rgba(255,255,255,.2), transparent 55%), linear-gradient(150deg, var(--c1), var(--c2));
+  box-shadow: 0 8px 18px -12px var(--c2), inset 0 1px 0 rgba(255,255,255,.18);
+}
+.hud-rf-card.is-fresh { box-shadow: inset 0 0 0 2px rgba(255,255,255,.4), 0 10px 22px -10px var(--c2); }
+.hud-rf-main { min-width: 0; }
+.hud-rf-meta { display: flex; align-items: center; gap: 4px; min-width: 0; margin-bottom: 6px; font-size: 10px; font-weight: 600; line-height: 1.2; }
+.hud-rf-meta > span:not(.hud-rf-new) { opacity: .85; }
+.hud-rf-meta .hud-rf-ico { width: 12px; height: 12px; opacity: .85; }
+.hud-rf-meta .hud-rf-time { margin-left: auto; padding-left: 6px; font-size: 9.5px; font-weight: 500; opacity: .8; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.hud-rf-new { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 99px; font-size: 9px; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; background: rgba(255,255,255,.24); }
+.hud-rf-new::before { content: ''; width: 5px; height: 5px; border-radius: 50%; background: #fff; }
+.hud-rf-card p { margin: 0; font-size: 13px; font-weight: 600; line-height: 1.4; overflow-wrap: anywhere; text-shadow: 0 1px 1px rgba(0,0,0,.14); }
+.hud-rf-foot { display: flex; align-items: center; gap: 12px; margin-top: 8px; font-size: 10.5px; font-weight: 700; line-height: 1; opacity: .85; }
+.hud-rf-foot > span { display: flex; align-items: center; gap: 4px; }
+.hud-rf-foot .hud-rf-ico { width: 13px; height: 13px; }
+.hud-rf-vote { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; }
+.hud-rf-vote label {
+  width: 26px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 9px;
+  cursor: pointer; opacity: .72; -webkit-tap-highlight-color: transparent;
+  transition: background .15s ease, opacity .15s ease, transform .15s ease;
+}
+.hud-rf-vote label:active { transform: scale(.86); }
+@media (hover: hover) and (pointer: fine) { .hud-rf-vote label:hover { opacity: 1; background: rgba(255,255,255,.14); } }
+.hud-rf-vote .hud-rf-ico { width: 18px; height: 18px; stroke-width: 2.5; }
+.hud-rf-vote .u:checked ~ label[for$="u"], .hud-rf-vote .d:checked ~ label[for$="d"] { opacity: 1; background: rgba(255,255,255,.26); }
+.hud-rf-vote .u:focus-visible ~ label[for$="u"], .hud-rf-vote .d:focus-visible ~ label[for$="d"] { outline: 2px solid #fff; outline-offset: -2px; }
+.hud-rf-score { font-size: 12px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+.hud-rf-score > b { font-weight: inherit; }
+.hud-rf-score > :is(.s1, .s2) { display: none; }
+.hud-rf-vote :is(.u, .d):checked ~ .hud-rf-score > .s0 { display: none; }
+.hud-rf-vote .u:checked ~ .hud-rf-score > .s1, .hud-rf-vote .d:checked ~ .hud-rf-score > .s2 { display: inline; }
+
+/* «Пишут в сети»: посты с ответами, репостами и сердцем. */
+.hud-rf .hud-rumors-net { clip-path: inset(1px 0 0 0 round 16px); background: color-mix(in srgb, currentColor 6%, transparent); }
+.hud-rf-post { position: relative; display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 9px; margin: 0; padding: 10px 11px 8px; }
+.hud-rf-post::before { content: ''; position: absolute; top: 0; left: 54px; right: 0; height: 1px; background: color-mix(in srgb, currentColor 10%, transparent); }
+.hud-rf-ava { width: 34px; height: 34px; border-radius: 50%; overflow: hidden; display: block; background: linear-gradient(150deg, var(--ava, #6b7280), rgba(0,0,0,.45)); color: rgba(255,255,255,.75); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+.hud-rf-sil { display: block; width: 100%; height: 100%; fill: currentColor; }
+.hud-rf-body { min-width: 0; }
+.hud-rf-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 5px; min-width: 0; margin-bottom: 2px; font-size: 11.5px; line-height: 1.3; }
+.hud-rf-no { font-size: 10.5px; opacity: .45; font-variant-numeric: tabular-nums; }
+.hud-rf-head .hud-rf-time { font-size: 10px; opacity: .45; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.hud-rf-head .hud-rf-time::before { content: '· '; }
+.hud-rf-body p { margin: 0; font-size: 12.5px; line-height: 1.42; overflow-wrap: anywhere; }
+.hud-rf-acts { display: flex; align-items: center; gap: 14px; margin-top: 7px; font-size: 10.5px; line-height: 1; }
+.hud-rf-acts > span, .hud-rf-like { display: flex; align-items: center; gap: 4px; opacity: .7; }
+.hud-rf-acts .hud-rf-ico { width: 14px; height: 14px; }
+.hud-rf-like {
+  margin-left: auto; padding: 3px 7px; border-radius: 99px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+  transition: color .2s ease, background .2s ease, opacity .2s ease;
+}
+.hud-rf-like .hud-rf-score { font-size: 10.5px; font-weight: 700; }
+.hud-rf-like .s1 { display: none; }
+@media (hover: hover) and (pointer: fine) { .hud-rf-like:hover { opacity: 1; background: color-mix(in srgb, #ff4d6d 10%, transparent); } }
+.hud-rf-in:checked + .hud-rf-like { opacity: 1; color: #ff4d6d; background: color-mix(in srgb, #ff4d6d 14%, transparent); }
+.hud-rf-in:checked + .hud-rf-like .hud-rf-ico { fill: currentColor; animation: hud-rf-pop .4s cubic-bezier(.3,1.6,.5,1); animation-play-state: running !important; }
+.hud-rf-in:checked + .hud-rf-like .s0 { display: none; }
+.hud-rf-in:checked + .hud-rf-like .s1 { display: inline; }
+.hud-rf-in:focus-visible + .hud-rf-like { outline: 2px solid color-mix(in srgb, #ff4d6d 70%, transparent); }
+@keyframes hud-rf-pop { 0% { transform: scale(.7); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+
+/* Автор поста — скрыт до нажатия (как и раньше). */
+.hud-rumor-author { min-width: 0; font-size: 11.5px; }
+.hud-rumor-author > summary { display: inline; cursor: pointer; list-style: none; font-weight: 700; }
+.hud-rumor-author > summary::-webkit-details-marker { display: none; }
+b.hud-rumor-author { font-weight: 700; }
+.hud-rumor-author[open] > summary { opacity: .5; text-decoration: line-through; }
+.hud-rumor-author > span { margin-left: 5px; font-weight: 700; color: var(--rm-acc); overflow-wrap: anywhere; }
+
+/* Узкий телефон: вкладки без значков и с короткой подписью. */
+@container hud-rf (max-width: 260px) {
+  .hud-rumors-tabs .hud-g-ico, .hud-rumors-tabs .hud-rumors-l { display: none; }
+  .hud-rumors-tabs .hud-rumors-s { display: inline; }
+  .hud-rf-live { padding: 3px 6px; }
+  .hud-rf-post { grid-template-columns: 28px minmax(0, 1fr); gap: 8px; padding: 9px 9px 7px; }
+  .hud-rf-ava { width: 28px; height: 28px; }
+  .hud-rf-post::before { left: 45px; }
+  .hud-rf-acts { gap: 10px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-rf-live > span, .hud-rf-in:checked + .hud-rf-like .hud-rf-ico { animation: none; }
+}
+[data-hud-phone="keypad"] :is(.hud-rf-logo, .hud-rf-live) { display: none; }
+[data-hud-phone="keypad"] .hud-rf-card { background: none; color: inherit; box-shadow: inset 0 0 0 1px currentColor; }
+
+/* Самый узкий телефон (карточка ~215px, экран ~150px): меньше отступов,
+   ярлыки поиска без подписей, без стрелки «подставить» — тексту нужна ширина. */
+@container hud-ps (max-width: 190px) {
+  .hud-ps-tile-l, .hud-ps-fill { display: none; }
+  .hud-ps-tile-i { width: 30px; height: 30px; }
+  .hud-ps-bar { height: 34px; padding: 0 10px; gap: 6px; }
+  .hud-ps-hint { font-size: 11px; }
+  .hud-ps-row { gap: 8px; padding: 9px 9px; }
+  .hud-ps-row + .hud-ps-row::before { left: 39px; }
+  .hud-ps-clock { width: 22px; height: 22px; }
+  .hud-ps-q { font-size: 11.5px; }
+}
+@container hud-pc (max-width: 190px) {
+  .hud-pc-me { gap: 8px; padding: 8px 9px; }
+  .hud-pc-me-ava { width: 34px; height: 34px; font-size: 14px; }
+  .hud-pc-me-txt > b { font-size: 12.5px; }
+  .hud-pc-me-txt > span { font-size: 10px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .hud-pc-row { gap: 8px; padding: 7px 8px 7px 6px; }
+  .hud-pc-go { width: 26px; height: 26px; }
+}
+.hud-pm-txt > :is(b, span) { overflow-wrap: break-word; }
+@container hud-pm (max-width: 190px) {
+  .hud-pm-sheet { padding: 7px 6px 5px; }
+  .hud-pm-here { gap: 8px; padding: 7px 8px; }
+  .hud-pm-here-ico { width: 24px; height: 24px; box-shadow: none; }
+  .hud-pm-here-ico .hud-pa-ico { width: 12px; height: 12px; }
+  .hud-pm-txt > b { font-size: 11.5px; }
+  .hud-pm-row { gap: 8px; padding: 6px 6px; }
+  .hud-pm-row + .hud-pm-row::before { left: 42px; }
+  .hud-pm-badge { width: 28px; height: 28px; }
+  .hud-pm-badge .hud-pa-ico { width: 14px; height: 14px; }
+  .hud-pm-find { height: 26px; font-size: 11px; }
+  .hud-pm-ctl > label { width: 24px; height: 24px; }
+}
+
+/* «Слухи» на самом узком телефоне: голос — строкой внизу карточки, у поста
+   без номера и репоста, во вкладках без счётчиков, «онлайн» — одной точкой. */
+.hud-rf-meta { flex-wrap: wrap; row-gap: 2px; }
+@container hud-rf (max-width: 190px) {
+  .hud-rf-card { grid-template-columns: minmax(0, 1fr); padding: 10px 11px 8px; }
+  .hud-rf-vote { position: absolute; right: 6px; bottom: 4px; flex-direction: row; gap: 0; }
+  .hud-rf-vote label { width: 22px; height: 22px; }
+  .hud-rf-vote .hud-rf-ico { width: 15px; height: 15px; }
+  .hud-rf-score { min-width: 22px; text-align: center; font-size: 11px; }
+  .hud-rf-foot { min-height: 22px; margin-top: 6px; padding-right: 70px; }
+  .hud-rf-card p { font-size: 12.5px; }
+  .hud-rumors-tabs .hud-rumors-n { display: none; }
+  .hud-rf-live { font-size: 0; gap: 0; padding: 5px; }
+  .hud-rf-no, .hud-rf-acts > .hud-rf-rp { display: none; }
+  .hud-rf-body p { font-size: 12px; }
+}
+
+
+
+/* ================= Рабочие переключатели (без скриптов) ================= */
+/* Скрытые radio/checkbox внутри <label>: фильтр мест и пробки на карте,
+   сортировка, репост в ленте слухов. */
+.hud-pa-in { position: absolute; width: 1px; height: 1px; margin: 0; opacity: 0; pointer-events: none; }
+:is(.hud-pm-chip, .hud-pm-ctl > label, .hud-rf-sort label, .hud-rf-rp) { cursor: pointer; -webkit-tap-highlight-color: transparent; user-select: none; }
+.hud-pm-go { appearance: none; margin: 0; border: 0; font: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.hud-pm-chips { position: absolute; top: 44px; left: 8px; right: 42px; display: flex; flex-wrap: wrap; gap: 5px; max-height: 24px; overflow: hidden; }
+.hud-pm-chip {
+  --pc0: var(--pc, var(--hud-phone-accent));
+  display: inline-flex; align-items: center; height: 22px; padding: 0 9px; border-radius: 99px;
+  font-size: 10.5px; font-weight: 600; line-height: 1; white-space: nowrap;
+  background: color-mix(in srgb, var(--mp-sheet) 88%, transparent);
+  box-shadow: 0 2px 8px rgba(0,0,0,.25), inset 0 0 0 1px color-mix(in srgb, currentColor 10%, transparent);
+  transition: background .2s ease, color .2s ease, transform .15s ease;
+}
+.hud-pm-chip::before { content: ''; width: 6px; height: 6px; margin-right: 5px; border-radius: 50%; background: var(--pc0); }
+.hud-pm-chip[data-t="all"]::before { display: none; }
+.hud-pm-chip:active { transform: scale(.93); }
+.hud-pm-chip:has(:checked) { color: #fff; background: var(--pc0); box-shadow: 0 3px 10px -3px var(--pc0); }
+.hud-pm-chip:has(:checked)::before { background: #fff; }
+.hud-pm-chip:has(:focus-visible) { outline: 2px solid var(--pc0); outline-offset: 1px; }
+.hud-pm-pin, .hud-pm-row { transition: opacity .25s ease, background .2s ease; }
+.hud-pm:has(.hud-pm-chip[data-t="home"] :checked) :is(.hud-pm-pin, .hud-pm-row):not([data-t="home"]),
+.hud-pm:has(.hud-pm-chip[data-t="bar"] :checked) :is(.hud-pm-pin, .hud-pm-row):not([data-t="bar"]),
+.hud-pm:has(.hud-pm-chip[data-t="food"] :checked) :is(.hud-pm-pin, .hud-pm-row):not([data-t="food"]),
+.hud-pm:has(.hud-pm-chip[data-t="health"] :checked) :is(.hud-pm-pin, .hud-pm-row):not([data-t="health"]),
+.hud-pm:has(.hud-pm-chip[data-t="study"] :checked) :is(.hud-pm-pin, .hud-pm-row):not([data-t="study"]),
+.hud-pm:has(.hud-pm-chip[data-t="park"] :checked) :is(.hud-pm-pin, .hud-pm-row):not([data-t="park"]),
+.hud-pm:has(.hud-pm-chip[data-t="shop"] :checked) :is(.hud-pm-pin, .hud-pm-row):not([data-t="shop"]),
+.hud-pm:has(.hud-pm-chip[data-t="transit"] :checked) :is(.hud-pm-pin, .hud-pm-row):not([data-t="transit"]),
+.hud-pm:has(.hud-pm-chip[data-t="work"] :checked) :is(.hud-pm-pin, .hud-pm-row):not([data-t="work"]),
+.hud-pm:has(.hud-pm-chip[data-t="star"] :checked) :is(.hud-pm-pin, .hud-pm-row):not([data-t="star"]) { opacity: .28; }
+.hud-pm-ctl > label { transition: background .2s ease, color .2s ease, transform .15s ease; }
+.hud-pm-ctl > label:active { transform: scale(.88); }
+.hud-pm-layers:has(:checked) { color: #fff; background: var(--hud-phone-accent); }
+.hud-pm-follow:has(:checked) { color: #fff; background: var(--mp-me); }
+.hud-pm-follow:has(:checked) .hud-pa-ico { fill: currentColor; }
+.hud-pm-ctl > label:has(:focus-visible) { outline: 2px solid var(--hud-phone-accent); outline-offset: 1px; }
+/* Пробки — цветные отрезки поверх проспектов. */
+.hud-pm-traffic path { fill: none; stroke-width: 4.5; stroke-linecap: round; opacity: 0; transition: opacity .35s ease; }
+.hud-pm-traffic .g { stroke: #3ccf7a; stroke-dasharray: 46 64; }
+.hud-pm-traffic .o { stroke: #f0a03c; stroke-dasharray: 28 82; stroke-dashoffset: -48; }
+.hud-pm-traffic .r { stroke: #e5484d; stroke-dasharray: 20 90; stroke-dashoffset: -78; }
+.hud-pm:has(.hud-pm-layers :checked) .hud-pm-traffic path { opacity: 1; }
+.hud-pm-beam { opacity: 0; transition: opacity .3s ease; }
+.hud-pm:has(.hud-pm-follow :checked) .hud-pm-beam { opacity: 1; }
+.hud-pm-go {
+  flex: none; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  color: var(--mp-me); background: color-mix(in srgb, var(--mp-me) 14%, transparent);
+  transition: transform .15s ease, background .2s ease, color .2s ease;
+}
+.hud-pm-go .hud-pa-ico { width: 15px; height: 15px; }
+.hud-pm-go:active { transform: scale(.86); }
+.hud-pm-row:focus-within .hud-pm-go { color: #fff; background: var(--mp-me); }
+.hud-pm-row:focus-within { outline: none; }
+
+/* --- Слухи: сортировка и репост --- */
+.hud-rf-sort { display: flex; gap: 6px; margin-bottom: -2px; }
+.hud-rf-sort label {
+  display: inline-flex; align-items: center; gap: 4px; height: 26px; padding: 0 10px; border-radius: 99px;
+  font-size: 11px; font-weight: 600; line-height: 1; background: color-mix(in srgb, currentColor 7%, transparent);
+  opacity: .75; transition: background .2s ease, color .2s ease, opacity .2s ease, transform .15s ease;
+}
+.hud-rf-sort label:active { transform: scale(.94); }
+.hud-rf-sort .hud-rf-ico { width: 13px; height: 13px; }
+.hud-rf-sort label:has(:checked) { opacity: 1; color: var(--rm-acc); background: color-mix(in srgb, var(--rm-acc) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--rm-acc) 35%, transparent); }
+.hud-rf-sort label:has(.hud-rf-hot:checked) { color: #f0703c; background: color-mix(in srgb, #f0703c 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, #f0703c 35%, transparent); }
+.hud-rf-sort label:has(:focus-visible) { outline: 2px solid var(--rm-acc); outline-offset: 1px; }
+.hud-rf:has(.hud-rf-hot:checked) :is(.hud-rf-card, .hud-rf-post) { order: var(--hot, 0); }
+.hud-rf-rp { display: flex; align-items: center; gap: 4px; padding: 3px 7px; margin: -3px -7px; border-radius: 99px; opacity: .7; transition: color .2s ease, background .2s ease, opacity .2s ease; }
+.hud-rf-rp .hud-rf-score { font-size: 10.5px; font-weight: 700; }
+.hud-rf-rp .s1 { display: none; }
+.hud-rf-rp:has(:checked) { opacity: 1; color: #2fbf71; background: color-mix(in srgb, #2fbf71 14%, transparent); }
+.hud-rf-rp:has(:checked) .hud-rf-ico { animation: hud-rf-spin .5s ease; animation-play-state: running !important; }
+.hud-rf-rp:has(:checked) .s0 { display: none; }
+.hud-rf-rp:has(:checked) .s1 { display: inline; }
+@keyframes hud-rf-spin { from { transform: rotate(-180deg) scale(.7); } to { transform: none; } }
+@container hud-rf (max-width: 190px) { .hud-rf-sort label { padding: 0 8px; } }
+@container hud-pm (max-width: 190px) { .hud-pm-go { width: 24px; height: 24px; } .hud-pm-chips { top: 38px; right: 36px; } .hud-pm-chip { height: 20px; padding: 0 7px; font-size: 9.5px; } }
+@media (prefers-reduced-motion: reduce) { .hud-rf-rp:has(:checked) .hud-rf-ico { animation: none; } }
+[data-hud-phone="keypad"] .hud-pm-chips { display: none; }

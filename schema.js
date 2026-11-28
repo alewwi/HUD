@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.90.10';
-import { mapKey } from './utils.js?v=23.90.10';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.90.10';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.10';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.90.10';
+import { settings } from './settings.js?v=23.90.11';
+import { mapKey } from './utils.js?v=23.90.11';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.90.11';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.90.11';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.90.11';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -149,6 +149,11 @@ function безМеткиРаны(c) {
   return c;
 }
 
+const ЗАГЛУШКА_ИГРОКА = /^(?:user|\{\{\s*user\s*\}\}|<\s*user\s*>)$/i;
+export function имяВТелефоне(имя, игрок) {
+  return игрок && !ЗАГЛУШКА_ИГРОКА.test(игрок) && ЗАГЛУШКА_ИГРОКА.test(имя.trim()) ? игрок : имя;
+}
+
 export function normalizeJSONData(parsed) {
   parsed = normalizeHUDSchema(parsed);
   // Строка для экрана. Модель присылает заглушки («empty», «none») там, где
@@ -209,8 +214,7 @@ export function normalizeJSONData(parsed) {
   // названии чата, и в отправителе, и в получателе. Иначе «User» ещё и
   // считался владельцем телефона (msg-feed.js), и пузырь вставал не туда.
   const игрокСейчас = (() => { try { const ctx = typeof SillyTavern !== 'undefined' && SillyTavern.getContext ? SillyTavern.getContext() : null; return String((ctx && ctx.name1) || '').trim(); } catch (_) { return ''; } })();
-  const ЗАГЛУШКА_ИГРОКА = /^(?:user|\{\{\s*user\s*\}\}|<\s*user\s*>)$/i;
-  const имяЗаглушки = (v) => { const t = toStr(v).trim(); return игрокСейчас && !ЗАГЛУШКА_ИГРОКА.test(игрокСейчас) && ЗАГЛУШКА_ИГРОКА.test(t) ? игрокСейчас : toStr(v); };
+  const имяЗаглушки = (v) => имяВТелефоне(toStr(v), игрокСейчас);
   const составЗаглушки = (v) => (typeof v === 'string' ? v.split(/([;,])/).map(ч => (/^[;,]$/.test(ч) ? ч : ч.replace(/^(\s*)(.*?)(\s*)$/, (всё, а, имя, б) => а + имяЗаглушки(имя) + б))).join('') : v);
   const строкаЗаглушки = (стр) => {
     const t = toStr(стр);

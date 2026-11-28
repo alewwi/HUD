@@ -11,20 +11,22 @@
 //
 // Грузится при первом касании поля или кнопки (index.js, загрузитьПереписку).
 
-import { settings } from './settings.js?v=23.90.10';
-import { escapeHtml, getSafeUserName, имяБезПриставки } from './utils.js?v=23.90.10';
-import { G_ICONS } from './render/icons.js?v=23.90.10';
-import { msgKey, путьСнимка } from './render/msg-parts.js?v=23.90.10';
-import { разобратьСообщение } from './render/msg-feed.js?v=23.90.10';
-import { extractHudBlock, заменитьHudБлоки } from './hud-block.js?v=23.90.10';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата } from './hud-snapshot.js?v=23.90.10';
-import { английский, языкЗначенийМодели } from './i18n.js?v=23.90.10';
+import { settings } from './settings.js?v=23.90.11';
+import { escapeHtml, getSafeUserName, имяБезПриставки } from './utils.js?v=23.90.11';
+import { G_ICONS } from './render/icons.js?v=23.90.11';
+import { msgKey, путьСнимка } from './render/msg-parts.js?v=23.90.11';
+import { разобратьСообщение } from './render/msg-feed.js?v=23.90.11';
+import { extractHudBlock, заменитьHudБлоки } from './hud-block.js?v=23.90.11';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата } from './hud-snapshot.js?v=23.90.11';
+import { английский, языкЗначенийМодели } from './i18n.js?v=23.90.11';
+import { фотоПоИмени } from './avatars.js?v=23.90.11';
 import {
   этоИгрок, чатСИгроком, перехватИгрока, времяОтправки, строкаИгрока, найтиПереписку, дописатьВПереписку,
   удалитьСтрокуИгрока, промптОтвета, разобратьОтвет, применитьЗвонок, запомнитьПереписку,
   ключЧерновика, черновикИгрока, запомнитьЧерновик, сторонаСтроки,
   имяФайлаСнимка, новыеСнимки, вписатьОписанияСнимков, именаИгрока,
-} from './user-chat.js?v=23.90.10';
+  номерЗвонка, длительностьЗвонка, строкаЗвонка, промптЗвонка, разобратьЗвонок, разобратьЗвонокСТемой, запомнитьЗвонок, найтиЗвонок,
+} from './user-chat.js?v=23.90.11';
 
 // Всё нужное из index.js (геттеры — значения живые): showHudToast,
 // последнийHUD, hudНомера, разборНомера, записатьПереписку, идётОтвет,
@@ -464,6 +466,13 @@ function обновитьСтроки() {
 function картыСообщения(номер) {
   return [...document.querySelectorAll(`#chat .mes[mesid="${номер}"] .hud-os-card, .hud-side-mes[mesid="${номер}"] .hud-os-card`)];
 }
+// Где вести переписку: открытый плавающий телефон (phone-float.js) — там, где
+// игрок и пишет; иначе карточка в ленте; её нет на экране — панель сбоку.
+function картаПереписки(номер) {
+  const карты = картыСообщения(номер);
+  return карты.find(к => к.isConnected && к.closest('.hud-pf.is-open') && к.querySelector('.hud-tab[data-tab-id="phone"]'))
+    || карты.find(к => к.isConnected && !к.closest('.hud-side-mes')) || карты[0];
+}
 function телоВКарте(карта, место) {
   return [...карта.querySelectorAll('.hud-phone-subbody[data-user-chat]')].find(т => {
     const м = местоУзла(т);
@@ -504,7 +513,7 @@ async function вернутьЧат(номер, место, { поле = false, 
   // Карточка пересобирается после записи — ждём новую.
   for (let i = 0; i < 40; i++) {
     await пауза(i < 5 ? 60 : 120);
-    const карта = картыСообщения(номер).find(к => к.isConnected && !к.closest('.hud-side-mes')) || картыСообщения(номер)[0];
+    const карта = картаПереписки(номер);
     if (!карта || !карта.querySelector('.hud-tab')) continue;
     // Тихо — ответ пришёл, а игрок, может, уже в другой вкладке: не уводим.
     // Иначе открываем: вкладка строится лениво, тело чата появится после клика.
@@ -582,6 +591,12 @@ function собеседникТела(тело) {
 /* --- «+»: голосовое, фото, видео, звонок, опрос --------------------------------------- */
 
 function закрытьЛисты(корень = document) { корень.querySelectorAll('.hud-uc-sheet').forEach(л => л.remove()); }
+/** Лист уходит плавно (кнопка «Отмена», тап мимо, звонок поверх). */
+function убратьЛист(л, мс = 220) {
+  if (!л || л.classList.contains('is-closing')) return;
+  л.classList.add('is-closing');
+  setTimeout(() => л.remove(), мс);
+}
 
 function лист(тело, html) {
   закрытьЛисты();
@@ -591,8 +606,8 @@ function лист(тело, html) {
   // Лист ложится поверх своего контейнера — тот должен быть точкой отсчёта.
   if (getComputedStyle(тело).position === 'static') тело.classList.add('hud-uc-host');
   тело.appendChild(л);
-  л.addEventListener('click', (e) => { if (e.target === л) л.remove(); });
-  л.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Escape') л.remove(); });
+  л.addEventListener('click', (e) => { if (e.target === л) убратьЛист(л); });
+  л.addEventListener('keydown', (e) => { e.stopPropagation(); if (e.key === 'Escape') убратьЛист(л); });
   for (const тип of ['keyup', 'keypress']) л.addEventListener(тип, (e) => e.stopPropagation());
   const первое = л.querySelector('textarea, input');
   if (первое) setTimeout(() => { try { первое.focus({ preventScroll: true }); } catch (_) {} }, 30);
@@ -607,7 +622,7 @@ function открытьВложения(бар) {
   const место = местоУзла(бар);
   if (!место || !можноПисать(номерУзла(бар))) return;
   const группа = !!место.тело.dataset.chatGroup || место.тело.querySelector('.hud-phone-chat-area.is-group');
-  const кнопки = ВИДЫ.filter(([в]) => в !== 'poll' || группа).map(([в, ико, подпись]) =>
+  const кнопки = ВИДЫ.filter(([в]) => (в !== 'poll' || группа) && (в !== 'call' || !группа)).map(([в, ико, подпись]) =>
     `<button type="button" class="hud-uc-kind" data-uc="kind" data-kind="${в}"><span>${G_ICONS[ико] || ''}</span><small>${подпись}</small></button>`).join('');
   лист(место.тело, `<div class="hud-uc-sheet-title">Отправить</div><div class="hud-uc-kinds">${кнопки}</div>`);
 }
@@ -630,13 +645,13 @@ function формаВида(узел, вид) {
       </div>
       <label>Подпись<input class="hud-uc-f" data-f="текст" placeholder="Необязательно"></label>`,
     video: `<label>Что в кадре<textarea class="hud-uc-f" data-f="что" rows="2" placeholder="Снимаю дождь с балкона"></textarea></label><label>Подпись<input class="hud-uc-f" data-f="текст" placeholder="Необязательно"></label>`,
-    call: `<p class="hud-uc-sheet-note">Кому: ${escapeHtml(кому || 'собеседнику')}. Возьмёт ли трубку и о чём поговорите, решит модель.</p>`,
+    call: `<p class="hud-uc-sheet-note">Кому: ${escapeHtml(кому || 'собеседнику')}. Возьмёт ли трубку, решит модель.</p><label>Что хочешь сказать<textarea class="hud-uc-f" data-f="тема" rows="2" placeholder="Необязательно — например: жду у ворот, замёрзла"></textarea></label><p class="hud-uc-sheet-note">«Позвонить» — модель сразу пишет короткий разговор. «Живой звонок» — говоришь сама, реплика за репликой.</p>`,
     poll: `<label>Вопрос<input class="hud-uc-f" data-f="вопрос" placeholder="Куда идём в субботу?"></label><label>Варианты, каждый с новой строки<textarea class="hud-uc-f" data-f="варианты" rows="3"></textarea></label>`,
   }[вид];
   if (!поля) return;
   const заголовок = (ВИДЫ.find(([в]) => в === вид) || [])[2] || '';
   const л = лист(место.тело, `<div class="hud-uc-sheet-title">${G_ICONS[(ВИДЫ.find(([в]) => в === вид) || [])[1]] || ''} ${заголовок}</div>${поля}
-    <div class="hud-uc-sheet-btns"><button type="button" class="hud-uc-cancel" data-uc="sheet-close">Отмена</button><button type="button" class="hud-uc-go" data-uc="kind-send" data-kind="${вид}">${вид === 'call' ? 'Позвонить' : 'Отправить'}</button></div>`);
+    <div class="hud-uc-sheet-btns${вид === 'call' ? ' is-call' : ''}"><button type="button" class="hud-uc-cancel" data-uc="sheet-close">Отмена</button><button type="button" class="hud-uc-go" data-uc="kind-send" data-kind="${вид}">${вид === 'call' ? 'Позвонить' : 'Отправить'}</button>${вид === 'call' ? '<button type="button" class="hud-uc-go is-live" data-uc="kind-send" data-kind="call" data-live="1">Живой звонок</button>' : ''}</div>`);
   if (вид === 'photo') {
     л.dataset.mode = 'desc';
     л.querySelector('.hud-uc-file')?.addEventListener('change', (e) => { л.__сжатие = выбранаКартинка(л, e.target.files && e.target.files[0]); });
@@ -715,6 +730,8 @@ async function отправитьВид(кнопка) {
   const з = {};
   л.querySelectorAll('.hud-uc-f').forEach(п => { з[п.dataset.f] = String(п.value || '').trim(); });
   const м = { вид };
+  // Экран звонка раскрывается поверх листа — лист тает под ним.
+  if (вид === 'call') { убратьЛист(л, 480); void начатьЗвонок(место, кнопка.dataset.live ? { живой: true } : { тема: з.тема || '' }); return; }
   if (вид === 'voice') { if (!з.текст) return; м.текст = з.текст; }
   if (вид === 'photo' && л.dataset.mode === 'file') {
     // Картинка ещё сжимается (большая, медленный телефон) — дожидаемся.
@@ -895,6 +912,447 @@ async function удалить(пузырь) {
   void вернутьЧат(номер, место, {});
 }
 
+/* --- Живой звонок ------------------------------------------------------------------- */
+//
+// Экран звонка ложится поверх чата: имя, таймер, «сбросить». Сначала модель
+// решает, возьмут ли трубку; взяли — игрок говорит репликами, персонаж
+// отвечает (запрос на каждую реплику). До «сбросить» в HUD ничего не пишется:
+// весь разговор в памяти. Потом — строка звонка с исходом, длительностью и
+// итогом, расшифровка — в extra этого свайпа, коротко — в следующий ответ.
+
+let звонок = null;
+let часыЗвонка = 0;
+
+/** Контекст для модели — те же настройки, что у ответа в переписке. */
+async function контекстЗвонка(з) {
+  const ctx = основа.getStContextSafe();
+  const чат = ctx && Array.isArray(ctx.chat) ? ctx.chat : [];
+  const сообщение = чат[з.номер];
+  const { карточка, персона } = карточкаИПерсона(з.кто);
+  let снимок = '';
+  if (settings.userChatHud !== false && сообщение) {
+    try {
+      const блок = extractHudBlock(основа.текстСообщенияЧата(сообщение));
+      const объект = блок ? собратьСнимок(блок) : null;
+      if (объект) снимок = строкаСнимка(объект, решитьNSFW(объект, последниеТекстыЧата(чат, з.номер + 1)))
+        .replace(/,\s*"[^"]+"\s*:\s*(?:"<new this turn>"|\[\s*"<new this turn>"\s*\])/g, '')
+        .replace(/"[^"]+"\s*:\s*(?:"<new this turn>"|\[\s*"<new this turn>"\s*\])\s*,?/g, '');
+    } catch (_) { снимок = ''; }
+  }
+  const история = историяЧата(з.номер);
+  let лор = '';
+  if (settings.userChatLore === true) { try { лор = String(await основа.buildHudLoreContext(история) || ''); } catch (_) { лор = ''; } }
+  return { карточка, персона, снимок, история, лор };
+}
+
+async function спроситьЗвонок(этап) {
+  const з = звонок;
+  const ctx = основа.getStContextSafe();
+  const hud = основа.hudНомера(з.номер);
+  const найдено = hud && найтиПереписку(hud, з.место);
+  const к = await контекстЗвонка(з);
+  const разбор = (т) => этап === 'quick' ? разобратьЗвонокСТемой(т, { игрок: з.имена, кто: з.кто }) : разобратьЗвонок(т, { игрок: з.имена, кто: з.кто });
+  const промпт = промптЗвонка({ этап, тема: з.тема, игрок: игрок(), кто: з.кто, время: з.время, язык: языкПереписки(), ms: (найдено && найдено.ms) || [], реплики: з.реплики, ...к });
+  const рег = await основа.загрузитьПерегенерацию();
+  з.отмена = new AbortController();
+  const пределМин = Math.max(0, Number(settings.hudRegenTimeout ?? 6) || 0);
+  let молчание = 0, вышлоВремя = false;
+  const живой = () => { clearTimeout(молчание); молчание = пределМин ? setTimeout(() => { вышлоВремя = true; з.отмена.abort(); }, пределМин * 60000) : 0; };
+  живой();
+  try {
+    const лимит = Math.max(256, Math.min(16000, parseInt(settings.userChatMaxTokens ?? 2048, 10) || 2048));
+    const { текст } = await рег.запросКМодели({ stContext: ctx, сообщения: [{ role: 'user', content: промпт }], лимит, отмена: з.отмена, живой,
+      повторЕсли: (data, извлечь) => { if (!рег.обрывПоЛимиту(data)) return false; const р = разбор(рег.текстОтвета(data, извлечь)); return !(р.реплики || р.расшифровка || []).length && !р.исход; } });
+    return разбор(текст);
+  } catch (e) {
+    if (вышлоВремя) throw new Error(`провайдер не ответил за ${пределМин} мин`);
+    throw e;
+  } finally { clearTimeout(молчание); з.отмена = null; }
+}
+
+const СЛОВО_ИСХОДА = { declined: 'Звонок отклонён', missed: 'Не отвечает', answered: 'Звонок завершён' };
+const СТРЕЛКА = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5"/></svg>';
+// Сколько «звучит» реплика: волна у аватара пляшет, пока персонаж говорит.
+const звучит = (т) => Math.min(4200, 900 + String(т || '').split(/\s+/).length * 260);
+
+function репликаЗвонка(р, кто, старая) {
+  const д = document.createElement('div');
+  д.className = `hud-uc-call-line is-${р.кто === 'me' ? 'me' : 'them'}${старая ? ' is-old' : ''}`;
+  д.setAttribute('data-i18n-skip', '');
+  д.innerHTML = `<b>${escapeHtml(р.кто === 'me' ? имяБезПриставки(игрок()) : имяБезПриставки(кто))}</b><span>${escapeHtml(р.текст)}</span>`;
+  return д;
+}
+function строкаОжидания(кто) {
+  const д = document.createElement('div');
+  д.className = 'hud-uc-call-line is-them is-wait';
+  д.innerHTML = `<b data-i18n-skip>${escapeHtml(имяБезПриставки(кто))}</b><span class="hud-ask-typing"><i></i><i></i><i></i></span>`;
+  return д;
+}
+/** Что написано под именем: «Вызов…», таймер или исход. */
+export function состояниеЗвонка(з) {
+  if (з.сост === 'вызов') return 'Вызов…';
+  if (з.сост === 'разговор') return длительностьЗвонка((Date.now() - з.начало) / 1000);
+  return [СЛОВО_ИСХОДА[з.исход] || 'Звонок завершён', з.исход === 'answered' ? з.длитИтог : ''].filter(Boolean).join(' · ');
+}
+
+/**
+ * Экран звонка собирается один раз, дальше только обновляется (обновитьЭкранЗвонка):
+ * перерисовка целиком сбивала анимации, фокус и каретку. восстановлен — карточку
+ * перерисовали, экран вернулся: без анимации входа и без «новых» реплик.
+ */
+export function собратьЭкранЗвонка(з, { восстановлен = false } = {}) {
+  const э = document.createElement('div');
+  э.className = 'hud-uc-call' + (восстановлен ? ' is-restored' : '');
+  let фото = '';
+  try { фото = String(фотоПоИмени(з.кто) || ''); } catch (_) { фото = ''; }
+  const имя = имяБезПриставки(з.кто);
+  if (фото) э.style.setProperty('--uc-ava', `url("${фото.replace(/["\\\n]/g, encodeURIComponent)}")`);
+  э.innerHTML = `<div class="hud-uc-call-bg${фото ? ' has-img' : ''}" aria-hidden="true"><i></i><i></i><i></i></div>
+    <div class="hud-uc-call-top">
+      <div class="hud-uc-call-halo"><span class="hud-uc-call-ripple"></span><span class="hud-uc-call-ripple"></span><span class="hud-uc-call-ripple"></span><span class="hud-uc-call-ava${фото ? ' has-img' : ''}">${фото ? '' : escapeHtml(имя.slice(0, 1).toUpperCase())}</span></div>
+      <b class="hud-uc-call-name" data-i18n-skip>${escapeHtml(имя)}</b>
+      <small class="hud-uc-call-state"></small>
+      <span class="hud-uc-call-wave" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+    </div>
+    <div class="hud-uc-call-lines" role="log" aria-live="polite"></div>
+    <div class="hud-uc-call-bar"><textarea class="hud-uc-input hud-uc-call-input" rows="1" enterkeyhint="send" placeholder="Сказать…" aria-label="Сказать"></textarea><button type="button" class="hud-uc-call-say" data-uc="call-say" aria-label="Сказать">${СТРЕЛКА}</button></div>
+    <div class="hud-uc-call-ctl">
+      <button type="button" class="hud-uc-call-end" data-uc="call-end" aria-label="Сбросить звонок" title="Сбросить звонок">${G_ICONS.handset}</button>
+      <button type="button" class="hud-uc-call-close" data-uc="call-close">Закрыть</button>
+    </div>`;
+  const поле = э.querySelector('.hud-uc-call-input');
+  поле.value = з.черновик || '';
+  const лента = э.querySelector('.hud-uc-call-lines');
+  з.реплики.forEach(р => лента.appendChild(репликаЗвонка(р, з.кто, true)));
+  э.__строк = з.реплики.length;
+  э.__сост = з.сост;
+  обновитьЭкранЗвонка(э, з, { сразу: true });
+  return э;
+}
+
+/** Привести экран к состоянию звонка: новые реплики дописать, кнопки переключить. */
+export function обновитьЭкранЗвонка(э, з, { сразу = false } = {}) {
+  if (!э) return;
+  const было = э.__сост;
+  э.dataset.state = з.сост;
+  э.dataset.outcome = з.исход || '';
+  э.classList.toggle('is-waiting', !!з.ждёт && з.сост === 'разговор');
+  э.classList.toggle('is-held', з.сост === 'конец' && !!з.держать);
+  э.classList.toggle('has-lines', з.реплики.length > 0);
+  // Трубку взяли: короткая вспышка у аватара.
+  if (!сразу && было === 'вызов' && з.сост === 'разговор') {
+    э.classList.remove('is-connected'); void э.offsetWidth; э.classList.add('is-connected');
+    setTimeout(() => э.classList.remove('is-connected'), 900);
+  }
+  э.__сост = з.сост;
+  const сост = э.querySelector('.hud-uc-call-state');
+  const надпись = состояниеЗвонка(з);
+  // Сверяем с тем, что ставили сами: английский переводчик меняет текст узла.
+  if (сост && э.__надпись !== надпись) { э.__надпись = надпись; сост.textContent = надпись; }
+  const лента = э.querySelector('.hud-uc-call-lines');
+  let ожидание = лента.querySelector(':scope > .is-wait');
+  // Реплику забрали (не дошла до модели) — убрать и с экрана.
+  if (з.реплики.length < (э.__строк || 0)) {
+    [...лента.querySelectorAll(':scope > .hud-uc-call-line:not(.is-wait)')].slice(з.реплики.length).forEach(у => у.remove());
+    э.__строк = з.реплики.length;
+  }
+  let новыеЕго = '';
+  const сначала = э.__строк || 0;
+  for (let i = сначала; i < з.реплики.length; i++) {
+    const р = з.реплики[i];
+    const у = репликаЗвонка(р, з.кто, сразу);
+    // Пришло несколько реплик сразу (звонок с темой) — появляются по очереди.
+    const задержка = !сразу && i > сначала ? (i - сначала) * 320 : 0;
+    if (задержка) у.style.animationDelay = (задержка / 1000).toFixed(2) + 's';
+    у.__старт = performance.now() + задержка;
+    лента.insertBefore(у, ожидание || null);
+    if (р.кто !== 'me') новыеЕго = р.текст;
+  }
+  const добавлено = з.реплики.length - (э.__строк || 0);
+  э.__строк = з.реплики.length;
+  if (з.ждёт && з.сост === 'разговор' && !ожидание) { ожидание = строкаОжидания(з.кто); лента.appendChild(ожидание); }
+  else if ((!з.ждёт || з.сост !== 'разговор') && ожидание) ожидание.remove();
+  if (добавлено > 0 || з.ждёт) {
+    const вниз = () => { try { лента.scrollTo({ top: лента.scrollHeight, behavior: сразу ? 'auto' : 'smooth' }); } catch (_) { лента.scrollTop = лента.scrollHeight; } };
+    вниз(); if (!сразу) setTimeout(вниз, 60);
+  } else if (сразу) лента.scrollTop = лента.scrollHeight;
+  if (новыеЕго && !сразу && з.сост !== 'конец') {
+    э.classList.add('is-speaking');
+    clearTimeout(э.__звучит);
+    э.__звучит = setTimeout(() => э.classList.remove('is-speaking'), звучит(новыеЕго));
+  }
+  if (з.сост === 'конец') { clearTimeout(э.__звучит); э.classList.remove('is-speaking'); }
+  const сказать = э.querySelector('.hud-uc-call-say');
+  if (сказать) сказать.disabled = !!з.ждёт || з.сост !== 'разговор';
+  const поле = э.querySelector('.hud-uc-call-input');
+  if (поле) поле.disabled = з.сост !== 'разговор';
+  const конец = э.querySelector('.hud-uc-call-end');
+  if (конец) конец.disabled = з.сост === 'конец';
+  const закрыть = э.querySelector('.hud-uc-call-close');
+  if (закрыть) закрыть.disabled = !(з.сост === 'конец' && з.держать);
+}
+
+/**
+ * Карточку перерисовали (запись в HUD, ответ модели) — возвращаем ТОТ ЖЕ экран:
+ * без входа заново, с полем и кареткой; начатые реплики доигрывают с того же места.
+ */
+export function вернутьЭкранЗвонка(э) {
+  э.classList.add('is-restored');
+  const сейчас = performance.now();
+  э.querySelectorAll('.hud-uc-call-line:not(.is-old)').forEach(л => {
+    const осталось = (л.__старт ?? -1e9) - сейчас;
+    if (осталось + 400 <= 0) л.classList.add('is-old');
+    else л.style.animationDelay = (осталось / 1000).toFixed(3) + 's';
+  });
+  return э;
+}
+
+/** Экран уходит плавно; потом — прочь из разметки. */
+export function убратьЭкранПлавно(э, готово) {
+  if (!э || !э.isConnected) { if (готово) готово(); return; }
+  э.classList.add('is-leaving');
+  setTimeout(() => { э.remove(); if (готово) готово(); }, 340);
+}
+
+/** Где сейчас экран: тело переписки в карточке этого сообщения. */
+function телоЗвонка() {
+  if (!звонок) return null;
+  const карта = картаПереписки(звонок.номер);
+  return карта ? телоВКарте(карта, звонок.место) : null;
+}
+/** Экран ложится на всё приложение «Сообщения» (с шапкой), как настоящий экран звонка. */
+const хозяинЭкрана = (тело) => (тело && тело.closest('.hud-phone-app-view')) || тело;
+const экранЗвонкаВ = (тело) => { const х = хозяинЭкрана(тело); return х ? х.querySelector(':scope > .hud-uc-call') : null; };
+/** Нарисовать или обновить экран; после перерисовки карточки — вернуть на место. */
+function нарисоватьЗвонок() {
+  const з = звонок;
+  if (!з || з.уходит) return;
+  const тело = телоЗвонка();
+  if (!тело) return;
+  const хозяин = хозяинЭкрана(тело);
+  let экран = хозяин.querySelector(':scope > .hud-uc-call');
+  if (!экран) {
+    if (getComputedStyle(хозяин).position === 'static') хозяин.classList.add('hud-uc-host');
+    if (з.экран && !з.экран.isConnected) {
+      экран = вернутьЭкранЗвонка(з.экран);
+      хозяин.appendChild(экран);
+      const лента = экран.querySelector('.hud-uc-call-lines');
+      if (лента) лента.scrollTop = лента.scrollHeight;
+      обновитьЭкранЗвонка(экран, з);
+    } else {
+      экран = собратьЭкранЗвонка(з, { восстановлен: !!з.показан });
+      хозяин.appendChild(экран);
+    }
+    з.экран = экран;
+    з.показан = true;
+    if (з.фокус) { з.фокус = false; фокусЗвонка(экран); }
+    пилюляЗвонка(экран, з);
+    return;
+  }
+  const поле = экран.querySelector('.hud-uc-call-input');
+  if (поле) з.черновик = поле.value;
+  обновитьЭкранЗвонка(экран, з);
+  if (з.фокус) { з.фокус = false; фокусЗвонка(экран); }
+  пилюляЗвонка(экран, з);
+}
+/**
+ * Игрок ушёл из «Сообщений» кнопками телефона, а звонок идёт: экран спрятан
+ * вместе с приложением. Зелёная пилюля сверху телефона возвращает к звонку.
+ */
+export function пилюляЗвонка(экран, з) {
+  const эм = экран && экран.closest('.hud-phone-emulator');
+  document.querySelectorAll('.hud-uc-call-pill').forEach(п => { if (п.closest('.hud-phone-emulator') !== эм) п.remove(); });
+  if (!эм) return;
+  let п = эм.querySelector(':scope > .hud-uc-call-pill');
+  if (з.сост === 'конец' || экран.offsetParent) { if (п) п.remove(); return; }
+  if (!п) {
+    п = document.createElement('button');
+    п.type = 'button'; п.className = 'hud-uc-call-pill'; п.dataset.uc = 'call-back'; п.title = 'Вернуться к звонку';
+    п.innerHTML = `${G_ICONS.handset}<span data-i18n-skip></span>`;
+    эм.appendChild(п);
+  }
+  const т = `${имяБезПриставки(з.кто)} · ${состояниеЗвонка(з)}`;
+  if (п.__т !== т) { п.__т = т; п.querySelector('span').textContent = т; }
+}
+async function вернутьсяКЗвонку() {
+  const з = звонок;
+  if (!з || з.сост === 'конец') return;
+  const карта = картаПереписки(з.номер);
+  if (карта) await открытьЧат(карта, з.место);
+  з.фокус = true;
+  нарисоватьЗвонок();
+}
+function фокусЗвонка(экран) {
+  const поле = экран.querySelector('.hud-uc-call-input');
+  if (!поле || поле.disabled) return;
+  try { поле.focus({ preventScroll: true }); поле.setSelectionRange(поле.value.length, поле.value.length); } catch (_) {}
+}
+function убратьЭкранЗвонка() {
+  document.querySelectorAll('.hud-uc-call, .hud-uc-call-pill').forEach(э => э.remove());
+  clearInterval(часыЗвонка); часыЗвонка = 0;
+}
+
+async function начатьЗвонок(место, { живой = false, тема = '' } = {}) {
+  const номер = номерУзла(место.тело);
+  if (!можноПисать(номер)) return;
+  if (звонок && звонок.сост !== 'конец') { тост('info', 'Звонок', 'Уже идёт звонок — сначала сбрось его.'); return; }
+  if (звонок) { убратьЭкранЗвонка(); звонок = null; }
+  const hud = основа.hudНомера(номер);
+  if (!hud) { тост('error', 'Звонок', 'HUD сообщения не разобрался.'); return; }
+  const найдено = найтиПереписку(hud, место);
+  const { кто, состав } = собеседники(место, hud, найдено);
+  if (состав.length || !кто) { тост('info', 'Звонок', 'Звонить можно в личном чате.'); return; }
+  const данные = основа.разборНомера(номер);
+  const времяСцены = данные && данные.scene ? String(данные.scene['Время'] || '') : '';
+  const ctx = основа.getStContextSafe();
+  звонок = {
+    номер, место: { ...место, тело: null }, кто, имена: (место.имена && место.имена.length) ? место.имена : именаМеста(место, номер),
+    сост: 'вызов', исход: '', начало: 0, реплики: [], итог: '', черновик: '', ждёт: false, отмена: null,
+    живой, тема: String(тема || '').trim().slice(0, 600), длит: '', держать: false, показан: false,
+    время: времяОтправки(времяСцены, [...прежниеСтроки(номер, место), ...((найдено && найдено.ms) || [])]),
+    чат: чатТаверны(), свайп: свайпНомера(номер), сообщение: ctx && ctx.chat ? ctx.chat[номер] : null, сообщенияПосле: [],
+  };
+  const з = звонок;
+  нарисоватьЗвонок();
+  // Таймер и защита от перерисовки карточки: экран возвращается сам.
+  clearInterval(часыЗвонка);
+  часыЗвонка = setInterval(() => {
+    if (звонок !== з) return;
+    if (чатТаверны() !== з.чат) { убратьЭкранЗвонка(); if (з.отмена) { try { з.отмена.abort(); } catch (_) {} } звонок = null; return; }
+    // Таверна пошла дальше (новый ход, свайп, правка) — звонок уже не запишется: говорим сразу, а не после «сбросить».
+    if (!з.предупреждён && з.сост !== 'конец') {
+      const сейчас = основа.getStContextSafe()?.chat?.[з.номер];
+      if (основа.идётОтвет() || сейчас !== з.сообщение || свайпНомера(з.номер) !== з.свайп || основа.последнийHUD() !== з.номер) {
+        з.предупреждён = true;
+        тост('info', 'Звонок', 'В Таверне пошёл новый ход — этот звонок в HUD уже не запишется.');
+      }
+    }
+    // Законченный звонок с расшифровкой держится до «Закрыть» — и после перерисовки карточки.
+    if (з.сост !== 'конец' || з.держать) нарисоватьЗвонок();
+  }, 1000);
+  try {
+    const р = await спроситьЗвонок(живой ? 'pickup' : 'quick');
+    if (звонок !== з || з.сост !== 'вызов') return; // сбросили, пока звонило
+    if (!живой) {
+      // Звонок с темой: разговор пришёл целиком — сразу итог, экран держим с расшифровкой.
+      з.исход = р.исход || 'missed';
+      if (з.исход === 'answered') { з.реплики = р.расшифровка; з.итог = р.итог; з.длит = р.длит; з.держать = з.реплики.length > 0; }
+      else з.сообщенияПосле = р.сообщения;
+      return void завершитьЗвонок('они');
+    }
+    if (р.исход !== 'answered') {
+      з.исход = р.исход || 'missed';
+      з.сообщенияПосле = р.сообщения;
+      з.итог = '';
+      return void завершитьЗвонок('они');
+    }
+    з.сост = 'разговор'; з.начало = Date.now(); з.итог = р.итог; з.фокус = true;
+    р.реплики.forEach(т => з.реплики.push({ кто: 'them', текст: т }));
+    нарисоватьЗвонок();
+  } catch (e) {
+    if (звонок !== з || з.сост !== 'вызов') return;
+    // Ошибка модели — не «пропущенный звонок»: в HUD ничего не пишем, уведомление как у любой ошибки модели.
+    if (!(e && e.name === 'AbortError')) тост('error', 'Ответ не пришёл', String((e && e.message) || e));
+    з.уходит = true; clearInterval(часыЗвонка); часыЗвонка = 0;
+    убратьЭкранПлавно(экранЗвонкаВ(телоЗвонка()), () => { if (звонок === з) звонок = null; });
+  }
+}
+
+async function сказатьВЗвонке() {
+  const з = звонок;
+  if (!з || з.сост !== 'разговор' || з.ждёт) return;
+  const поле = экранЗвонкаВ(телоЗвонка())?.querySelector('.hud-uc-call-input');
+  const текст = поле ? поле.value.replace(/\s*\n+\s*/g, ' ').trim() : '';
+  if (!текст) return;
+  з.черновик = '';
+  з.реплики.push({ кто: 'me', текст });
+  з.ждёт = true; з.фокус = true;
+  if (поле) { поле.value = ''; поле.style.height = ''; }
+  нарисоватьЗвонок();
+  try {
+    const р = await спроситьЗвонок('talk');
+    if (звонок !== з || з.сост !== 'разговор') return;
+    р.реплики.forEach(т => з.реплики.push({ кто: 'them', текст: т }));
+    if (р.итог) з.итог = р.итог;
+    if (!р.реплики.length && !р.конец) тост('info', 'Звонок', `${имяБезПриставки(з.кто)} молчит — скажи ещё раз или сбрось.`);
+    з.ждёт = false; з.фокус = true;
+    нарисоватьЗвонок();
+    if (р.конец) setTimeout(() => { if (звонок === з && з.сост === 'разговор') void завершитьЗвонок('они'); }, 1600);
+  } catch (e) {
+    if (звонок !== з || з.сост !== 'разговор') return;
+    з.ждёт = false;
+    // Реплика не дошла: убираем её из разговора и возвращаем в поле — отправить ещё раз без дубля.
+    const последняя = з.реплики[з.реплики.length - 1];
+    if (последняя && последняя.кто === 'me' && последняя.текст === текст) {
+      з.реплики.pop();
+      const п = экранЗвонкаВ(телоЗвонка())?.querySelector('.hud-uc-call-input');
+      if (п && !п.value.trim()) п.value = текст;
+      else if (!п) з.черновик = текст;
+    }
+    з.фокус = true;
+    нарисоватьЗвонок();
+    if (!(e && e.name === 'AbortError')) тост('error', 'Ответ не пришёл', String((e && e.message) || e));
+  }
+}
+
+/** Конец звонка: строка в HUD, расшифровка в extra, экран — «завершён» и прочь. */
+async function завершитьЗвонок(кто) {
+  const з = звонок;
+  if (!з || з.сост === 'конец') return;
+  const былРазговор = з.сост === 'разговор' || (!з.живой && з.исход === 'answered');
+  if (з.отмена) { try { з.отмена.abort(); } catch (_) {} }
+  if (!былРазговор && !з.исход) з.исход = 'missed'; // сбросили сами, пока звонило
+  if (былРазговор) з.исход = 'answered';
+  const длит = !былРазговор ? '' : з.живой ? длительностьЗвонка((Date.now() - з.начало) / 1000) : (з.длит || '0:30');
+  з.сост = 'конец'; з.ждёт = false; з.длитИтог = длит;
+  нарисоватьЗвонок();
+  const id = былРазговор && з.реплики.length ? номерЗвонка() : '';
+  const ctx = основа.getStContextSafe();
+  const чат = ctx && Array.isArray(ctx.chat) ? ctx.chat : [];
+  const сменилось = чат[з.номер] !== з.сообщение || чатТаверны() !== з.чат || свайпНомера(з.номер) !== з.свайп || основа.последнийHUD() !== з.номер;
+  // Итог видно полторы секунды, потом экран плавно уходит. Звонок с темой держит расшифровку до «Закрыть».
+  if (!з.держать) setTimeout(() => { if (звонок !== з) return; з.уходит = true; clearInterval(часыЗвонка); часыЗвонка = 0; убратьЭкранПлавно(экранЗвонкаВ(телоЗвонка()), () => { if (звонок === з) звонок = null; }); }, 1500);
+  if (сменилось) { тост('info', 'Звонок', 'Пока шёл звонок, сообщение сменилось — звонок в HUD не записан.'); return; }
+  const hud = основа.hudНомера(з.номер);
+  const найдено = hud && найтиПереписку(hud, з.место);
+  const прежние = найдено && найдено.ms.length ? [] : прежниеСтроки(з.номер, з.место);
+  const данные = основа.разборНомера(з.номер);
+  const строка = строкаЗвонка({ игрок: игрок(), кому: з.кто, время: з.время, исход: з.исход, длит, итог: былРазговор ? з.итог : '', номер: id });
+  const строки = [строка, ...(з.сообщенияПосле || [])];
+  try {
+    await основа.записатьПереписку(з.номер, (h, message) => {
+      дописатьВПереписку(h, з.место, строки, { прежние, владелец: з.место.где === 'tp' ? '' : владелецТелефона(h, з.место.где, данные), игрок: игрок() });
+      if (id) запомнитьЗвонок(message, id, { с: з.кто, время: з.время, длит, итог: з.итог, реплики: з.реплики.map(р => ({ кто: р.кто, текст: р.текст })) });
+      запомнитьПереписку(message, { чат: подписьЧата(з.место), где: з.место.где, строки, игрок: игрок(), разговор: id ? { с: з.кто, итог: з.итог, реплики: з.реплики } : null });
+    }, null);
+  } catch (e) { тост('error', 'Звонок не записан', String((e && e.message) || e)); return; }
+  // Карточка пересобралась после записи — экран (итог или расшифровку) возвращаем сразу, без анимации входа.
+  await вернутьЧат(з.номер, з.место, { тихо: false });
+  if (звонок === з) нарисоватьЗвонок();
+}
+
+/** Расшифровка по нажатию на полосу звонка. */
+function показатьРасшифровку(узел) {
+  const номер = узел.dataset.callId;
+  const з = найтиЗвонок(основа.getStContextSafe()?.chat, номер);
+  if (!з) { тост('info', 'Звонок', 'Расшифровка этого звонка не сохранилась — она живёт в том свайпе, где звонили.'); return; }
+  document.querySelectorAll('.hud-uc-tr').forEach(о => о.remove());
+  const игр = имяБезПриставки(игрок()), он = имяБезПриставки(з.с || '');
+  const о = document.createElement('div');
+  о.className = 'hud-modal-overlay hud-uc-tr';
+  о.innerHTML = `<div class="hud-modal hud-uc-tr-box" role="dialog" aria-modal="true" aria-label="Расшифровка звонка">
+      <div class="hud-uc-tr-head">${G_ICONS.handset}<b data-i18n-skip>${escapeHtml(он || 'Звонок')}</b><small>${escapeHtml([з.время, з.длит].filter(Boolean).join(' · '))}</small></div>
+      ${з.итог ? `<div class="hud-uc-tr-sum" data-i18n-skip>${escapeHtml(з.итог)}</div>` : ''}
+      <div class="hud-uc-tr-lines">${(з.реплики || []).map(р => `<div class="hud-uc-call-line is-${р.кто === 'me' ? 'me' : 'them'}" data-i18n-skip><b>${escapeHtml(р.кто === 'me' ? игр : он)}</b><span>${escapeHtml(р.текст)}</span></div>`).join('')}</div>
+      <div class="hud-modal-foot"><button type="button" class="hud-modal-btn cancel">Закрыть</button></div>
+    </div>`;
+  document.body.appendChild(о);
+  const закрыть = () => { о.remove(); document.removeEventListener('keydown', клавиша, true); };
+  const клавиша = (e) => { if (e.key === 'Escape') { e.stopPropagation(); закрыть(); } };
+  document.addEventListener('keydown', клавиша, true);
+  о.addEventListener('click', (e) => { if (e.target === о || e.target.closest('.cancel')) закрыть(); });
+}
+
 /* --- Вход: нажатие по [data-uc] ------------------------------------------------------- */
 
 export function нажатие(узел) {
@@ -910,7 +1368,7 @@ export function нажатие(узел) {
     case 'kind': формаВида(узел, узел.dataset.kind); return;
     case 'kind-send': void отправитьВид(узел); return;
     case 'photo-mode': режимФото(узел); return;
-    case 'sheet-close': закрытьЛисты(); return;
+    case 'sheet-close': убратьЛист(узел.closest('.hud-uc-sheet')); return;
     case 'unquote': {
       const место = местоУзла(узел);
       if (место) { цитаты.delete(ключЧерновика(место.где, подписьЧата(место))); узел.closest('.hud-uc-quote')?.remove(); }
@@ -940,6 +1398,11 @@ export function нажатие(узел) {
       return;
     }
     case 'fwd-to': void переслатьВ(узел); return;
+    case 'call-say': void сказатьВЗвонке(); return;
+    case 'call-end': void завершитьЗвонок('я'); return;
+    case 'call-close': if (звонок && звонок.сост === 'конец') { const з = звонок; з.уходит = true; clearInterval(часыЗвонка); часыЗвонка = 0; убратьЭкранПлавно(узел.closest('.hud-uc-call'), () => { if (звонок === з) звонок = null; }); } return;
+    case 'call-tr': показатьРасшифровку(узел); return;
+    case 'call-back': void вернутьсяКЗвонку(); return;
     default:
   }
 }

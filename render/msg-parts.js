@@ -7,11 +7,11 @@
 // жил в phone.js, и в перехватах теги оставались сырым текстом посреди
 // сообщения просто потому, что до них не доходили руки.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.90.10';
-import { ДЛИТ } from '../units.js?v=23.90.10';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.10';
-import { G_ICONS } from './icons.js?v=23.90.10';
-import { namesLikelySame } from '../names.js?v=23.90.10';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.90.11';
+import { ДЛИТ } from '../units.js?v=23.90.11';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.90.11';
+import { G_ICONS } from './icons.js?v=23.90.11';
+import { namesLikelySame } from '../names.js?v=23.90.11';
 
 // Звонок: [CALL: исходящий, принят, 4:12]. Порядок слов внутри не важен —
 // разбираем по смыслу, а не по позиции: модели путают порядок постоянно.
@@ -125,8 +125,11 @@ export function заКадромHTML(д, время = '') {
 }
 
 /** Текст для превью и уведомлений: без служебных шапок над сообщением. */
+// Живой звонок игрока (user-chat-ui.js): в заметке звонка — ссылка
+// «(call: hud-call-…)» на расшифровку. На экране её не видно.
+const ССЫЛКА_ЗВОНКА = /\s*\(call:\s*(hud-call-[A-Za-z0-9-]+)\)/i;
 export function безШапокСообщения(строка) {
-  let p = String(строка || '');
+  let p = String(строка || '').replace(ССЫЛКА_ЗВОНКА, '').trim();
   const by = parseBy(p);
   if (by) p = p.replace(by.tag, '').trim();
   const forward = parseForward(p);
@@ -333,14 +336,17 @@ export function buildCallRow(rawMessage, { sender = '', time = '', outgoing = fa
   const call = parseCall(rawMessage);
   if (!call) return '';
   const dir = call.dir || (outgoing ? 'out' : 'in');
+  const номер = (String(rawMessage || '').match(ССЫЛКА_ЗВОНКА) || [])[1] || '';
   const note = безШапокСообщения(String(rawMessage || '').replace(call.tag, '').trim());
-  return `<div class="hud-call-row is-${call.outcome} dir-${dir}">
+  // Есть расшифровка — полоса открывает её (user-chat-ui.js, data-uc="call-tr").
+  const открыть = номер ? ` data-uc="call-tr" data-call-id="${escapeHtml(номер)}" role="button" tabindex="0" title="Расшифровка звонка"` : '';
+  return `<div class="hud-call-row is-${call.outcome} dir-${dir}${номер ? ' has-transcript' : ''}"${открыть}>
       <span class="hud-call-ico">${call.outcome === 'missed' ? G_ICONS.callMiss : dir === 'out' ? G_ICONS.callOut : G_ICONS.callIn}</span>
       <span class="hud-call-body">
         <b>${dir === 'out' ? 'Исходящий' : 'Входящий'} — ${escapeHtml(CALL_WORD[call.outcome])}</b>
         <small>${defeatWI(escapeHtml(sender))}${call.dur ? ' · ' + ДЛИТ + escapeHtml(call.dur) : ''}${note ? ' · ' + defeatWI(escapeHtml(note)) : ''}</small>
       </span>
-      ${time ? `<span class="hud-call-time">${escapeHtml(time)}</span>` : ''}
+      ${time ? `<span class="hud-call-time">${escapeHtml(time)}</span>` : ''}${номер ? `<span class="hud-call-tr" aria-hidden="true">${G_ICONS.chat}</span>` : ''}
     </div>`;
 }
 

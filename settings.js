@@ -113,6 +113,12 @@ export const defaultSettings = {
   // кадром), 'present' — того, за кем идёт сюжет; у каждого владельца свой;
   // 'both' — телефон {{char}} за кадром и второй (phx) того, за кем сюжет.
   phoneWhenCharAway: 'char',
+  // Плавающая кнопка телефона (phone-float.js): 'off' — телефон только во
+  // вкладке HUD; 'both' — кнопка и вкладка; 'only' — только кнопка, вкладки
+  // «Телефон» в карточке нет. Место кнопки — доли окна, своё у узкого и
+  // широкого экрана: { wide: {x, y}, narrow: {x, y} }; null — у правого края.
+  phoneFloat: 'off',
+  phoneFloatPos: null,
   enableIntercepts: true,
   enableDiary: true,
   // Сколько за ход (Глубокая настройка → Сколько за ход, deep-fields.js):
@@ -290,6 +296,11 @@ export const defaultSettings = {
   enableCombat: true,
   combatPrompt: 'auto',
   enableUnderwear: false,
+  // Мужские пары: игрок — мужчина. В промте у него нет женской анатомии
+  // (цикл, беременность, послеродовое, грудь, влага), в близости есть анус —
+  // и у персонажа, когда его берут сзади. Выключено — блок близости как
+  // раньше, без ануса.
+  malePairs: false,
   underwearView: 'set',
   underwearVeil: true,
   enableLife: true,

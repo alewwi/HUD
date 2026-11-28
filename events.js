@@ -16,31 +16,31 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.90.10';
-import { уверены } from './confirm-erase.js?v=23.90.10';
-import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.90.10';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.90.10';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.90.10';
-import { прикрытьСырой } from './raw-guard.js?v=23.90.10';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.90.10';
-import { кнопкиПузыря } from './render/messenger.js?v=23.90.10';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.90.10';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.90.10';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.90.10';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.90.10';
-import { полныйПорядок } from './tabs-order.js?v=23.90.10';
-import { getWorldVotes } from './render/world.js?v=23.90.10';
-import { действиеМира } from './render/world-views.js?v=23.90.10';
-import { действиеМузыки } from './render/music.js?v=23.90.10';
-import { раскрытьПорцию } from './render/long-list.js?v=23.90.10';
-import { прогретьИсторию } from './render/carryover.js?v=23.90.10';
-import { подключитьПалитру } from './color-picker.js?v=23.90.10';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.90.10';
-import { замер } from './utils.js?v=23.90.10';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.90.10';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.90.10';
-import { пометитьЭффекты } from './render/fx.js?v=23.90.10';
-import { ID_ТАВЕРНЫ, кнопкаТаверныHTML, сброситьСлежку } from './tavern-theme.js?v=23.90.10';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.90.11';
+import { уверены } from './confirm-erase.js?v=23.90.11';
+import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.90.11';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.90.11';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.90.11';
+import { прикрытьСырой } from './raw-guard.js?v=23.90.11';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.90.11';
+import { кнопкиПузыря } from './render/messenger.js?v=23.90.11';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.90.11';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.90.11';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.90.11';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.90.11';
+import { полныйПорядок } from './tabs-order.js?v=23.90.11';
+import { getWorldVotes } from './render/world.js?v=23.90.11';
+import { действиеМира } from './render/world-views.js?v=23.90.11';
+import { действиеМузыки } from './render/music.js?v=23.90.11';
+import { раскрытьПорцию } from './render/long-list.js?v=23.90.11';
+import { прогретьИсторию } from './render/carryover.js?v=23.90.11';
+import { подключитьПалитру } from './color-picker.js?v=23.90.11';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.90.11';
+import { замер } from './utils.js?v=23.90.11';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.90.11';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.90.11';
+import { пометитьЭффекты } from './render/fx.js?v=23.90.11';
+import { ID_ТАВЕРНЫ, кнопкаТаверныHTML, сброситьСлежку } from './tavern-theme.js?v=23.90.11';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -913,7 +913,8 @@ export function initGlobalEvents(ctx) {
     // Строка списка чатов и карточка уведомления открывают конкретную
     // переписку: id её тела совпадает с data-chat-target. Уведомление лежит
     // на домашнем экране, поэтому сначала поднимаем само приложение.
-    const chatRow = e.target.closest('.hud-phone-chat-row, .hud-phone-notif, .hud-phone-lock-notice');
+    // «Избранное» и «Написать» в «Контактах» (render/phone-apps.js) — тоже: из чужого приложения.
+    const chatRow = e.target.closest('.hud-phone-chat-row, .hud-phone-notif, .hud-phone-lock-notice, .hud-pc-msg');
     if (chatRow && chatRow.dataset.chatTarget) {
       e.preventDefault();
       const emulator = chatRow.closest('.hud-phone-emulator');
@@ -922,9 +923,10 @@ export function initGlobalEvents(ctx) {
       // открываем переписку — как на настоящем телефоне. Своей стопки у
       // него нет, поэтому приложение известно заранее: «Сообщения».
       const fromLock = chatRow.classList.contains('hud-phone-lock-notice');
+      const fromContacts = chatRow.classList.contains('hud-pc-msg');
       if (fromLock && emulator) emulator.classList.add('unlocked');
       let view = chatRow.closest('.hud-phone-app-view');
-      if (emulator && (stack || fromLock)) {
+      if (emulator && (stack || fromLock || fromContacts)) {
         const appId = stack ? stack.dataset.phoneApp : 'messages';
         emulator.querySelectorAll('.hud-phone-app-view').forEach(v => {
           v.classList.toggle('active', v.dataset.phoneView === appId);
@@ -2055,7 +2057,7 @@ function семьяЖесты(граф) {
   });
 }
 
-const ОЖИВАЮТ_ПО_КАСАНИЮ = ".hud-tempo, .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-row, .hud-heat, .hud-cycle, .hud-secret-summary, .hud-fam-svg, .hud-phone-app, .hud-phone-lockscreen, .hud-mood-group, .hud-scene-strip-wrap";
+const ОЖИВАЮТ_ПО_КАСАНИЮ = ".hud-tempo, .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-pc-row, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-ps-row, .hud-phone-map-row, .hud-row, .hud-heat, .hud-cycle, .hud-secret-summary, .hud-fam-svg, .hud-phone-app, .hud-phone-lockscreen, .hud-mood-group, .hud-scene-strip-wrap";
 const таймерыОживления = new WeakMap();
 // fx-tap — переключатель: первое касание оживляет, второе замораживает
 // движение там, где оно было (css: .fx-hold без касания — на паузе).

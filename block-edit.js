@@ -12,9 +12,9 @@
 // значение, сообщение и путь; как найти блок по тексту на экране. Окно —
 // block-edit-ui.js, запись в чат — index.js.
 
-import { КАТАЛОГ } from './deep-fields.js?v=23.90.10';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.90.10';
-import { раныВкл, гуморыВкл } from './render/medieval-life.js?v=23.90.10';
+import { КАТАЛОГ } from './deep-fields.js?v=23.90.11';
+import { разобратьАдресСообщения, mapKey, имяБезПриставки } from './utils.js?v=23.90.11';
+import { раныВкл, гуморыВкл } from './render/medieval-life.js?v=23.90.11';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const ПУСТО = /^(?:|empty|none|null|n\/a|нет|-|—)$/i;
@@ -49,6 +49,18 @@ export function положить(hud, путь, значение) {
   у[последний] = значение;
   return true;
 }
+/** Удаляет значение именно из этой записи. Элементы массива сдвигаются без дыр. */
+export function удалитьПоПути(hud, путь) {
+  if (!путь.length) return false;
+  const родитель = взять(hud, путь.slice(0, -1)), ключ = путь.at(-1);
+  if (!родитель || typeof родитель !== 'object' || !Object.hasOwn(родитель, ключ)) return false;
+  if (Array.isArray(родитель)) {
+    if (!Number.isInteger(ключ)) return false;
+    родитель.splice(ключ, 1);
+  } else delete родитель[ключ];
+  return true;
+}
+
 export const ключПути = (путь) => JSON.stringify(путь);
 
 /* --- Подписи ------------------------------------------------------------------ */
@@ -307,9 +319,10 @@ export function разобратьСообщениеПравки(сырое) {
     else if (хвост.length === 1 && !хвост[0]) хвост.pop();
     if (хвост.length) тело += ' / ' + хвост.join(' / ');
   }
-  const кто = тело.match(/^([^:[\]]+?)(?:\s*(?:->|→)\s*([^:[\]]+?))?\s*:\s*([\s\S]*)$/);
-  if (кто) { м.от = кто[1].trim(); м.кому = (кто[2] || '').trim(); тело = кто[3]; }
-  тело = тело.trim();
+  const адрес = разобратьАдресСообщения(тело.trim());
+  м.от = адрес.sender;
+  м.кому = адрес.recipient;
+  тело = адрес.body;
   // Теги в начале — шапки и вид; незнакомые сохраняем как есть.
   for (let т = тело.match(ТЕГ); т; т = тело.match(ТЕГ)) {
     const внутри = т[1];
@@ -398,6 +411,7 @@ export function собратьСообщение(м) {
  *  сообщение · объект · записи (массив объектов).
  */
 export function формаЗначения(путь, значение) {
+  if (путь[0] === 'phx' && путь[1] === 'cm') return формаЗначения(путь.slice(1), значение);
   const корень = путь[0];
   const ключ = путь[путь.length - 1];
   const родитель = путь[путь.length - 2];

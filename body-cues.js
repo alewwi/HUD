@@ -21,12 +21,12 @@
 // «После» в следующие ходы — пока nsfwPrompt не «никогда», как нейтральная
 // история близости в prompt.js.
 
-import { ручнойПол } from './manual-gender.js?v=23.90.10';
-import { settings } from './settings.js?v=23.90.10';
-import { полеВкл } from './deep-fields.js?v=23.90.10';
-import { flattenFieldValue } from './utils.js?v=23.90.10';
-import { namesLikelySame } from './names.js?v=23.90.10';
-import { старина } from './era.js?v=23.90.10';
+import { ручнойПол } from './manual-gender.js?v=23.90.11';
+import { settings } from './settings.js?v=23.90.11';
+import { полеВкл } from './deep-fields.js?v=23.90.11';
+import { flattenFieldValue } from './utils.js?v=23.90.11';
+import { namesLikelySame } from './names.js?v=23.90.11';
+import { старина } from './era.js?v=23.90.11';
 
 const стр = (v) => String(flattenFieldValue(v) ?? '').trim();
 const ЗАГЛУШКА = /^(?:[\d\s.,:;%\/—–-]|empty|none|null|нет|пусто|n\/a)*$/iu;
@@ -109,7 +109,8 @@ function состояние(з, игрок, имя, общее) {
   const тело = вкл('enableBodyState') && пол('Bs');
   const bs = (код) => (тело && пол('Bs.' + код) ? метка(з.Bs, код) : null);
   const ill = вкл('enableIllness') && пол('Ill') ? стр(з.Ill) : '';
-  const вручную = ручнойПол(игрок ? 'user' : 'char:' + String(з.N || имя).trim());
+  // «👬 Мужские пары» — игрок мужчина: женских примет у него нет.
+  const вручную = ручнойПол(игрок ? 'user' : 'char:' + String(з.N || имя).trim()) || (игрок && settings.malePairs === true ? 'm' : '');
   const цикл = вручную !== 'm' && вкл('enableMenstruation') && пол('Mns') ? стр(з.Mns) : '';
   const берем = вручную !== 'm' && вкл('enablePregnancy') && пол('Prg') ? стр(з.Prg) : '';
   const pp = вручную !== 'm' && вкл('enablePregnancy') && пол('Pp') ? стр(з.Pp) : '';

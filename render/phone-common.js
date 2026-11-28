@@ -4,11 +4,11 @@
 // сообщения и сбор собеседников по строкам переписки. Лежит отдельно,
 // чтобы ни один из двух модулей не пришлось объявлять главным.
 
-import { нужноПолноеИмя } from '../korean-names.js?v=23.90.10';
-import { escapeHtml, defeatWI, инициалыИмени } from '../utils.js?v=23.90.10';
-import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.90.10';
-import { namesLikelySame } from '../names.js?v=23.90.10';
-import { G_ICONS } from './icons.js?v=23.90.10';
+import { нужноПолноеИмя } from '../korean-names.js?v=23.90.11';
+import { разобратьАдресСообщения, escapeHtml, defeatWI, инициалыИмени } from '../utils.js?v=23.90.11';
+import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.90.11';
+import { namesLikelySame } from '../names.js?v=23.90.11';
+import { G_ICONS } from './icons.js?v=23.90.11';
 
 // Обращения без адресата: такие имена в собеседники не годятся.
 const GENERIC_PARTY = /^(все|всем|all|everyone|группа|group|чат|chat|вы|you|user|я|me)$/i;
@@ -101,7 +101,6 @@ export function collectCounterparts(messages, owner) {
 // Нужен и рендеру, и определению собеседника, поэтому вынесен наверх.
 export function parseMsgParties(msgStr) {
   const main = String(msgStr).split('|')[0].replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim();
-  const m = main.match(/^([^:]+?)(?:\s*(?:->|→)\s*([^:]+))?:\s*(.*)$/);
-  if (!m) return { sender: '', recipient: '' };
-  return { sender: (m[1] || '').trim(), recipient: (m[2] || '').trim() };
+  const { sender, recipient } = разобратьАдресСообщения(main);
+  return { sender, recipient };
 }

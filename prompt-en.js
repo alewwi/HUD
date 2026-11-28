@@ -47,6 +47,8 @@ const ЗАМЕНЫ = [
 
   // Персонаж.
   ["'М' or 'Ж'", "'M' or 'F'"],
+  ["'м' (мужчина) or 'ж' (женщина)", "'m' (male) or 'f' (female)"],
+  ["'м' — {{user}} is a man", "'m' — {{user}} is a man"],
   ['голова, грудь, спина, левое плечо, правое бедро…', 'head, chest, back, left shoulder, right thigh…'],
   ['14:30 - встреча с юристом', '14:30 - meeting with a lawyer'],
   ['Павел: муж, любит, но боится', 'Pavel: husband, loves him but is afraid of him'],

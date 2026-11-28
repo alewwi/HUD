@@ -17,11 +17,11 @@
 // Конечный вид рисуется сразу, без анимации появления: HUD держит анимации
 // на паузе, пока на вид не навели мышь или не нажали (css/views.css).
 
-import { имяДляВкладки } from '../utils.js?v=23.90.10';
-import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.90.10';
-import { лицоЧеловека as лицо } from './views.js?v=23.90.10';
-import { ико } from './view-icons.js?v=23.90.10';
-import { градусы } from '../units.js?v=23.90.10';
+import { имяДляВкладки } from '../utils.js?v=23.90.11';
+import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.90.11';
+import { лицоЧеловека as лицо } from './views.js?v=23.90.11';
+import { ико } from './view-icons.js?v=23.90.11';
+import { градусы } from '../units.js?v=23.90.11';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -95,13 +95,13 @@ function приметыСтраницы(семья, r, ключ = '') {
  *  Погода записи — на самой странице: сердечки на полях, солнце с искрами,
  *  луна, разводы от слёз, рваный край и злые росчерки, клякса страха,
  *  смятый угол, терновник. */
-function дневникРазворот(записи) {
+function дневникРазворот(записи, подпись) {
   return `<div class="hud-v hud-jv hud-jv-book">` + записи.map((з, i) => {
     const семья = семьяНастроения(з.ключ);
     const r = сид(з.время + з.автор + з.ключ, i);
     const моно = инициалыИмени(з.автор || '?', 2) || '·';
     const уголок = з.оНей ? `<div class="hud-jv-bk-fold hud-sv is-closed" role="button" tabindex="0" aria-expanded="false"><i class="corner" aria-hidden="true"></i>`
-      + `<small class="lbl">${ико('book')}<span>о ней</span></small><div class="txt hud-jv-mtext" data-i18n-skip>${з.оНей}</div><span class="hint">загнутый уголок — отогни</span></div>` : '';
+      + `<small class="lbl">${ико('book')}<span>${escapeHtml(подпись.toLowerCase())}</span></small><div class="txt hud-jv-mtext" data-i18n-skip>${з.оНей}</div><span class="hint">загнутый уголок — отогни</span></div>` : '';
     return `<article class="hud-jv-bk-page hud-diary-mood-${з.ключ} is-m-${семья}" style="--jv-h:${оттенокНастроения(з.ключ)}">`
       + `<i class="hud-jv-bk-spine" aria-hidden="true"></i><i class="hud-jv-bk-edge" aria-hidden="true"></i>`
       + `<span class="hud-jv-bk-wm" aria-hidden="true">${ико(з.значок || 'heart')}</span>${приметыСтраницы(семья, r, з.ключ)}`
@@ -119,10 +119,10 @@ function дневникРазворот(записи) {
  *  настроение строкой, комментарии закрыты; «о ней» — скрытый пост под
  *  размытием. Погода — в шапке поста: сердечки всплывают, конфетти, мягкие
  *  огни, дождь, тревожная полоса, помехи, румянец, дым. */
-function дневникБлог(записи) {
+function дневникБлог(записи, подпись) {
   return `<div class="hud-v hud-jv hud-jv-blog">` + записи.map((з) => {
     const семья = семьяНастроения(з.ключ);
-    const скрытый = з.оНей ? `<div class="hud-jv-bl-hidden hud-sv is-closed" role="button" tabindex="0" aria-expanded="false"><div class="bar">${ико('lock')}<b>скрытая запись</b><small>о ней</small></div>`
+    const скрытый = з.оНей ? `<div class="hud-jv-bl-hidden hud-sv is-closed" role="button" tabindex="0" aria-expanded="false"><div class="bar">${ико('lock')}<b>скрытая запись</b><small>${escapeHtml(подпись.toLowerCase())}</small></div>`
       + `<div class="txt" data-i18n-skip>${з.оНей}</div><span class="hint">нажми, чтобы показать</span></div>` : '';
     return `<article class="hud-jv-bl-post hud-diary-mood-${з.ключ} is-m-${семья}" style="--jv-h:${оттенокНастроения(з.ключ)}">`
       + `<i class="hud-jv-bl-fx" aria-hidden="true">${Array.from({ length: 7 }, (_, k) => `<b style="--k:${k}"></b>`).join('')}</i>`
@@ -140,11 +140,11 @@ function дневникБлог(записи) {
  *  настроение красной половиной ленты, мигающая каретка; «о ней» забито
  *  иксами, пока не нажмёшь. Погода — в самой печати: лента другого цвета,
  *  выцветшая лента, удары до дыр, двоящиеся буквы, замазка корректора. */
-function дневникМашинка(записи) {
+function дневникМашинка(записи, подпись) {
   return `<div class="hud-v hud-jv hud-jv-type">` + записи.map((з, i) => {
     const семья = семьяНастроения(з.ключ);
     const r = сид(з.время + з.автор, i);
-    const иксы = з.оНей ? `<div class="hud-jv-tp-xx hud-sv is-closed" role="button" tabindex="0" aria-expanded="false"><span class="lbl">P.S. о ней:</span>`
+    const иксы = з.оНей ? `<div class="hud-jv-tp-xx hud-sv is-closed" role="button" tabindex="0" aria-expanded="false"><span class="lbl">P.S. ${escapeHtml(подпись.toLowerCase())}:</span>`
       + `<span class="txt" data-i18n-skip>${з.оНей}</span><span class="hint">забито иксами — нажми</span></div>` : '';
     // Замазка корректора — на полях внизу листа, слов не закрывает.
     const приметы = семья === 'shame' ? [0, 1].map(k => `<i class="wo" style="--x:${Math.round(k ? 66 + r() * 12 : 8 + r() * 14)}%;--w:${Math.round(22 + r() * 18)}px" aria-hidden="true"></i>`).join('')
@@ -158,11 +158,11 @@ function дневникМашинка(записи) {
   }).join('') + `</div>`;
 }
 
-export function видДневника(записи, вид) {
+export function видДневника(записи, вид, подпись = 'Об игроке') {
   if (!Array.isArray(записи) || !записи.length) return '';
-  if (вид === 'book') return дневникРазворот(записи);
-  if (вид === 'blog') return дневникБлог(записи);
-  if (вид === 'type') return дневникМашинка(записи);
+  if (вид === 'book') return дневникРазворот(записи, подпись);
+  if (вид === 'blog') return дневникБлог(записи, подпись);
+  if (вид === 'type') return дневникМашинка(записи, подпись);
   return '';
 }
 
@@ -258,7 +258,7 @@ const ТЕГИ = [
 ];
 export function строкаПротокола(текст) {
   let вложение = '';
-  const s = String(текст || '').replace(/\[([A-Za-zА-Яа-яЁё]+)(?:_(\d{1,2}:\d{2}))?\s*(?::\s*([^\]]*))?\]/g, (всё, тег, длина, суть) => {
+  const s = String(текст || '').replace(/\s*\(call:\s*hud-call-[^)]*\)/gi, '').replace(/\[([A-Za-zА-Яа-яЁё]+)(?:_(\d{1,2}:\d{2}))?\s*(?::\s*([^\]]*))?\]/g, (всё, тег, длина, суть) => {
     const т = ТЕГИ.find(([re]) => re.test(тег));
     if (!т) return всё;
     if (!вложение && !/^(?:в ответ|писал\(а\))$/.test(т[1])) вложение = т[1];

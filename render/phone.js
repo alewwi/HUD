@@ -6,24 +6,25 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.90.10';
-import { форматВремени } from '../units.js?v=23.90.10';
-import { английский } from '../i18n.js?v=23.90.10';
-import { settings } from '../settings.js?v=23.90.10';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.90.10';
-import { G_ICONS } from './icons.js?v=23.90.10';
-import { значокПриложения, естьНабор } from './phone-icons.js?v=23.90.10';
-import { buildMessengerHTML } from './messenger.js?v=23.90.10';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.90.10';
-import { безШапокСообщения } from './msg-parts.js?v=23.90.10';
-import { сортироватьЧаты, непрочитанные, времяВСписке, моментПоследнего } from './msg-feed.js?v=23.90.10';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.90.10';
-import { buildCalendarApp } from './calendar.js?v=23.90.10';
-import { приложениеМузыки } from './music.js?v=23.90.10';
-import { временаСлухов, ключСлуха } from './rumor-times.js?v=23.90.10';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.90.11';
+import { форматВремени } from '../units.js?v=23.90.11';
+import { английский } from '../i18n.js?v=23.90.11';
+import { settings } from '../settings.js?v=23.90.11';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.90.11';
+import { G_ICONS } from './icons.js?v=23.90.11';
+import { значокПриложения, естьНабор } from './phone-icons.js?v=23.90.11';
+import { buildMessengerHTML } from './messenger.js?v=23.90.11';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем } from './phone-common.js?v=23.90.11';
+import { безШапокСообщения } from './msg-parts.js?v=23.90.11';
+import { разобратьСообщение, сортироватьЧаты, непрочитанные, времяВСписке, моментПоследнего } from './msg-feed.js?v=23.90.11';
+import { buildWeatherApp, buildCallsApp, buildHealthApp } from './phone-extra.js?v=23.90.11';
+import { buildContactsApp, buildSearchApp, buildMapsApp } from './phone-apps.js?v=23.90.11';
+import { buildCalendarApp } from './calendar.js?v=23.90.11';
+import { приложениеМузыки } from './music.js?v=23.90.11';
+import { временаСлухов, ключСлуха } from './rumor-times.js?v=23.90.11';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.90.10';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.90.11';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -152,23 +153,42 @@ function buildWalletApp(wallet, owner) {
 // --- Календарь ---------------------------------------------------------------
 // Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
 // (render/medieval.js).
-export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.90.10';
-import { ближайшиеДела } from './calendar.js?v=23.90.10';
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.90.11';
+import { ближайшиеДела } from './calendar.js?v=23.90.11';
 
 // Слухи города: то, что модель и так пишет в мир, — последние десять, свежие
-// сверху. Два раздела вкладками (радиокнопками, без скриптов): «Говорят» —
-// облачка шёпота, чем старше слух, тем бледнее; «Пишут в сети» — лента постов.
+// сверху. Экран — анонимная лента соцсети. Два раздела вкладками
+// (радиокнопками, без скриптов): «Говорят» — цветные карточки, как в
+// анонимных городских лентах, с голосом ▲▼; «Пишут в сети» — посты с
+// ответами, репостами и сердцем. Голос и сердце нажимаются (radio/checkbox,
+// без скриптов): число прибавляется на единицу. Счётчики — из текста записи,
+// одно и то же у одной записи; это убранство, модель их не пишет.
 // Автор поста скрыт до нажатия, поэтому и аватарка — не по нику, а по тексту.
 const ШЁПОТ = '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2c0-3.5 3.3-6.2 7.6-6.2s7.6 2.7 7.6 6.2-3.3 6.2-7.6 6.2c-.9 0-1.8-.1-2.6-.4L5 19l1.1-3.3A5.8 5.8 0 0 1 4 11.2Z"/><path d="M8.6 11.3h.01M11.6 11.3h.01M14.6 11.3h.01" stroke-width="2.4" stroke-linecap="round"/></svg>';
 // Аноним в ленте: голова по центру круга, плечи уходят за нижний край —
 // как пустая аватарка в любой соцсети. Свой рисунок, а не значок «person»:
 // тот мелкий и висел ниже центра.
-const СИЛУЭТ = '<svg class="hud-post-sil" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="11" r="5.2"/><path d="M3.6 29.5c.7-6.6 4.9-10.4 10.4-10.4s9.7 3.8 10.4 10.4z"/></svg>';
-const КАВЫЧКА = '<svg class="hud-rumor-q" viewBox="0 0 24 18" aria-hidden="true"><path d="M2 18V10.6C2 5.2 4.6 1.6 9.6 0l1 2.2C7.8 3.4 6.6 5.4 6.5 8.2H10.4V18Zm12.6 0V10.6c0-5.4 2.6-9 7.6-10.6l1 2.2c-2.8 1.2-4 3.2-4.1 6h3.9V18Z"/></svg>';
+const СИЛУЭТ = '<svg class="hud-rf-sil" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="11" r="5.2"/><path d="M3.6 29.5c.7-6.6 4.9-10.4 10.4-10.4s9.7 3.8 10.4 10.4z"/></svg>';
+const РФ = (тело) => `<svg class="hud-rf-ico" viewBox="0 0 24 24" aria-hidden="true">${тело}</svg>`;
+const РФ_И = {
+  up: РФ('<path d="m6 14.5 6-6 6 6"/>'),
+  down: РФ('<path d="m6 9.5 6 6 6-6"/>'),
+  reply: РФ('<path d="M20 11.6c0 4-3.6 7-8 7-1.2 0-2.3-.2-3.3-.6L4 19.5l1.3-3.7C4.5 14.6 4 13.2 4 11.6c0-4 3.6-7 8-7s8 3 8 7z"/>'),
+  repost: РФ('<path d="M7 18.5 4 15.5l3-3"/><path d="M4 15.5h11a4 4 0 0 0 4-4V10"/><path d="m17 5.5 3 3-3 3"/><path d="M20 8.5H9a4 4 0 0 0-4 4V14"/>'),
+  heart: РФ('<path d="M12 19.5s-7.5-4.4-7.5-10A4.3 4.3 0 0 1 12 6.8a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10-7.5 10z"/>'),
+  pin: РФ('<path d="M12 20.5s6.5-5.6 6.5-10.8a6.5 6.5 0 0 0-13 0c0 5.2 6.5 10.8 6.5 10.8z"/><circle cx="12" cy="9.8" r="2.4"/>'),
+  fire: РФ('<path d="M12 20.5c3.6 0 6-2.4 6-5.7 0-3.4-2.5-5.2-3.4-8.3-1.6 1.2-2.4 2.7-2.4 4.3-1.2-.8-1.9-2-2-3.6C7.8 8.8 6 11.4 6 14.8c0 3.3 2.4 5.7 6 5.7z"/>'),
+  bolt: РФ('<path d="M13 3.5 5.5 13.5H12l-1 7 7.5-10H12z"/>'),
+};
+// Цвета карточек «Говорят»: насыщенные, но не светлые — белый текст читается
+// и на тёмной, и на светлой теме.
+const ЦВЕТА_СЛУХОВ = [['#e0607e', '#b8405f'], ['#ee8a3a', '#c9631d'], ['#3d9fd4', '#2677ad'], ['#4caf6a', '#2f8a4c'], ['#9468e3', '#6f45c4'], ['#d0942a', '#a36d12'], ['#2fb2a8', '#1b8a82']];
+// Число на счётчике и оно же +1 (−1): какое видно, решает отмеченная кнопка.
+const счёт = (n, ...ещё) => [n, ...ещё].map((v, i) => `<b class="s${i}">${v}</b>`).join('');
 // Время записей — render/rumor-times.js: дата и час хода, где запись
 // появилась впервые, минуты и секунды — свои у каждой, не позже того хода.
 // Списки идут от свежих к старым по этому времени.
-function buildRumorsApp(rumors, talk, uid = '', { впервые = null, сцена = null, запомнить = true } = {}) {
+function buildRumorsApp(rumors, talk, uid = '', { впервые = null, сцена = null, запомнить = true, место = '' } = {}) {
   const сырыеСлухи = (Array.isArray(rumors) ? rumors : []).filter(Boolean).slice(-10).reverse();
   const сырыеРечи = (Array.isArray(talk) ? talk : []).filter(Boolean).slice(-10).reverse();
   if (!сырыеСлухи.length && !сырыеРечи.length) return emptyApp(G_ICONS.chat, 'Город пока молчит');
@@ -177,33 +197,58 @@ function buildRumorsApp(rumors, talk, uid = '', { впервые = null, сце�
   const поВремени = (список) => список.map((с, i) => ({ с, i, в: времена.get(ключСлуха(с)) || null }))
     .sort((a, b) => (a.в && b.в ? (b.в.ход - a.в.ход) || (b.в.секунды - a.в.секунды) || (a.i - b.i) : a.i - b.i));
   const слухи = поВремени(сырыеСлухи), речи = поВремени(сырыеРечи);
-  const метка = (в) => в ? `<time class="hud-rumor-time">${escapeHtml([в.дата, в.время].filter(Boolean).join(' · '))}</time>` : '';
-  // Старые слухи остывают: прозрачность по возрасту, свежий — с меткой.
-  const карточкиСлухов = слухи.map(({ с, в }, i) => `<li class="hud-rumor${i ? '' : ' is-fresh'}${i % 2 ? ' is-right' : ''}" style="--age:${Math.min(i, 6)}">${КАВЫЧКА}${i ? '' : '<span class="hud-rumor-new">свежее</span>'}<p>${defeatWI(escapeHtml(String(с)))}</p>${метка(в)}</li>`).join('');
-  const карточкиРечей = речи.map(({ с, в }) => {
+  const id = 'hud-rumors-' + (uid || hudHashSeed(сырыеСлухи.join('|') + сырыеРечи.join('|')).toString(36));
+  // В ленте секунды лишние: «12.03 · 20:58», полное время — в подсказке.
+  const метка = (в) => { if (!в) return ''; const полное = [в.дата, в.время].filter(Boolean).join(' · '); return `<time class="hud-rf-time" title="${escapeHtml(полное)}">${escapeHtml(полное.replace(/(\d{1,2}:\d{2}):\d{2}$/, '$1'))}</time>`; };
+
+  const карточкиСлухов = слухи.map(({ с, в }, i) => {
+    const т = String(с), з = hudHashSeed(т);
+    const [c1, c2] = ЦВЕТА_СЛУХОВ[з % ЦВЕТА_СЛУХОВ.length];
+    const голоса = 3 + (з >> 4) % 140, ответы = (з >> 9) % 31;
+    const к = `${id}-v${i}`;
+    return `<li class="hud-rf-card${i ? '' : ' is-fresh'}" style="--c1:${c1};--c2:${c2};--hot:${1000 - голоса}">
+      <div class="hud-rf-main">
+        <div class="hud-rf-meta">${i ? `${РФ_И.pin}<span>рядом</span>` : '<span class="hud-rf-new">свежее</span>'}${метка(в)}</div>
+        <p>${defeatWI(escapeHtml(т))}</p>
+        <div class="hud-rf-foot"><span>${РФ_И.reply}${ответы}</span></div>
+      </div>
+      <div class="hud-rf-vote"><input type="radio" class="hud-rf-in u" name="${к}" id="${к}u"><input type="radio" class="hud-rf-in d" name="${к}" id="${к}d">
+        <label for="${к}u" title="Верю">${РФ_И.up}</label><span class="hud-rf-score">${счёт(голоса, голоса + 1, голоса - 1)}</span><label for="${к}d" title="Не верю">${РФ_И.down}</label></div>
+    </li>`;
+  }).join('');
+
+  const карточкиРечей = речи.map(({ с, в }, i) => {
     const м = String(с).match(/^([^:\n]{1,40}):\s*([\s\S]+)$/);
     const текст = м ? м[2].trim() : String(с);
     const зерно = hudHashSeed(текст);
     const цвет = HUD_AVATAR_COLORS[зерно % HUD_AVATAR_COLORS.length];
     const номер = String(1000 + зерно % 9000);
-    return `<li class="hud-post">
-      <span class="hud-post-ava" style="--ava:${цвет}">${СИЛУЭТ}</span>
-      <div class="hud-post-body">
-        <div class="hud-post-head">${м
+    const ответы = (зерно >> 5) % 24, репосты = (зерно >> 10) % 37, сердца = 2 + (зерно >> 15) % 260;
+    const к = `${id}-l${i}`;
+    return `<li class="hud-rf-post" style="--hot:${1000 - сердца}">
+      <span class="hud-rf-ava" style="--ava:${цвет}">${СИЛУЭТ}</span>
+      <div class="hud-rf-body">
+        <div class="hud-rf-head">${м
           ? `<details class="hud-rumor-author" data-reveal="1"><summary>Аноним</summary><span>${defeatWI(escapeHtml(м[1].trim()))}</span></details>`
-          : '<b class="hud-rumor-author">Аноним</b>'}${метка(в)}<span class="hud-post-no">#${номер}</span></div>
+          : '<b class="hud-rumor-author">Аноним</b>'}<span class="hud-rf-no">#${номер}</span>${метка(в)}</div>
         <p>${defeatWI(escapeHtml(текст))}</p>
+        <div class="hud-rf-acts"><span>${РФ_И.reply}${ответы}</span><label class="hud-rf-rp" title="Репост"><input type="checkbox" class="hud-rf-in">${РФ_И.repost}<span class="hud-rf-score">${счёт(репосты, репосты + 1)}</span></label><input type="checkbox" class="hud-rf-in" id="${к}"><label for="${к}" class="hud-rf-like" title="Нравится">${РФ_И.heart}<span class="hud-rf-score">${счёт(сердца, сердца + 1)}</span></label></div>
       </div>
     </li>`;
   }).join('');
+
   const раздел = (к, иконка, заголовок, коротко, n) => `<label for="${id}-${к}" class="t-${к}" title="${заголовок}">${иконка}<span class="hud-rumors-l">${заголовок}</span><span class="hud-rumors-s">${коротко}</span><span class="hud-rumors-n">${n}</span></label>`;
-  const id = 'hud-rumors-' + (uid || hudHashSeed(сырыеСлухи.join('|') + сырыеРечи.join('|')).toString(36));
   const оба = слухи.length && речи.length;
   const вкладки = оба
     ? `<input type="radio" name="${id}" id="${id}-say" class="hud-rumors-in is-say" checked><input type="radio" name="${id}" id="${id}-net" class="hud-rumors-in is-net">
       <div class="hud-rumors-tabs">${раздел('say', ШЁПОТ, 'Говорят', 'Говорят', слухи.length)}${раздел('net', G_ICONS.chat, 'Пишут в сети', 'В сети', речи.length)}</div>`
     : `<h4 class="hud-rumors-title">${слухи.length ? ШЁПОТ + '<span>Говорят</span>' : G_ICONS.chat + '<span>Пишут в сети</span>'}</h4>`;
-  return `<div class="hud-rumors${оба ? ' has-tabs' : ''}">${вкладки}${слухи.length ? `<ol class="hud-rumors-say">${карточкиСлухов}</ol>` : ''}${речи.length ? `<ol class="hud-rumors-net">${карточкиРечей}</ol>` : ''}</div>`;
+  // Лента — рядом с владельцем: улица из его «Места», как у городских анонимных лент.
+  const где = String(место || '').split(/[,;(]/).map(ч => ч.trim()).filter(ч => /\p{L}/u.test(ч)).pop() || '';
+  const шапка = `<div class="hud-rf-top"><span class="hud-rf-logo" aria-hidden="true">${ШЁПОТ}</span><span class="hud-rf-place">${РФ_И.pin}<span>${где ? `<span>Рядом</span> · <b data-i18n-skip>${defeatWI(escapeHtml(где))}</b>` : 'Рядом с вами'}</span></span><span class="hud-rf-live" aria-hidden="true"><span></span>онлайн</span></div>`;
+  // «Горячее» — по голосам и сердцам (order в CSS), «Новое» — как пришло.
+  const сорт = слухи.length > 1 || речи.length > 1 ? `<div class="hud-rf-sort"><label><input type="radio" class="hud-pa-in hud-rf-new-in" name="${id}-s" checked>${РФ_И.bolt}<span>Новое</span></label><label><input type="radio" class="hud-pa-in hud-rf-hot" name="${id}-s">${РФ_И.fire}<span>Горячее</span></label></div>` : '';
+  return `<div class="hud-rumors hud-rf${оба ? ' has-tabs' : ''}">${шапка}${вкладки}${сорт}${слухи.length ? `<ol class="hud-rumors-say">${карточкиСлухов}</ol>` : ''}${речи.length ? `<ol class="hud-rumors-net">${карточкиРечей}</ol>` : ''}</div>`;
 }
 
 // Перегенерация одного телефона (regen.js, phone-regen.js): крошечный значок
@@ -233,18 +278,6 @@ export function emptyApp(icon, text) {
   return `<div class="hud-phone-empty-app"><div class="hud-phone-empty-icon">${icon}</div><div class="hud-phone-empty-line">${escapeHtml(text)}</div></div>`;
 }
 
-function buildContactsApp(contacts) {
-  if (!contacts || !contacts.length) return emptyApp(G_ICONS.person, 'Список контактов пуст');
-  return `<div class="hud-phone-contacts">` + contacts.map(c => {
-    const name = c.name || 'Без имени';
-    const личность = контактСНастоящимИменем(contacts, c.name);
-    return `<div class="hud-phone-contact">
-      ${avaFace(name, 'hud-phone-contact-avatar', `linear-gradient(150deg, ${HUD_AVATAR_COLORS[hudHashSeed(name) % HUD_AVATAR_COLORS.length]}, rgba(0,0,0,.5))`)}
-      <div><b>${defeatWI(escapeHtml(name))}</b>${личность && личность.ложное ? ложноеИмяHTML(личность) : личность ? `<small class="hud-contact-full">${defeatWI(escapeHtml(личность.настоящее))}</small>` : ''}${c.note ? `<small>${escapeHtml(c.note)}</small>` : ''}</div>
-    </div>`;
-  }).join('') + `</div>`;
-}
-
 function buildGalleryApp(gallery) {
   if (!gallery || !gallery.length) return emptyApp(G_ICONS.image, 'В галерее пока пусто');
   return `<div class="hud-phone-gallery-grid">` + gallery.map(p => `
@@ -271,17 +304,11 @@ function buildNotesApp(notes) {
   </div>`).join('');
 }
 
-function buildSearchApp(search) {
-  // Экран повторяет то, что видно в браузере при тапе по строке поиска:
-  // сама строка, а под ней недавние запросы со значком часов и стрелкой
-  // «подставить в строку».
-  const bar = `<div class="hud-google-bar">${G_ICONS.glass}<span class="hud-g-hint">Поиск в Google или URL</span><span class="hud-g-tools">${G_ICONS.mic}${G_ICONS.lens}</span></div>`;
-  if (!search || !search.length) return bar + emptyApp(G_ICONS.clock, 'История поиска пуста');
-  return bar + `<div class="hud-phone-section hud-g-history"><h4>Недавние</h4>` + search.map(q => `
-    <div class="hud-phone-search-row">${G_ICONS.clock}<span class="hud-g-query">${escapeHtml(q)}</span>${G_ICONS.arrow}</div>`).join('') + `</div>`;
-}
-
 // --- Телефон целиком --------------------------------------------------------
+
+// Обои у каждого владельца свои (render/phone-settings.js, обоиТелефонов):
+// корпус несёт ключ владельца — тот же расчёт, что у ключФонаЧата.
+const ключОбоев = (владелец) => hudHashSeed(String(владелец || '').trim().toLowerCase()).toString(36);
 
 // доп: { scene, world } — для «Погоды»; журнал звонков лежит в phone.callLog.
 export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phoneData, sceneDate, sceneTime, characters, доп = {}) {
@@ -342,6 +369,17 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   // Пропущенные сегодня — значком на «Звонках»; журнал считает их сам.
   const экранЗвонков = on('phoneAppCalls') ? buildCallsApp(chatsMap, phone.callLog, phoneOwner, sceneDate, uid, phone.contacts) : '';
   const пропущенных = (экранЗвонков.match(/hud-calls-row [^"]*kind-miss/g) || []).length;
+  // С кем из контактов есть личная переписка: «Избранное» и «Написать» в
+  // «Контактах» открывают её. Имя чата — тот же разбор, что у уведомлений;
+  // индекс — тот же, что у строки чата в messenger.js (subchat-uid-idx).
+  const чатыКонтактов = on('phoneAppMessages') ? Object.keys(chatsMap || {}).map((rawName, idx) => {
+    const c = chatsMap[rawName] || {};
+    if (c.participants) return null;
+    const владелец = владелецЧата(c);
+    let имя = sanitizeText(rawName).trim();
+    if (!имя || namesLikelySame(имя, владелец)) { const те = collectCounterparts(Array.isArray(c.messages) ? c.messages : [], владелец); имя = те.length === 1 ? те[0] : ''; }
+    return имя ? { имя, цель: `subchat-${uid}-${idx}` } : null;
+  }).filter(Boolean) : [];
   const apps = [
     on('phoneAppCalls') && { id: 'calls',    icon: G_ICONS.handset, label: 'Звонки', badge: пропущенных,
       body: экранЗвонков },
@@ -349,15 +387,15 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     on('phoneAppHealth') && { id: 'health', icon: G_ICONS.health, label: 'Здоровье', body: buildHealthApp(phone, доп.scene, characters, phoneOwner, доп.user) },
     on('phoneAppMessages') && { id: 'messages', icon: G_ICONS.chat, label: 'Сообщения', badge: unread,
       body: messenger || (emptyApp(G_ICONS.chat, 'В текущем повествовании нет переписок') + (пишет ? `<button type="button" class="hud-uc-start" data-uc="new">${G_ICONS.pen}<span>Написать · ${escapeHtml(имяБезПриставки(phoneOwner))}</span></button>` : '')) },
-    on('phoneAppContacts') && { id: 'contacts', icon: G_ICONS.person, label: 'Контакты',  body: buildContactsApp(phone.contacts) },
+    on('phoneAppContacts') && { id: 'contacts', icon: G_ICONS.person, label: 'Контакты',  body: buildContactsApp(phone.contacts, { владелец: имяБезПриставки(phoneOwner), чаты: чатыКонтактов }) },
     on('phoneAppWallet') && { id: 'wallet',   icon: G_ICONS.card, label: 'Кошелёк',   body: buildWalletApp(phone.wallet, phoneOwner) },
     on('phoneAppCalendar') && { id: 'calendar', icon: G_ICONS.cal, label: 'Календарь', body: buildCalendarApp(phone.calendar, characters, sceneDate, phoneOwner) },
     on('phoneAppGallery') && { id: 'gallery',  icon: G_ICONS.image, label: 'Галерея',   body: buildGalleryApp(phone.gallery) },
     on('phoneAppNotes') && { id: 'notes',    icon: G_ICONS.note, label: 'Заметки',   body: buildNotesApp(phone.notes) },
-    on('phoneAppMaps') && { id: 'maps',     icon: G_ICONS.map, label: 'Карты',     body: buildMapsApp(phone.maps, местоВладельца) },
+    on('phoneAppMaps') && { id: 'maps',     icon: G_ICONS.map, label: 'Карты',     body: buildMapsApp(phone.maps, местоВладельца, uid) },
     on('phoneAppSearch') && { id: 'search',   icon: G_ICONS.glass, label: 'Поиск',     body: buildSearchApp(phone.search) },
     on('phoneAppRumors') && settings.enableWorld !== false && { id: 'rumors', icon: G_ICONS.people, label: 'Слухи', body: buildRumorsApp(phone.rumors && phone.rumors.length ? phone.rumors : (доп.world && доп.world.rumors), phone.cityTalk && phone.cityTalk.length ? phone.cityTalk : (доп.world && доп.world.comments), uid,
-      { впервые: phone.__слухиВпервые || null, сцена: { дата: sceneDate, время: sceneTime, ход: Number.isInteger(доп.mesId) ? доп.mesId : undefined }, запомнить: Number.isInteger(доп.mesId) && доп.mesId >= 0 }) },
+      { место: местоВладельца, впервые: phone.__слухиВпервые || null, сцена: { дата: sceneDate, время: sceneTime, ход: Number.isInteger(доп.mesId) ? доп.mesId : undefined }, запомнить: Number.isInteger(доп.mesId) && доп.mesId >= 0 }) },
     // «Музыка» (render/music.js) — что слушает владелец; подбирается вместе с
     // музыкой сцены, поэтому живёт, только пока та включена.
     settings.enableMusic === true && on('phoneAppMusic') && Number.isInteger(доп.mesId) && { id: 'music', icon: G_ICONS.music, label: 'Музыка', body: приложениеМузыки(доп.mesId, phoneOwner) },
@@ -401,11 +439,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
       момент = моментПоследнего([s], sceneDate);
       const parties = parseMsgParties(s);
       lastSender = parties.sender || '';
-      let body = s.split('|')[0].replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim();
-      // Отправитель с дефисом («Холлоуэй-Олбрайт») — тоже имя: [^:-] на нём
-      // обрывалось, и уведомление показывало сырое «Имя -> Кому: [CALL: …]».
-      const mm = body.match(/^(.+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*(.*)$/);
-      if (mm) body = mm[3];
+      const body = разобратьСообщение(s).текст;
       lastText = безШапокСообщения(body).replace(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?\d{0,2}:?\d{0,2}\s*:?\s*[^\]]*\]/gi, '🎬 Видео')
                      .replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
                      .replace(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*[^\]]*\]/gi, '📷 Фото')
@@ -506,7 +540,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">
     <div class="hud-phone-shell">
       <span class="hud-phone-btn-side vol-up"></span><span class="hud-phone-btn-side vol-down"></span><span class="hud-phone-btn-side power"></span>
-    <div class="hud-phone-emulator" data-phone-uid="${uid}">
+    <div class="hud-phone-emulator" data-phone-uid="${uid}" data-wall-k="${ключОбоев(phoneOwner)}">
       <span class="hud-phone-glass"></span>
       <span class="hud-phone-cracks" aria-hidden="true"></span>
       ${lockScreen}

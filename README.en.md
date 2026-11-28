@@ -659,7 +659,15 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.90.10**:
+The latest version is **23.90.11**:
+
+- 📲 Phone on a button: a floating button raises the phone over the chat, as if the character held it up in front of them; "Open the phone" — in the tab, by a button and in the tab, or by a button only. Your own lock screen and home screen wallpapers for each owner.
+- 📞 Player calls: "Call" — the model writes a short conversation at once, "Live call" — line by line; a tap on the call row opens the transcript.
+- Contacts, Search, Maps and Rumors look like real apps: an alphabet and Favorites, a drawn city with pins and a route, a rumor feed with "Believe it", likes and reposts.
+- X-ray: narrowness and tightness from the text — a narrow canal squeezes the shaft along its length, a tight ring pinches it at the entrance; no more gap or hard cut at the entrance.
+- 👤 "Gender" is its own field for characters and the player: the model writes "m" or "f" every turn, like clothing; the card shows "Gender: man".
+- 👬 Male pairs: no female anatomy for the player in the prompt, a penis and an anus in intimacy; a character has an anus when taken from behind, and x-ray reads it as the canal from behind. Off — the intimacy block as before.
+- Diary: "About him" or "About her" by the player's gender. Phone: "[Name] text" no longer shows "Unknown", and a message can be deleted completely (🗑 in the edit window). A male character's card stays male in intimacy too.
 
 - ✍️ Writing as the player: an input field in the chat with you in the character's phone, a "Who to write to" pencil — to the owner or any character (in Intercepts), "+" with voice, photo, video, call and poll, reply and forward by long press. The model writes the reply in a separate request straight into the latest HUD, one message at a time and while you are not typing; the chat stays in its swipe and goes into the next reply.
 - Your own picture in Photo: the model sees the photo or meme, and without a description writes what is in the shot itself.

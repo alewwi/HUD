@@ -6,22 +6,21 @@
 //               прошлых ходов (их собирает render/carryover.js);
 //   «Здоровье» — сон, шаги и пульс из phn.hl, день и неделя из прошлых ходов,
 //               «Тело сейчас» из Vit, карты тела и болезней владельца;
-//   «Карты»   — сохранённые места на нарисованной схеме города.
 // Кроме «Здоровья» всё строится из того, что уже есть в HUD.
 
-import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.90.10';
-import { английский } from '../i18n.js?v=23.90.10';
-import { градусы, ДЛИТ } from '../units.js?v=23.90.10';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.10';
-import { G_ICONS } from './icons.js?v=23.90.10';
-import { parseCall, безШапокСообщения } from './msg-parts.js?v=23.90.10';
-import { контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.90.10';
-import { parseMsgParties } from './phone-common.js?v=23.90.10';
-import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.90.10';
-import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.90.10';
-import { namesLikelySame } from '../names.js?v=23.90.10';
-import { зоныКарты } from './intimacy.js?v=23.90.10';
-import { сводкаБолезней } from './character.js?v=23.90.10';
+import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.90.11';
+import { английский } from '../i18n.js?v=23.90.11';
+import { градусы, ДЛИТ } from '../units.js?v=23.90.11';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.90.11';
+import { G_ICONS } from './icons.js?v=23.90.11';
+import { parseCall, безШапокСообщения } from './msg-parts.js?v=23.90.11';
+import { контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.90.11';
+import { parseMsgParties } from './phone-common.js?v=23.90.11';
+import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.90.11';
+import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.90.11';
+import { namesLikelySame } from '../names.js?v=23.90.11';
+import { зоныКарты } from './intimacy.js?v=23.90.11';
+import { сводкаБолезней } from './character.js?v=23.90.11';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const пусто = (v) => !текст(v) || /^(empty|none|null|нет|пусто)$/i.test(текст(v));
@@ -29,7 +28,7 @@ const пустойЭкран = (icon, text) => `<div class="hud-phone-empty-app"
 
 // Лицо собеседника: ручная аватарка, аватарка персоны игрока, карточка
 // персонажа в Таверне — что найдётся первым. Иначе кружок с буквой.
-function лицо(имя, класс) {
+export function лицо(имя, класс) {
   const игрок = getSafeUserName();
   let url = overrideAvatarUrl(имя);
   if (!url && игрок && namesLikelySame(имя, игрок)) url = getUserAvatarUrl();
@@ -417,65 +416,4 @@ export function buildHealthApp(phone, scene, characters, владелец, user 
   const блокТела = о ? `<div class="hud-hl-card"><div class="hud-hl-title">Тело сейчас</div>${тело.length ? тело.join('') : '<small class="hud-hl-note">Жалоб нет</small>'}</div>` : '';
 
   return `<div class="hud-hl">${плитки.length ? `<div class="hud-hl-tiles">${плитки.join('')}</div>` : ''}${график}${столбцы}${блокТела}</div>`;
-}
-
-// --- Карты -------------------------------------------------------------------
-// Схема города нарисована из названий мест: одно и то же место всегда на
-// одной и той же точке. Реальных координат нет и быть не может — это
-// набросок, а не навигатор.
-
-function случай(seed) {
-  let s = seed >>> 0 || 1;
-  return () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
-}
-
-export function buildMapsApp(maps, место) {
-  const точки = (Array.isArray(maps) ? maps : []).filter(m => m && !пусто(m.place || m.title));
-  const здесь = пусто(место) ? '' : текст(место);
-  if (!точки.length && !здесь) return пустойЭкран(G_ICONS.map, 'Нет сохранённых мест');
-
-  const W = 320, H = 190;
-  const r = случай(hudHashSeed(точки.map(m => m.place || m.title).join('|') || здесь));
-  // Кварталы: сетка улиц со сдвигами, река, парк.
-  const улицы = [];
-  for (let x = 20 + r() * 30; x < W; x += 46 + r() * 30) улицы.push(`M${x.toFixed(1)} 0 L${(x + (r() - .5) * 30).toFixed(1)} ${H}`);
-  for (let y = 18 + r() * 20; y < H; y += 38 + r() * 22) улицы.push(`M0 ${y.toFixed(1)} L${W} ${(y + (r() - .5) * 26).toFixed(1)}`);
-  const рекаY = 40 + r() * (H - 80);
-  const река = `M-10 ${рекаY.toFixed(1)} C ${W * .3} ${(рекаY - 40 + r() * 80).toFixed(1)}, ${W * .6} ${(рекаY - 40 + r() * 80).toFixed(1)}, ${W + 10} ${(рекаY - 20 + r() * 40).toFixed(1)}`;
-  const паркX = 30 + r() * (W - 110), паркY = 20 + r() * (H - 80);
-
-  // Точки мест: по хэшу названия, с отступом от краёв и друг от друга.
-  const занято = [];
-  const поставить = (имя) => {
-    const q = случай(hudHashSeed(имя));
-    let x = 0, y = 0;
-    for (let i = 0; i < 12; i++) {
-      x = 28 + q() * (W - 56); y = 26 + q() * (H - 52);
-      if (!занято.some(([a, b]) => Math.hypot(a - x, b - y) < 30)) break;
-    }
-    занято.push([x, y]);
-    return [x, y];
-  };
-  const совпадает = (m) => здесь && (namesLikelySame(m.place || m.title, здесь) || здесь.toLowerCase().includes(текст(m.place || m.title).toLowerCase().split(/[«»",]/).filter(Boolean)[0] || '\u0000'));
-  const места = точки.map((m, i) => ({ n: i + 1, имя: текст(m.place || m.title), заметка: текст(m.note), тут: совпадает(m), xy: поставить(текст(m.place || m.title)) }));
-  const естьТут = места.some(м => м.тут);
-  const я = здесь && !естьТут ? { xy: поставить('здесь:' + здесь) } : null;
-
-  const маршрут = места.length > 1 ? `<path class="hud-map-route" d="M${места.map(м => м.xy.map(v => v.toFixed(1)).join(' ')).join(' L')}"/>` : '';
-  const svg = `<svg class="hud-map-svg" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
-    <rect class="hud-map-land" width="${W}" height="${H}"/>
-    <ellipse class="hud-map-park" cx="${паркX.toFixed(1)}" cy="${паркY.toFixed(1)}" rx="${(34 + r() * 20).toFixed(1)}" ry="${(18 + r() * 12).toFixed(1)}"/>
-    <path class="hud-map-streets" d="${улицы.join(' ')}"/>
-    <path class="hud-map-river" d="${река}"/>
-    ${маршрут}
-    ${места.map(м => `<g class="hud-map-pin${м.тут ? ' is-here' : ''}" data-pin="${м.n}" transform="translate(${м.xy[0].toFixed(1)} ${м.xy[1].toFixed(1)})">
-      ${м.тут ? '<circle class="hud-map-pulse" r="11"/>' : ''}<path class="hud-map-drop" d="M0 0 C-7 -9 -7 -17 0 -17 C7 -17 7 -9 0 0 Z"/><text class="hud-map-num" y="-9.5">${м.n}</text></g>`).join('')}
-    ${я ? `<g class="hud-map-me" transform="translate(${я.xy[0].toFixed(1)} ${я.xy[1].toFixed(1)})"><circle class="hud-map-pulse" r="11"/><circle class="hud-map-dot" r="4.6"/></g>` : ''}
-  </svg>`;
-
-  const список = [
-    здесь ? `<div class="hud-map-row is-me"><span class="hud-map-badge">${G_ICONS.pin}</span><div><b>Вы здесь</b><small>${defeatWI(escapeHtml(здесь))}</small></div></div>` : '',
-    ...места.map(м => `<div class="hud-map-row${м.тут ? ' is-here' : ''}" data-pin="${м.n}"><span class="hud-map-badge">${м.n}</span><div><b>${defeatWI(escapeHtml(м.имя))}</b>${м.заметка ? `<small>${defeatWI(escapeHtml(м.заметка))}</small>` : ''}</div></div>`),
-  ].join('');
-  return `<div class="hud-map"><div class="hud-map-canvas">${svg}</div><div class="hud-map-list">${список}</div></div>`;
 }

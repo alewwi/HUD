@@ -4,6 +4,46 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.90.11 — 2026-11-28
+
+### Added
+- **📲 Phone on a button.** The "📲 Open the phone" setting: in the HUD tab (as before), by a button and in the tab, or by a button only.
+  - A floating button at the window edge raises the phone over the chat, as if the character held it up in front of them. Close it with the cross, a tap outside the phone or Esc.
+  - The button can be dragged: its place is remembered separately for narrow and wide screens, and "Move the button back to the edge" returns it. It does not sit on top of the Phone-ST button.
+  - The phone is the one chosen in "Character not in the scene — phone"; with "both" the window has an owner switch. The badge on the button counts unread chats.
+- **Phone wallpapers.** In the Settings app: your own wallpaper for the lock screen and the home screen, separate for each phone owner. The picture is shrunk and kept in the chat.
+- **📞 Player calls.** "+" → call:
+  - "Call" — with an optional topic; the model writes a short conversation at once.
+  - "Live call" — a call screen: you speak yourself, line by line, and the character answers each one.
+  - The model decides whether they pick up. The call becomes a row in the call log, and a tap opens the transcript; it stays in its swipe and goes, shortened, into the next reply.
+- **X-ray: narrow and tight.** The HUD reads narrowness ("narrow", "barely fits") and tightness ("so tight", "clenching around his cock", "walls squeezing around the shaft") from the scene text — in "lb:", "an:", reactions, the pose and orgasm readiness.
+  - Only for the vagina and anal. A narrow canal squeezes what is inside along its whole length; a tight ring at the entrance pinches the shaft, clenches in time, and the entrance rim drags after the shaft on the way out.
+  - The row caption gets a "narrow" or "tight" plaque ("very …").
+  - "A narrow strip of hair", "tight nipples", "her small hand" and "a narrow throat" do not count.
+- **👤 Gender is its own field.** For every character and the player the model writes "Gender" every turn — "m" or "f", as required as clothing. The gender used to be a letter at the start of "Appearance", and the model often skipped it.
+  - The card shows "Gender: man" or "Gender: woman". The HUD also uses it to decide who can have a cycle and a pregnancy, and which silhouette to draw.
+  - The field can be turned off in "Fine tuning".
+- **👬 Male pairs** (Intimacy, off) — for roleplays where a man is with a man and the player is a man.
+  - The prompt sends nothing about female anatomy for the player: no cycle, pregnancy, postpartum, breasts or wetness in intimacy — a penis and an anus instead. The card, the diary ("About him") and the live details treat the player as a man.
+  - A character gets an "Anus" line in "NSFW" when they are taken from behind (anal, fingers, tongue, a toy or a pose from behind). Written out of place, the line is not shown. X-ray reads it as the canal from behind: the place, "narrow" and "tight", blood.
+  - Off — the intimacy block as before, with no anus.
+
+### Changed
+- **Contacts, Search and Maps look like real apps.**
+  - Contacts — alphabetical with letter headers, your own card on top, Favorites — people with a chat (a tap opens it). A tap lifts the row, like a pill in the card.
+  - Search — a search bar, shortcuts and recent queries.
+  - Maps — a drawn city with blocks, a river and parks, pins by kind of place, "You are here", a filter by kind and traffic, a sheet with the list of places; tapping a place draws a route to it.
+- **Rumors — an anonymous social feed.** "People say" — rumor cards with "Believe it" and "Doubt it", "Online chatter" — posts with like and repost; "Hot" lifts what is discussed most, and the header shows "nearby" and "online".
+
+### Fixed
+- X-ray: no more gap at the entrance where the shaft showed through — the wall tissue starts right at the labia, and the wall edge above the shaft is soft instead of a hard cut.
+- A chat with the player saved in contacts by surname no longer turns into a group and no longer loses "Call".
+- An open chat in Messages no longer shows a second header.
+- Diary: the entry about the player is labelled "About him" for a man and "About her" for a woman; if the gender is unclear, "About the player". It used to always say "about her".
+- Phone: a message written as "[Name] text" or "[Name] -> [Name]: text" shows the sender's name instead of "Unknown" with the bracketed name in the text. The edit window no longer hides that name.
+- Phone: a message can be deleted completely — 🗑 in the edit window. It goes from every turn where the model repeated it. A message erased to nothing is deleted too.
+- A male character's card stays male in intimacy too: no breasts or lubrication in "NSFW", a male silhouette, underwear and x-ray. One gender for the whole card — manual, label, kinship, name.
+
 ## 23.90.10 — 2026-11-27
 
 ### Added

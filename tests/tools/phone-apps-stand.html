@@ -1,0 +1,192 @@
+<!doctype html><html class="hud-glass-frosted hud-cq"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Контакты, Поиск, Карты — стенд</title>
+<style>
+/* Как в Таверне (public/style.css): без этого рамка телефона прибавляется к ширине. */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; padding: 0 14px 30px; background: #17141d; color: #d6cfe2; font: 13px/1.45 system-ui, sans-serif; }
+.bar { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 10px 0; background: inherit; border-bottom: 1px solid #2e2740; margin-bottom: 14px; }
+.bar b { font-size: 14px; margin-right: 6px; }
+.bar label { display: inline-flex; align-items: center; gap: 6px; }
+.bar select, .pill { font: 600 12px/1 system-ui; color: #d6cfe2; padding: 6px 10px; border-radius: 999px; background: #221c2e; border: 1px solid #3a3150; cursor: pointer; }
+.pill.is-on { background: #8c5ad2; border-color: #8c5ad2; color: #fff; }
+.gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--card-w, 300px), 1fr)); gap: 18px; align-items: start; }
+.case { width: var(--card-w, 300px); }
+.case h4 { margin: 0 0 6px; font-size: 11.5px; font-weight: 600; opacity: .7; }
+h2 { margin: 22px 0 10px; font-size: 13px; opacity: .85; }
+.mes_text { width: 100%; }
+.mes_text .hud-tab-content { display: block; opacity: 1 !important; animation: none !important; }
+.hud-os-card { padding: 8px; }
+</style></head>
+<body>
+<div class="bar">
+  <b>Контакты · Поиск · Карты</b>
+  <label>Тема: <select id="theme">
+    <option value="default">по умолчанию</option>
+    <option value="cyberpunk">Киберпанк</option>
+    <option value="noir">Нуар</option>
+    <option value="ocean">Океан</option>
+    <option value="kawaii">Каваи (светлая)</option>
+    <option value="cottage">Коттедж (светлая)</option>
+    <option value="western">Вестерн (светлая)</option>
+  </select></label>
+  <label>Аппарат: <select id="device">
+    <option value="">обычный</option>
+    <option value="android">Android</option>
+    <option value="keypad">кнопочный</option>
+  </select></label>
+  <span>Ширина:</span>
+  <button class="pill" data-w="215px">215</button><button class="pill" data-w="255px">255</button><button class="pill is-on" data-w="300px">300</button><button class="pill" data-w="380px">380</button>
+  <button class="pill" id="lang">EN</button>
+</div>
+
+<h2>Живой телефон — открывай приложения с домашнего экрана</h2>
+<div class="gallery"><div class="case" id="live"></div></div>
+<h2>Все экраны</h2>
+<div class="gallery" id="gallery"></div>
+
+<script type="module">
+// Стенд приложений телефона «Контакты», «Поиск», «Карты» (render/phone.js, render/phone-extra.js).
+// Открывать через сервер стендов: node tests/tools/serve.mjs phone-apps-stand.html
+// ?w=215px — ширина карточки, ?t=<тема>, ?d=android|keypad — аппарат, ?lang=en.
+// Люди, места и запросы выдуманы.
+const P = new URLSearchParams(location.search);
+window.SillyTavern = { getContext: () => ({ chat: [], chatMetadata: {}, name1: 'Вера', name2: 'Олег', characters: [] }) };
+const V = '?v=' + (await (await fetch('../../manifest.json', { cache: 'no-store' })).json()).version;
+const ссылка = (href) => { const t = document.createElement('link'); t.rel = 'stylesheet'; t.href = href; document.head.append(t); };
+ссылка('../../css/all.css' + V);
+const { settings } = await import('../../settings.js' + V);
+settings.language = 'ru';
+const { themeVars, СВЕТЛЫЕ_ТЕМЫ } = await import('../../themes.js' + V);
+const SC = await import('../../schema.js' + V);
+const PH = await import('../../render/phone.js' + V);
+const EN = P.get('lang') === 'en';
+let I = null;
+if (EN) { I = await import('../../i18n.js' + V); settings.language = 'en'; I.применитьЯзык('en'); }
+
+// --- тема (как applyThemeColors в index.js) ---
+const тема = P.get('t') || 'default';
+document.getElementById('theme').value = тема;
+if (тема !== 'default') {
+  const светлая = СВЕТЛЫЕ_ТЕМЫ.includes(тема);
+  document.documentElement.classList.add('hud-theme-' + тема);
+  if (светлая) ссылка('../../css/themes/light.css' + V);
+  ссылка('../../css/themes/' + тема + '.css' + V);
+  const p = themeVars(тема) || {}, r = document.documentElement.style;
+  const rgba = (hex, a) => { const h = String(hex || '#000').replace('#', ''); const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16); return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + ((a ?? 100) / 100) + ')'; };
+  if (p.textColor) r.setProperty('--hud-text', p.textColor); if (p.textMutedColor) r.setProperty('--hud-text-muted', p.textMutedColor);
+  if (p.accentColor) r.setProperty('--hud-accent', p.accentColor);
+  // Экран телефона — как в index.js при «телефон по теме»: фон карточки, акцент темы.
+  if (p.cardBgStart) r.setProperty('--hud-phone-bg-user', 'linear-gradient(160deg, ' + rgba(p.cardBgStart, 92) + ', ' + rgba(p.cardBgEnd, 92) + ')');
+  if (p.accentColor) r.setProperty('--hud-phone-accent-user', p.accentColor);
+  if (p.cardBgStart) r.setProperty('--hud-bg', 'linear-gradient(135deg, ' + rgba(p.cardBgStart, p.cardBgAlpha) + ', ' + rgba(p.cardBgEnd, p.cardBgAlpha) + ')');
+  if (p.infoBlockBgStart) r.setProperty('--hud-card-inner-bg', 'linear-gradient(135deg, ' + rgba(p.infoBlockBgStart, p.infoBlockBgAlpha) + ', ' + rgba(p.infoBlockBgEnd, p.infoBlockBgAlpha) + ')');
+  if (светлая) { document.documentElement.classList.add('hud-scheme-light'); document.body.style.background = '#e9e4ee'; document.body.style.color = '#3a2f44'; }
+}
+const аппарат = P.get('d') || '';
+document.getElementById('device').value = аппарат;
+if (аппарат) document.documentElement.dataset.hudPhone = аппарат;
+const перейти = (к, з) => { const p = new URLSearchParams(location.search); if (з) p.set(к, з); else p.delete(к); location.search = p; };
+document.getElementById('theme').onchange = (e) => перейти('t', e.target.value === 'default' ? '' : e.target.value);
+document.getElementById('device').onchange = (e) => перейти('d', e.target.value);
+
+const ширина = P.get('w') || '300px';
+document.documentElement.style.setProperty('--card-w', ширина);
+document.querySelectorAll('[data-w]').forEach(б => { б.classList.toggle('is-on', б.dataset.w === ширина); б.onclick = () => перейти('w', б.dataset.w); });
+document.getElementById('lang').textContent = EN ? 'RU' : 'EN';
+document.getElementById('lang').onclick = () => перейти('lang', EN ? '' : 'en');
+
+// --- данные ---
+const ОН = 'Олег Ракитин';
+const КОНТАКТЫ = [
+  { n: 'Мама', nte: 'Звонить по воскресеньям' },
+  { n: 'Лёва Брагин' },
+  { n: 'Ира (работа)', nte: 'Бухгалтерия' },
+  { n: 'Шеф', nte: 'Не брать трубку' },
+  { n: 'Т.', rn: 'Тимур Ланской' },
+  { n: 'Аня Соколова', nte: 'Йога, четверг' },
+  { n: 'Бабушка' },
+  { n: 'Зубной — Панкратов' },
+  { n: 'Яна' },
+  { n: 'Вера' },
+  { n: 'Доставка «Дымок»', nte: 'Шаурма до 2 ночи' },
+  { n: 'Эдик Шаров' },
+];
+const ПОИСК = [
+  'как понять что тебе врут по переписке',
+  'сколько стоит такси до аэропорта ночью',
+  'симптомы сотрясения мозга у взрослых',
+  'кафе ракушка часы работы',
+  'можно ли восстановить удалённые сообщения в телеграме если собеседник их удалил у себя',
+  'погода завтра',
+];
+const МЕСТА = [
+  { pl: 'Дом', nte: 'Ул. Строителей, 8' },
+  { pl: 'Кафе «Ракушка»', nte: 'Смотрели вчера в 23:40' },
+  { pl: 'Больница №3', nte: 'Приёмный покой, вход со двора' },
+  { pl: 'Вокзал' },
+  { pl: 'Парк Победы', nte: 'Бегать по утрам' },
+  { pl: 'Офис на Литейном' },
+  { pl: 'Бар «Сова»', nte: 'Тимур сказал — после десяти' },
+];
+const ТУТ = 'Кафе «Ракушка», Набережная, 14';
+const СЛУХИ = [
+  'Говорят, в «Ракушке» сменился владелец — и теперь там по ночам кто-то разгружает фургоны.',
+  'Шеф с Литейного опять уволил троих. Ищут, кто слил отчёт.',
+  'На вокзале третий день дежурит полиция, ищут парня в красной куртке.',
+  'В Парке Победы снова видели лису, подкармливать запрещено.',
+  'Бар «Сова» закроют на месяц — проверка.',
+];
+const СЕТЬ = [
+  'Мария К.: кто-нибудь знает, почему перекрыли Набережную? стою уже сорок минут',
+  'night_owl: сегодня в «Сове» живая музыка, приходите после десяти',
+  'Тихий житель: верните фонари во двор на Строителей, страшно ходить',
+  'Лёха: продаю велосипед, почти новый, писать в личку',
+];
+
+function карточка(phn, uid, где = ТУТ, мир = { rumors: СЛУХИ, comments: СЕТЬ }) {
+  const д = SC.normalizeJSONData({ sc: { T: '21:00', Dt: 'среда, 12.03.2025' }, cs: [{ N: ОН, 'Место': где }], cm: { 'Вера': { ow: ОН, ms: ['Вера -> Олег Ракитин: ты где? | 20:40 | Read'] } }, phn: { ow: ОН, ...phn } });
+  const тел = PH.buildPhoneTabsHTML(д.chatsMap, uid, true, ОН, д.phone, '12.03.2025', '21:00', д.characters, { world: мир });
+  return `<div class="mes_text"><div class="hud-os-card no-swipe"><input type="checkbox" class="hud-toggle-input" checked><label class="hud-os-topbar"><div class="hud-os-topbar-left"><span class="hud-os-logo">TavernOS</span></div></label><div class="hud-os-wrapper"><div class="hud-tabs-body">${тел}</div></div></div></div>`;
+}
+function открыть(корень, app) {
+  const эм = корень.querySelector('.hud-phone-emulator');
+  эм.classList.add('unlocked');
+  if (app) эм.querySelector(`.hud-phone-app-view[data-phone-view="${app}"]`)?.classList.add('active');
+}
+const ВСЕ = { ct: КОНТАКТЫ, sq: ПОИСК, mp: МЕСТА };
+const СЛУЧАИ = [
+  ['Контакты', 'contacts', ВСЕ],
+  ['Поиск', 'search', ВСЕ],
+  ['Карты', 'maps', ВСЕ],
+  ['Контакты: трое', 'contacts', { ct: КОНТАКТЫ.slice(0, 3) }],
+  ['Поиск: один запрос', 'search', { sq: ПОИСК.slice(4, 5) }],
+  ['Карты: два места, «здесь» не из списка', 'maps', { mp: МЕСТА.slice(2, 4) }, 'Квартира Иры, Садовая, 3'],
+  ['Контакты: пусто', 'contacts', {}],
+  ['Поиск: пусто', 'search', {}],
+  ['Карты: пусто', 'maps', {}, ''],
+  ['Слухи: обе ленты', 'rumors', ВСЕ],
+  ['Слухи: «Пишут в сети»', 'rumors', ВСЕ, ТУТ, 'net'],
+  ['Слухи: только «Говорят», без места', 'rumors', ВСЕ, '', '', { rumors: СЛУХИ.slice(0, 2), comments: [] }],
+];
+const гал = document.getElementById('gallery');
+СЛУЧАИ.forEach(([имя, app, phn, где, вкладка, мир], i) => {
+  const д = document.createElement('div'); д.className = 'case';
+  д.innerHTML = `<h4>${имя}</h4>` + карточка(phn, 'g' + i, где === undefined ? ТУТ : где, мир);
+  гал.append(д); открыть(д, app);
+  if (вкладка) д.querySelector('.hud-rumors-in.is-' + вкладка).checked = true;
+});
+const живой = document.getElementById('live');
+живой.innerHTML = карточка(ВСЕ, 'live');
+открыть(живой, '');
+if (I) I.перевестиДерево(document.body);
+
+// Всплытие строк по касанию — как events.js (ОЖИВАЮТ_ПО_КАСАНИЮ → fx-tap).
+document.addEventListener('pointerup', (e) => { const р = e.target.closest('.hud-pc-row, .hud-ps-row'); if (р) { р.classList.add('fx-hold'); р.classList.toggle('fx-tap'); } });
+// Открытие приложений и «назад» — как events.js.
+document.addEventListener('click', (e) => {
+  const app = e.target.closest('.hud-phone-app');
+  const эм = e.target.closest('.hud-phone-emulator');
+  if (app && эм) { эм.querySelectorAll('.hud-phone-app-view').forEach(v => v.classList.toggle('active', v.dataset.phoneView === app.dataset.phoneApp)); return; }
+  if (e.target.closest('.hud-phone-back, .hud-phone-home-btn') && эм) эм.querySelectorAll('.hud-phone-app-view.active').forEach(v => v.classList.remove('active'));
+});
+</script>
+</body></html>
